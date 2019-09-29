@@ -5,6 +5,3 @@ Cargo.lock
 .idea/
 .vscode/
 *.iml
-
-# scribbles
-notes/

@@ -1,9 +1,29 @@
 [package]
 name = "cargo-msrv"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
+description = "Assists with finding your minimum supported Rust version (MSRV)"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+# Used for parsing cli arguments.
+clap = "2.33.0"
+
+# Used to obtain the 'channel-manifest'.
+# Perhaps we can downgrade to a lower level library as we only need to receive a single file periodically.
+reqwest = "0.9.20"
+
+# Used to decide where to cache the 'channel-manifest' file.
+directories = "2.0.2"
+
+# Used for decoding the 'channel-manifest'.
+serde = { version = "1.0.101", features = ["derive"] }
+toml = "0.5"
+
+# Used to display progression
+indicatif = "0.12.0"
+
+
+[[bin]]
+name = "cargo-msrv"
+path = "src/bin/cargo-msrv.rs"

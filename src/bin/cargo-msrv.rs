@@ -1,7 +1,7 @@
-use std::error::Error;
+use cargo_msrv::run_cargo_msrv;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    eprintln!("Nothing to see here...");
-
-    Ok(())
+fn main() {
+    if let Err(err) = run_cargo_msrv() {
+        println!("{}", err);
+    }
 }
