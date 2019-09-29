@@ -1,0 +1,10 @@
+/target
+**/*.rs.bk
+Cargo.lock
+
+.idea/
+.vscode/
+*.iml
+
+# scribbles
+notes/
