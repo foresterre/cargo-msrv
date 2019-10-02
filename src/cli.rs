@@ -57,8 +57,8 @@ pub fn cmd_matches(matches: &ArgMatches) -> TResult<CmdMatches> {
 
     let mut builder = CmdMatchesBuilder::new(&target);
 
-    if seek_cmd.is_some() {
-        builder = builder.seek_cmd(seek_cmd.unwrap().to_string());
+    if let Some(cmd) = seek_cmd {
+        builder = builder.seek_cmd(cmd.to_string());
     }
 
     builder = builder.seek_path(seek_path);
