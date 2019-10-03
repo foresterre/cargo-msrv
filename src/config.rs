@@ -35,9 +35,9 @@ pub struct CmdMatchesBuilder {
 }
 
 impl CmdMatchesBuilder {
-    pub fn new(target: &str) -> Self {
+    pub fn new(default_target: &str) -> Self {
         Self {
-            inner: CmdMatches::new(target.to_string()),
+            inner: CmdMatches::new(default_target.to_string()),
         }
     }
 

@@ -38,7 +38,7 @@ fn versions() {
             let expected =
                 RustStableVersion::from_parts(&expected.split('.').collect::<Vec<_>>()).unwrap();
 
-            assert_eq!(result, expected);
+            assert_eq!(result.unwrap(), expected);
         }
     }
 }
