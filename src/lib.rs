@@ -68,7 +68,11 @@ pub fn msrv(
 
         if let Err(err) = check_with_rust_version(&current, &config) {
             match err {
+                // This version doesn't work, so we quit the loop.
+                // Then 'acceptable' (may) contain the last successfully checked version.
                 CargoMSRVError::RustupRunWithCommandFailed => break,
+                // In this case an error occurred during the check, so we want to report the error
+                // instead of reporting the last ok version.
                 _ => return Err(err),
             }
         } else {
