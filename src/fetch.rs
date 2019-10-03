@@ -166,20 +166,24 @@ pub enum ManifestObtainedFrom {
     RustDistChannel,
 }
 
+/// Cached files are considered stale after one day
+const STALENESS_TIMEOUT: Duration = Duration::from_secs(86_400);
+
+/// Checks if the manifest file in the cache is stale.
+/// A stale file should be redownloaded to get the latest changes.
 fn is_stale<P: AsRef<Path>>(manifest: P) -> TResult<bool> {
     let metadata = fs::metadata(manifest)?;
     let modification = metadata.modified()?;
 
     let duration = modification.elapsed()?;
 
-    Ok(Duration::new(86_400, 0) < duration)
+    Ok(STALENESS_TIMEOUT < duration)
 }
 
 /// Obtains the release channel manifest.
 /// If the document doesn't exist in the cache, it is downloaded from the rust dist server
 /// and cached locally on the client.
 /// The path to the save location is returned on an Ok result.
-/// FIXME: Re-download the channel manifest on custom intervals (e.g. 1 day) (we dont re fetch at all atm)
 fn get_stable_channel_manifest() -> TResult<(ManifestObtainedFrom, PathBuf)> {
     let cache = directories::ProjectDirs::from("com", "ilumeo", "cargo-msrv")
         .ok_or(CargoMSRVError::UnableToCacheChannelManifest)?;
