@@ -1,8 +1,9 @@
 use crate::command::command_with_output;
 use crate::errors::{CargoMSRVError, TResult};
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 /// Verify that the given toolchain is installed.
 /// with `rustup toolchain list`
@@ -165,18 +166,31 @@ pub enum ManifestObtainedFrom {
     RustDistChannel,
 }
 
+/// Cached files are considered stale after one day
+const STALENESS_TIMEOUT: Duration = Duration::from_secs(86_400);
+
+/// Checks if the manifest file in the cache is stale.
+/// A stale file should be redownloaded to get the latest changes.
+fn is_stale<P: AsRef<Path>>(manifest: P) -> TResult<bool> {
+    let metadata = fs::metadata(manifest)?;
+    let modification = metadata.modified()?;
+
+    let duration = modification.elapsed()?;
+
+    Ok(STALENESS_TIMEOUT < duration)
+}
+
 /// Obtains the release channel manifest.
 /// If the document doesn't exist in the cache, it is downloaded from the rust dist server
 /// and cached locally on the client.
 /// The path to the save location is returned on an Ok result.
-/// FIXME: Re-download the channel manifest on custom intervals (e.g. 1 day) (we dont re fetch at all atm)
 fn get_stable_channel_manifest() -> TResult<(ManifestObtainedFrom, PathBuf)> {
     let cache = directories::ProjectDirs::from("com", "ilumeo", "cargo-msrv")
         .ok_or(CargoMSRVError::UnableToCacheChannelManifest)?;
     let cache = cache.cache_dir();
     let manifest = cache.join("channel-rust-stable.toml");
 
-    if manifest.as_path().exists() {
+    if manifest.as_path().exists() && !is_stale(&manifest)? {
         return Ok((ManifestObtainedFrom::Cache, manifest));
     } else {
         std::fs::create_dir_all(cache)?;
