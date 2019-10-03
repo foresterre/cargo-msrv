@@ -8,6 +8,7 @@ pub fn check_with_rust_version(version: &RustStableVersion, config: &CmdMatches)
     let mut toolchain_specifier = version.as_string().clone();
     toolchain_specifier.push('-');
     toolchain_specifier.push_str(config.target());
+    dbg!(version);
 
     download_if_required(&toolchain_specifier)?;
     try_building(

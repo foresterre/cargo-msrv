@@ -28,7 +28,7 @@ pub fn run_cargo_msrv() -> TResult<()> {
             .template("{spinner:.dim.bold} cargo-msrv: {wide_msg}"),
     );
 
-    let decision = msrv(&config, latest, &pb);
+    let decision = msrv(&config, latest, &pb)?;
 
     m.join()?;
 
@@ -53,7 +53,7 @@ pub fn msrv(
     config: &CmdMatches,
     latest: RustStableVersion,
     pb: &ProgressBar,
-) -> Option<RustStableVersion> {
+) -> TResult<Option<RustStableVersion>> {
     let mut acceptable: Option<RustStableVersion> = None;
 
     for minor in (0..=latest.minor()).rev() {
@@ -66,12 +66,15 @@ pub fn msrv(
             current.as_string()
         ));
 
-        if check_with_rust_version(&current, &config).is_err() {
-            break;
+        if let Err(err) = check_with_rust_version(&current, &config) {
+            match err {
+                CargoMSRVError::RustupRunWithCommandFailed => break,
+                _ => return Err(err),
+            }
         } else {
             acceptable = Some(current);
         }
     }
 
-    acceptable
+    Ok(acceptable)
 }
