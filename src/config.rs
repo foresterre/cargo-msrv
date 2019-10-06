@@ -1,17 +1,17 @@
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
-pub struct CmdMatches {
+pub struct CmdMatches<'a> {
     target: String,
-    seek_cmd: String,
+    check_command: Vec<&'a str>,
     seek_path: Option<PathBuf>,
 }
 
-impl CmdMatches {
+impl<'a> CmdMatches<'a> {
     pub fn new(target: String) -> Self {
         Self {
             target,
-            seek_cmd: "cargo build".to_string(),
+            check_command: vec!["cargo", "build", "--all"],
             seek_path: None,
         }
     }
@@ -20,8 +20,8 @@ impl CmdMatches {
         &self.target
     }
 
-    pub fn seek_cmd(&self) -> &String {
-        &self.seek_cmd
+    pub fn custom_check(&self) -> &Vec<&'a str> {
+        &self.check_command
     }
 
     pub fn seek_path(&self) -> Option<&Path> {
@@ -30,11 +30,11 @@ impl CmdMatches {
 }
 
 #[derive(Debug, Clone)]
-pub struct CmdMatchesBuilder {
-    inner: CmdMatches,
+pub struct CmdMatchesBuilder<'a> {
+    inner: CmdMatches<'a>,
 }
 
-impl CmdMatchesBuilder {
+impl<'a> CmdMatchesBuilder<'a> {
     pub fn new(default_target: &str) -> Self {
         Self {
             inner: CmdMatches::new(default_target.to_string()),
@@ -46,8 +46,8 @@ impl CmdMatchesBuilder {
         self
     }
 
-    pub fn seek_cmd(mut self, cmd: String) -> Self {
-        self.inner.seek_cmd = cmd;
+    pub fn check_command(mut self, cmd: Vec<&'a str>) -> Self {
+        self.inner.check_command = cmd;
         self
     }
 
@@ -56,7 +56,7 @@ impl CmdMatchesBuilder {
         self
     }
 
-    pub fn build(self) -> CmdMatches {
+    pub fn build(self) -> CmdMatches<'a> {
         self.inner
     }
 }

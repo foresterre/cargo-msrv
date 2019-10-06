@@ -13,10 +13,7 @@ pub fn check_with_rust_version(version: &RustStableVersion, config: &CmdMatches)
     try_building(
         &toolchain_specifier,
         config.seek_path(),
-        &config
-            .seek_cmd()
-            .split_ascii_whitespace()
-            .collect::<Vec<_>>(),
+        config.custom_check(),
     )?;
 
     Ok(())
