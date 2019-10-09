@@ -5,9 +5,9 @@ use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 pub mod id {
     pub const SUB_COMMAND_MSRV: &str = "msrv";
-    pub const ARG_SEEK_CMD: &str = "seek_cmd";
     pub const ARG_SEEK_PATH: &str = "seek_path";
     pub const ARG_SEEK_CUSTOM_TARGET: &str = "seek_target";
+    pub const ARG_CUSTOM_CHECK: &str = "custom_check";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -25,6 +25,12 @@ pub fn cli() -> App<'static, 'static> {
         .subcommand(
             SubCommand::with_name(id::SUB_COMMAND_MSRV)
                 .usage("cargo msrv [OPTIONS]")
+                .about("Helps with finding the Minimal Supported Rust Version (MSRV)")
+                .after_help("\
+If arguments are provided after two dashes (`--`), they will be used as a custom command to validate \
+whether a Rust version is compatible. By default for this validation the command `cargo build` is \
+used. Commands should be runnable by rustup, i.e. validation commands will be passed to rustup like \
+so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
                 .arg(
                     Arg::with_name(id::ARG_SEEK_PATH)
                         .long("path")
@@ -56,11 +62,22 @@ pub fn cli() -> App<'static, 'static> {
                                     .to_string()
                             })
                         }),
-                ),
+                )
+                .arg(
+                    Arg::with_name(id::ARG_CUSTOM_CHECK)
+                        .value_name("COMMAND")
+                        .help("If given, this command is used to validate if a Rust version is \
+                        compatible. Should be available to rustup, i.e. the command should work like \
+                        so: `rustup run <toolchain> <COMMAND> \
+                        The default check action is `cargo build --all`")
+                        .multiple(true)
+                        .last(true)
+
+                )
         )
 }
 
-pub fn cmd_matches(matches: &ArgMatches) -> TResult<CmdMatches> {
+pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
     let target = default_target()?;
 
     let seek = matches
@@ -70,9 +87,9 @@ pub fn cmd_matches(matches: &ArgMatches) -> TResult<CmdMatches> {
     let mut builder = CmdMatchesBuilder::new(&target);
 
     // set the command which will be used to check if a project can build
-    let check_cmd = seek.value_of(id::ARG_SEEK_CMD);
+    let check_cmd = seek.values_of(id::ARG_CUSTOM_CHECK);
     if let Some(cmd) = check_cmd {
-        builder = builder.seek_cmd(cmd.to_string());
+        builder = builder.check_command(cmd.collect());
     }
 
     // set the cargo workspace path
