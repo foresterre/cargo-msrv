@@ -20,12 +20,12 @@ pub fn run_cargo_msrv() -> TResult<()> {
     let latest = latest_stable_version()?;
 
     let m = Arc::new(MultiProgress::new());
-    let pb = ProgressBar::new_spinner();
+    let pb = m.add(ProgressBar::new_spinner());
     pb.enable_steady_tick(200);
     pb.set_style(
         ProgressStyle::default_spinner()
             .tick_chars("/|\\- ")
-            .template("{spinner:.dim.bold} cargo-msrv: {wide_msg}"),
+            .template("{spinner:.dim.bold} [cargo-msrv] {wide_msg}"),
     );
 
     let decision = msrv(&config, latest, &pb)?;
@@ -35,7 +35,7 @@ pub fn run_cargo_msrv() -> TResult<()> {
     match decision {
         Some(good) => {
             pb.finish_with_message(&format!(
-                "MSRV version determined to be: {}",
+                "Minimum Supported Rust Version (MSRV) determined to be: {}",
                 good.as_string()
             ));
 
@@ -61,7 +61,7 @@ pub fn msrv(
 
         pb.tick();
         pb.set_message(&format!(
-            "checking target: {} on version: {}",
+            "checking target: {} using Rust version: {}",
             config.target(),
             current.as_string()
         ));

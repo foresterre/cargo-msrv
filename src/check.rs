@@ -30,7 +30,6 @@ fn download_if_required(toolchain_specifier: &str) -> TResult<()> {
     Ok(())
 }
 
-// FIXME: deal with custom features etc. e.g. by allowing a custom command
 fn try_building(toolchain_specifier: &str, dir: Option<&Path>, check: &[&str]) -> TResult<()> {
     let mut cmd: Vec<&str> = Vec::new();
     cmd.push("run");
