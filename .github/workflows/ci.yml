@@ -66,7 +66,7 @@ jobs:
         run: cargo build --verbose --all
 
       - name: Test all workspace crates
-        run: cargo test --verbose --all
+        run: cargo test --verbose --all -- --test-threads=1
 
   rustfmt:
     name: rustfmt
