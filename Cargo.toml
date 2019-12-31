@@ -12,7 +12,7 @@ clap = "2.33.0"
 
 # Used to obtain the 'channel-manifest'.
 # Perhaps we can downgrade to a lower level library as we only need to receive a single file periodically.
-reqwest = "0.9.20"
+reqwest = "0.10.0"
 
 # Used to decide where to cache the 'channel-manifest' file.
 directories = "2.0.2"
