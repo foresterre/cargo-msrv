@@ -1,7 +1,6 @@
 extern crate cargo_msrv;
 
 use cargo_msrv::fetch::RustStableVersion;
-use indicatif::ProgressBar;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
@@ -39,12 +38,7 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             let matches = cargo_msrv::cli::cmd_matches(&matches).unwrap();
             println!("matches: {:?}", &matches);
 
-            let result = cargo_msrv::msrv(
-                &matches,
-                RustStableVersion::new(1, 38, 0),
-                &ProgressBar::new_spinner(),
-            )
-            .unwrap();
+            let result = cargo_msrv::msrv(&matches, RustStableVersion::new(1, 38, 0)).unwrap();
             println!("result: {:?}", &result);
 
             let expected = project_dir.clone();
