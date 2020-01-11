@@ -88,7 +88,11 @@ pub fn default_target() -> TResult<String> {
                         line.split_ascii_whitespace()
                             .nth(2)
                             .ok_or(CargoMSRVError::DefaultHostTripleNotFound)
-                            .map(String::from)
+                            .map(|target| {
+                                info!("default target determined to be '{}'", target);
+
+                                String::from(target)
+                            })
                     })
             })
     })
@@ -193,14 +197,19 @@ fn get_stable_channel_manifest() -> TResult<(ManifestObtainedFrom, PathBuf)> {
     let manifest = cache.join("channel-rust-stable.toml");
 
     if manifest.as_path().exists() && !is_stale(&manifest)? {
+        info!("channel manifest available in the cache and not stale");
         return Ok((ManifestObtainedFrom::Cache, manifest));
     } else {
         std::fs::create_dir_all(cache)?;
     }
 
+    info!("requested channel manifest");
+
     let mut response = reqwest::get(CHANNEL_MANIFEST_STABLE)?;
     let mut file = File::create(manifest.as_path())?;
     response.copy_to(&mut file)?;
+
+    info!("obtained channel manifest");
 
     Ok((ManifestObtainedFrom::RustDistChannel, manifest))
 }

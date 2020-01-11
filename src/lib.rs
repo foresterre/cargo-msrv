@@ -47,7 +47,7 @@ pub fn msrv(config: &CmdMatches, latest: RustStableVersion) -> TResult<Option<Ru
         let current = RustStableVersion::new(latest.major(), minor, 0);
 
         info!(
-            "checking target: {} using Rust version: {}",
+            "checking target '{}' using Rust version '{}'",
             config.target(),
             current.as_string()
         );
