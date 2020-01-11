@@ -205,9 +205,9 @@ fn get_stable_channel_manifest() -> TResult<(ManifestObtainedFrom, PathBuf)> {
 
     info!("requested channel manifest");
 
-    let mut response = reqwest::get(CHANNEL_MANIFEST_STABLE)?;
+    let response = attohttpc::get(CHANNEL_MANIFEST_STABLE).send()?;
     let mut file = File::create(manifest.as_path())?;
-    response.copy_to(&mut file)?;
+    response.write_to(&mut file)?;
 
     info!("obtained channel manifest");
 
