@@ -20,10 +20,6 @@ Tests should be run with a single thread, because otherwise `rustup` uses the a 
 specific toolchain version, and our multiple tests may attempt to overwrite or move the same cached version causing the
 tests to get stuck and fail. You can achieve the above with the following Cargo command: `cargo test -- --test-threads=1`.
 
-### Status 
-
-cargo-msrv is currently a minimal prototype. 
-
 ### License
  
 Licensed under either of
