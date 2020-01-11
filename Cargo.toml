@@ -22,7 +22,7 @@ serde = { version = "1.0.101", features = ["derive"] }
 toml = "0.5"
 
 # Used to display progression
-indicatif = "0.12.0"
+indicatif = "0.13.0"
 
 
 [[bin]]
