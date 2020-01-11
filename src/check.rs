@@ -25,6 +25,11 @@ fn download_if_required(toolchain_specifier: &str) -> TResult<()> {
         None,
     )?;
 
+    info!(
+        "attempting to install or locate toolchain '{}'",
+        toolchain_specifier
+    );
+
     let status = child.wait()?;
 
     if !status.success() {
@@ -41,6 +46,9 @@ fn try_building(toolchain_specifier: &str, dir: Option<&Path>, check: &[&str]) -
     cmd.extend_from_slice(check);
 
     let mut child = command(cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
+
+    info!("checking crate against toolchain '{}'", toolchain_specifier);
+
     let status = child.wait()?;
 
     if !status.success() {
