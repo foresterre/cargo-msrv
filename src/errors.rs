@@ -1,3 +1,4 @@
+use crate::fetch::ToolchainSpecifier;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
@@ -14,7 +15,7 @@ pub enum CargoMSRVError {
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
     Reqwest(reqwest::Error),
-    RustupInstallFailed,
+    RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
     SystemTime(std::time::SystemTimeError),
     Toml(toml::de::Error),
@@ -46,7 +47,7 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
-            CargoMSRVError::RustupInstallFailed => write!(f, "Unable to install toolchain with `rustup install <toolchain>`."),
+            CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::Reqwest(err) => err.fmt(f),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
