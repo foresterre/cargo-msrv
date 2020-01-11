@@ -5,6 +5,8 @@ use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+pub type ToolchainSpecifier = String;
+
 /// Verify that the given toolchain is installed.
 /// with `rustup toolchain list`
 pub fn is_toolchain_installed<S: AsRef<str>>(name: S) -> TResult<()> {
