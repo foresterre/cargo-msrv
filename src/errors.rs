@@ -9,12 +9,12 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug)]
 pub enum CargoMSRVError {
+    AttoHTTPC(attohttpc::Error),
     DefaultHostTripleNotFound,
     GenericMessage(String),
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
-    Reqwest(reqwest::Error),
     RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
     SystemTime(std::time::SystemTimeError),
@@ -42,6 +42,7 @@ Thank you in advance!"#;
 impl fmt::Display for CargoMSRVError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
+            CargoMSRVError::AttoHTTPC(err) => err.fmt(f),
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::GenericMessage(msg) => write!(f, "{}", msg.as_str()),
             CargoMSRVError::Io(err) => err.fmt(f),
@@ -49,7 +50,6 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
-            CargoMSRVError::Reqwest(err) => err.fmt(f),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
             CargoMSRVError::Toml(err) => err.fmt(f),
             CargoMSRVError::ToolchainNotInstalled => write!(f, "The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains."),
@@ -89,9 +89,9 @@ impl From<std::num::ParseIntError> for CargoMSRVError {
     }
 }
 
-impl From<reqwest::Error> for CargoMSRVError {
-    fn from(err: reqwest::Error) -> Self {
-        CargoMSRVError::Reqwest(err)
+impl From<attohttpc::Error> for CargoMSRVError {
+    fn from(err: attohttpc::Error) -> Self {
+        CargoMSRVError::AttoHTTPC(err)
     }
 }
 
