@@ -1,10 +1,12 @@
+extern crate pretty_env_logger;
+#[macro_use]
+extern crate log;
+
 use crate::check::check_with_rust_version;
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::fetch::{latest_stable_version, RustStableVersion};
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use std::sync::Arc;
 
 pub mod check;
 pub mod cli;
@@ -13,58 +15,42 @@ pub mod config;
 pub mod errors;
 pub mod fetch;
 
+pub fn init_logger() {
+    pretty_env_logger::init()
+}
+
 pub fn run_cargo_msrv() -> TResult<()> {
     let matches = cli::cli().get_matches();
     let config = cmd_matches(&matches)?;
 
     let latest = latest_stable_version()?;
 
-    let m = Arc::new(MultiProgress::new());
-    let pb = m.add(ProgressBar::new_spinner());
-    pb.enable_steady_tick(200);
-    pb.set_style(
-        ProgressStyle::default_spinner()
-            .tick_chars("/|\\- ")
-            .template("{spinner:.dim.bold} [cargo-msrv] {wide_msg}"),
-    );
+    let latest_supported = msrv(&config, latest)?;
 
-    let decision = msrv(&config, latest, &pb)?;
-
-    m.join()?;
-
-    match decision {
-        Some(good) => {
-            pb.finish_with_message(&format!(
+    match latest_supported {
+        Some(ok) => {
+            info!(
                 "Minimum Supported Rust Version (MSRV) determined to be: {}",
-                good.as_string()
-            ));
+                ok.as_string()
+            );
 
             Ok(())
         }
-        None => {
-            pb.finish_at_current_pos();
-
-            Err(CargoMSRVError::UnableToFindAnyGoodVersion)
-        }
+        None => Err(CargoMSRVError::UnableToFindAnyGoodVersion),
     }
 }
 
-pub fn msrv(
-    config: &CmdMatches,
-    latest: RustStableVersion,
-    pb: &ProgressBar,
-) -> TResult<Option<RustStableVersion>> {
+pub fn msrv(config: &CmdMatches, latest: RustStableVersion) -> TResult<Option<RustStableVersion>> {
     let mut acceptable: Option<RustStableVersion> = None;
 
     for minor in (0..=latest.minor()).rev() {
         let current = RustStableVersion::new(latest.major(), minor, 0);
 
-        pb.tick();
-        pb.set_message(&format!(
+        info!(
             "checking target: {} using Rust version: {}",
             config.target(),
             current.as_string()
-        ));
+        );
 
         if let Err(err) = check_with_rust_version(&current, &config) {
             match err {
