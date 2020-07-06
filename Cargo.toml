@@ -14,7 +14,7 @@ clap = "2.33.0"
 attohttpc = "0.15.0"
 
 # Used to decide where to cache the 'channel-manifest' file.
-directories = "2.0.2"
+directories = "3.0.1"
 
 # Used for decoding the 'channel-manifest'.
 serde = { version = "1.0.101", features = ["derive"] }
