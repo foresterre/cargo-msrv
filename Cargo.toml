@@ -11,7 +11,7 @@ edition = "2018"
 clap = "2.33.0"
 
 # Used to obtain the 'channel-manifest'.
-attohttpc = "0.15.0"
+attohttpc = "0.16.1"
 
 # Used to decide where to cache the 'channel-manifest' file.
 directories = "3.0.1"
