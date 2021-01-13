@@ -25,7 +25,7 @@ impl<'a> CmdMatches<'a> {
     }
 
     pub fn seek_path(&self) -> Option<&Path> {
-        self.seek_path.as_ref().map(|p| p.as_path())
+        self.seek_path.as_deref()
     }
 }
 

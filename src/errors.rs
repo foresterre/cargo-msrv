@@ -1,4 +1,5 @@
 use crate::fetch::ToolchainSpecifier;
+use std::env;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
@@ -11,10 +12,12 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 pub enum CargoMSRVError {
     AttoHTTPC(attohttpc::Error),
     DefaultHostTripleNotFound,
+    Env(env::VarError),
     GenericMessage(String),
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
+    Log(log::ParseLevelError),
     RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
     SystemTime(std::time::SystemTimeError),
@@ -44,10 +47,12 @@ impl fmt::Display for CargoMSRVError {
         match self {
             CargoMSRVError::AttoHTTPC(err) => err.fmt(f),
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
+            CargoMSRVError::Env(err) => err.fmt(f),
             CargoMSRVError::GenericMessage(msg) => write!(f, "{}", msg.as_str()),
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
+            CargoMSRVError::Log(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
@@ -68,6 +73,12 @@ impl Error for CargoMSRVError {}
 impl From<String> for CargoMSRVError {
     fn from(msg: String) -> Self {
         CargoMSRVError::GenericMessage(msg)
+    }
+}
+
+impl From<env::VarError> for CargoMSRVError {
+    fn from(err: env::VarError) -> Self {
+        CargoMSRVError::Env(err)
     }
 }
 
@@ -92,6 +103,11 @@ impl From<std::num::ParseIntError> for CargoMSRVError {
 impl From<attohttpc::Error> for CargoMSRVError {
     fn from(err: attohttpc::Error) -> Self {
         CargoMSRVError::AttoHTTPC(err)
+    }
+}
+impl From<log::ParseLevelError> for CargoMSRVError {
+    fn from(err: log::ParseLevelError) -> Self {
+        CargoMSRVError::Log(err)
     }
 }
 
