@@ -1,3 +1,8 @@
+# v0.2.1
+
+* Fix bug where no output was shown to the user by default
+* Increase own crate MSRV from 1.40.0 -> 1.42.0
+
 # v0.2.0
 
 * Replace reqwest http client with a smaller http client
