@@ -20,7 +20,7 @@ impl<'a> CmdMatches<'a> {
         &self.target
     }
 
-    pub fn custom_check(&self) -> &Vec<&'a str> {
+    pub fn check_command(&self) -> &Vec<&'a str> {
         &self.check_command
     }
 

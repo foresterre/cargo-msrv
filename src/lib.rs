@@ -37,7 +37,10 @@ pub fn run_cargo_msrv() -> TResult<()> {
             Ok(())
         }
         MinimalCompatibility::None { latest_toolchain } => {
-            Err(CargoMSRVError::UnableToFindAnyGoodVersion { latest_toolchain })
+            Err(CargoMSRVError::UnableToFindAnyGoodVersion {
+                latest_toolchain,
+                command: config.check_command().join(" "),
+            })
         }
     }
 }
