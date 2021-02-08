@@ -27,7 +27,7 @@ pub fn check_toolchain(version: RustStableVersion, config: &CmdMatches) -> TResu
         version,
         &toolchain_specifier,
         config.seek_path(),
-        config.custom_check(),
+        config.check_command(),
     )
 }
 
