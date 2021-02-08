@@ -2,7 +2,7 @@ extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 
-use crate::check::check_with_rust_version;
+use crate::check::{check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
@@ -25,46 +25,95 @@ pub fn run_cargo_msrv() -> TResult<()> {
 
     let latest = latest_stable_version()?;
 
-    let latest_supported = msrv(&config, latest)?;
+    let latest_supported = determine_msrv(&config, latest)?;
 
     match latest_supported {
-        Some(ok) => {
+        MinimalCompatibility::CapableToolchain { version, .. } => {
             info!(
                 "Minimum Supported Rust Version (MSRV) determined to be: {}",
-                ok.as_string()
+                version.as_string()
             );
 
             Ok(())
         }
-        None => Err(CargoMSRVError::UnableToFindAnyGoodVersion),
+        MinimalCompatibility::None { latest_toolchain } => {
+            Err(CargoMSRVError::UnableToFindAnyGoodVersion { latest_toolchain })
+        }
     }
 }
 
-pub fn msrv(config: &CmdMatches, latest: RustStableVersion) -> TResult<Option<RustStableVersion>> {
-    let mut acceptable: Option<RustStableVersion> = None;
+/// An enum to represent the minimal compatibility
+#[derive(Debug)]
+pub enum MinimalCompatibility {
+    /// A toolchain is compatible, if the outcome of a toolchain check results in a success
+    CapableToolchain {
+        // toolchain specifier
+        toolchain: String,
+        // checked Rust version
+        version: RustStableVersion,
+    },
+    /// Compatibility is none, if the check on the last available toolchain fails
+    None {
+        // last known toolchain specifier
+        latest_toolchain: String,
+    },
+}
 
-    for minor in (0..=latest.minor()).rev() {
-        let current = RustStableVersion::new(latest.major(), minor, 0);
+impl MinimalCompatibility {
+    pub fn unwrap_version(&self) -> RustStableVersion {
+        if let Self::CapableToolchain { version, .. } = self {
+            return *version;
+        }
 
-        info!(
-            "checking target '{}' using Rust version '{}'",
-            config.target(),
-            current.as_string()
-        );
+        panic!("Unable to unwrap MinimalCompatibility (CapableToolchain::version)")
+    }
+}
 
-        if let Err(err) = check_with_rust_version(&current, &config) {
-            match err {
-                // This version doesn't work, so we quit the loop.
-                // Then 'acceptable' (may) contain the last successfully checked version.
-                CargoMSRVError::RustupRunWithCommandFailed => break,
-                // In this case an error occurred during the check, so we want to report the error
-                // instead of reporting the last ok version.
-                _ => return Err(err),
+impl From<CheckStatus> for MinimalCompatibility {
+    fn from(from: CheckStatus) -> Self {
+        match from {
+            CheckStatus::Success { version, toolchain } => {
+                MinimalCompatibility::CapableToolchain { version, toolchain }
             }
-        } else {
-            acceptable = Some(current);
+            CheckStatus::Failure { toolchain, .. } => MinimalCompatibility::None {
+                latest_toolchain: toolchain,
+            },
         }
     }
+}
 
-    Ok(acceptable)
+pub fn determine_msrv(
+    config: &CmdMatches,
+    latest: RustStableVersion,
+) -> TResult<MinimalCompatibility> {
+    let minors = (0..=latest.minor()).rev();
+    let mut compatibility = MinimalCompatibility::None {
+        latest_toolchain: latest.as_toolchain_string(config.target()),
+    };
+
+    for minor in minors {
+        let current = RustStableVersion::new(latest.major(), minor, 0);
+        let status = run_check_for_version(config, current)?;
+
+        if let CheckStatus::Failure { .. } = status {
+            break;
+        }
+
+        compatibility = status.into();
+    }
+
+    Ok(compatibility)
+}
+
+fn run_check_for_version(
+    config: &CmdMatches,
+    current_version: RustStableVersion,
+) -> TResult<CheckStatus> {
+    info!(
+        "checking target '{}' using Rust version '{}'",
+        config.target(),
+        current_version.as_string()
+    );
+
+    check_toolchain(current_version, config)
 }

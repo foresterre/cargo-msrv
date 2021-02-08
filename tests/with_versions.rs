@@ -38,7 +38,8 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             let matches = cargo_msrv::cli::cmd_matches(&matches).unwrap();
             println!("matches: {:?}", &matches);
 
-            let result = cargo_msrv::msrv(&matches, RustStableVersion::new(1, 38, 0)).unwrap();
+            let result =
+                cargo_msrv::determine_msrv(&matches, RustStableVersion::new(1, 38, 0)).unwrap();
             println!("result: {:?}", &result);
 
             let expected = project_dir.clone();
@@ -47,7 +48,7 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             let expected =
                 RustStableVersion::from_parts(&expected.split('.').collect::<Vec<_>>()).unwrap();
 
-            assert_eq!(result.unwrap(), expected);
+            assert_eq!(result.unwrap_version(), expected);
         }
     }
 }

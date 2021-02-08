@@ -98,7 +98,7 @@ pub fn default_target() -> TResult<String> {
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RustStableVersion {
     major: u16,
     minor: u16,
@@ -149,6 +149,16 @@ impl RustStableVersion {
 
     pub fn as_string(&self) -> String {
         format!("{}.{}.{}", self.major, self.minor, self.patch)
+    }
+
+    pub fn as_toolchain_string<T: AsRef<str>>(&self, target: T) -> String {
+        format!(
+            "{}.{}.{}-{}",
+            self.major,
+            self.minor,
+            self.patch,
+            target.as_ref()
+        )
     }
 }
 
