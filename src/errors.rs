@@ -1,4 +1,5 @@
 use crate::fetch::ToolchainSpecifier;
+use rust_releases::RustReleasesError;
 use std::env;
 use std::error::Error;
 use std::fmt;
@@ -19,6 +20,7 @@ pub enum CargoMSRVError {
     InvalidUTF8(FromUtf8Error),
     Log(log::ParseLevelError),
     RustupInstallFailed(ToolchainSpecifier),
+    RustReleasesError(RustReleasesError),
     RustupRunWithCommandFailed,
     SystemTime(std::time::SystemTimeError),
     Toml(toml::de::Error),
@@ -46,6 +48,7 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
             CargoMSRVError::Log(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
+            CargoMSRVError::RustReleasesError(err) => err.fmt(f),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
             CargoMSRVError::Toml(err) => err.fmt(f),
@@ -119,5 +122,11 @@ impl From<std::time::SystemTimeError> for CargoMSRVError {
 impl From<toml::de::Error> for CargoMSRVError {
     fn from(err: toml::de::Error) -> Self {
         CargoMSRVError::Toml(err)
+    }
+}
+
+impl From<rust_releases::RustReleasesError> for CargoMSRVError {
+    fn from(err: rust_releases::RustReleasesError) -> Self {
+        CargoMSRVError::RustReleasesError(err)
     }
 }

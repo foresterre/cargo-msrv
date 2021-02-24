@@ -1,7 +1,7 @@
 use crate::command::command;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
-use crate::fetch::RustStableVersion;
+use rust_releases::index::semver;
 use std::path::Path;
 
 pub enum CheckStatus {
@@ -9,18 +9,21 @@ pub enum CheckStatus {
         // toolchain specifier
         toolchain: String,
         // checked Rust version
-        version: RustStableVersion,
+        version: semver::Version,
     },
     Failure {
         // toolchain specifier
         toolchain: String,
         // checked Rust version
-        version: RustStableVersion,
+        version: semver::Version,
     },
 }
 
-pub fn check_toolchain(version: RustStableVersion, config: &CmdMatches) -> TResult<CheckStatus> {
-    let toolchain_specifier = version.as_toolchain_string(config.target());
+pub fn check_toolchain<'a>(
+    version: &'a semver::Version,
+    config: &'a CmdMatches,
+) -> TResult<CheckStatus> {
+    let toolchain_specifier = as_toolchain_specifier(version, config.target());
 
     download_if_required(&toolchain_specifier)?;
     try_building(
@@ -29,6 +32,10 @@ pub fn check_toolchain(version: RustStableVersion, config: &CmdMatches) -> TResu
         config.seek_path(),
         config.check_command(),
     )
+}
+
+pub fn as_toolchain_specifier(version: &semver::Version, target: &str) -> String {
+    format!("{}-{}", version, target)
 }
 
 fn download_if_required(toolchain_specifier: &str) -> TResult<()> {
@@ -54,7 +61,7 @@ fn download_if_required(toolchain_specifier: &str) -> TResult<()> {
 }
 
 fn try_building(
-    version: RustStableVersion,
+    version: &semver::Version,
     toolchain_specifier: &str,
     dir: Option<&Path>,
     check: &[&str],
@@ -69,14 +76,14 @@ fn try_building(
     if !status.success() {
         info!("check '{}' failed", cmd.join(" "));
         Ok(CheckStatus::Failure {
-            version,
             toolchain: toolchain_specifier.to_string(),
+            version: version.clone(),
         })
     } else {
         info!("check '{}' succeeded", cmd.join(" "));
         Ok(CheckStatus::Success {
-            version,
             toolchain: toolchain_specifier.to_string(),
+            version: version.clone(),
         })
     }
 }
