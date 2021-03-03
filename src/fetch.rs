@@ -1,9 +1,5 @@
 use crate::command::command_with_output;
 use crate::errors::{CargoMSRVError, TResult};
-use std::fs::{self, File};
-use std::io::{BufReader, Read};
-use std::path::{Path, PathBuf};
-use std::time::Duration;
 
 pub type ToolchainSpecifier = String;
 

@@ -2,14 +2,12 @@ extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 
-use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
+use crate::check::{check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
-use rust_releases::index::semver;
-use rust_releases::strategy::releases_md::ReleasesMd;
-use rust_releases::strategy::{FetchResources, Strategy};
-use rust_releases::Channel;
+use rust_releases::source::{FetchResources, RustChangelog, Source};
+use rust_releases::{semver, Channel};
 
 pub mod check;
 pub mod cli;
@@ -26,7 +24,7 @@ pub fn run_cargo_msrv() -> TResult<()> {
     let matches = cli::cli().get_matches();
     let config = cmd_matches(&matches)?;
 
-    let index_strategy = ReleasesMd::fetch_channel(Channel::Stable)?;
+    let index_strategy = RustChangelog::fetch_channel(Channel::Stable)?;
     let index = index_strategy.build_index()?;
 
     let latest_supported = determine_msrv(&config, &index)?;
@@ -80,7 +78,9 @@ impl From<CheckStatus> for MinimalCompatibility {
                 version: version.clone(),
                 toolchain,
             },
-            CheckStatus::Failure { toolchain, .. } => MinimalCompatibility::NoCompatibleToolchains,
+            CheckStatus::Failure { toolchain: _, .. } => {
+                MinimalCompatibility::NoCompatibleToolchains
+            }
         }
     }
 }

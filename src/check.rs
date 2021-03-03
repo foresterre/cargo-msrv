@@ -1,7 +1,7 @@
 use crate::command::command;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
-use rust_releases::index::semver;
+use rust_releases::semver;
 use std::path::Path;
 
 pub enum CheckStatus {
