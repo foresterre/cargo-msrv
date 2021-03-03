@@ -20,7 +20,7 @@ directories = "3.0.1"
 serde = { version = "1.0.101", features = ["derive"] }
 toml = "0.5"
 
-rust-releases = "0.2.0"
+rust-releases = "0.6"
 
 # Used to display status
 log = "0.4"

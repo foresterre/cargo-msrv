@@ -1,7 +1,8 @@
 extern crate cargo_msrv;
 
-use cargo_msrv::fetch::RustStableVersion;
+use rust_releases::{semver, Release, ReleaseIndex};
 use std::ffi::OsString;
+use std::iter::FromIterator;
 use std::path::PathBuf;
 
 #[test]
@@ -38,15 +39,22 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             let matches = cargo_msrv::cli::cmd_matches(&matches).unwrap();
             println!("matches: {:?}", &matches);
 
-            let result =
-                cargo_msrv::determine_msrv(&matches, RustStableVersion::new(1, 38, 0)).unwrap();
+            let available: ReleaseIndex = FromIterator::from_iter(vec![
+                Release::new(semver::Version::new(1, 38, 0)),
+                Release::new(semver::Version::new(1, 37, 0)),
+                Release::new(semver::Version::new(1, 36, 0)),
+                Release::new(semver::Version::new(1, 35, 0)),
+                Release::new(semver::Version::new(1, 34, 0)),
+            ]);
+
+            let result = cargo_msrv::determine_msrv(&matches, &available).unwrap();
+
             println!("result: {:?}", &result);
 
             let expected = project_dir.clone();
             let expected = expected.iter().last().unwrap();
             let expected = expected.to_str().unwrap();
-            let expected =
-                RustStableVersion::from_parts(&expected.split('.').collect::<Vec<_>>()).unwrap();
+            let expected = semver::Version::parse(expected).unwrap();
 
             assert_eq!(result.unwrap_version(), expected);
         }
