@@ -1,5 +1,6 @@
 extern crate cargo_msrv;
 
+use cargo_msrv::MinimalCompatibility;
 use rust_releases::{semver, Release, ReleaseIndex};
 use std::ffi::OsString;
 use std::iter::FromIterator;
@@ -33,6 +34,7 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
         let meta = &path.metadata().unwrap();
         if meta.is_dir() {
             let project_dir = path.path();
+
             println!("dir: {:?}", &project_dir);
 
             let matches = cargo_msrv::cli::cli().get_matches_from(args(project_dir.clone()));
@@ -48,15 +50,28 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             ]);
 
             let result = cargo_msrv::determine_msrv(&matches, &available).unwrap();
-
             println!("result: {:?}", &result);
 
-            let expected = project_dir.clone();
-            let expected = expected.iter().last().unwrap();
-            let expected = expected.to_str().unwrap();
-            let expected = semver::Version::parse(expected).unwrap();
+            if project_dir
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .starts_with("1.")
+            {
+                let expected = project_dir.clone();
+                let expected = expected.iter().last().unwrap();
+                let expected = expected.to_str().unwrap();
+                let expected = semver::Version::parse(expected).unwrap();
 
-            assert_eq!(result.unwrap_version(), expected);
+                assert_eq!(result.unwrap_version(), expected);
+            } else {
+                let is_incompatible = match result {
+                    MinimalCompatibility::NoCompatibleToolchains => true,
+                    _ => false,
+                };
+
+                assert!(is_incompatible);
+            }
         }
     }
 }
