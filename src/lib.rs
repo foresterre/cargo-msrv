@@ -1,11 +1,8 @@
-extern crate pretty_env_logger;
-#[macro_use]
-extern crate log;
-
 use crate::check::{check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
+use crate::ui::Printer;
 use rust_releases::source::{FetchResources, RustChangelog, Source};
 use rust_releases::{semver, Channel};
 
@@ -15,10 +12,7 @@ pub mod command;
 pub mod config;
 pub mod errors;
 pub mod fetch;
-
-pub fn init_logger() {
-    pretty_env_logger::init()
-}
+pub mod ui;
 
 pub fn run_cargo_msrv() -> TResult<()> {
     let matches = cli::cli().get_matches();
@@ -29,20 +23,12 @@ pub fn run_cargo_msrv() -> TResult<()> {
 
     let latest_supported = determine_msrv(&config, &index)?;
 
-    match latest_supported {
-        MinimalCompatibility::CapableToolchain { version, .. } => {
-            info!(
-                "Minimum Supported Rust Version (MSRV) determined to be: {}",
-                version
-            );
-
-            Ok(())
-        }
-        MinimalCompatibility::NoCompatibleToolchains => {
-            Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: config.check_command().join(" "),
-            })
-        }
+    if let MinimalCompatibility::NoCompatibleToolchains = latest_supported {
+        Err(CargoMSRVError::UnableToFindAnyGoodVersion {
+            command: config.check_command().join(" "),
+        })
+    } else {
+        Ok(())
     }
 }
 
@@ -88,9 +74,15 @@ pub fn determine_msrv(
     versions: &rust_releases::index::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
+    let releases = versions.releases();
+    let cmd = config.check_command().join(" ");
 
-    for release in versions.releases() {
-        let status = run_check_for_version(config, release.version())?;
+    let ui = Printer::new(releases.len() as u64);
+    ui.welcome(config.target(), &cmd);
+
+    for release in releases {
+        ui.show_progress("Checking", release.version());
+        let status = check_toolchain(release.version(), config, &ui)?;
 
         if let CheckStatus::Failure { .. } = status {
             break;
@@ -99,18 +91,15 @@ pub fn determine_msrv(
         compatibility = status.into();
     }
 
+    match &compatibility {
+        MinimalCompatibility::CapableToolchain {
+            toolchain: _,
+            version,
+        } => {
+            ui.finish_with_ok(&version);
+        }
+        MinimalCompatibility::NoCompatibleToolchains => ui.finish_with_err(&cmd),
+    }
+
     Ok(compatibility)
-}
-
-fn run_check_for_version(
-    config: &CmdMatches,
-    current_version: &semver::Version,
-) -> TResult<CheckStatus> {
-    info!(
-        "checking target '{}' using Rust version '{}'",
-        config.target(),
-        current_version
-    );
-
-    check_toolchain(current_version, config)
 }
