@@ -1,7 +1,7 @@
-# Unreleased
+# 0.3.0
 
 * Replace guessing Rust release version numbers with fetching an actual index
-* Improve terminal UI: replace logger ui with a progress bar console ui
+* Make the terminal UI friendlier by replacing the log and wall of text with a progress bar and updating state
 
 # v0.2.1
 
