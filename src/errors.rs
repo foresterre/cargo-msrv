@@ -17,7 +17,6 @@ pub enum CargoMSRVError {
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
-    Log(log::ParseLevelError),
     RustupInstallFailed(ToolchainSpecifier),
     RustReleasesError(RustReleasesError),
     RustupRunWithCommandFailed,
@@ -40,7 +39,6 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
-            CargoMSRVError::Log(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustReleasesError(err) => err.fmt(f),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
@@ -92,12 +90,6 @@ impl From<FromUtf8Error> for CargoMSRVError {
 impl From<std::num::ParseIntError> for CargoMSRVError {
     fn from(err: std::num::ParseIntError) -> Self {
         CargoMSRVError::InvalidRustVersionNumber(err)
-    }
-}
-
-impl From<log::ParseLevelError> for CargoMSRVError {
-    fn from(err: log::ParseLevelError) -> Self {
-        CargoMSRVError::Log(err)
     }
 }
 

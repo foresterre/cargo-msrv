@@ -10,12 +10,12 @@ edition = "2018"
 # Used for parsing cli arguments.
 clap = "2.33.0"
 
-# get the available rust versions
+# Get the available rust versions
 rust-releases = "0.6"
 
-# Used to display status
-log = "0.4"
-pretty_env_logger = "0.4"
+# UI
+console = "0.14.0"
+indicatif = "0.15.0"
 
 [[bin]]
 name = "cargo-msrv"

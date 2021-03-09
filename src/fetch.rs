@@ -84,11 +84,7 @@ pub fn default_target() -> TResult<String> {
                         line.split_ascii_whitespace()
                             .nth(2)
                             .ok_or(CargoMSRVError::DefaultHostTripleNotFound)
-                            .map(|target| {
-                                info!("default target determined to be '{}'", target);
-
-                                String::from(target)
-                            })
+                            .map(String::from)
                     })
             })
     })
