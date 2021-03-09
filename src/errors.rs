@@ -11,7 +11,6 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug)]
 pub enum CargoMSRVError {
-    AttoHTTPC(attohttpc::Error),
     DefaultHostTripleNotFound,
     Env(env::VarError),
     GenericMessage(String),
@@ -23,7 +22,6 @@ pub enum CargoMSRVError {
     RustReleasesError(RustReleasesError),
     RustupRunWithCommandFailed,
     SystemTime(std::time::SystemTimeError),
-    Toml(toml::de::Error),
     ToolchainNotInstalled,
     UnknownTarget,
     UnableToCacheChannelManifest,
@@ -36,7 +34,6 @@ pub enum CargoMSRVError {
 impl fmt::Display for CargoMSRVError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            CargoMSRVError::AttoHTTPC(err) => err.fmt(f),
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::Env(err) => err.fmt(f),
             CargoMSRVError::GenericMessage(msg) => write!(f, "{}", msg.as_str()),
@@ -48,7 +45,6 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::RustReleasesError(err) => err.fmt(f),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
-            CargoMSRVError::Toml(err) => err.fmt(f),
             CargoMSRVError::ToolchainNotInstalled => write!(f, "The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains."),
             CargoMSRVError::UnknownTarget => write!(f, "The given target could not be found. Run `rustup target list` for an overview of available toolchains."),
             CargoMSRVError::UnableToCacheChannelManifest => write!(f, "Unable to get or store the channel manifest on disk."),
@@ -99,11 +95,6 @@ impl From<std::num::ParseIntError> for CargoMSRVError {
     }
 }
 
-impl From<attohttpc::Error> for CargoMSRVError {
-    fn from(err: attohttpc::Error) -> Self {
-        CargoMSRVError::AttoHTTPC(err)
-    }
-}
 impl From<log::ParseLevelError> for CargoMSRVError {
     fn from(err: log::ParseLevelError) -> Self {
         CargoMSRVError::Log(err)
@@ -113,12 +104,6 @@ impl From<log::ParseLevelError> for CargoMSRVError {
 impl From<std::time::SystemTimeError> for CargoMSRVError {
     fn from(err: std::time::SystemTimeError) -> Self {
         CargoMSRVError::SystemTime(err)
-    }
-}
-
-impl From<toml::de::Error> for CargoMSRVError {
-    fn from(err: toml::de::Error) -> Self {
-        CargoMSRVError::Toml(err)
     }
 }
 

@@ -10,16 +10,7 @@ edition = "2018"
 # Used for parsing cli arguments.
 clap = "2.33.0"
 
-# Used to obtain the 'channel-manifest'.
-attohttpc = "0.16.1"
-
-# Used to decide where to cache the 'channel-manifest' file.
-directories = "3.0.1"
-
-# Used for decoding the 'channel-manifest'.
-serde = { version = "1.0.101", features = ["derive"] }
-toml = "0.5"
-
+# get the available rust versions
 rust-releases = "0.6"
 
 # Used to display status
