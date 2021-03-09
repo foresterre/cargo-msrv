@@ -73,10 +73,9 @@ impl MinimalCompatibility {
 impl From<CheckStatus> for MinimalCompatibility {
     fn from(from: CheckStatus) -> Self {
         match from {
-            CheckStatus::Success { version, toolchain } => MinimalCompatibility::CapableToolchain {
-                version: version.clone(),
-                toolchain,
-            },
+            CheckStatus::Success { version, toolchain } => {
+                MinimalCompatibility::CapableToolchain { version, toolchain }
+            }
             CheckStatus::Failure { toolchain: _, .. } => {
                 MinimalCompatibility::NoCompatibleToolchains
             }
