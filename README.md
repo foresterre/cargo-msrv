@@ -7,6 +7,11 @@ This crate can assist you in finding the Minimum Supported Rust Version for a cr
 `cargo install cargo-msrv` to install or <br>
 `cargo install cargo-msrv --force` to update
 
+### Preview
+
+![preview](https://i.imgur.com/5hAzJQu.gif)
+
+
 ### Usage
 
 * `cargo msrv` to find the MSRV for the current working directory cargo project. 
