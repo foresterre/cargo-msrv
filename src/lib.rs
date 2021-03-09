@@ -40,7 +40,6 @@ pub fn run_cargo_msrv() -> TResult<()> {
         }
         MinimalCompatibility::NoCompatibleToolchains => {
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                latest_toolchain: "TODO latest toolchain".to_string(),
                 command: config.check_command().join(" "),
             })
         }
