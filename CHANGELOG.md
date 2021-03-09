@@ -1,4 +1,9 @@
-# 0.3.0
+# 0.3.1 [2021-03-09]
+
+* Update deprecated dependency
+* Add repository to Cargo.toml
+
+# 0.3.0 [2021-03-09]
 
 * Replace guessing Rust release version numbers with fetching an actual index
 * Make the terminal UI friendlier by replacing the log and wall of text with a progress bar and updating state
