@@ -15,7 +15,7 @@ clap = "2.33.0"
 rust-releases = "0.6"
 
 # UI
-console = "0.14.0"
+console = "0.14.1"
 indicatif = "0.15.0"
 
 [[bin]]
