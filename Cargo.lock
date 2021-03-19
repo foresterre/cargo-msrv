@@ -490,9 +490,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.6.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b0f01451b76f574d70d12837191bcad09a65b1f43265315962e5df9be007a03"
+checksum = "f25d688dafbfd70eeecc500f1045c20d8d02d183fbeed6ac333e770f53be37e8"
 dependencies = [
  "attohttpc",
  "directories-next",
