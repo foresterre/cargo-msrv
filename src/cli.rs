@@ -8,6 +8,7 @@ pub mod id {
     pub const ARG_SEEK_PATH: &str = "seek_path";
     pub const ARG_SEEK_CUSTOM_TARGET: &str = "seek_target";
     pub const ARG_CUSTOM_CHECK: &str = "custom_check";
+    pub const ARG_INCLUDE_ALL_PATCH_RELEASES: &str = "include_all_patch";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -63,6 +64,11 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                             })
                         }),
                 )
+                .arg(Arg::with_name(id::ARG_INCLUDE_ALL_PATCH_RELEASES)
+                    .long("include-all-patch-releases")
+                    .help("Include all patch releases, instead of only the last")
+                    .takes_value(false)
+                )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
                         .value_name("COMMAND")
@@ -101,6 +107,9 @@ pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
     if let Some(target) = custom_target {
         builder = builder.target(target);
     }
+
+    builder =
+        builder.include_all_patch_releases(seek.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
 
     Ok(builder.build())
 }

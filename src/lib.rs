@@ -4,7 +4,7 @@ use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::ui::Printer;
 use rust_releases::source::{FetchResources, RustChangelog, Source};
-use rust_releases::{semver, Channel};
+use rust_releases::{semver, Channel, Release};
 
 pub mod check;
 pub mod cli;
@@ -71,24 +71,29 @@ impl From<CheckStatus> for MinimalCompatibility {
 
 pub fn determine_msrv(
     config: &CmdMatches,
-    versions: &rust_releases::index::ReleaseIndex,
+    index: &rust_releases::index::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
-    let releases = versions.releases();
     let cmd = config.check_command().join(" ");
 
+    let releases = index.releases();
     let ui = Printer::new(releases.len() as u64);
     ui.welcome(config.target(), &cmd);
 
-    for release in releases {
-        ui.show_progress("Checking", release.version());
-        let status = check_toolchain(release.version(), config, &ui)?;
-
-        if let CheckStatus::Failure { .. } = status {
-            break;
-        }
-
-        compatibility = status.into();
+    if config.include_all_patch_releases() {
+        test_against_releases(
+            index.all_releases_iterator(),
+            &mut compatibility,
+            config,
+            &ui,
+        )?;
+    } else {
+        test_against_releases(
+            index.stable_releases_iterator(),
+            &mut compatibility,
+            config,
+            &ui,
+        )?;
     }
 
     match &compatibility {
@@ -102,4 +107,27 @@ pub fn determine_msrv(
     }
 
     Ok(compatibility)
+}
+
+fn test_against_releases<'release, I>(
+    releases: I,
+    compatibility: &mut MinimalCompatibility,
+    config: &CmdMatches,
+    ui: &Printer,
+) -> TResult<()>
+where
+    I: Iterator<Item = &'release Release>,
+{
+    for release in releases {
+        ui.show_progress("Checking", release.version());
+        let status = check_toolchain(release.version(), config, ui)?;
+
+        if let CheckStatus::Failure { .. } = status {
+            break;
+        }
+
+        *compatibility = status.into();
+    }
+
+    Ok(())
 }

@@ -5,6 +5,7 @@ pub struct CmdMatches<'a> {
     target: String,
     check_command: Vec<&'a str>,
     seek_path: Option<PathBuf>,
+    include_all_patch_releases: bool,
 }
 
 impl<'a> CmdMatches<'a> {
@@ -13,6 +14,7 @@ impl<'a> CmdMatches<'a> {
             target,
             check_command: vec!["cargo", "build", "--all"],
             seek_path: None,
+            include_all_patch_releases: false,
         }
     }
 
@@ -26,6 +28,10 @@ impl<'a> CmdMatches<'a> {
 
     pub fn seek_path(&self) -> Option<&Path> {
         self.seek_path.as_deref()
+    }
+
+    pub fn include_all_patch_releases(&self) -> bool {
+        self.include_all_patch_releases
     }
 }
 
@@ -53,6 +59,11 @@ impl<'a> CmdMatchesBuilder<'a> {
 
     pub fn seek_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
         self.inner.seek_path = path.map(|p| PathBuf::from(p.as_ref()));
+        self
+    }
+
+    pub fn include_all_patch_releases(mut self, answer: bool) -> Self {
+        self.inner.include_all_patch_releases = answer;
         self
     }
 
