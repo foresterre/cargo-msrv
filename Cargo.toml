@@ -12,7 +12,7 @@ repository = "https://github.com/foresterre/cargo-msrv"
 clap = "2.33.0"
 
 # Get the available rust versions
-rust-releases = "0.6"
+rust-releases = "0.8"
 
 # UI
 console = "0.14.1"
