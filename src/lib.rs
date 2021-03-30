@@ -122,6 +122,23 @@ where
     I: Iterator<Item = &'release Release>,
 {
     for release in releases {
+        // releases are ordered high to low; if we have reached a version which is below the minimum,
+        // we can stop.
+        if let Some(min) = config.minimum_version() {
+            if release.version() < min {
+                break;
+            }
+        }
+
+        // releases are ordered high to low; if we find a version which is higher than the maximum,
+        // we can skip over it.
+        if let Some(max) = config.maximum_version() {
+            if release.version() > max {
+                ui.skip_version(release.version());
+                continue;
+            }
+        }
+
         ui.show_progress("Checking", release.version());
         let status = check_toolchain(release.version(), config, ui)?;
 

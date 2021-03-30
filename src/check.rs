@@ -6,6 +6,7 @@ use console::style;
 use rust_releases::semver;
 use std::path::Path;
 
+#[derive(Clone, Debug)]
 pub enum CheckStatus {
     Success {
         // toolchain specifier

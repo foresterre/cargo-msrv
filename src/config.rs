@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use rust_releases::semver;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
 pub struct CmdMatches<'a> {
