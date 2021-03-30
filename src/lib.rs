@@ -1,3 +1,6 @@
+#![deny(clippy::all)]
+#![allow(clippy::upper_case_acronyms)]
+
 use crate::check::{check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
