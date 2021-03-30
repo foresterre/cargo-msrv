@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use rust_releases::semver;
 
 #[derive(Debug, Clone)]
 pub struct CmdMatches<'a> {
@@ -6,6 +7,8 @@ pub struct CmdMatches<'a> {
     check_command: Vec<&'a str>,
     seek_path: Option<PathBuf>,
     include_all_patch_releases: bool,
+    minimum_version: Option<semver::Version>,
+    maximum_version: Option<semver::Version>,
 }
 
 impl<'a> CmdMatches<'a> {
@@ -15,6 +18,8 @@ impl<'a> CmdMatches<'a> {
             check_command: vec!["cargo", "build", "--all"],
             seek_path: None,
             include_all_patch_releases: false,
+            minimum_version: None,
+            maximum_version: None,
         }
     }
 
@@ -32,6 +37,14 @@ impl<'a> CmdMatches<'a> {
 
     pub fn include_all_patch_releases(&self) -> bool {
         self.include_all_patch_releases
+    }
+
+    pub fn minimum_version(&self) -> Option<&semver::Version> {
+        self.minimum_version.as_ref()
+    }
+
+    pub fn maximum_version(&self) -> Option<&semver::Version> {
+        self.maximum_version.as_ref()
     }
 }
 
@@ -64,6 +77,16 @@ impl<'a> CmdMatchesBuilder<'a> {
 
     pub fn include_all_patch_releases(mut self, answer: bool) -> Self {
         self.inner.include_all_patch_releases = answer;
+        self
+    }
+
+    pub fn minimum_version(mut self, version: Option<semver::Version>) -> Self {
+        self.inner.minimum_version = version;
+        self
+    }
+
+    pub fn maximum_version(mut self, version: Option<semver::Version>) -> Self {
+        self.inner.maximum_version = version;
         self
     }
 

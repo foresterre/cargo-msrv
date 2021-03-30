@@ -20,6 +20,7 @@ pub enum CargoMSRVError {
     RustupInstallFailed(ToolchainSpecifier),
     RustReleasesError(RustReleasesError),
     RustupRunWithCommandFailed,
+    SemverError(rust_releases::semver::SemVerError),
     SystemTime(std::time::SystemTimeError),
     ToolchainNotInstalled,
     UnknownTarget,
@@ -42,6 +43,7 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustReleasesError(err) => err.fmt(f),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
+            CargoMSRVError::SemverError(err) => write!(f, "{}", err),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
             CargoMSRVError::ToolchainNotInstalled => write!(f, "The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains."),
             CargoMSRVError::UnknownTarget => write!(f, "The given target could not be found. Run `rustup target list` for an overview of available toolchains."),
@@ -93,6 +95,11 @@ impl From<std::num::ParseIntError> for CargoMSRVError {
     }
 }
 
+impl From<rust_releases::semver::SemVerError> for CargoMSRVError {
+    fn from(err: rust_releases::semver::SemVerError) -> Self {
+        CargoMSRVError::SemverError(err)
+    }
+}
 impl From<std::time::SystemTimeError> for CargoMSRVError {
     fn from(err: std::time::SystemTimeError) -> Self {
         CargoMSRVError::SystemTime(err)
