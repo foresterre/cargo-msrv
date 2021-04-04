@@ -15,7 +15,7 @@ impl<'a> CmdMatches<'a> {
     pub fn new(target: String) -> Self {
         Self {
             target,
-            check_command: vec!["cargo", "build", "--all"],
+            check_command: vec!["cargo", "check", "--all"],
             seek_path: None,
             include_all_patch_releases: false,
             minimum_version: None,
