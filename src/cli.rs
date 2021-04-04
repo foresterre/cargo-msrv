@@ -11,6 +11,7 @@ pub mod id {
     pub const ARG_INCLUDE_ALL_PATCH_RELEASES: &str = "include_all_patch";
     pub const ARG_MIN: &str = "min";
     pub const ARG_MAX: &str = "max";
+    pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -81,6 +82,10 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .help("Latest version to take into account")
                     .takes_value(true)
                 )
+                .arg(Arg::with_name(id::ARG_TOOLCHAIN_FILE)
+                    .long("toolchain-file")
+                    .help("Output a rust-toolchain file with the MSRV as toolchain")
+                )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
                         .value_name("COMMAND")
@@ -98,38 +103,40 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
 pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
     let target = default_target()?;
 
-    let seek = matches
+    let arg_matches = matches
         .subcommand_matches(id::SUB_COMMAND_MSRV)
         .ok_or(CargoMSRVError::UnableToParseCliArgs)?;
 
     let mut builder = CmdMatchesBuilder::new(&target);
 
     // set the command which will be used to check if a project can build
-    let check_cmd = seek.values_of(id::ARG_CUSTOM_CHECK);
+    let check_cmd = arg_matches.values_of(id::ARG_CUSTOM_CHECK);
     if let Some(cmd) = check_cmd {
         builder = builder.check_command(cmd.collect());
     }
 
     // set the cargo workspace path
-    let crate_path = seek.value_of(id::ARG_SEEK_PATH);
+    let crate_path = arg_matches.value_of(id::ARG_SEEK_PATH);
     builder = builder.seek_path(crate_path);
 
     // set a custom target
-    let custom_target = seek.value_of(id::ARG_SEEK_CUSTOM_TARGET);
+    let custom_target = arg_matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
     if let Some(target) = custom_target {
         builder = builder.target(target);
     }
 
-    if let Some(min) = seek.value_of(id::ARG_MIN) {
+    if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
         builder = builder.minimum_version(Some(rust_releases::semver::Version::parse(min)?))
     }
 
-    if let Some(max) = seek.value_of(id::ARG_MAX) {
+    if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
         builder = builder.maximum_version(Some(rust_releases::semver::Version::parse(max)?))
     }
 
     builder =
-        builder.include_all_patch_releases(seek.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
+        builder.include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
+
+    builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
 
     Ok(builder.build())
 }
