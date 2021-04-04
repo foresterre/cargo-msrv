@@ -9,6 +9,7 @@ pub struct CmdMatches<'a> {
     include_all_patch_releases: bool,
     minimum_version: Option<semver::Version>,
     maximum_version: Option<semver::Version>,
+    output_toolchain_file: bool,
 }
 
 impl<'a> CmdMatches<'a> {
@@ -20,6 +21,7 @@ impl<'a> CmdMatches<'a> {
             include_all_patch_releases: false,
             minimum_version: None,
             maximum_version: None,
+            output_toolchain_file: false,
         }
     }
 
@@ -45,6 +47,10 @@ impl<'a> CmdMatches<'a> {
 
     pub fn maximum_version(&self) -> Option<&semver::Version> {
         self.maximum_version.as_ref()
+    }
+
+    pub fn output_toolchain_file(&self) -> bool {
+        self.output_toolchain_file
     }
 }
 
@@ -87,6 +93,11 @@ impl<'a> CmdMatchesBuilder<'a> {
 
     pub fn maximum_version(mut self, version: Option<semver::Version>) -> Self {
         self.inner.maximum_version = version;
+        self
+    }
+
+    pub fn output_toolchain_file(mut self, choice: bool) -> Self {
+        self.inner.output_toolchain_file = choice;
         self
     }
 
