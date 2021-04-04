@@ -85,6 +85,8 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                 .arg(Arg::with_name(id::ARG_TOOLCHAIN_FILE)
                     .long("toolchain-file")
                     .help("Output a rust-toolchain file with the MSRV as toolchain")
+                    .long_help("The toolchain file will pin the Rust version for this crate. \
+                    See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more")
                 )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
@@ -117,7 +119,7 @@ pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
 
     // set the cargo workspace path
     let crate_path = arg_matches.value_of(id::ARG_SEEK_PATH);
-    builder = builder.seek_path(crate_path);
+    builder = builder.crate_path(crate_path);
 
     // set a custom target
     let custom_target = arg_matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
@@ -133,8 +135,8 @@ pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
         builder = builder.maximum_version(Some(rust_releases::semver::Version::parse(max)?))
     }
 
-    builder =
-        builder.include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
+    builder = builder
+        .include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
 
     builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
 
