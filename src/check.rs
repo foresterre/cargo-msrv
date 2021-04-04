@@ -33,7 +33,7 @@ pub fn check_toolchain<'a>(
     try_building(
         version,
         &toolchain_specifier,
-        config.seek_path(),
+        config.crate_path(),
         config.check_command(),
         ui,
     )

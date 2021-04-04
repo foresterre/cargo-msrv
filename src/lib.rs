@@ -24,14 +24,18 @@ pub fn run_cargo_msrv() -> TResult<()> {
     let index_strategy = RustChangelog::fetch_channel(Channel::Stable)?;
     let index = index_strategy.build_index()?;
 
-    let latest_supported = determine_msrv(&config, &index)?;
-
-    if let MinimalCompatibility::NoCompatibleToolchains = latest_supported {
-        Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-            command: config.check_command().join(" "),
-        })
-    } else {
-        Ok(())
+    match determine_msrv(&config, &index)? {
+        MinimalCompatibility::NoCompatibleToolchains => {
+            Err(CargoMSRVError::UnableToFindAnyGoodVersion {
+                command: config.check_command().join(" "),
+            })
+        }
+        MinimalCompatibility::CapableToolchain { ref version, .. }
+            if config.output_toolchain_file() =>
+        {
+            output_toolchain_file(&config, version)
+        }
+        MinimalCompatibility::CapableToolchain { .. } => Ok(()),
     }
 }
 
@@ -148,6 +152,45 @@ where
 
         *compatibility = status.into();
     }
+
+    Ok(())
+}
+
+const TOOLCHAIN_FILE: &str = "rust-toolchain";
+const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
+
+fn output_toolchain_file(config: &CmdMatches, stable_version: &semver::Version) -> TResult<()> {
+    let path_prefix = if let Some(path) = config.crate_path() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir()?
+    };
+
+    // check if the rust-toolchain(.toml) file already exists
+    if path_prefix.join(TOOLCHAIN_FILE).exists() {
+        eprintln!(
+            "Not writing toolchain file, '{}' already exists",
+            TOOLCHAIN_FILE
+        );
+        return Ok(());
+    } else if path_prefix.join(TOOLCHAIN_FILE_TOML).exists() {
+        eprintln!(
+            "Not writing toolchain file, '{}' already exists",
+            TOOLCHAIN_FILE_TOML
+        );
+        return Ok(());
+    }
+
+    let path = path_prefix.join(TOOLCHAIN_FILE);
+    let content = format!(
+        r#"[toolchain]
+channel = "{}"
+"#,
+        stable_version
+    );
+
+    std::fs::write(&path, content)?;
+    eprintln!("Written toolchain file to '{}'", &path.display());
 
     Ok(())
 }

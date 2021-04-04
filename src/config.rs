@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 pub struct CmdMatches<'a> {
     target: String,
     check_command: Vec<&'a str>,
-    seek_path: Option<PathBuf>,
+    crate_path: Option<PathBuf>,
     include_all_patch_releases: bool,
     minimum_version: Option<semver::Version>,
     maximum_version: Option<semver::Version>,
@@ -17,7 +17,7 @@ impl<'a> CmdMatches<'a> {
         Self {
             target,
             check_command: vec!["cargo", "check", "--all"],
-            seek_path: None,
+            crate_path: None,
             include_all_patch_releases: false,
             minimum_version: None,
             maximum_version: None,
@@ -33,8 +33,8 @@ impl<'a> CmdMatches<'a> {
         &self.check_command
     }
 
-    pub fn seek_path(&self) -> Option<&Path> {
-        self.seek_path.as_deref()
+    pub fn crate_path(&self) -> Option<&Path> {
+        self.crate_path.as_deref()
     }
 
     pub fn include_all_patch_releases(&self) -> bool {
@@ -76,8 +76,8 @@ impl<'a> CmdMatchesBuilder<'a> {
         self
     }
 
-    pub fn seek_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
-        self.inner.seek_path = path.map(|p| PathBuf::from(p.as_ref()));
+    pub fn crate_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
+        self.inner.crate_path = path.map(|p| PathBuf::from(p.as_ref()));
         self
     }
 
