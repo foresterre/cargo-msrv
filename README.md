@@ -9,7 +9,9 @@ This crate can assist you in finding the Minimum Supported Rust Version for a cr
 
 ### Preview
 
-![preview](https://i.imgur.com/5hAzJQu.gif)
+<!-- old preview: ![preview](https://i.imgur.com/5hAzJQu.gif) -->
+![preview](https://user-images.githubusercontent.com/5955761/113495231-aa41f800-94df-11eb-87ba-9eb852dee8b7.gif)
+
 
 
 ### Usage
