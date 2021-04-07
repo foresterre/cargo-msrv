@@ -12,11 +12,14 @@ repository = "https://github.com/foresterre/cargo-msrv"
 clap = "2.33.0"
 
 # Get the available rust versions
-rust-releases = "0.10"
+rust-releases = "0.13"
 
 # UI
 console = "0.14.1"
 indicatif = "0.15.0"
+
+[dev-dependencies]
+parameterized = "0.3.1"
 
 [[bin]]
 name = "cargo-msrv"
