@@ -1,9 +1,5 @@
 #![deny(clippy::all)]
-#![allow(
-    clippy::unknown_clippy_lints, // requiredbetween toolchain versions
-    clippy::upper_case_acronyms,
-    clippy::unnecessary_wraps
-)]
+#![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
 use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
@@ -172,19 +168,18 @@ fn test_against_releases_bisect(
     use rust_releases::index::{Bisect, Narrow};
 
     let mut binary_search = Bisect::from_slice(&releases);
-    let outcome = binary_search.search(|release| {
+    let outcome = binary_search.search_with_result(|release| {
         ui.show_progress("Checking", release.version());
 
-        // FIXME: work around: no result based search in rust-releases, so we need to unwrap here
-        let status = check_toolchain(release.version(), config, ui).expect("Building failed");
+        let status = check_toolchain(release.version(), config, ui)?;
         match status {
-            CheckStatus::Failure { .. } => Narrow::ToLeft,
-            CheckStatus::Success { .. } => Narrow::ToRight,
+            CheckStatus::Failure { .. } => TResult::Ok(Narrow::ToLeft),
+            CheckStatus::Success { .. } => TResult::Ok(Narrow::ToRight),
         }
     });
 
     // update compatibility
-    *compatibility = outcome
+    *compatibility = outcome?
         .map(|i| {
             let version = releases[i].version();
 
