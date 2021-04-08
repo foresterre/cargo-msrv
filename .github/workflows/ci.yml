@@ -20,7 +20,7 @@ jobs:
           # pinned (MSRV) rust version :: ubuntu
           - build: msrv
             os: ubuntu-18.04
-            rust: 1.42.0
+            rust: 1.46.0
 
           # latest rust stable :: ubuntu
           - build: stable
