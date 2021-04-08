@@ -1,7 +1,11 @@
 #![deny(clippy::all)]
-#![allow(clippy::upper_case_acronyms)]
+#![allow(
+    clippy::unknown_clippy_lints, // requiredbetween toolchain versions
+    clippy::upper_case_acronyms,
+    clippy::unnecessary_wraps
+)]
 
-use crate::check::{check_toolchain, CheckStatus};
+use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
 use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
@@ -94,6 +98,7 @@ pub fn determine_msrv(
         index.stable_releases_iterator().collect::<Vec<_>>()
     };
 
+    // Pre-filter the [min-version:max-version] range
     let included_releases = releases
         .iter()
         .filter(|release| {
@@ -106,8 +111,14 @@ pub fn determine_msrv(
         .copied()
         .collect::<Vec<_>>();
 
+    // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {
-        test_against_releases_bisect(included_releases.as_ref(), &mut compatibility, config, &ui)?;
+        // FIXME: work around - incompatible types in rust-releases 0.13 for bisect and linear search
+        let included_releases = included_releases
+            .iter()
+            .map(|e| Release::new(e.version().clone()))
+            .collect::<Vec<_>>();
+        test_against_releases_bisect(&included_releases, &mut compatibility, config, &ui)?;
     } else {
         test_against_releases_linearly(
             included_releases.as_ref(),
@@ -137,23 +148,6 @@ fn test_against_releases_linearly<'release>(
     ui: &Printer,
 ) -> TResult<()> {
     for release in releases {
-        // releases are ordered high to low; if we have reached a version which is below the minimum,
-        // we can stop.
-        if let Some(min) = config.minimum_version() {
-            if release.version() < min {
-                break;
-            }
-        }
-
-        // releases are ordered high to low; if we find a version which is higher than the maximum,
-        // we can skip over it.
-        if let Some(max) = config.maximum_version() {
-            if release.version() > max {
-                ui.skip_version(release.version());
-                continue;
-            }
-        }
-
         ui.show_progress("Checking", release.version());
         let status = check_toolchain(release.version(), config, ui)?;
 
@@ -167,13 +161,41 @@ fn test_against_releases_linearly<'release>(
     Ok(())
 }
 
-fn test_against_releases_bisect<'release>(
-    _releases: &[&'release Release],
-    _compatibility: &mut MinimalCompatibility,
-    _config: &CmdMatches,
-    _ui: &Printer,
+// Use binary search to find the MSRV
+// FIXME: Contains some rough edges which require updates in `rust-releases`
+fn test_against_releases_bisect(
+    releases: &[Release],
+    compatibility: &mut MinimalCompatibility,
+    config: &CmdMatches,
+    ui: &Printer,
 ) -> TResult<()> {
-    todo!()
+    use rust_releases::index::{Bisect, Narrow};
+
+    let mut binary_search = Bisect::from_slice(&releases);
+    let outcome = binary_search.search(|release| {
+        ui.show_progress("Checking", release.version());
+
+        // FIXME: work around: no result based search in rust-releases, so we need to unwrap here
+        let status = check_toolchain(release.version(), config, ui).expect("Building failed");
+        match status {
+            CheckStatus::Failure { .. } => Narrow::ToLeft,
+            CheckStatus::Success { .. } => Narrow::ToRight,
+        }
+    });
+
+    // update compatibility
+    *compatibility = outcome
+        .map(|i| {
+            let version = releases[i].version();
+
+            MinimalCompatibility::CapableToolchain {
+                toolchain: as_toolchain_specifier(version, config.target()),
+                version: version.clone(),
+            }
+        })
+        .unwrap_or(MinimalCompatibility::NoCompatibleToolchains);
+
+    Ok(())
 }
 
 fn include_version(
