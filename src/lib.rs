@@ -96,7 +96,7 @@ pub fn determine_msrv(
 
     // Pre-filter the [min-version:max-version] range
     let included_releases = releases
-        .iter()
+        .into_iter()
         .filter(|release| {
             include_version(
                 release.version(),
@@ -104,24 +104,14 @@ pub fn determine_msrv(
                 config.maximum_version(),
             )
         })
-        .copied()
+        .cloned()
         .collect::<Vec<_>>();
 
     // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {
-        // FIXME: work around - incompatible types in rust-releases 0.13 for bisect and linear search
-        let included_releases = included_releases
-            .iter()
-            .map(|e| Release::new(e.version().clone()))
-            .collect::<Vec<_>>();
         test_against_releases_bisect(&included_releases, &mut compatibility, config, &ui)?;
     } else {
-        test_against_releases_linearly(
-            included_releases.as_ref(),
-            &mut compatibility,
-            config,
-            &ui,
-        )?;
+        test_against_releases_linearly(&included_releases, &mut compatibility, config, &ui)?;
     }
 
     match &compatibility {
@@ -137,8 +127,8 @@ pub fn determine_msrv(
     Ok(compatibility)
 }
 
-fn test_against_releases_linearly<'release>(
-    releases: &[&'release Release],
+fn test_against_releases_linearly(
+    releases: &[Release],
     compatibility: &mut MinimalCompatibility,
     config: &CmdMatches,
     ui: &Printer,
