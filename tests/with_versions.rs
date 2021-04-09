@@ -24,6 +24,18 @@ fn validate_feature_versions_with_custom_cmd() {
     check_all_feature_versions(f)
 }
 
+#[test]
+fn validate_feature_versions_with_bisect() {
+    fn f(path: PathBuf) -> impl IntoIterator<Item = String> {
+        let path_args = with_path(path).into_iter();
+        let custom_check_args = vec!["--bisect".to_string()];
+
+        path_args.chain(custom_check_args)
+    }
+
+    check_all_feature_versions(f)
+}
+
 fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     args: impl Fn(PathBuf) -> I,
 ) {
