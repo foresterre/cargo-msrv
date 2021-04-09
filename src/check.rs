@@ -81,7 +81,7 @@ fn try_building(
     if !status.success() {
         ui.complete_step(
             format!(
-                "{} red light for {}",
+                "{} Bad check for {}",
                 style("Done").green().bold(),
                 style(version).cyan()
             )
@@ -95,7 +95,7 @@ fn try_building(
     } else {
         ui.complete_step(
             format!(
-                "{} green light for {}",
+                "{} Good check for {}",
                 style("Done").green().bold(),
                 style(version).cyan()
             )
