@@ -1013,8 +1013,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.13.0"
-source = "git+https://github.com/foresterre/rust-releases.git?branch=main#598f3528065da9da77cf13ba5e919e25b4ea5ac4"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20c11bc407220e9131ffac096710ffbdec700a3bd9f2e968caeba1337d62fe96"
 dependencies = [
  "attohttpc",
  "directories-next",
