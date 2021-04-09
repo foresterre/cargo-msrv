@@ -76,7 +76,7 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                 .arg(Arg::with_name(id::ARG_MIN)
                     .long("minimum")
                     .help("Earliest version to take into account")
-                    .long_help("Defaults to 1.31.0 which is the first Rust 2018 compatible version")
+                    .long_help("Earliest version to take into account. Defaults to 1.31.0 which is the first Rust 2018 compatible version.")
                     .takes_value(true)
                     .default_value("1.31.0")
                 )
@@ -95,7 +95,7 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .help("Output a rust-toolchain file with the MSRV as toolchain")
                     .long_help("Output a rust-toolchain file with the MSRV as toolchain. \
                     The toolchain file will pin the Rust version for this crate. \
-                    See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more")
+                    See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.")
                 )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
@@ -103,7 +103,7 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                         .help("If given, this command is used to validate if a Rust version is \
                         compatible. Should be available to rustup, i.e. the command should work like \
                         so: `rustup run <toolchain> <COMMAND>`. \
-                        The default check action is `cargo check --all`")
+                        The default check action is `cargo check --all`.")
                         .multiple(true)
                         .last(true)
 

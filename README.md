@@ -50,17 +50,17 @@ OPTIONS:
             Latest version to take into account
 
         --minimum <min>
-            Defaults to 1.31.0 which is the first Rust 2018 compatible version [default: 1.31.0]
-
+            Earliest version to take into account. Defaults to 1.31.0 which is the first Rust 2018 compatible version.
+            [default: 1.31.0]
         --path <DIR>
-            Path to the cargo project directory.
+            Path to the cargo project directory
 
         --target <TARGET>
             Check against a custom target (instead of the rustup default)
 
         --toolchain-file
-            The toolchain file will pin the Rust version for this crate. See https://rust-
-            lang.github.io/rustup/overrides.html#the-toolchain-file for more
+            Output a rust-toolchain file with the MSRV as toolchain. The toolchain file will pin the Rust version for
+            this crate. See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
     -V, --version
             Prints version information
 
@@ -68,8 +68,8 @@ OPTIONS:
 ARGS:
     <COMMAND>...
             If given, this command is used to validate if a Rust version is compatible. Should be available to rustup,
-            i.e. the command should work like so: `rustup run <toolchain> <COMMAND> The default check action is `cargo
-            build --all`
+            i.e. the command should work like so: `rustup run <toolchain> <COMMAND>`. The default check action is `cargo
+            check --all`.
 
 If arguments are provided after two dashes (`--`), they will be used as a custom command to validate whether a Rust
 version is compatible. By default for this validation the command `cargo build` is used. Commands should be runnable by
