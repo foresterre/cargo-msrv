@@ -107,6 +107,8 @@ pub fn determine_msrv(
         .cloned()
         .collect::<Vec<_>>();
 
+    ui.set_progress_bar_length(included_releases.len() as u64);
+
     // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {
         test_against_releases_bisect(&included_releases, &mut compatibility, config, &ui)?;
@@ -147,8 +149,7 @@ fn test_against_releases_linearly(
     Ok(())
 }
 
-// Use binary search to find the MSRV
-// FIXME: Contains some rough edges which require updates in `rust-releases`
+// Use a binary search to find the MSRV
 fn test_against_releases_bisect(
     releases: &[Release],
     compatibility: &mut MinimalCompatibility,
@@ -157,11 +158,18 @@ fn test_against_releases_bisect(
 ) -> TResult<()> {
     use rust_releases::index::{Bisect, Narrow};
 
+    // track progressed items
+    let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(&releases);
-    let outcome = binary_search.search_with_result(|release| {
+    let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
         ui.show_progress("Checking", release.version());
 
+        // increment progressed items
+        let steps = progressed.replace(progressed.get().saturating_add(1));
+        ui.set_progress_bar_length(steps + (remainder as u64));
+
         let status = check_toolchain(release.version(), config, ui)?;
+
         match status {
             CheckStatus::Failure { .. } => TResult::Ok(Narrow::ToLeft),
             CheckStatus::Success { .. } => TResult::Ok(Narrow::ToRight),

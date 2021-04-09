@@ -51,16 +51,8 @@ impl Printer {
         );
     }
 
-    pub fn skip_version(&self, version: &semver::Version) {
-        self.progress.set_message(
-            format!(
-                "{} {}",
-                style("Skipping").green().bold(),
-                style(version).cyan()
-            )
-            .as_str(),
-        );
-        self.progress.inc(1);
+    pub fn set_progress_bar_length(&self, len: u64) {
+        self.progress.set_length(len)
     }
 
     pub fn finish_with_ok(&self, version: &semver::Version) {
