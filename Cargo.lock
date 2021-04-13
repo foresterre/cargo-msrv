@@ -1013,21 +1013,87 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.14.0"
+version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20c11bc407220e9131ffac096710ffbdec700a3bd9f2e968caeba1337d62fe96"
+checksum = "da35902aea6b15197cc2adbd507358a7dfac5eefc3fde38d3db78b2b46c449c1"
+dependencies = [
+ "rust-releases-channel-manifests",
+ "rust-releases-core",
+ "rust-releases-rust-changelog",
+ "rust-releases-rust-dist",
+ "rust-releases-rust-dist-with-cli",
+]
+
+[[package]]
+name = "rust-releases-channel-manifests"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0a85abe78afc8e76c84333a3f21c9ea0f5bbdb9f31d8122cefbfd9a11b1ef02"
+dependencies = [
+ "rust-releases-core",
+ "rust-releases-io",
+ "serde",
+ "thiserror",
+ "toml",
+]
+
+[[package]]
+name = "rust-releases-core"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7189f044eb0556daf823e51f0f147731aaf2259196540976541e4d7eaeffc0f8"
+dependencies = [
+ "semver 0.11.0",
+ "thiserror",
+]
+
+[[package]]
+name = "rust-releases-io"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c090def79df80c8ec89027e33dbcd0a05e1e30e1bbfe75a12a35f5b4e577c71e"
 dependencies = [
  "attohttpc",
  "directories-next",
+ "thiserror",
+]
+
+[[package]]
+name = "rust-releases-rust-changelog"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa72b4c93b329aad9a3c35bfd90635954bc5e802f2e8f2dd4bf13f6aebd26d1e"
+dependencies = [
+ "rust-releases-core",
+ "rust-releases-io",
+ "thiserror",
+]
+
+[[package]]
+name = "rust-releases-rust-dist"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b39e56a663fb738bcf1bff6aa4f5af8a93b72a6dd8029a1fa794780bbdf0e9e"
+dependencies = [
  "lazy_static",
  "regex",
  "rusoto_core",
  "rusoto_s3",
- "semver 0.11.0",
- "serde",
+ "rust-releases-core",
+ "rust-releases-io",
  "thiserror",
  "tokio",
- "toml",
+]
+
+[[package]]
+name = "rust-releases-rust-dist-with-cli"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa61077c95e65812341f510c745bf7c2f423363d294f683e065323687869b3af"
+dependencies = [
+ "rust-releases-core",
+ "rust-releases-io",
+ "thiserror",
 ]
 
 [[package]]
