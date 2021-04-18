@@ -6,8 +6,8 @@ use crate::cli::cmd_matches;
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::ui::Printer;
-use rust_releases::source::{FetchResources, RustChangelog, Source};
-use rust_releases::{semver, Channel, Release};
+use rust_releases::linear::LatestStableReleases;
+use rust_releases::{semver, Channel, FetchResources, Release, RustChangelog, Source};
 
 pub mod check;
 pub mod cli;
@@ -78,7 +78,7 @@ impl From<CheckStatus> for MinimalCompatibility {
 
 pub fn determine_msrv(
     config: &CmdMatches,
-    index: &rust_releases::index::ReleaseIndex,
+    index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
     let cmd = config.check_command().join(" ");
@@ -87,11 +87,14 @@ pub fn determine_msrv(
     let ui = Printer::new(releases.len() as u64);
     ui.welcome(config.target(), &cmd);
 
-    // The collecting step is necessary, because Rust can't deal with equal opaque types
     let releases = if config.include_all_patch_releases() {
-        index.all_releases_iterator().collect::<Vec<_>>()
+        releases.to_vec()
     } else {
-        index.stable_releases_iterator().collect::<Vec<_>>()
+        releases
+            .to_vec()
+            .into_iter()
+            .latest_stable_releases()
+            .collect()
     };
 
     // Pre-filter the [min-version:max-version] range
@@ -104,7 +107,6 @@ pub fn determine_msrv(
                 config.maximum_version(),
             )
         })
-        .cloned()
         .collect::<Vec<_>>();
 
     ui.set_progress_bar_length(included_releases.len() as u64);
@@ -156,7 +158,7 @@ fn test_against_releases_bisect(
     config: &CmdMatches,
     ui: &Printer,
 ) -> TResult<()> {
-    use rust_releases::index::{Bisect, Narrow};
+    use rust_releases::bisect::{Bisect, Narrow};
 
     // track progressed items
     let progressed = std::cell::Cell::new(0u64);

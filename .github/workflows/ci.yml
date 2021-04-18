@@ -1,4 +1,4 @@
-# GitHub Actions workflow: CI for sic
+# GitHub Actions workflow: CI for cargo-msrv
 #
 # based on: https://github.com/BurntSushi/bstr/blob/master/.github/workflows/ci.yml
 # which is licensed under Apache License, Version 2.0 or MIT license
@@ -21,7 +21,7 @@ jobs:
           # pinned (MSRV) rust version :: ubuntu
           - build: msrv
             os: ubuntu-18.04
-            rust: 1.46.0
+            rust: 1.42.0
 
           # latest rust stable :: ubuntu
           - build: stable
