@@ -1,5 +1,4 @@
 use crate::fetch::ToolchainSpecifier;
-use rust_releases::RustReleasesError;
 use std::env;
 use std::error::Error;
 use std::fmt;
@@ -17,8 +16,8 @@ pub enum CargoMSRVError {
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
+    RustReleasesSource(rust_releases::RustChangelogError),
     RustupInstallFailed(ToolchainSpecifier),
-    RustReleasesError(RustReleasesError),
     RustupRunWithCommandFailed,
     SemverError(rust_releases::semver::SemVerError),
     SystemTime(std::time::SystemTimeError),
@@ -40,8 +39,8 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
+            CargoMSRVError::RustReleasesSource(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
-            CargoMSRVError::RustReleasesError(err) => err.fmt(f),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::SemverError(err) => write!(f, "{}", err),
             CargoMSRVError::SystemTime(err) => err.fmt(f),
@@ -100,14 +99,15 @@ impl From<rust_releases::semver::SemVerError> for CargoMSRVError {
         CargoMSRVError::SemverError(err)
     }
 }
+
 impl From<std::time::SystemTimeError> for CargoMSRVError {
     fn from(err: std::time::SystemTimeError) -> Self {
         CargoMSRVError::SystemTime(err)
     }
 }
 
-impl From<rust_releases::RustReleasesError> for CargoMSRVError {
-    fn from(err: rust_releases::RustReleasesError) -> Self {
-        CargoMSRVError::RustReleasesError(err)
+impl From<rust_releases::RustChangelogError> for CargoMSRVError {
+    fn from(err: rust_releases::RustChangelogError) -> Self {
+        CargoMSRVError::RustReleasesSource(err)
     }
 }

@@ -11,12 +11,15 @@ repository = "https://github.com/foresterre/cargo-msrv"
 # Used for parsing cli arguments.
 clap = "2.33.0"
 
-# Get the available rust versions
-rust-releases = "0.14.0"
-
 # UI
 console = "0.14.1"
 indicatif = "0.15.0"
+
+# Get the available rust versions
+[dependencies.rust-releases]
+version = "0.15.3"
+default-features = false
+features = ["rust-releases-rust-changelog"]
 
 [dev-dependencies]
 parameterized = "0.3.1"

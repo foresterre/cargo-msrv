@@ -54,11 +54,11 @@ fn check_all_feature_versions<I: IntoIterator<Item = T>, T: Into<OsString> + Clo
             println!("matches: {:?}", &matches);
 
             let available: ReleaseIndex = FromIterator::from_iter(vec![
-                Release::new(semver::Version::new(1, 38, 0)),
-                Release::new(semver::Version::new(1, 37, 0)),
-                Release::new(semver::Version::new(1, 36, 0)),
-                Release::new(semver::Version::new(1, 35, 0)),
-                Release::new(semver::Version::new(1, 34, 0)),
+                Release::new_stable(semver::Version::new(1, 38, 0)),
+                Release::new_stable(semver::Version::new(1, 37, 0)),
+                Release::new_stable(semver::Version::new(1, 36, 0)),
+                Release::new_stable(semver::Version::new(1, 35, 0)),
+                Release::new_stable(semver::Version::new(1, 34, 0)),
             ]);
 
             let result = cargo_msrv::determine_msrv(&matches, &available).unwrap();
