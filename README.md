@@ -16,10 +16,7 @@ With Cargo from Github [latest development version]:
 
 ### Preview
 
-<!-- old preview: ![preview](https://i.imgur.com/5hAzJQu.gif) -->
-![preview](https://user-images.githubusercontent.com/5955761/113495231-aa41f800-94df-11eb-87ba-9eb852dee8b7.gif)
-
-
+![cargo-msrv preview](https://user-images.githubusercontent.com/67644597/115533258-db1f7c80-a296-11eb-864f-c2e363fdb83d.gif)
 
 ### Usage
 
