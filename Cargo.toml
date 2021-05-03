@@ -23,6 +23,7 @@ features = ["rust-releases-rust-changelog"]
 
 [dev-dependencies]
 parameterized = "0.3.1"
+yare = "1.0.1"
 
 [[bin]]
 name = "cargo-msrv"
