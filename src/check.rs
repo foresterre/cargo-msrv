@@ -121,28 +121,22 @@ fn try_building(
     let status = child.wait()?;
 
     if !status.success() {
-        ui.complete_step(
-            format!(
-                "{} Bad check for {}",
-                style("Done").green().bold(),
-                style(version).cyan()
-            )
-            .as_str(),
-        );
+        ui.complete_step(format!(
+            "{} Bad check for {}",
+            style("Done").green().bold(),
+            style(version).cyan()
+        ));
 
         Ok(CheckStatus::Failure {
             toolchain: toolchain_specifier.to_string(),
             version: version.clone(),
         })
     } else {
-        ui.complete_step(
-            format!(
-                "{} Good check for {}",
-                style("Done").green().bold(),
-                style(version).cyan()
-            )
-            .as_str(),
-        );
+        ui.complete_step(format!(
+            "{} Good check for {}",
+            style("Done").green().bold(),
+            style(version).cyan()
+        ));
         Ok(CheckStatus::Success {
             toolchain: toolchain_specifier.to_string(),
             version: version.clone(),
