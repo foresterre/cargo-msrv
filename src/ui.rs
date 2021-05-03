@@ -1,6 +1,7 @@
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
+use std::borrow::Cow;
 
 pub struct Printer {
     term: Term,
@@ -40,15 +41,17 @@ impl Printer {
         self.progress.enable_steady_tick(500);
     }
 
-    pub fn complete_step(&self, message: &str) {
+    pub fn complete_step(&self, message: impl Into<Cow<'static, str>>) {
         self.progress.set_message(message);
         self.progress.inc(1);
     }
 
     pub fn show_progress(&self, action: &str, version: &semver::Version) {
-        self.progress.set_message(
-            format!("{} {}", style(action).green().bold(), style(version).cyan()).as_str(),
-        );
+        self.progress.set_message(format!(
+            "{} {}",
+            style(action).green().bold(),
+            style(version).cyan()
+        ));
     }
 
     pub fn set_progress_bar_length(&self, len: u64) {
@@ -56,14 +59,11 @@ impl Printer {
     }
 
     pub fn finish_with_ok(&self, version: &semver::Version) {
-        self.progress.finish_with_message(
-            format!(
-                "{} The MSRV is {}",
-                style("Finished").green().bold(),
-                style(version).cyan()
-            )
-            .as_str(),
-        )
+        self.progress.finish_with_message(format!(
+            "{} The MSRV is {}",
+            style("Finished").green().bold(),
+            style(version).cyan()
+        ))
     }
 
     pub fn finish_with_err(&self, cmd: &str) {
