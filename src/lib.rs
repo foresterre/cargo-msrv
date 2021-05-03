@@ -40,7 +40,7 @@ pub fn run_cargo_msrv() -> TResult<()> {
 }
 
 /// An enum to represent the minimal compatibility
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MinimalCompatibility {
     /// A toolchain is compatible, if the outcome of a toolchain check results in a success
     CapableToolchain {
