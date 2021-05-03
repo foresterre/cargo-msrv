@@ -13,7 +13,7 @@ clap = "2.33.0"
 
 # UI
 console = "0.14.1"
-indicatif = "0.15.0"
+indicatif = "0.16.0"
 
 # Get the available rust versions
 [dependencies.rust-releases]
