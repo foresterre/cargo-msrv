@@ -1,4 +1,4 @@
-use crate::command::command;
+use crate::command::{command, command_with_output};
 use crate::config::CmdMatches;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::ui::Printer;
@@ -51,10 +51,19 @@ fn download_if_required(
     let toolchain = toolchain_specifier.to_owned();
     ui.show_progress("Installing", version);
 
-    let status = command(&["install", "--profile", "minimal", &toolchain], None)
-        .and_then(|mut c| c.wait().map_err(CargoMSRVError::Io))?;
+    let status = command_with_output(&["install", "--profile", "minimal", &toolchain])
+        .and_then(|c| c.wait_with_output().map_err(CargoMSRVError::Io))?;
 
-    if !status.success() {
+    let out = String::from_utf8_lossy(&status.stdout);
+    let err = String::from_utf8_lossy(&status.stderr);
+
+    println!("----");
+    dbg!(out);
+    dbg!(err);
+    println!("----");
+    println!("----");
+
+    if !status.status.success() {
         return Err(CargoMSRVError::RustupInstallFailed(
             toolchain_specifier.to_string(),
         ));
