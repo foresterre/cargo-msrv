@@ -11,6 +11,7 @@ pub mod id {
     pub const ARG_MAX: &str = "max";
     pub const ARG_BISECT: &str = "bisect";
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
+    pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -94,6 +95,12 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .long_help("Output a rust-toolchain file with the MSRV as toolchain. \
                     The toolchain file will pin the Rust version for this crate. \
                     See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.")
+                )
+                .arg(Arg::with_name(id::ARG_IGNORE_LOCKFILE)
+                    .long("ignore-lockfile")
+                    .help("Temporarily removes the lockfile, so it will not interfere with the building process")
+                    .long_help("Temporarily removes the lockfile, so it will not interfere with the building process. \
+                    This is important when testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.")
                 )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)

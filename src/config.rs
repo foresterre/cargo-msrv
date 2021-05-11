@@ -14,6 +14,7 @@ pub struct Config<'a> {
     maximum_version: Option<semver::Version>,
     bisect: bool,
     output_toolchain_file: bool,
+    ignore_lockfile: bool,
 }
 
 impl<'a> Config<'a> {
@@ -27,6 +28,7 @@ impl<'a> Config<'a> {
             maximum_version: None,
             bisect: false,
             output_toolchain_file: false,
+            ignore_lockfile: false,
         }
     }
 
@@ -60,6 +62,10 @@ impl<'a> Config<'a> {
 
     pub fn output_toolchain_file(&self) -> bool {
         self.output_toolchain_file
+    }
+
+    pub fn ignore_lockfile(&self) -> bool {
+        self.ignore_lockfile
     }
 }
 
@@ -115,6 +121,11 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn ignore_lockfile(mut self, choice: bool) -> Self {
+        self.inner.ignore_lockfile = choice;
+        self
+    }
+
     pub fn build(self) -> Config<'a> {
         self.inner
     }
@@ -165,6 +176,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             .include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
 
         builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
+
+        builder = builder.ignore_lockfile(arg_matches.is_present(id::ARG_IGNORE_LOCKFILE));
 
         Ok(builder.build())
     }
