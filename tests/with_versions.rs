@@ -125,3 +125,37 @@ fn run<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(with_args: I) -> Mi
     // Determine the MSRV from the index of available releases.
     cargo_msrv::determine_msrv(&matches, &available_versions).expect("Unable to run MSRV process")
 }
+
+#[test]
+fn msrv_with_old_lockfile() {
+    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("features")
+        .join("1.29.2");
+    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+
+    let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args);
+    assert_eq!(result.unwrap_version().minor, 29);
+}
+
+fn run_cargo_version_which_doesnt_support_lockfile_v2<
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + Clone,
+>(
+    with_args: I,
+) -> MinimalCompatibility {
+    let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
+    let matches = Config::try_from(&matches).expect("Unable to parse cli arguments");
+
+    // Limit the available versions: this ensures we don't want to incrementally install more toolchains
+    //  as more Rust toolchains become available.
+    let available_versions: ReleaseIndex = FromIterator::from_iter(vec![
+        Release::new_stable(semver::Version::new(1, 39, 0)),
+        Release::new_stable(semver::Version::new(1, 38, 0)),
+        Release::new_stable(semver::Version::new(1, 37, 0)),
+        Release::new_stable(semver::Version::new(1, 30, 1)),
+        Release::new_stable(semver::Version::new(1, 29, 2)),
+    ]);
+
+    // Determine the MSRV from the index of available releases.
+    cargo_msrv::determine_msrv(&matches, &available_versions).expect("Unable to run MSRV process")
+}
