@@ -2,12 +2,12 @@
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
 use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
-use crate::cli::cmd_matches;
-use crate::config::CmdMatches;
+use crate::config::Config;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::ui::Printer;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Channel, FetchResources, Release, RustChangelog, Source};
+use std::convert::TryFrom;
 
 pub mod check;
 pub mod cli;
@@ -19,7 +19,7 @@ pub mod ui;
 
 pub fn run_cargo_msrv() -> TResult<()> {
     let matches = cli::cli().get_matches();
-    let config = cmd_matches(&matches)?;
+    let config = Config::try_from(&matches)?;
 
     let index_strategy = RustChangelog::fetch_channel(Channel::Stable)?;
     let index = index_strategy.build_index()?;
@@ -77,7 +77,7 @@ impl From<CheckStatus> for MinimalCompatibility {
 }
 
 pub fn determine_msrv(
-    config: &CmdMatches,
+    config: &Config,
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
@@ -134,7 +134,7 @@ pub fn determine_msrv(
 fn test_against_releases_linearly(
     releases: &[Release],
     compatibility: &mut MinimalCompatibility,
-    config: &CmdMatches,
+    config: &Config,
     ui: &Printer,
 ) -> TResult<()> {
     for release in releases {
@@ -155,7 +155,7 @@ fn test_against_releases_linearly(
 fn test_against_releases_bisect(
     releases: &[Release],
     compatibility: &mut MinimalCompatibility,
-    config: &CmdMatches,
+    config: &Config,
     ui: &Printer,
 ) -> TResult<()> {
     use rust_releases::bisect::{Bisect, Narrow};
@@ -209,7 +209,7 @@ fn include_version(
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 
-fn output_toolchain_file(config: &CmdMatches, stable_version: &semver::Version) -> TResult<()> {
+fn output_toolchain_file(config: &Config, stable_version: &semver::Version) -> TResult<()> {
     let path_prefix = if let Some(path) = config.crate_path() {
         path.to_path_buf()
     } else {

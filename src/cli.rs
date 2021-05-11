@@ -1,7 +1,5 @@
-use crate::config::{CmdMatches, CmdMatchesBuilder};
-use crate::errors::{CargoMSRVError, TResult};
-use crate::fetch::{default_target, is_target_available};
-use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use crate::fetch::is_target_available;
+use clap::{App, AppSettings, Arg, SubCommand};
 
 pub mod id {
     pub const SUB_COMMAND_MSRV: &str = "msrv";
@@ -109,47 +107,4 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
 
                 )
         )
-}
-
-pub fn cmd_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<CmdMatches<'a>> {
-    let target = default_target()?;
-
-    let arg_matches = matches
-        .subcommand_matches(id::SUB_COMMAND_MSRV)
-        .ok_or(CargoMSRVError::UnableToParseCliArgs)?;
-
-    let mut builder = CmdMatchesBuilder::new(&target);
-
-    // set the command which will be used to check if a project can build
-    let check_cmd = arg_matches.values_of(id::ARG_CUSTOM_CHECK);
-    if let Some(cmd) = check_cmd {
-        builder = builder.check_command(cmd.collect());
-    }
-
-    // set the cargo workspace path
-    let crate_path = arg_matches.value_of(id::ARG_SEEK_PATH);
-    builder = builder.crate_path(crate_path);
-
-    // set a custom target
-    let custom_target = arg_matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
-    if let Some(target) = custom_target {
-        builder = builder.target(target);
-    }
-
-    if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
-        builder = builder.minimum_version(Some(rust_releases::semver::Version::parse(min)?))
-    }
-
-    if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
-        builder = builder.maximum_version(Some(rust_releases::semver::Version::parse(max)?))
-    }
-
-    builder = builder.bisect(arg_matches.is_present(id::ARG_BISECT));
-
-    builder = builder
-        .include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
-
-    builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
-
-    Ok(builder.build())
 }

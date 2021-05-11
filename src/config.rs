@@ -1,8 +1,11 @@
+use crate::errors::CargoMSRVError;
+use clap::ArgMatches;
 use rust_releases::semver;
+use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
-pub struct CmdMatches<'a> {
+pub struct Config<'a> {
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -13,7 +16,7 @@ pub struct CmdMatches<'a> {
     output_toolchain_file: bool,
 }
 
-impl<'a> CmdMatches<'a> {
+impl<'a> Config<'a> {
     pub fn new(target: String) -> Self {
         Self {
             target,
@@ -61,14 +64,14 @@ impl<'a> CmdMatches<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub struct CmdMatchesBuilder<'a> {
-    inner: CmdMatches<'a>,
+pub struct ConfigBuilder<'a> {
+    inner: Config<'a>,
 }
 
-impl<'a> CmdMatchesBuilder<'a> {
+impl<'a> ConfigBuilder<'a> {
     pub fn new(default_target: &str) -> Self {
         Self {
-            inner: CmdMatches::new(default_target.to_string()),
+            inner: Config::new(default_target.to_string()),
         }
     }
 
@@ -112,7 +115,57 @@ impl<'a> CmdMatchesBuilder<'a> {
         self
     }
 
-    pub fn build(self) -> CmdMatches<'a> {
+    pub fn build(self) -> Config<'a> {
         self.inner
+    }
+}
+
+impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
+    type Error = CargoMSRVError;
+
+    fn try_from(matches: &'config ArgMatches<'config>) -> Result<Self, Self::Error> {
+        use crate::cli::id;
+        use crate::fetch::default_target;
+
+        let target = default_target()?;
+
+        let arg_matches = matches
+            .subcommand_matches(id::SUB_COMMAND_MSRV)
+            .ok_or(CargoMSRVError::UnableToParseCliArgs)?;
+
+        let mut builder = ConfigBuilder::new(&target);
+
+        // set the command which will be used to check if a project can build
+        let check_cmd = arg_matches.values_of(id::ARG_CUSTOM_CHECK);
+        if let Some(cmd) = check_cmd {
+            builder = builder.check_command(cmd.collect());
+        }
+
+        // set the cargo workspace path
+        let crate_path = arg_matches.value_of(id::ARG_SEEK_PATH);
+        builder = builder.crate_path(crate_path);
+
+        // set a custom target
+        let custom_target = arg_matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
+        if let Some(target) = custom_target {
+            builder = builder.target(target);
+        }
+
+        if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
+            builder = builder.minimum_version(Some(rust_releases::semver::Version::parse(min)?))
+        }
+
+        if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
+            builder = builder.maximum_version(Some(rust_releases::semver::Version::parse(max)?))
+        }
+
+        builder = builder.bisect(arg_matches.is_present(id::ARG_BISECT));
+
+        builder = builder
+            .include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
+
+        builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
+
+        Ok(builder.build())
     }
 }
