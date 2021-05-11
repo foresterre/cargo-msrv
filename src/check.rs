@@ -1,5 +1,5 @@
 use crate::command::command;
-use crate::config::CmdMatches;
+use crate::config::Config;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::ui::Printer;
 use console::style;
@@ -24,7 +24,7 @@ pub enum CheckStatus {
 
 pub fn check_toolchain<'a>(
     version: &'a semver::Version,
-    config: &'a CmdMatches,
+    config: &'a Config,
     ui: &'a Printer,
 ) -> TResult<CheckStatus> {
     let toolchain_specifier = as_toolchain_specifier(version, config.target());
