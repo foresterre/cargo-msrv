@@ -8,6 +8,7 @@ use crate::ui::Printer;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Channel, FetchResources, Release, RustChangelog, Source};
 use std::convert::TryFrom;
+use std::path::PathBuf;
 
 pub mod check;
 pub mod cli;
@@ -15,6 +16,7 @@ pub mod command;
 pub mod config;
 pub mod errors;
 pub mod fetch;
+pub mod lockfile;
 pub mod ui;
 
 pub fn run_cargo_msrv() -> TResult<()> {
@@ -210,11 +212,7 @@ const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 
 fn output_toolchain_file(config: &Config, stable_version: &semver::Version) -> TResult<()> {
-    let path_prefix = if let Some(path) = config.crate_path() {
-        path.to_path_buf()
-    } else {
-        std::env::current_dir()?
-    };
+    let path_prefix = crate_root_folder(config)?;
 
     // check if the rust-toolchain(.toml) file already exists
     if path_prefix.join(TOOLCHAIN_FILE).exists() {
@@ -243,6 +241,14 @@ channel = "{}"
     eprintln!("Written toolchain file to '{}'", &path.display());
 
     Ok(())
+}
+
+pub fn crate_root_folder(config: &Config) -> TResult<PathBuf> {
+    if let Some(path) = config.crate_path() {
+        Ok(path.to_path_buf())
+    } else {
+        std::env::current_dir().map_err(CargoMSRVError::Io)
+    }
 }
 
 #[cfg(test)]

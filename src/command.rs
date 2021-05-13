@@ -17,7 +17,7 @@ pub fn command<I: IntoIterator<Item = V>, V: AsRef<OsStr>>(
     dir: Option<&Path>,
 ) -> TResult<Child> {
     command_impl(commands, dir)
-        .nullify_output()
+        .pipe_output()
         .spawn()
         .map_err(From::from)
 }
@@ -30,17 +30,6 @@ impl PipeCliOutput for Command {
     fn pipe_output(&mut self) -> &mut Command {
         self.stdout(Stdio::piped());
         self.stderr(Stdio::piped())
-    }
-}
-
-trait NullifyCliOutput {
-    fn nullify_output(&mut self) -> &mut Command;
-}
-
-impl NullifyCliOutput for Command {
-    fn nullify_output(&mut self) -> &mut Command {
-        self.stdout(Stdio::null());
-        self.stderr(Stdio::null())
     }
 }
 

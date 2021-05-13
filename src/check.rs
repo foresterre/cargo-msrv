@@ -1,6 +1,8 @@
 use crate::command::command;
 use crate::config::Config;
+use crate::crate_root_folder;
 use crate::errors::{CargoMSRVError, TResult};
+use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::ui::Printer;
 use console::style;
 use rust_releases::semver;
@@ -27,9 +29,43 @@ pub fn check_toolchain<'a>(
     config: &'a Config,
     ui: &'a Printer,
 ) -> TResult<CheckStatus> {
+    // temporarily move the lockfile if the user opted to ignore it, and it exists
+    let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
+    let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
+        let handle = LockfileHandler::new(cargo_lock).move_lockfile()?;
+
+        Some(handle)
+    } else {
+        None
+    };
+
+    let status = examine_toolchain(version, config, ui)?;
+
+    // move the lockfile back
+    if let Some(handle) = handle_wrap {
+        handle.move_lockfile_back()?;
+    }
+
+    Ok(status)
+}
+
+pub fn as_toolchain_specifier(version: &semver::Version, target: &str) -> String {
+    format!("{}-{}", version, target)
+}
+
+fn examine_toolchain(
+    version: &semver::Version,
+    config: &Config,
+    ui: &Printer,
+) -> TResult<CheckStatus> {
     let toolchain_specifier = as_toolchain_specifier(version, config.target());
 
     download_if_required(version, &toolchain_specifier, ui)?;
+
+    if config.ignore_lockfile() {
+        remove_lockfile(config)?;
+    }
+
     try_building(
         version,
         &toolchain_specifier,
@@ -37,10 +73,6 @@ pub fn check_toolchain<'a>(
         config.check_command(),
         ui,
     )
-}
-
-pub fn as_toolchain_specifier(version: &semver::Version, target: &str) -> String {
-    format!("{}-{}", version, target)
 }
 
 fn download_if_required(
@@ -58,6 +90,16 @@ fn download_if_required(
         return Err(CargoMSRVError::RustupInstallFailed(
             toolchain_specifier.to_string(),
         ));
+    }
+
+    Ok(())
+}
+
+fn remove_lockfile(config: &Config) -> TResult<()> {
+    let lock_file = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
+
+    if lock_file.is_file() {
+        std::fs::remove_file(lock_file).map_err(CargoMSRVError::Io)?;
     }
 
     Ok(())
