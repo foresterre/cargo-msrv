@@ -43,12 +43,15 @@ OPTIONS:
         --include-all-patch-releases
             Include all patch releases, instead of only the last
 
+        --ignore-lockfile
+            Temporarily removes the lockfile, so it will not interfere with the building process. This is important when
+            testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.
         --maximum <max>
             Latest version to take into account
 
         --minimum <min>
-            Earliest version to take into account. Defaults to 1.31.0 which is the first Rust 2018 compatible version.
-            [default: 1.31.0]
+            Earliest version to take into account.
+
         --path <DIR>
             Path to the cargo project directory
 
