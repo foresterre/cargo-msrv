@@ -5,4 +5,6 @@ version = "0.1.0"
 authors = ["foresterre <garm@ilumeo.com>"]
 
 [dependencies]
-stringslice = "0.1" # include a dependency, so the lockfile will contain a format not supported by the lockfile v1 parser
+stringslice = "=0.1.2" # include a dependency, so the lockfile will contain a format not supported by the lockfile v1 parser
+
+[workspace]
