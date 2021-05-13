@@ -15,6 +15,7 @@ jobs:
     name: test
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         build: [msrv, stable, nightly, macos, win-gnu, win-msvc]
         include:
