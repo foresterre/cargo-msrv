@@ -4,6 +4,12 @@ use rust_releases::semver;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug, Clone, Copy)]
+pub enum OutputFormat {
+    Human,
+    Json,
+}
+
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
     target: String,
@@ -15,6 +21,7 @@ pub struct Config<'a> {
     bisect: bool,
     output_toolchain_file: bool,
     ignore_lockfile: bool,
+    output_format: OutputFormat,
 }
 
 impl<'a> Config<'a> {
@@ -29,6 +36,7 @@ impl<'a> Config<'a> {
             bisect: false,
             output_toolchain_file: false,
             ignore_lockfile: false,
+            output_format: OutputFormat::Human,
         }
     }
 
@@ -66,6 +74,10 @@ impl<'a> Config<'a> {
 
     pub fn ignore_lockfile(&self) -> bool {
         self.ignore_lockfile
+    }
+
+    pub fn output_format(&self) -> OutputFormat {
+        self.output_format
     }
 }
 
@@ -126,6 +138,11 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn output_format(mut self, output_format: OutputFormat) -> Self {
+        self.inner.output_format = output_format;
+        self
+    }
+
     pub fn build(self) -> Config<'a> {
         self.inner
     }
@@ -178,6 +195,16 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
 
         builder = builder.ignore_lockfile(arg_matches.is_present(id::ARG_IGNORE_LOCKFILE));
+
+        let output_format = arg_matches.value_of(id::ARG_OUTPUT_FORMAT);
+        if let Some(output_format) = output_format {
+            let output_format = match output_format {
+                "json" => OutputFormat::Json,
+                _ => unreachable!(),
+            };
+
+            builder = builder.output_format(output_format);
+        }
 
         Ok(builder.build())
     }

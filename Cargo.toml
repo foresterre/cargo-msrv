@@ -15,6 +15,9 @@ clap = "2.33.0"
 console = "0.14.1"
 indicatif = "0.16.1"
 
+# json output
+json = "0.12.4"
+
 # Get the available rust versions
 [dependencies.rust-releases]
 version = "0.15.3"

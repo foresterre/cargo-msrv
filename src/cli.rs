@@ -12,6 +12,7 @@ pub mod id {
     pub const ARG_BISECT: &str = "bisect";
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
+    pub const ARG_OUTPUT_FORMAT: &str = "output_format";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -101,6 +102,13 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .long_help("Temporarily removes the lockfile, so it will not interfere with the building process. \
                     This is important when testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.")
                 )
+                .arg(Arg::with_name(id::ARG_OUTPUT_FORMAT)
+                    .long("output-format")
+                    .help("Output status messages in machine-readable format")
+                    .takes_value(true)
+                    .possible_values(&["json"])
+                    .long_help("Output status messages in machine-readable format. \
+                Machine-readable status updates will be printed in the requested format to stdout."))
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
                         .value_name("COMMAND")

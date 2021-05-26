@@ -3,12 +3,12 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
 use std::borrow::Cow;
 
-pub struct Printer {
+pub struct HumanPrinter {
     term: Term,
     progress: ProgressBar,
 }
 
-impl Printer {
+impl HumanPrinter {
     pub fn new(steps: u64) -> Self {
         let term = Term::stderr();
 
@@ -77,5 +77,44 @@ impl Printer {
             )
             .as_str(),
         );
+    }
+}
+
+impl crate::Output for HumanPrinter {
+    fn set_steps(&self, steps: u64) {
+        self.set_progress_bar_length(steps);
+    }
+
+    fn progress(&self, action: crate::ProgressAction, version: &semver::Version) {
+        let action = match action {
+            crate::ProgressAction::Installing => "Installing",
+            crate::ProgressAction::Checking => "Checking",
+        };
+
+        self.show_progress(action, version);
+    }
+
+    fn complete_step(&self, version: &semver::Version, success: bool) {
+        if success {
+            self.complete_step(format!(
+                "{} Good check for {}",
+                style("Done").green().bold(),
+                style(version).cyan()
+            ));
+        } else {
+            self.complete_step(format!(
+                "{} Bad check for {}",
+                style("Done").green().bold(),
+                style(version).cyan()
+            ));
+        }
+    }
+
+    fn finish_success(&self, version: &semver::Version) {
+        self.finish_with_ok(version)
+    }
+
+    fn finish_failure(&self, cmd: &str) {
+        self.finish_with_err(cmd)
     }
 }

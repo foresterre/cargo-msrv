@@ -4,7 +4,6 @@
 use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
 use crate::config::Config;
 use crate::errors::{CargoMSRVError, TResult};
-use crate::ui::Printer;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Channel, FetchResources, Release, RustChangelog, Source};
 use std::convert::TryFrom;
@@ -16,6 +15,7 @@ pub mod command;
 pub mod config;
 pub mod errors;
 pub mod fetch;
+pub mod json;
 pub mod lockfile;
 pub mod ui;
 
@@ -78,16 +78,27 @@ impl From<CheckStatus> for MinimalCompatibility {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum ProgressAction {
+    Installing,
+    Checking,
+}
+
+pub trait Output {
+    fn set_steps(&self, steps: u64);
+    fn progress(&self, action: ProgressAction, version: &semver::Version);
+    fn complete_step(&self, version: &semver::Version, success: bool);
+    fn finish_success(&self, version: &semver::Version);
+    fn finish_failure(&self, cmd: &str);
+}
+
 pub fn determine_msrv(
     config: &Config,
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
-    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
     let cmd = config.check_command().join(" ");
 
     let releases = index.releases();
-    let ui = Printer::new(releases.len() as u64);
-    ui.welcome(config.target(), &cmd);
 
     let releases = if config.include_all_patch_releases() {
         releases.to_vec()
@@ -111,13 +122,35 @@ pub fn determine_msrv(
         })
         .collect::<Vec<_>>();
 
-    ui.set_progress_bar_length(included_releases.len() as u64);
+    match config.output_format() {
+        config::OutputFormat::Human => {
+            let ui = ui::HumanPrinter::new(included_releases.len() as u64);
+            ui.welcome(config.target(), &cmd);
+            determine_msrv_impl(config, &included_releases, &cmd, &ui)
+        }
+        config::OutputFormat::Json => {
+            let output =
+                json::JsonPrinter::new(included_releases.len() as u64, config.target(), &cmd);
+            determine_msrv_impl(config, &included_releases, &cmd, &output)
+        }
+    }
+}
+
+fn determine_msrv_impl(
+    config: &Config,
+    included_releases: &[Release],
+    cmd: &str,
+    output: &impl Output,
+) -> TResult<MinimalCompatibility> {
+    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
+
+    output.set_steps(included_releases.len() as u64);
 
     // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {
-        test_against_releases_bisect(&included_releases, &mut compatibility, config, &ui)?;
+        test_against_releases_bisect(&included_releases, &mut compatibility, config, output)?;
     } else {
-        test_against_releases_linearly(&included_releases, &mut compatibility, config, &ui)?;
+        test_against_releases_linearly(&included_releases, &mut compatibility, config, output)?;
     }
 
     match &compatibility {
@@ -125,9 +158,9 @@ pub fn determine_msrv(
             toolchain: _,
             version,
         } => {
-            ui.finish_with_ok(&version);
+            output.finish_success(&version);
         }
-        MinimalCompatibility::NoCompatibleToolchains => ui.finish_with_err(&cmd),
+        MinimalCompatibility::NoCompatibleToolchains => output.finish_failure(cmd),
     }
 
     Ok(compatibility)
@@ -137,11 +170,11 @@ fn test_against_releases_linearly(
     releases: &[Release],
     compatibility: &mut MinimalCompatibility,
     config: &Config,
-    ui: &Printer,
+    output: &impl Output,
 ) -> TResult<()> {
     for release in releases {
-        ui.show_progress("Checking", release.version());
-        let status = check_toolchain(release.version(), config, ui)?;
+        output.progress(ProgressAction::Checking, release.version());
+        let status = check_toolchain(release.version(), config, output)?;
 
         if let CheckStatus::Failure { .. } = status {
             break;
@@ -158,7 +191,7 @@ fn test_against_releases_bisect(
     releases: &[Release],
     compatibility: &mut MinimalCompatibility,
     config: &Config,
-    ui: &Printer,
+    output: &impl Output,
 ) -> TResult<()> {
     use rust_releases::bisect::{Bisect, Narrow};
 
@@ -166,13 +199,13 @@ fn test_against_releases_bisect(
     let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(&releases);
     let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
-        ui.show_progress("Checking", release.version());
+        output.progress(ProgressAction::Checking, release.version());
 
         // increment progressed items
         let steps = progressed.replace(progressed.get().saturating_add(1));
-        ui.set_progress_bar_length(steps + (remainder as u64));
+        output.set_steps(steps + (remainder as u64));
 
-        let status = check_toolchain(release.version(), config, ui)?;
+        let status = check_toolchain(release.version(), config, output)?;
 
         match status {
             CheckStatus::Failure { .. } => TResult::Ok(Narrow::ToLeft),
