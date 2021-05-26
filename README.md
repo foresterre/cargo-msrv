@@ -52,6 +52,9 @@ OPTIONS:
         --minimum <min>
             Earliest version to take into account.
 
+        --output-format <output_format>
+            Output status messages in machine-readable format. Machine-readable status updates will be printed in the
+            requested format to stdout. [possible values: json]
         --path <DIR>
             Path to the cargo project directory
 
