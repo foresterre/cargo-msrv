@@ -40,7 +40,7 @@ impl crate::Output for JsonPrinter<'_> {
                 step: self.finished.get(),
                 total: self.steps.get(),
                 toolchain: self.toolchain,
-                chech_cmd: self.cmd,
+                check_cmd: self.cmd,
             }
         );
     }
@@ -55,7 +55,7 @@ impl crate::Output for JsonPrinter<'_> {
                 total_steps: self.steps.get(),
                 success: success,
                 toolchain: self.toolchain,
-                chech_cmd: self.cmd,
+                check_cmd: self.cmd,
             }
         );
         self.finished.set(self.finished.get() + 1);
@@ -69,7 +69,7 @@ impl crate::Output for JsonPrinter<'_> {
                 success: true,
                 msrv: version.to_string(),
                 toolchain: self.toolchain,
-                chech_cmd: self.cmd,
+                check_cmd: self.cmd,
             }
         )
     }
@@ -81,7 +81,7 @@ impl crate::Output for JsonPrinter<'_> {
                 reason: "msrv-complete",
                 success: false,
                 toolchain: self.toolchain,
-                chech_cmd: self.cmd,
+                check_cmd: self.cmd,
             }
         );
     }
