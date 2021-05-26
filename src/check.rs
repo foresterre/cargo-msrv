@@ -1,10 +1,8 @@
 use crate::command::command;
 use crate::config::Config;
-use crate::crate_root_folder;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::ui::Printer;
-use console::style;
+use crate::{crate_root_folder, Output, ProgressAction};
 use rust_releases::semver;
 use std::path::Path;
 
@@ -27,7 +25,7 @@ pub enum CheckStatus {
 pub fn check_toolchain<'a>(
     version: &'a semver::Version,
     config: &'a Config,
-    ui: &'a Printer,
+    output: &'a impl Output,
 ) -> TResult<CheckStatus> {
     // temporarily move the lockfile if the user opted to ignore it, and it exists
     let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
@@ -39,7 +37,7 @@ pub fn check_toolchain<'a>(
         None
     };
 
-    let status = examine_toolchain(version, config, ui)?;
+    let status = examine_toolchain(version, config, output)?;
 
     // move the lockfile back
     if let Some(handle) = handle_wrap {
@@ -56,11 +54,11 @@ pub fn as_toolchain_specifier(version: &semver::Version, target: &str) -> String
 fn examine_toolchain(
     version: &semver::Version,
     config: &Config,
-    ui: &Printer,
+    output: &impl Output,
 ) -> TResult<CheckStatus> {
     let toolchain_specifier = as_toolchain_specifier(version, config.target());
 
-    download_if_required(version, &toolchain_specifier, ui)?;
+    download_if_required(version, &toolchain_specifier, output)?;
 
     if config.ignore_lockfile() {
         remove_lockfile(config)?;
@@ -71,17 +69,17 @@ fn examine_toolchain(
         &toolchain_specifier,
         config.crate_path(),
         config.check_command(),
-        ui,
+        output,
     )
 }
 
 fn download_if_required(
     version: &semver::Version,
     toolchain_specifier: &str,
-    ui: &Printer,
+    output: &impl Output,
 ) -> TResult<()> {
     let toolchain = toolchain_specifier.to_owned();
-    ui.show_progress("Installing", version);
+    output.progress(ProgressAction::Installing, version);
 
     let status = command(&["install", "--profile", "minimal", &toolchain], None)
         .and_then(|mut c| c.wait().map_err(CargoMSRVError::Io))?;
@@ -110,33 +108,24 @@ fn try_building(
     toolchain_specifier: &str,
     dir: Option<&Path>,
     check: &[&str],
-    ui: &Printer,
+    output: &impl Output,
 ) -> TResult<CheckStatus> {
     let mut cmd: Vec<&str> = vec!["run", toolchain_specifier];
     cmd.extend_from_slice(check);
 
     let mut child = command(&cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
-    ui.show_progress("Checking", version);
+    output.progress(ProgressAction::Checking, version);
 
     let status = child.wait()?;
 
-    if !status.success() {
-        ui.complete_step(format!(
-            "{} Bad check for {}",
-            style("Done").green().bold(),
-            style(version).cyan()
-        ));
+    output.complete_step(version, status.success());
 
+    if !status.success() {
         Ok(CheckStatus::Failure {
             toolchain: toolchain_specifier.to_string(),
             version: version.clone(),
         })
     } else {
-        ui.complete_step(format!(
-            "{} Good check for {}",
-            style("Done").green().bold(),
-            style(version).cyan()
-        ));
         Ok(CheckStatus::Success {
             toolchain: toolchain_specifier.to_string(),
             version: version.clone(),
