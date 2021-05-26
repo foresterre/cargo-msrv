@@ -92,6 +92,16 @@ pub trait Output {
     fn finish_failure(&self, cmd: &str);
 }
 
+/// This is meant to be used for testing
+struct NoOutput;
+impl Output for NoOutput {
+    fn set_steps(&self, _steps: u64) {}
+    fn progress(&self, _action: ProgressAction, _version: &semver::Version) {}
+    fn complete_step(&self, _version: &semver::Version, _success: bool) {}
+    fn finish_success(&self, _version: &semver::Version) {}
+    fn finish_failure(&self, _cmd: &str) {}
+}
+
 pub fn determine_msrv(
     config: &Config,
     index: &rust_releases::ReleaseIndex,
@@ -131,6 +141,10 @@ pub fn determine_msrv(
         config::OutputFormat::Json => {
             let output =
                 json::JsonPrinter::new(included_releases.len() as u64, config.target(), &cmd);
+            determine_msrv_impl(config, &included_releases, &cmd, &output)
+        }
+        config::OutputFormat::None => {
+            let output = NoOutput;
             determine_msrv_impl(config, &included_releases, &cmd, &output)
         }
     }

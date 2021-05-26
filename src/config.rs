@@ -1,4 +1,4 @@
-use crate::errors::CargoMSRVError;
+use crate::errors::{CargoMSRVError, TResult};
 use clap::ArgMatches;
 use rust_releases::semver;
 use std::convert::TryFrom;
@@ -6,8 +6,21 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
+    /// Progress bar rendered to stderr
     Human,
+    /// Json status updates printed to stdout
     Json,
+    /// No output -- meant to be used for testing
+    None,
+}
+
+/// Gets a [`Config`] from the given matches, but sets output_format to None
+///
+/// This is meant to be used for testing
+pub fn test_config_from_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<Config<'a>> {
+    let mut config = Config::try_from(matches)?;
+    config.output_format = OutputFormat::None;
+    Ok(config)
 }
 
 #[derive(Debug, Clone)]
