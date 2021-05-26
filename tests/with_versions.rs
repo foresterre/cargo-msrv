@@ -1,10 +1,9 @@
 extern crate cargo_msrv;
 
-use cargo_msrv::config::Config;
+use cargo_msrv::config::test_config_from_matches;
 use cargo_msrv::MinimalCompatibility;
 use parameterized::parameterized;
 use rust_releases::{semver, Release, ReleaseIndex};
-use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;
 
@@ -110,7 +109,7 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
 
 fn run<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(with_args: I) -> MinimalCompatibility {
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
-    let matches = Config::try_from(&matches).expect("Unable to parse cli arguments");
+    let matches = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
@@ -150,7 +149,7 @@ fn run_cargo_version_which_doesnt_support_lockfile_v2<
     with_args: I,
 ) -> MinimalCompatibility {
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
-    let matches = Config::try_from(&matches).expect("Unable to parse cli arguments");
+    let matches = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
 
     // Limit the available versions: this ensures we don't want to incrementally install more toolchains
     //  as more Rust toolchains become available.
