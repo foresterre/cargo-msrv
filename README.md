@@ -77,6 +77,65 @@ rustup, i.e. validation commands will be passed to rustup like so: `rustup run <
 need to provide the <COMMAND...> part.
 ```
 
+### JSON format
+
+There are 4 types of status messages, each type is indicated
+by the `reason` key.
+
+#### Installing and Checking
+
+```jsonc
+{
+  "reason": "installing", /* OR */ "reason": "checking",
+  // The current version being installed or checked
+  "version": "1.25.0",
+  // The number of versions checked before this
+  "step": 0,
+  // The total number of versions to be checked
+  "total": 55,
+  // The toolchain that is being used
+  "toolchain": "x86_64-unknown-linux-gnu",
+  // The command used to check each version
+  "check_cmd": "cargo check --all"
+}
+```
+
+#### Check complete
+
+```jsonc
+{
+  "reason": "check-complete",
+  // The version that was just checked
+  "version": "1.25.0",
+  // The number of versions checked before this
+  "step": 0,
+  // The total number of versions to be checked
+  "total": 55,
+  // true if this version is supported
+  "success": false,
+  // The toolchain that is being used
+  "toolchain": "x86_64-unknown-linux-gnu",
+  // The command used to check each version
+  "check_cmd": "cargo check --all"
+}
+```
+
+#### MSRV complete
+
+```jsonc
+{
+  "reason": "msrv-complete",
+  // true if a msrv was found
+  "success": true,
+  // the msrv if found. The key will be absent if msrv wasn't found
+  "msrv": "1.42.0",
+  // The toolchain that is being used
+  "toolchain": "x86_64-unknown-linux-gnu",
+  // The command used to check each version
+  "check_cmd": "cargo check --all"
+}
+```
+
 ### Testing
 
 Tests should be run with a single thread, because otherwise `rustup` uses the a single place for the download cache of a
