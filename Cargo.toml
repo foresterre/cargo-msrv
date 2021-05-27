@@ -13,7 +13,7 @@ clap = "2.33.0"
 
 # UI
 console = "0.14.1"
-indicatif = "0.16.1"
+indicatif = "0.16.2"
 
 # json output
 json = "0.12.4"
