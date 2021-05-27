@@ -1,3 +1,9 @@
+# [0.6.0] - 2021-05-27
+
+* Added option (`--output-format`) to output the status of the program in a machine-readable format to stdout
+
+[0.6.0]: https://github.com/foresterre/cargo-msrv/compare/v0.5.0...v0.6.0
+
 # [0.5.0] - 2021-05-13
 
 * Added new flag `--ignore-lockfile` which addresses an issue where newer lockfiles could not be parsed by older toolchains
