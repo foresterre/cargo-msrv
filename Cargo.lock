@@ -532,9 +532,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.15.3"
+version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da35902aea6b15197cc2adbd507358a7dfac5eefc3fde38d3db78b2b46c449c1"
+checksum = "29faccc649813028822852d823b9ea0372b42d5b10f862dc0aae3d4ca43532b9"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
