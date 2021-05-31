@@ -20,7 +20,7 @@ json = "0.12.4"
 
 # Get the available rust versions
 [dependencies.rust-releases]
-version = "0.15.3"
+version = "0.15.4"
 default-features = false
 features = ["rust-releases-rust-changelog"]
 
