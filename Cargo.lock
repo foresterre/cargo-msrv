@@ -65,6 +65,7 @@ version = "0.6.0"
 dependencies = [
  "clap",
  "console",
+ "decent-toml-rs-alternative",
  "indicatif",
  "json",
  "parameterized",
@@ -137,6 +138,34 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81156fece84ab6a9f2afdb109ce3ae577e42b1228441eded99bd77f627953b1a"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "decent-serde-toml-derive-alternative"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53488745da0d2cfd08c7ffd9cc264ee15c2d2ea1aa3ce6f1ad77220ce4d3677e"
+dependencies = [
+ "decent-synquote-alternative",
+ "proc-macro2",
+]
+
+[[package]]
+name = "decent-synquote-alternative"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfb30bb3e9d6bf9de3577b38bc4aa8dd31d74afeaa10653f720f43347f3d443a"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
+name = "decent-toml-rs-alternative"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "112ee4bc8f1c942282027a43e46b068d40350c5f20ab9131a3d02626706be7ed"
+dependencies = [
+ "decent-serde-toml-derive-alternative",
 ]
 
 [[package]]

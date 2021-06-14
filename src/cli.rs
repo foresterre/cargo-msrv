@@ -13,6 +13,7 @@ pub mod id {
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
     pub const ARG_OUTPUT_FORMAT: &str = "output_format";
+    pub const ARG_VERIFY: &str = "verify_msrv";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -108,7 +109,16 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .takes_value(true)
                     .possible_values(&["json"])
                     .long_help("Output status messages in machine-readable format. \
-                Machine-readable status updates will be printed in the requested format to stdout."))
+                Machine-readable status updates will be printed in the requested format to stdout.")
+                )
+                .arg(Arg::with_name(id::ARG_VERIFY)
+                    .long("verify")
+                    .help("Verify the MSRV, if defined with the 'package.metadata.msrv' key in the Cargo.toml")
+                    .long_help("Verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'. \
+                    When this flag is present, cargo-msrv will not attempt to determine the true MSRV. \
+                    It will only attempt to verify specified MSRV, the Rust build passes similarly to regular cargo-msrv runs. ")
+                    .takes_value(false)
+                )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
                         .value_name("COMMAND")

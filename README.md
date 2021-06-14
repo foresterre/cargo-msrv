@@ -24,6 +24,7 @@ With Cargo from Github [latest development version]:
 * `cargo msrv --path <dir>` to find the MSRV in the `<dir>` directory cargo project.
 * `cargo msrv -- <command> ` to use `<command>` as the compatibility check which decides whether a Rust version is
 compatible or not. This command should be runnable through `rustup run <toolchain> <command>`.
+* `cargo msrv --verify`  to verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'.
 
 **Options:**
 ```
@@ -67,6 +68,10 @@ OPTIONS:
     -V, --version
             Prints version information
 
+        --verify
+            Verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'. When this flag is
+            present, cargo-msrv will not attempt to determine the true MSRV. It will only attempt to verify specified
+            MSRV, the Rust build passes similarly to regular cargo-msrv runs. 
 
 ARGS:
     <COMMAND>...
@@ -82,10 +87,30 @@ need to provide the <COMMAND...> part.
 
 ### JSON format
 
-There are 4 types of status messages, each type is indicated
+There are 6 types of status messages, each type is indicated
 by the `reason` key.
 
+#### Report mode
+
+Reports the mode which will be used by `cargo-msrv`. There are currently two modes:
+`determine-msrv` and `verify-msrv`, which respectively 
+
+```jsonc
+{
+  "reason": "mode",
+  // The mode in which cargo-msrv will operate
+  "mode": "determine-msrv" /* OR */ "action": "verify-msrv",
+    // The toolchain that will be used
+  "toolchain":"x86_64-unknown-linux-gnu",
+  // command used to check a version 
+  "check_cmd":"cargo check --all"}
+}
+```
+
 #### Installing and Checking
+
+Reported when a toolchain will be installed, or when a toolchain will
+be run to check whether the version of the toolchain is compatible.
 
 ```jsonc
 {
@@ -105,6 +130,9 @@ by the `reason` key.
 
 #### Check complete
 
+Reported when a check, which determines whether the toolchain version under test
+is compatible, completes.
+
 ```jsonc
 {
   "reason": "check-complete",
@@ -123,11 +151,13 @@ by the `reason` key.
 }
 ```
 
-#### MSRV complete
+#### MSRV completed
+
+Reported when all actions for a mode have been run to completion. 
 
 ```jsonc
 {
-  "reason": "msrv-complete",
+  "reason": "msrv-complete" /* OR */ "reason": "verify-complete",
   // true if a msrv was found
   "success": true,
   // the msrv if found. The key will be absent if msrv wasn't found

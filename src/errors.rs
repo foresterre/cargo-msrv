@@ -4,6 +4,7 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
 use std::io;
+use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
@@ -16,6 +17,8 @@ pub enum CargoMSRVError {
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
+    NoMSRVKeyInCargoToml(PathBuf),
+    ParseToml(decent_toml_rs_alternative::TomlError),
     RustReleasesSource(rust_releases::RustChangelogError),
     RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
@@ -39,6 +42,8 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
+            CargoMSRVError::NoMSRVKeyInCargoToml(path) => write!(f, "Unable to find key 'package.metadata.msrv' in '{}'", path.display()), 
+            CargoMSRVError::ParseToml(err) => f.write_fmt(format_args!("Unable to parse Cargo.toml {:?}", err)),
             CargoMSRVError::RustReleasesSource(err) => err.fmt(f),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
@@ -91,6 +96,12 @@ impl From<FromUtf8Error> for CargoMSRVError {
 impl From<std::num::ParseIntError> for CargoMSRVError {
     fn from(err: std::num::ParseIntError) -> Self {
         CargoMSRVError::InvalidRustVersionNumber(err)
+    }
+}
+
+impl From<decent_toml_rs_alternative::TomlError> for CargoMSRVError {
+    fn from(err: decent_toml_rs_alternative::TomlError) -> Self {
+        CargoMSRVError::ParseToml(err)
     }
 }
 

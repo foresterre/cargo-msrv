@@ -2,11 +2,14 @@
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
 use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
-use crate::config::Config;
+use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::reporter::{json, ui};
+use crate::reporter::{Output, ProgressAction, __private::NoOutput};
 use rust_releases::linear::LatestStableReleases;
-use rust_releases::{semver, Channel, FetchResources, Release, RustChangelog, Source};
-use std::convert::TryFrom;
+use rust_releases::{
+    semver, Channel, FetchResources, Release, ReleaseIndex, RustChangelog, Source,
+};
 use std::path::PathBuf;
 
 pub mod check;
@@ -15,18 +18,21 @@ pub mod command;
 pub mod config;
 pub mod errors;
 pub mod fetch;
-pub mod json;
 pub mod lockfile;
-pub mod ui;
+pub mod reporter;
 
-pub fn run_cargo_msrv() -> TResult<()> {
-    let matches = cli::cli().get_matches();
-    let config = Config::try_from(&matches)?;
-
+pub fn run_app(config: &Config) -> TResult<()> {
     let index_strategy = RustChangelog::fetch_channel(Channel::Stable)?;
     let index = index_strategy.build_index()?;
 
-    match determine_msrv(&config, &index)? {
+    match config.action_intent() {
+        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, &index),
+        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, &index),
+    }
+}
+
+fn run_determine_msrv_action(config: &Config, release_index: &ReleaseIndex) -> TResult<()> {
+    match determine_msrv(config, release_index)? {
         MinimalCompatibility::NoCompatibleToolchains => {
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
                 command: config.check_command().join(" "),
@@ -38,6 +44,58 @@ pub fn run_cargo_msrv() -> TResult<()> {
             output_toolchain_file(&config, version)
         }
         MinimalCompatibility::CapableToolchain { .. } => Ok(()),
+    }
+}
+
+fn run_verify_msrv_action(config: &Config, _release_index: &ReleaseIndex) -> TResult<()> {
+    let crate_folder = crate_root_folder(config)?;
+    let cargo_toml = crate_folder.join("Cargo.toml");
+
+    let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
+    let document =
+        decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
+
+    let msrv = document
+        .get("package")
+        .and_then(|field| field.get("metadata"))
+        .and_then(|field| field.get("msrv"))
+        .and_then(|value| value.as_string())
+        .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
+
+    let version = semver::Version::parse(&msrv).map_err(CargoMSRVError::SemverError)?;
+
+    let cmd = config.check_command().join(" ");
+
+    match config.output_format() {
+        config::OutputFormat::Human => {
+            let reporter = ui::HumanPrinter::new(1, config.target(), &cmd);
+            reporter.mode(ModeIntent::VerifyMSRV);
+            let status = check_toolchain(&version, config, &reporter)?;
+            report_verify_completion(&reporter, status, &cmd);
+        }
+        config::OutputFormat::Json => {
+            let reporter = json::JsonPrinter::new(1, config.target(), &cmd);
+            reporter.mode(ModeIntent::VerifyMSRV);
+            let status = check_toolchain(&version, config, &reporter)?;
+            report_verify_completion(&reporter, status, &cmd);
+        }
+        config::OutputFormat::None => {
+            let reporter = NoOutput;
+            reporter.mode(ModeIntent::VerifyMSRV);
+            let status = check_toolchain(&version, config, &reporter)?;
+            report_verify_completion(&reporter, status, &cmd);
+        }
+    };
+
+    Ok(())
+}
+
+fn report_verify_completion(output: &impl Output, status: CheckStatus, cmd: &str) {
+    match status {
+        CheckStatus::Success { version, .. } => {
+            output.finish_success(ModeIntent::VerifyMSRV, &version)
+        }
+        CheckStatus::Failure { .. } => output.finish_failure(ModeIntent::VerifyMSRV, cmd),
     }
 }
 
@@ -78,30 +136,6 @@ impl From<CheckStatus> for MinimalCompatibility {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum ProgressAction {
-    Installing,
-    Checking,
-}
-
-pub trait Output {
-    fn set_steps(&self, steps: u64);
-    fn progress(&self, action: ProgressAction, version: &semver::Version);
-    fn complete_step(&self, version: &semver::Version, success: bool);
-    fn finish_success(&self, version: &semver::Version);
-    fn finish_failure(&self, cmd: &str);
-}
-
-/// This is meant to be used for testing
-struct NoOutput;
-impl Output for NoOutput {
-    fn set_steps(&self, _steps: u64) {}
-    fn progress(&self, _action: ProgressAction, _version: &semver::Version) {}
-    fn complete_step(&self, _version: &semver::Version, _success: bool) {}
-    fn finish_success(&self, _version: &semver::Version) {}
-    fn finish_failure(&self, _cmd: &str) {}
-}
-
 pub fn determine_msrv(
     config: &Config,
     index: &rust_releases::ReleaseIndex,
@@ -134,17 +168,19 @@ pub fn determine_msrv(
 
     match config.output_format() {
         config::OutputFormat::Human => {
-            let ui = ui::HumanPrinter::new(included_releases.len() as u64);
-            ui.welcome(config.target(), &cmd);
+            let ui = ui::HumanPrinter::new(included_releases.len() as u64, config.target(), &cmd);
+            ui.mode(ModeIntent::DetermineMSRV);
             determine_msrv_impl(config, &included_releases, &cmd, &ui)
         }
         config::OutputFormat::Json => {
             let output =
                 json::JsonPrinter::new(included_releases.len() as u64, config.target(), &cmd);
+            output.mode(ModeIntent::DetermineMSRV);
             determine_msrv_impl(config, &included_releases, &cmd, &output)
         }
         config::OutputFormat::None => {
             let output = NoOutput;
+            output.mode(ModeIntent::DetermineMSRV);
             determine_msrv_impl(config, &included_releases, &cmd, &output)
         }
     }
@@ -172,9 +208,11 @@ fn determine_msrv_impl(
             toolchain: _,
             version,
         } => {
-            output.finish_success(&version);
+            output.finish_success(ModeIntent::DetermineMSRV, &version);
         }
-        MinimalCompatibility::NoCompatibleToolchains => output.finish_failure(cmd),
+        MinimalCompatibility::NoCompatibleToolchains => {
+            output.finish_failure(ModeIntent::DetermineMSRV, cmd)
+        }
     }
 
     Ok(compatibility)

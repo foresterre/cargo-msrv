@@ -23,8 +23,26 @@ pub fn test_config_from_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<Conf
     Ok(config)
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum ModeIntent {
+    // Determines the MSRV for a project
+    DetermineMSRV,
+    // Verifies the given MSRV
+    VerifyMSRV,
+}
+
+impl From<ModeIntent> for &'static str {
+    fn from(action: ModeIntent) -> Self {
+        match action {
+            ModeIntent::DetermineMSRV => "determine-msrv",
+            ModeIntent::VerifyMSRV => "verify-msrv",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
+    mode_intent: ModeIntent,
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -38,8 +56,9 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    pub fn new(target: String) -> Self {
+    pub fn new(mode_intent: ModeIntent, target: String) -> Self {
         Self {
+            mode_intent,
             target,
             check_command: vec!["cargo", "check", "--all"],
             crate_path: None,
@@ -51,6 +70,10 @@ impl<'a> Config<'a> {
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
         }
+    }
+
+    pub fn action_intent(&self) -> ModeIntent {
+        self.mode_intent
     }
 
     pub fn target(&self) -> &String {
@@ -100,10 +123,15 @@ pub struct ConfigBuilder<'a> {
 }
 
 impl<'a> ConfigBuilder<'a> {
-    pub fn new(default_target: &str) -> Self {
+    pub fn new(action_intent: ModeIntent, default_target: &str) -> Self {
         Self {
-            inner: Config::new(default_target.to_string()),
+            inner: Config::new(action_intent, default_target.to_string()),
         }
+    }
+
+    pub fn mode_intent(mut self, mode_intent: ModeIntent) -> Self {
+        self.inner.mode_intent = mode_intent;
+        self
     }
 
     pub fn target(mut self, target: &str) -> Self {
@@ -168,13 +196,20 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         use crate::cli::id;
         use crate::fetch::default_target;
 
-        let target = default_target()?;
-
         let arg_matches = matches
             .subcommand_matches(id::SUB_COMMAND_MSRV)
             .ok_or(CargoMSRVError::UnableToParseCliArgs)?;
 
-        let mut builder = ConfigBuilder::new(&target);
+        let action_intent = if arg_matches.is_present(id::ARG_VERIFY) {
+            ModeIntent::VerifyMSRV
+        } else {
+            ModeIntent::DetermineMSRV
+        };
+
+        // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
+        let target = default_target()?;
+
+        let mut builder = ConfigBuilder::new(action_intent, &target);
 
         // set the command which will be used to check if a project can build
         let check_cmd = arg_matches.values_of(id::ARG_CUSTOM_CHECK);

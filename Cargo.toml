@@ -7,6 +7,9 @@ license = "Apache-2.0/MIT"
 edition = "2018"
 repository = "https://github.com/foresterre/cargo-msrv"
 
+[package.metadata]
+msrv = "1.42.0"
+
 [dependencies]
 # Used for parsing cli arguments.
 clap = "2.33.0"
@@ -17,6 +20,9 @@ indicatif = "0.16.2"
 
 # json output
 json = "0.12.4"
+
+# read Cargo.toml
+decent-toml-rs-alternative = "0.3.0"
 
 # Get the available rust versions
 [dependencies.rust-releases]
