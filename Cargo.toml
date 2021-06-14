@@ -1,6 +1,6 @@
 [package]
 name = "cargo-msrv"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0/MIT"
