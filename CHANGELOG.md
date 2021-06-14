@@ -1,3 +1,9 @@
+# [0.7.0] - 2021-06-15
+
+* Added command (`--verify`) to verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'
+
+[0.7.0]: https://github.com/foresterre/cargo-msrv/compare/v0.6.0...v0.7.0
+
 # [0.6.0] - 2021-05-27
 
 * Added option (`--output-format`) to output the status of the program in a machine-readable format to stdout
