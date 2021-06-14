@@ -1,5 +1,5 @@
 status = [
-    "test (pinned)",
+    "test (msrv)",
     "test (stable)",
     "test (beta)",
     "test (nightly)",
