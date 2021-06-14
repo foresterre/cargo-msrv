@@ -1,15 +1,18 @@
+use crate::config::ModeIntent;
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
 use std::borrow::Cow;
 
-pub struct HumanPrinter {
+pub struct HumanPrinter<'config> {
     term: Term,
     progress: ProgressBar,
+    toolchain: &'config str,
+    cmd: &'config str,
 }
 
-impl HumanPrinter {
-    pub fn new(steps: u64) -> Self {
+impl<'config> HumanPrinter<'config> {
+    pub fn new(steps: u64, toolchain: &'config str, cmd: &'config str) -> Self {
         let term = Term::stderr();
 
         let progress = ProgressBar::new(steps).with_style(
@@ -17,13 +20,24 @@ impl HumanPrinter {
                 .template(" {spinner} {msg:<30} {wide_bar} {elapsed_precise}"),
         );
 
-        Self { term, progress }
+        Self {
+            term,
+            progress,
+            toolchain,
+            cmd,
+        }
     }
 
-    pub fn welcome(&self, target: &str, cmd: &str) {
+    fn welcome(&self, target: &str, cmd: &str, action_intent: ModeIntent) {
+        let verb = match action_intent {
+            ModeIntent::DetermineMSRV => "Determining",
+            ModeIntent::VerifyMSRV => "Verifying",
+        };
+
         let _ = self.term.write_line(
             format!(
-                "Determining the Minimum Supported Rust Version (MSRV) for toolchain {}",
+                "{} the Minimum Supported Rust Version (MSRV) for toolchain {}",
+                verb,
                 style(target).bold()
             )
             .as_str(),
@@ -38,15 +52,10 @@ impl HumanPrinter {
             .as_str(),
         );
 
-        self.progress.enable_steady_tick(500);
+        self.progress.enable_steady_tick(250);
     }
 
-    pub fn complete_step(&self, message: impl Into<Cow<'static, str>>) {
-        self.progress.set_message(message);
-        self.progress.inc(1);
-    }
-
-    pub fn show_progress(&self, action: &str, version: &semver::Version) {
+    fn show_progress(&self, action: &str, version: &semver::Version) {
         self.progress.set_message(format!(
             "{} {}",
             style(action).green().bold(),
@@ -54,19 +63,26 @@ impl HumanPrinter {
         ));
     }
 
-    pub fn set_progress_bar_length(&self, len: u64) {
+    fn set_progress_bar_length(&self, len: u64) {
         self.progress.set_length(len)
     }
 
-    pub fn finish_with_ok(&self, version: &semver::Version) {
+    fn complete_step(&self, message: impl Into<Cow<'static, str>>) {
+        self.progress.set_message(message);
+        self.progress.inc(1);
+    }
+
+    // for DetermineMSRV
+    fn finish_with_ok(&self, message: &str, version: &semver::Version) {
         self.progress.finish_with_message(format!(
-            "{} The MSRV is {}",
+            "{} {} {}",
             style("Finished").green().bold(),
+            message,
             style(version).cyan()
         ))
     }
 
-    pub fn finish_with_err(&self, cmd: &str) {
+    fn finish_with_err(&self, cmd: &str) {
         self.progress.abandon();
         let _ = self.term.write_line(
             format!(
@@ -80,7 +96,11 @@ impl HumanPrinter {
     }
 }
 
-impl crate::Output for HumanPrinter {
+impl<'config> crate::Output for HumanPrinter<'config> {
+    fn mode(&self, action: ModeIntent) {
+        self.welcome(self.toolchain, self.cmd, action);
+    }
+
     fn set_steps(&self, steps: u64) {
         self.set_progress_bar_length(steps);
     }
@@ -110,11 +130,14 @@ impl crate::Output for HumanPrinter {
         }
     }
 
-    fn finish_success(&self, version: &semver::Version) {
-        self.finish_with_ok(version)
+    fn finish_success(&self, mode: ModeIntent, version: &semver::Version) {
+        match mode {
+            ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
+            ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
+        }
     }
 
-    fn finish_failure(&self, cmd: &str) {
+    fn finish_failure(&self, _mode: ModeIntent, cmd: &str) {
         self.finish_with_err(cmd)
     }
 }

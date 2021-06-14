@@ -1,6 +1,8 @@
 use json::object;
 use std::cell::Cell;
 
+use crate::config::ModeIntent;
+use crate::reporter::ProgressAction;
 use rust_releases::semver;
 
 pub struct JsonPrinter<'a> {
@@ -19,17 +21,37 @@ impl<'a> JsonPrinter<'a> {
             cmd,
         }
     }
+
+    fn complete_reason(&self, mode: ModeIntent) -> &'static str {
+        match mode {
+            ModeIntent::DetermineMSRV => "msrv-complete",
+            ModeIntent::VerifyMSRV => "verify-complete",
+        }
+    }
 }
 
 impl crate::Output for JsonPrinter<'_> {
+    fn mode(&self, mode: ModeIntent) {
+        let mode: &str = mode.into();
+        println!(
+            "{}",
+            object! {
+                reason: "mode",
+                mode: mode,
+                toolchain: self.toolchain,
+                check_cmd: self.cmd
+            }
+        )
+    }
+
     fn set_steps(&self, steps: u64) {
         self.steps.set(steps);
     }
 
     fn progress(&self, action: crate::ProgressAction, version: &semver::Version) {
         let action = match action {
-            crate::ProgressAction::Installing => "installing",
-            crate::ProgressAction::Checking => "checking",
+            ProgressAction::Installing => "installing",
+            ProgressAction::Checking => "checking",
         };
 
         println!(
@@ -61,11 +83,13 @@ impl crate::Output for JsonPrinter<'_> {
         self.finished.set(self.finished.get() + 1);
     }
 
-    fn finish_success(&self, version: &semver::Version) {
+    fn finish_success(&self, mode: ModeIntent, version: &semver::Version) {
+        let reason = self.complete_reason(mode);
+
         println!(
             "{}",
             object! {
-                reason: "msrv-complete",
+                reason: reason,
                 success: true,
                 msrv: version.to_string(),
                 toolchain: self.toolchain,
@@ -74,11 +98,13 @@ impl crate::Output for JsonPrinter<'_> {
         )
     }
 
-    fn finish_failure(&self, _: &str) {
+    fn finish_failure(&self, mode: ModeIntent, _: &str) {
+        let reason = self.complete_reason(mode);
+
         println!(
             "{}",
             object! {
-                reason: "msrv-complete",
+                reason: reason,
                 success: false,
                 toolchain: self.toolchain,
                 check_cmd: self.cmd,

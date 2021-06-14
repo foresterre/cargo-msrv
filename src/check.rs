@@ -1,8 +1,9 @@
 use crate::command::command;
 use crate::config::Config;
+use crate::crate_root_folder;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::{crate_root_folder, Output, ProgressAction};
+use crate::reporter::{Output, ProgressAction};
 use rust_releases::semver;
 use std::path::Path;
 
