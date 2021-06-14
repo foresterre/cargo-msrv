@@ -138,8 +138,6 @@ jobs:
     steps:
       - name: checkout_repo
         uses: actions/checkout@v2
-      - name: install_nasm
-        uses: ilammy/setup-nasm@v1
       - name: install_rust
         uses: actions-rs/toolchain@v1
         with:
@@ -149,6 +147,6 @@ jobs:
       - name: install_cargo_msrv
         run: cargo install cargo-msrv
       - name: version_of_cargo_msrv
-        run: cargo msrv --version # as of writing: 0.6.0
+        run: cargo msrv --version # as of writing: 0.7.0 (required for --verify)
       - name: run_cargo_msrv
-        run: cargo msrv --bisect --ignore-lockfile --output-format json --minimum 1.31.0
+        run: cargo msrv --verify --ignore-lockfile --output-format json
