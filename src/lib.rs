@@ -60,7 +60,7 @@ fn run_verify_msrv_action(config: &Config, _release_index: &ReleaseIndex) -> TRe
         .and_then(|field| field.get("metadata"))
         .and_then(|field| field.get("msrv"))
         .and_then(|value| value.as_string())
-        .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
+        .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
 
     let version = semver::Version::parse(&msrv).map_err(CargoMSRVError::SemverError)?;
 
