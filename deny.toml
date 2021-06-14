@@ -1,0 +1,15 @@
+[licenses]
+unlicensed = "deny"
+copyleft = "deny"
+confidence-threshold = 0.925
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "MPL-2.0",
+    "Zlib",
+]
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "deny"
+notice = "deny"
