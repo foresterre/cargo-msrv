@@ -12,7 +12,3 @@ status = [
     "cargo_deny (bans licenses sources)",
     "msrv"
 ]
-
-[committer]
-name = "Martijn"
-email = "garm@ilumeo.com"
