@@ -99,7 +99,7 @@ Reports the mode which will be used by `cargo-msrv`. There are currently two mod
 {
   "reason": "mode",
   // The mode in which cargo-msrv will operate
-  "mode": "determine-msrv" /* OR */ "action": "verify-msrv",
+  "mode": "determine-msrv" /* OR */ "mode": "verify-msrv",
     // The toolchain that will be used
   "toolchain":"x86_64-unknown-linux-gnu",
   // command used to check a version 
