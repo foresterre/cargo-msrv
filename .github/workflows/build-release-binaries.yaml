@@ -1,0 +1,76 @@
+name: "Build release binaries"
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build_binaries:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive_ext: tar
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            archive_ext: tar
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive_ext: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+
+      - uses: Swatinem/rust-cache@v1.3.0
+
+      - name: Build ${{ matrix.target }} release binary
+        run: cargo build --target=${{ matrix.target }} --release
+
+      # Remove once python 3 is the default
+      - uses: actions/setup-python@v2.2.2
+        with:
+          python-version: '3.x'
+
+      - id: create-archive-name
+        shell: python # Use python to have a prettier name for the archive on Windows.
+        run: |
+          import platform
+          os_info = platform.uname()
+
+          triple = "${{ matrix.target }}".split("-")
+          arch = triple[0]
+
+          archive_name=f'cargo-msrv_${{ github.event.release.tag_name }}_{os_info.system}_{arch}.${{ matrix.archive_ext }}'
+
+          print(f'::set-output name=archive::{archive_name}')
+
+      - name: Pack macos archive
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
+
+      - name: Pack linux archive
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
+
+      - name: Pack windows archive
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./cargo-msrv.exe
+          7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./cargo-msrv.exe
+
+      - name: Upload archive
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ steps.create-archive-name.outputs.archive }}
+          asset_name: ${{ steps.create-archive-name.outputs.archive }}
+          asset_content_type: application/gzip
