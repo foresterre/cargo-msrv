@@ -41,7 +41,7 @@ fn run_determine_msrv_action(config: &Config, release_index: &ReleaseIndex) -> T
         MinimalCompatibility::CapableToolchain { ref version, .. }
             if config.output_toolchain_file() =>
         {
-            output_toolchain_file(&config, version)
+            output_toolchain_file(config, version)
         }
         MinimalCompatibility::CapableToolchain { .. } => Ok(()),
     }
@@ -198,9 +198,9 @@ fn determine_msrv_impl(
 
     // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {
-        test_against_releases_bisect(&included_releases, &mut compatibility, config, output)?;
+        test_against_releases_bisect(included_releases, &mut compatibility, config, output)?;
     } else {
-        test_against_releases_linearly(&included_releases, &mut compatibility, config, output)?;
+        test_against_releases_linearly(included_releases, &mut compatibility, config, output)?;
     }
 
     match &compatibility {
@@ -208,7 +208,7 @@ fn determine_msrv_impl(
             toolchain: _,
             version,
         } => {
-            output.finish_success(ModeIntent::DetermineMSRV, &version);
+            output.finish_success(ModeIntent::DetermineMSRV, version);
         }
         MinimalCompatibility::NoCompatibleToolchains => {
             output.finish_failure(ModeIntent::DetermineMSRV, cmd)
@@ -249,7 +249,7 @@ fn test_against_releases_bisect(
 
     // track progressed items
     let progressed = std::cell::Cell::new(0u64);
-    let mut binary_search = Bisect::from_slice(&releases);
+    let mut binary_search = Bisect::from_slice(releases);
     let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
         output.progress(ProgressAction::Checking, release.version());
 
