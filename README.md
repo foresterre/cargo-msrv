@@ -47,12 +47,12 @@ OPTIONS:
         --ignore-lockfile
             Temporarily removes the lockfile, so it will not interfere with the building process. This is important when
             testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.
-        --maximum <max>
-            Latest version to take into account
-
-        --minimum <min>
-            Earliest version to take into account.
-
+        --max <max>
+            Latest (most recent) version to take into account.Version must match a valid Rust toolchain, and be semver
+            compatible. [aliases: maximum]
+        --min <min>
+            Earliest (least recent) version to take into account. Version must match a valid Rust toolchain, and be
+            semver compatible. [aliases: minimum]
         --output-format <output_format>
             Output status messages in machine-readable format. Machine-readable status updates will be printed in the
             requested format to stdout. [possible values: json]
@@ -71,7 +71,7 @@ OPTIONS:
         --verify
             Verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'. When this flag is
             present, cargo-msrv will not attempt to determine the true MSRV. It will only attempt to verify specified
-            MSRV, the Rust build passes similarly to regular cargo-msrv runs. 
+            MSRV, the Rust build passes similarly to regular cargo-msrv runs.
 
 ARGS:
     <COMMAND>...
