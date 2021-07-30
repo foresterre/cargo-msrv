@@ -1,3 +1,10 @@
+# [0.8.0] - 2021-07-30
+
+* Renamed `--minimum` to `--min` while keeping the former as an alias
+* Renamed `--maximum` to `--max` while keeping the former as an alias 
+
+[0.8.0]: https://github.com/foresterre/cargo-msrv/compare/v0.7.0...v0.8.0
+
 # [0.7.0] - 2021-06-15
 
 * Added command (`--verify`) to verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'
