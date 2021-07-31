@@ -1,3 +1,4 @@
+use crate::check::Cause;
 use crate::fetch::ToolchainSpecifier;
 use std::env;
 use std::error::Error;
@@ -27,7 +28,8 @@ pub enum CargoMSRVError {
     ToolchainNotInstalled,
     UnknownTarget,
     UnableToCacheChannelManifest,
-    UnableToFindAnyGoodVersion { command: String },
+    NoToolchainsAvailable { command: String },
+    NoSatisfactoryToolchain { command: String, cause: Cause },
     UnableToParseCliArgs,
     UnableToParseRustVersion,
     UnableToRunCheck,
@@ -35,6 +37,20 @@ pub enum CargoMSRVError {
 
 impl fmt::Display for CargoMSRVError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+        let write_no_version_found = |f: &mut Formatter<'_>, cmd: &str| {
+            writeln!(
+                f,
+                r#"Unable to find a Minimum Supported Rust Version (MSRV).
+If you think this result is erroneous, please run: `{}` manually.
+
+If the above does succeed, or you think cargo-msrv errored in another way, please feel free to
+report the issue at: https://github.com/foresterre/cargo-msrv/issues
+
+Thank you in advance!"#,
+                cmd
+            )
+        };
+
         match self {
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::Env(err) => err.fmt(f),
@@ -52,14 +68,11 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::ToolchainNotInstalled => write!(f, "The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains."),
             CargoMSRVError::UnknownTarget => write!(f, "The given target could not be found. Run `rustup target list` for an overview of available toolchains."),
             CargoMSRVError::UnableToCacheChannelManifest => write!(f, "Unable to get or store the channel manifest on disk."),
-            CargoMSRVError::UnableToFindAnyGoodVersion { command } => write!(f, r#"Unable to find a Minimum Supported Rust Version (MSRV).
-
-If you think this result is erroneous, please run: `{}` manually.
-
-If the above does succeed, or you think cargo-msrv errored in another way, please feel free to
-report the issue at: https://github.com/foresterre/cargo-msrv/issues
-
-Thank you in advance!"#, command.as_str()),
+            CargoMSRVError::NoToolchainsAvailable { command } => write_no_version_found(f, command.as_str()),
+            CargoMSRVError::NoSatisfactoryToolchain { command, cause } => {
+                cause.fmt(f)?;
+                write_no_version_found(f, command.as_str())
+            },
             CargoMSRVError::UnableToParseCliArgs => write!(f, "Unable to parse the CLI arguments. Use `cargo msrv help` for more info."),
             CargoMSRVError::UnableToParseRustVersion => write!(f, "The Rust stable version could not be parsed from the stable channel manifest."),
             CargoMSRVError::UnableToRunCheck => write!(f, "Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually." )
