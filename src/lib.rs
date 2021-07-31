@@ -1,7 +1,7 @@
 #![deny(clippy::all)]
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
-use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
+use crate::check::{as_toolchain_specifier, check_toolchain, Cause, CheckStatus};
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{json, ui};
@@ -32,11 +32,17 @@ pub fn run_app(config: &Config) -> TResult<()> {
 }
 
 fn run_determine_msrv_action(config: &Config, release_index: &ReleaseIndex) -> TResult<()> {
+    let cmd = || -> String { config.check_command().join(" ") };
+
     match determine_msrv(config, release_index)? {
-        MinimalCompatibility::NoCompatibleToolchains => {
-            Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: config.check_command().join(" "),
+        MinimalCompatibility::NoCompatibleToolchains { cause } => {
+            Err(CargoMSRVError::NoSatisfactoryToolchain {
+                command: cmd(),
+                cause,
             })
+        }
+        MinimalCompatibility::NoToolchains => {
+            Err(CargoMSRVError::NoToolchainsAvailable { command: cmd() })
         }
         MinimalCompatibility::CapableToolchain { ref version, .. }
             if config.output_toolchain_file() =>
@@ -95,12 +101,14 @@ fn report_verify_completion(output: &impl Output, status: CheckStatus, cmd: &str
         CheckStatus::Success { version, .. } => {
             output.finish_success(ModeIntent::VerifyMSRV, &version)
         }
-        CheckStatus::Failure { .. } => output.finish_failure(ModeIntent::VerifyMSRV, cmd),
+        CheckStatus::Failure { ref cause, .. } => {
+            output.finish_failure(ModeIntent::VerifyMSRV, cmd, Some(cause))
+        }
     }
 }
 
 /// An enum to represent the minimal compatibility
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum MinimalCompatibility {
     /// A toolchain is compatible, if the outcome of a toolchain check results in a success
     CapableToolchain {
@@ -110,7 +118,9 @@ pub enum MinimalCompatibility {
         version: semver::Version,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
-    NoCompatibleToolchains,
+    NoCompatibleToolchains { cause: Cause },
+    /// No toolchains are found
+    NoToolchains,
 }
 
 impl MinimalCompatibility {
@@ -119,7 +129,20 @@ impl MinimalCompatibility {
             return version.clone();
         }
 
-        panic!("Unable to unwrap MinimalCompatibility (CapableToolchain::version)")
+        #[cfg(debug_assertions)]
+        panic!("Unable to unwrap MinimalCompatibility ({:?})", self);
+
+        #[cfg(not(debug_assertions))]
+        panic!("Unable to unwrap MinimalCompatibility (CapableToolchain::version)");
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn is_no_compatible_toolchains(&self) -> bool {
+        if let Self::NoCompatibleToolchains { .. } = self {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -129,9 +152,11 @@ impl From<CheckStatus> for MinimalCompatibility {
             CheckStatus::Success { version, toolchain } => {
                 MinimalCompatibility::CapableToolchain { version, toolchain }
             }
-            CheckStatus::Failure { toolchain: _, .. } => {
-                MinimalCompatibility::NoCompatibleToolchains
-            }
+            CheckStatus::Failure {
+                toolchain: _,
+                cause,
+                ..
+            } => MinimalCompatibility::NoCompatibleToolchains { cause },
         }
     }
 }
@@ -192,7 +217,7 @@ fn determine_msrv_impl(
     cmd: &str,
     output: &impl Output,
 ) -> TResult<MinimalCompatibility> {
-    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
+    let mut compatibility = MinimalCompatibility::NoToolchains;
 
     output.set_steps(included_releases.len() as u64);
 
@@ -210,8 +235,11 @@ fn determine_msrv_impl(
         } => {
             output.finish_success(ModeIntent::DetermineMSRV, version);
         }
-        MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::DetermineMSRV, cmd)
+        MinimalCompatibility::NoCompatibleToolchains { cause } => {
+            output.finish_failure(ModeIntent::DetermineMSRV, cmd, Some(cause))
+        }
+        MinimalCompatibility::NoToolchains => {
+            output.finish_failure(ModeIntent::DetermineMSRV, cmd, None)
         }
     }
 
@@ -228,7 +256,12 @@ fn test_against_releases_linearly(
         output.progress(ProgressAction::Checking, release.version());
         let status = check_toolchain(release.version(), config, output)?;
 
-        if let CheckStatus::Failure { .. } = status {
+        if let CheckStatus::Failure { cause, .. } = status {
+            // TODO also for bisect version, this is wrong since we determine compatibility by finding the
+            //  n+1'th version which still works. If we instead set the nth, non-compatible version, as
+            //  minimally compatible, we will always return a failure
+            // *compatibility = MinimalCompatibility::NoCompatibleToolchains { cause };
+
             break;
         }
 
@@ -250,6 +283,8 @@ fn test_against_releases_bisect(
     // track progressed items
     let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(releases);
+    let failure_cause = std::cell::Cell::new(MinimalCompatibility::NoToolchains);
+
     let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
         output.progress(ProgressAction::Checking, release.version());
 
@@ -260,6 +295,10 @@ fn test_against_releases_bisect(
         let status = check_toolchain(release.version(), config, output)?;
 
         match status {
+            CheckStatus::Failure { cause, .. } if remainder == 1 || remainder == 2 => {
+                failure_cause.replace(MinimalCompatibility::NoCompatibleToolchains { cause });
+                TResult::Ok(Narrow::ToLeft)
+            }
             CheckStatus::Failure { .. } => TResult::Ok(Narrow::ToLeft),
             CheckStatus::Success { .. } => TResult::Ok(Narrow::ToRight),
         }
@@ -275,7 +314,7 @@ fn test_against_releases_bisect(
                 version: version.clone(),
             }
         })
-        .unwrap_or(MinimalCompatibility::NoCompatibleToolchains);
+        .unwrap_or_else(|| failure_cause.into_inner());
 
     Ok(())
 }

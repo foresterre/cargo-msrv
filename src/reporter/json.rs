@@ -1,6 +1,7 @@
 use json::object;
 use std::cell::Cell;
 
+use crate::check::Cause;
 use crate::config::ModeIntent;
 use crate::reporter::ProgressAction;
 use rust_releases::semver;
@@ -98,7 +99,7 @@ impl crate::Output for JsonPrinter<'_> {
         )
     }
 
-    fn finish_failure(&self, mode: ModeIntent, _: &str) {
+    fn finish_failure(&self, mode: ModeIntent, _: &str, _cause: Option<&Cause>) {
         let reason = self.complete_reason(mode);
 
         println!(

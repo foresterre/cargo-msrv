@@ -1,3 +1,4 @@
+use crate::check::Cause;
 use crate::config::ModeIntent;
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
@@ -137,7 +138,7 @@ impl<'config> crate::Output for HumanPrinter<'config> {
         }
     }
 
-    fn finish_failure(&self, _mode: ModeIntent, cmd: &str) {
+    fn finish_failure(&self, _mode: ModeIntent, cmd: &str, _cause: Option<&Cause>) {
         self.finish_with_err(cmd)
     }
 }

@@ -1,3 +1,4 @@
+use crate::check::Cause;
 use crate::config::ModeIntent;
 use rust_releases::semver;
 
@@ -21,10 +22,11 @@ pub trait Output {
     fn progress(&self, action: ProgressAction, version: &semver::Version);
     fn complete_step(&self, version: &semver::Version, success: bool);
     fn finish_success(&self, mode: ModeIntent, version: &semver::Version);
-    fn finish_failure(&self, mode: ModeIntent, cmd: &str);
+    fn finish_failure(&self, mode: ModeIntent, cmd: &str, cause: Option<&Cause>);
 }
 
 pub mod __private {
+    use crate::check::Cause;
     use crate::config::ModeIntent;
     use crate::reporter::{Output, ProgressAction};
     use rust_releases::semver;
@@ -38,6 +40,6 @@ pub mod __private {
         fn progress(&self, _action: ProgressAction, _version: &semver::Version) {}
         fn complete_step(&self, _version: &semver::Version, _success: bool) {}
         fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
-        fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}
+        fn finish_failure(&self, _mode: ModeIntent, _cmd: &str, _cause: Option<&Cause>) {}
     }
 }

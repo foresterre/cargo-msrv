@@ -5,9 +5,10 @@ use crate::errors::{CargoMSRVError, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::reporter::{Output, ProgressAction};
 use rust_releases::semver;
+use std::fmt::Formatter;
 use std::path::Path;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum CheckStatus {
     Success {
         // toolchain specifier
@@ -20,7 +21,37 @@ pub enum CheckStatus {
         toolchain: String,
         // checked Rust version
         version: semver::Version,
+        // cause of failure
+        cause: Cause,
     },
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct Cause {
+    cause: String,
+}
+
+impl Cause {
+    pub fn from_stderr(stderr: &[u8]) -> Self {
+        let content = String::from_utf8_lossy(stderr);
+
+        Self {
+            cause: content.to_string(),
+        }
+    }
+}
+
+impl std::fmt::Display for Cause {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "\nCaused by:")?;
+        for line in self.cause.lines() {
+            if line.starts_with("To learn more") {
+                return Ok(());
+            }
+            writeln!(f, "|    {}", line)?;
+        }
+        writeln!(f)
+    }
 }
 
 pub fn check_toolchain<'a>(
@@ -114,17 +145,20 @@ fn try_building(
     let mut cmd: Vec<&str> = vec!["run", toolchain_specifier];
     cmd.extend_from_slice(check);
 
-    let mut child = command(&cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
+    let child = command(&cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
     output.progress(ProgressAction::Checking, version);
 
-    let status = child.wait()?;
+    let process_output = child.wait_with_output()?;
+    let exit_status = process_output.status;
+    let stderr = &process_output.stderr;
 
-    output.complete_step(version, status.success());
+    output.complete_step(version, exit_status.success());
 
-    if !status.success() {
+    if !exit_status.success() {
         Ok(CheckStatus::Failure {
             toolchain: toolchain_specifier.to_string(),
             version: version.clone(),
+            cause: Cause::from_stderr(stderr),
         })
     } else {
         Ok(CheckStatus::Success {
