@@ -1,3 +1,9 @@
+# [0.9.0] - 2021-09-06
+
+* cargo-msrv will no longer try to install upcoming, but unreleased, Rust releases
+
+[0.9.0]: https://github.com/foresterre/cargo-msrv/compare/v0.8.0...v0.9.0
+
 # [0.8.0] - 2021-07-30
 
 * Renamed `--minimum` to `--min` while keeping the former as an alias
