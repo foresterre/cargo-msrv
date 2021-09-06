@@ -26,7 +26,7 @@ decent-toml-rs-alternative = "0.3.0"
 
 # Get the available rust versions
 [dependencies.rust-releases]
-version = "0.15.4"
+version = "0.16.0"
 default-features = false
 features = ["rust-releases-rust-changelog"]
 
