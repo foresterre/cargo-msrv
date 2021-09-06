@@ -22,7 +22,7 @@ pub enum CargoMSRVError {
     RustReleasesSource(rust_releases::RustChangelogError),
     RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
-    SemverError(rust_releases::semver::SemVerError),
+    SemverError(rust_releases::semver::Error),
     SystemTime(std::time::SystemTimeError),
     ToolchainNotInstalled,
     UnknownTarget,
@@ -105,8 +105,8 @@ impl From<decent_toml_rs_alternative::TomlError> for CargoMSRVError {
     }
 }
 
-impl From<rust_releases::semver::SemVerError> for CargoMSRVError {
-    fn from(err: rust_releases::semver::SemVerError) -> Self {
+impl From<rust_releases::semver::Error> for CargoMSRVError {
+    fn from(err: rust_releases::semver::Error) -> Self {
         CargoMSRVError::SemverError(err)
     }
 }
