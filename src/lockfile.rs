@@ -2,7 +2,7 @@ use crate::errors::{CargoMSRVError, TResult};
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-pub struct LockfileHandler<S: LockfileState> {
+pub struct LockfileHandler<S> {
     state: PathBuf,
     marker: PhantomData<S>,
 }
@@ -10,11 +10,6 @@ pub struct LockfileHandler<S: LockfileState> {
 pub struct Start;
 pub struct Moved;
 pub struct Complete;
-
-pub trait LockfileState {}
-impl LockfileState for Start {}
-impl LockfileState for Moved {}
-impl LockfileState for Complete {}
 
 pub const CARGO_LOCK: &str = "Cargo.lock";
 const CARGO_LOCK_REPLACEMENT: &str = "Cargo.lock-ignored-for-cargo-msrv";
