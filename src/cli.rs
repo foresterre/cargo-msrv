@@ -79,7 +79,7 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                     .visible_alias("minimum")
                     .help("Earliest version to take into account")
                     .long_help("Earliest (least recent) version to take into account. \
-                     Version must match a valid Rust toolchain, and be semver compatible.")
+                     Version must match a valid Rust toolchain, and be semver compatible. Edition aliases may also be used.")
                     .takes_value(true)
                 )
                 .arg(Arg::with_name(id::ARG_MAX)
