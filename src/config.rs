@@ -154,13 +154,13 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn minimum_version(mut self, version: Option<semver::Version>) -> Self {
-        self.inner.minimum_version = version;
+    pub fn minimum_version(mut self, version: semver::Version) -> Self {
+        self.inner.minimum_version = Some(version);
         self
     }
 
-    pub fn maximum_version(mut self, version: Option<semver::Version>) -> Self {
-        self.inner.maximum_version = version;
+    pub fn maximum_version(mut self, version: semver::Version) -> Self {
+        self.inner.maximum_version = Some(version);
         self
     }
 
@@ -228,11 +228,11 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         }
 
         if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
-            builder = builder.minimum_version(Some(rust_releases::semver::Version::parse(min)?))
+            builder = builder.minimum_version(parse_version(min)?)
         }
 
         if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
-            builder = builder.maximum_version(Some(rust_releases::semver::Version::parse(max)?))
+            builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?)
         }
 
         builder = builder.bisect(arg_matches.is_present(id::ARG_BISECT));
@@ -255,5 +255,39 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         }
 
         Ok(builder.build())
+    }
+}
+
+fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
+    match input {
+        "2015" => Ok(semver::Version::new(1, 0, 0)),
+        "2018" => Ok(semver::Version::new(1, 31, 0)),
+        "2021" => Ok(semver::Version::new(1, 56, 0)),
+        s => semver::Version::parse(s),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use parameterized::parameterized;
+    use rust_releases::semver::Version;
+
+    #[parameterized(
+        input = {
+            "1.35.0",
+            "2015",
+            "2018",
+            "2021",
+        },
+        expected_version = {
+            Version::new(1,35,0),
+            Version::new(1,0,0),
+            Version::new(1,31,0),
+            Version::new(1,56,0),
+        }
+    )]
+    fn parse_version(input: &str, expected_version: Version) {
+        let version = super::super::parse_version(input).unwrap();
+        assert_eq!(version, expected_version)
     }
 }
