@@ -1,4 +1,4 @@
-name: "Build release binaries"
+name: "Build Release Binaries"
 
 on:
   release:
@@ -20,14 +20,14 @@ jobs:
             archive_ext: zip
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout tagged commit
+      - name: checkout_tagged_commit
         uses: actions/checkout@v2.3.4
         with:
           ref: ${{ github.event.release.target_commitish }}
 
       - uses: Swatinem/rust-cache@v1.3.0
 
-      - name: Build ${{ matrix.target }} release binary
+      - name: build_${{ matrix.target }}_release_binary
         run: cargo build --target=${{ matrix.target }} --release
 
       # Remove once python 3 is the default
@@ -48,24 +48,24 @@ jobs:
 
           print(f'::set-output name=archive::{archive_name}')
 
-      - name: Pack macos archive
+      - name: pack_archive_macos
         if: matrix.os == 'macos-latest'
         shell: bash
         run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
 
-      - name: Pack linux archive
+      - name: pack_archive_linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
 
-      - name: Pack windows archive
+      - name: pack_archive_windows
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/cargo-msrv.exe ./cargo-msrv.exe
           7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./cargo-msrv.exe
 
-      - name: Upload archive
+      - name: upload_artifact
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
