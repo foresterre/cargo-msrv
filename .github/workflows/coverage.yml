@@ -10,20 +10,20 @@ jobs:
     name: coverage
     runs-on: ubuntu-latest
     steps:
-      - name: checkout source
+      - name: checkout_repository
         uses: actions/checkout@v2
 
-      - name: Install nightly toolchain
+      - name: install_rust_nightly
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           profile: minimal
           override: true
 
-      - name: Run cargo-tarpaulin
+      - name: run_code_coverage
         uses: actions-rs/tarpaulin@v0.1
         with:
           args: "--all-features -- --test-threads=1"
 
-      - name: Upload to codecov.io
+      - name: upload_code_coverage
         uses: codecov/codecov-action@v2.1.0

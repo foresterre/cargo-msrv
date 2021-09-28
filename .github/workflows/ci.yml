@@ -3,7 +3,7 @@
 # based on: https://github.com/BurntSushi/bstr/blob/master/.github/workflows/ci.yml
 # which is licensed under Apache License, Version 2.0 or MIT license
 
-name: "GitHub Actions: CI"
+name: "Continuous Integration"
 on:
   pull_request:
   push:
@@ -62,9 +62,7 @@ jobs:
     steps:
       # checkout
       - name: checkout_repository
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
 
       # install: rust
       - name: install_rust
@@ -93,7 +91,7 @@ jobs:
           rust-version: stable
       - name: install_rustfmt
         run: rustup component add rustfmt
-      - name: Check formatting
+      - name: check_formatting
         run: |
           cargo fmt -- --check
 
