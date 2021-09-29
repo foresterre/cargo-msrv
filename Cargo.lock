@@ -586,9 +586,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.16.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c906d779820772a372d5a8c8c5549315fcd96e6c62226c51fa806f6fe69fafa"
+checksum = "c56512e4602a401a1466be4711359355d32f298a681170086a78d74e831037e1"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
