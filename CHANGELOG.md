@@ -2,6 +2,8 @@
 
 * Add option to specify an edition alias instead of a minimum version
 
+[0.10.0]: https://github.com/foresterre/cargo-msrv/compare/v0.9.0...v0.10.0
+
 # [0.9.0] - 2021-09-06
 
 * cargo-msrv will no longer try to install upcoming, but unreleased, Rust releases
