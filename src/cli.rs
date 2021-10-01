@@ -33,10 +33,10 @@ pub fn cli() -> App<'static, 'static> {
                 .usage("cargo msrv [OPTIONS]")
                 .about("Helps with finding the Minimal Supported Rust Version (MSRV)")
                 .after_help("\
-If arguments are provided after two dashes (`--`), they will be used as a custom command to validate \
-whether a Rust version is compatible. By default for this validation the command `cargo build` is \
-used. Commands should be runnable by rustup, i.e. validation commands will be passed to rustup like \
-so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
+An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, \
+used to validate whether a Rust toolchain version is compatible. The default `check` command is \
+\"cargo build\". A custom `check` command should be runnable by rustup, as they will be passed on to \
+rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
                 .arg(
                     Arg::with_name(id::ARG_SEEK_PATH)
                         .long("path")
@@ -118,10 +118,11 @@ so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMM
                 )
                 .arg(Arg::with_name(id::ARG_VERIFY)
                     .long("verify")
-                    .help("Verify the MSRV, if defined with the 'package.metadata.msrv' key in the Cargo.toml")
-                    .long_help("Verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'. \
+                    .help("Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml")
+                    .long_help("Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml. \
                     When this flag is present, cargo-msrv will not attempt to determine the true MSRV. \
-                    It will only attempt to verify specified MSRV, the Rust build passes similarly to regular cargo-msrv runs. ")
+                    Instead it attempts to verify whether for the specified MSRV, the `check` command passes. This is similar to \
+                    how we determine whether a Rust toolchain version is compatible for your crate or not.")
                     .takes_value(false)
                 )
                 .arg(
