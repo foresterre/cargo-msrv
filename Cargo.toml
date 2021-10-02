@@ -28,7 +28,7 @@ decent-toml-rs-alternative = "0.3.0"
 [dependencies.rust-releases]
 version = "0.16.1"
 default-features = false
-features = ["rust-releases-rust-changelog"]
+features = ["rust-releases-rust-changelog", "rust-releases-rust-dist"]
 
 [dev-dependencies]
 parameterized = "0.3.1"

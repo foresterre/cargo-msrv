@@ -25,7 +25,14 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("features")
         .join(folder);
-    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "--release-source",
+        "rust-dist",
+    ];
 
     let result = run(with_args);
 
@@ -93,6 +100,43 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     let with_args = vec![
         "cargo",
         "msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "--",
+        "cargo",
+        "check",
+    ];
+
+    let result = run(with_args);
+
+    let actual_version = result.unwrap_version();
+
+    assert_eq!(actual_version, expected_version);
+}
+
+#[parameterized(
+    release_source = {
+        "rust-changelog",
+        "rust-dist"
+    },
+    folder = {
+        "1.38.0",
+        "1.38.0"
+    },
+    expected_version = {
+        semver::Version::new(1,38,0),
+        semver::Version::new(1,38,0),
+    }
+)]
+fn msrv_with_release_source(release_source: &str, folder: &str, expected_version: semver::Version) {
+    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("features")
+        .join(folder);
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--release-source",
+        release_source,
         "--path",
         folder.to_str().unwrap(),
         "--",

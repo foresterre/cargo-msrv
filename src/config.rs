@@ -40,6 +40,24 @@ impl From<ModeIntent> for &'static str {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum ReleaseSource {
+    RustChangelog,
+    RustDist,
+}
+
+impl TryFrom<&str> for ReleaseSource {
+    type Error = CargoMSRVError;
+
+    fn try_from(source: &str) -> Result<Self, Self::Error> {
+        match source {
+            "rust-changelog" => Ok(Self::RustChangelog),
+            "rust-dist" => Ok(Self::RustDist),
+            s => Err(CargoMSRVError::RustReleasesSourceParseError(s.to_string())),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
     mode_intent: ModeIntent,
@@ -53,6 +71,7 @@ pub struct Config<'a> {
     output_toolchain_file: bool,
     ignore_lockfile: bool,
     output_format: OutputFormat,
+    release_source: ReleaseSource,
 }
 
 impl<'a> Config<'a> {
@@ -69,6 +88,7 @@ impl<'a> Config<'a> {
             output_toolchain_file: false,
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
+            release_source: ReleaseSource::RustChangelog,
         }
     }
 
@@ -114,6 +134,10 @@ impl<'a> Config<'a> {
 
     pub fn output_format(&self) -> OutputFormat {
         self.output_format
+    }
+
+    pub fn release_source(&self) -> ReleaseSource {
+        self.release_source
     }
 }
 
@@ -181,6 +205,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn output_format(mut self, output_format: OutputFormat) -> Self {
         self.inner.output_format = output_format;
+        self
+    }
+
+    pub fn release_source(mut self, release_source: ReleaseSource) -> Self {
+        self.inner.release_source = release_source;
         self
     }
 
@@ -252,6 +281,12 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             };
 
             builder = builder.output_format(output_format);
+        }
+
+        let release_source = arg_matches.value_of(id::ARG_RELEASE_SOURCE);
+        if let Some(release_source) = release_source {
+            let release_source = ReleaseSource::try_from(release_source)?;
+            builder = builder.release_source(release_source);
         }
 
         Ok(builder.build())

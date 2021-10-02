@@ -14,6 +14,7 @@ pub mod id {
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
     pub const ARG_OUTPUT_FORMAT: &str = "output_format";
     pub const ARG_VERIFY: &str = "verify_msrv";
+    pub const ARG_RELEASE_SOURCE: &str = "release_source";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -124,6 +125,13 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                     Instead it attempts to verify whether for the specified MSRV, the `check` command passes. This is similar to \
                     how we determine whether a Rust toolchain version is compatible for your crate or not.")
                     .takes_value(false)
+                )
+                .arg(Arg::with_name(id::ARG_RELEASE_SOURCE)
+                    .long("release-source")
+                    .help("Select the rust-releases source to use as the release index")
+                    .takes_value(true)
+                    .possible_values(&["rust-changelog", "rust-dist"])
+                    .default_value("rust-changelog")
                 )
                 .arg(
                     Arg::with_name(id::ARG_CUSTOM_CHECK)
