@@ -1,3 +1,9 @@
+# [unreleased]
+
+* Added `--release-source` which allows users to select a rust-releases source
+
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.10.0...HEAD
+
 # [0.10.0] - 2021-10-01
 
 * Add option to specify an edition alias instead of a minimum version
