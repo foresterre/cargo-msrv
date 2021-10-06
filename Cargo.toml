@@ -8,7 +8,7 @@ edition = "2018"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [package.metadata]
-msrv = "1.42.0"
+msrv = "1.51.0"
 
 [dependencies]
 # Used for parsing cli arguments.

@@ -25,14 +25,7 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("features")
         .join(folder);
-    let with_args = vec![
-        "cargo",
-        "msrv",
-        "--path",
-        folder.to_str().unwrap(),
-        "--release-source",
-        "rust-dist",
-    ];
+    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
 
     let result = run(with_args);
 
