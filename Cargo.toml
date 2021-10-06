@@ -8,7 +8,7 @@ edition = "2018"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [package.metadata]
-msrv = "1.42.0"
+msrv = "1.51.0"
 
 [dependencies]
 # Used for parsing cli arguments.
@@ -28,7 +28,7 @@ decent-toml-rs-alternative = "0.3.0"
 [dependencies.rust-releases]
 version = "0.16.1"
 default-features = false
-features = ["rust-releases-rust-changelog"]
+features = ["rust-releases-rust-changelog", "rust-releases-rust-dist"]
 
 [dev-dependencies]
 parameterized = "0.3.1"

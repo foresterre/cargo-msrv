@@ -20,6 +20,8 @@ pub enum CargoMSRVError {
     NoMSRVKeyInCargoToml(PathBuf),
     ParseToml(decent_toml_rs_alternative::TomlError),
     RustReleasesSource(rust_releases::RustChangelogError),
+    RustReleasesRustDistSource(rust_releases::RustDistError),
+    RustReleasesSourceParseError(String),
     RustupInstallFailed(ToolchainSpecifier),
     RustupRunWithCommandFailed,
     SemverError(rust_releases::semver::Error),
@@ -45,6 +47,8 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::NoMSRVKeyInCargoToml(path) => write!(f, "Unable to find key 'package.metadata.msrv' in '{}'", path.display()), 
             CargoMSRVError::ParseToml(err) => f.write_fmt(format_args!("Unable to parse Cargo.toml {:?}", err)),
             CargoMSRVError::RustReleasesSource(err) => err.fmt(f),
+            CargoMSRVError::RustReleasesRustDistSource(err) => err.fmt(f),
+            CargoMSRVError::RustReleasesSourceParseError(err) => write!(f, "Unable to parse rust-releases source from '{}'", err),
             CargoMSRVError::RustupInstallFailed(toolchain) => f.write_fmt(format_args!("Unable to install toolchain with `rustup install {}`.", toolchain)),
             CargoMSRVError::RustupRunWithCommandFailed => write!(f, "Check toolchain (with `rustup run <toolchain> <command>`) failed."),
             CargoMSRVError::SemverError(err) => write!(f, "{}", err),
@@ -120,5 +124,11 @@ impl From<std::time::SystemTimeError> for CargoMSRVError {
 impl From<rust_releases::RustChangelogError> for CargoMSRVError {
     fn from(err: rust_releases::RustChangelogError) -> Self {
         CargoMSRVError::RustReleasesSource(err)
+    }
+}
+
+impl From<rust_releases::RustDistError> for CargoMSRVError {
+    fn from(err: rust_releases::RustDistError) -> Self {
+        CargoMSRVError::RustReleasesRustDistSource(err)
     }
 }

@@ -2,13 +2,13 @@
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
 use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
-use crate::config::{Config, ModeIntent};
+use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{json, ui};
 use crate::reporter::{Output, ProgressAction, __private::NoOutput};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{
-    semver, Channel, FetchResources, Release, ReleaseIndex, RustChangelog, Source,
+    semver, Channel, FetchResources, Release, ReleaseIndex, RustChangelog, RustDist, Source,
 };
 use std::path::PathBuf;
 
@@ -22,8 +22,12 @@ pub mod lockfile;
 pub mod reporter;
 
 pub fn run_app(config: &Config) -> TResult<()> {
-    let index_strategy = RustChangelog::fetch_channel(Channel::Stable)?;
-    let index = index_strategy.build_index()?;
+    let index = match config.release_source() {
+        ReleaseSource::RustChangelog => {
+            RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
+        }
+        ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
+    };
 
     match config.action_intent() {
         ModeIntent::DetermineMSRV => run_determine_msrv_action(config, &index),
