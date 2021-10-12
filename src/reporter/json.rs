@@ -5,6 +5,7 @@ use crate::config::ModeIntent;
 use crate::reporter::ProgressAction;
 use rust_releases::semver;
 
+#[derive(Debug)]
 pub struct JsonPrinter<'s, 't> {
     finished: Cell<u64>,
     steps: Cell<u64>,

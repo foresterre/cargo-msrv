@@ -11,6 +11,15 @@ pub struct HumanPrinter<'s, 't> {
     cmd: &'t str,
 }
 
+impl std::fmt::Debug for HumanPrinter<'_, '_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "toolchain = {}, cmd = {}",
+            self.toolchain, self.cmd
+        ))
+    }
+}
+
 impl<'s, 't> HumanPrinter<'s, 't> {
     pub fn new(steps: u64, toolchain: &'s str, cmd: &'t str) -> Self {
         let term = Term::stderr();
