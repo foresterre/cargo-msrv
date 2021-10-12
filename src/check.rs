@@ -8,26 +8,42 @@ use rust_releases::semver;
 use std::path::Path;
 
 #[derive(Clone, Debug)]
-pub enum CheckStatus {
-    Success {
-        // toolchain specifier
-        toolchain: String,
-        // checked Rust version
-        version: semver::Version,
-    },
-    Failure {
-        // toolchain specifier
-        toolchain: String,
-        // checked Rust version
-        version: semver::Version,
-    },
+pub struct Outcome {
+    result: Status,
+    // toolchain specifier
+    toolchain: String,
+    // checked Rust version
+    version: semver::Version,
+}
+
+impl Outcome {
+    pub(crate) fn is_success(&self) -> bool {
+        match self.result {
+            Status::Success => true,
+            Status::Failure => false,
+        }
+    }
+
+    pub(crate) fn version(&self) -> &semver::Version {
+        &self.version
+    }
+
+    pub(crate) fn toolchain(&self) -> &str {
+        &self.toolchain
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum Status {
+    Success,
+    Failure,
 }
 
 pub fn check_toolchain<'a>(
     version: &'a semver::Version,
     config: &'a Config,
     output: &'a impl Output,
-) -> TResult<CheckStatus> {
+) -> TResult<Outcome> {
     // temporarily move the lockfile if the user opted to ignore it, and it exists
     let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
     let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
@@ -56,7 +72,7 @@ fn examine_toolchain(
     version: &semver::Version,
     config: &Config,
     output: &impl Output,
-) -> TResult<CheckStatus> {
+) -> TResult<Outcome> {
     let toolchain_specifier = as_toolchain_specifier(version, config.target());
 
     download_if_required(version, &toolchain_specifier, output)?;
@@ -110,7 +126,7 @@ fn try_building(
     dir: Option<&Path>,
     check: &[&str],
     output: &impl Output,
-) -> TResult<CheckStatus> {
+) -> TResult<Outcome> {
     let mut cmd: Vec<&str> = vec!["run", toolchain_specifier];
     cmd.extend_from_slice(check);
 
@@ -121,15 +137,20 @@ fn try_building(
 
     output.complete_step(version, status.success());
 
+    let toolchain = toolchain_specifier.to_owned();
+    let version = version.to_owned();
+
     if !status.success() {
-        Ok(CheckStatus::Failure {
-            toolchain: toolchain_specifier.to_string(),
-            version: version.clone(),
+        Ok(Outcome {
+            result: Status::Failure,
+            toolchain,
+            version,
         })
     } else {
-        Ok(CheckStatus::Success {
-            toolchain: toolchain_specifier.to_string(),
-            version: version.clone(),
+        Ok(Outcome {
+            result: Status::Success,
+            toolchain,
+            version,
         })
     }
 }
