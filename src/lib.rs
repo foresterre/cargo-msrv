@@ -1,7 +1,7 @@
 #![deny(clippy::all)]
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
-use crate::check::{as_toolchain_specifier, check_toolchain, CheckStatus};
+use crate::check::{as_toolchain_specifier, check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{json, ui};
@@ -94,12 +94,11 @@ fn run_verify_msrv_action(config: &Config, _release_index: &ReleaseIndex) -> TRe
     Ok(())
 }
 
-fn report_verify_completion(output: &impl Output, status: CheckStatus, cmd: &str) {
-    match status {
-        CheckStatus::Success { version, .. } => {
-            output.finish_success(ModeIntent::VerifyMSRV, &version)
-        }
-        CheckStatus::Failure { .. } => output.finish_failure(ModeIntent::VerifyMSRV, cmd),
+fn report_verify_completion(output: &impl Output, status: Outcome, cmd: &str) {
+    if status.is_success() {
+        output.finish_success(ModeIntent::VerifyMSRV, status.version());
+    } else {
+        output.finish_failure(ModeIntent::VerifyMSRV, cmd);
     }
 }
 
@@ -127,15 +126,15 @@ impl MinimalCompatibility {
     }
 }
 
-impl From<CheckStatus> for MinimalCompatibility {
-    fn from(from: CheckStatus) -> Self {
-        match from {
-            CheckStatus::Success { version, toolchain } => {
-                MinimalCompatibility::CapableToolchain { version, toolchain }
-            }
-            CheckStatus::Failure { toolchain: _, .. } => {
-                MinimalCompatibility::NoCompatibleToolchains
-            }
+impl From<Outcome> for MinimalCompatibility {
+    fn from(outcome: Outcome) -> Self {
+        let version = outcome.version().to_owned();
+        let toolchain = outcome.toolchain().to_string();
+
+        if outcome.is_success() {
+            MinimalCompatibility::CapableToolchain { version, toolchain }
+        } else {
+            MinimalCompatibility::NoCompatibleToolchains
         }
     }
 }
@@ -230,13 +229,13 @@ fn test_against_releases_linearly(
 ) -> TResult<()> {
     for release in releases {
         output.progress(ProgressAction::Checking, release.version());
-        let status = check_toolchain(release.version(), config, output)?;
+        let outcome = check_toolchain(release.version(), config, output)?;
 
-        if let CheckStatus::Failure { .. } = status {
+        if !outcome.is_success() {
             break;
         }
 
-        *compatibility = status.into();
+        *compatibility = outcome.into();
     }
 
     Ok(())
@@ -261,11 +260,14 @@ fn test_against_releases_bisect(
         let steps = progressed.replace(progressed.get().saturating_add(1));
         output.set_steps(steps + (remainder as u64));
 
-        let status = check_toolchain(release.version(), config, output)?;
+        let outcome = check_toolchain(release.version(), config, output)?;
 
-        match status {
-            CheckStatus::Failure { .. } => TResult::Ok(Narrow::ToLeft),
-            CheckStatus::Success { .. } => TResult::Ok(Narrow::ToRight),
+        if outcome.is_success() {
+            // Expand search space
+            TResult::Ok(Narrow::ToRight)
+        } else {
+            // Shrink search space
+            TResult::Ok(Narrow::ToLeft)
         }
     });
 
