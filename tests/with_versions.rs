@@ -1,6 +1,7 @@
 extern crate cargo_msrv;
 
-use cargo_msrv::config::test_config_from_matches;
+use cargo_msrv::config::{test_config_from_matches, OutputFormat};
+use cargo_msrv::reporter::{Reporter, ReporterBuilder};
 use cargo_msrv::MinimalCompatibility;
 use parameterized::parameterized;
 use rust_releases::{semver, Release, ReleaseIndex};
@@ -148,6 +149,8 @@ fn run<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(with_args: I) -> Mi
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
     let matches = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
 
+    let reporter = fake_reporter();
+
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
     let available_versions: ReleaseIndex = FromIterator::from_iter(vec![
@@ -159,7 +162,8 @@ fn run<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(with_args: I) -> Mi
     ]);
 
     // Determine the MSRV from the index of available releases.
-    cargo_msrv::determine_msrv(&matches, &available_versions).expect("Unable to run MSRV process")
+    cargo_msrv::determine_msrv(&matches, &reporter, &available_versions)
+        .expect("Unable to run MSRV process")
 }
 
 #[test]
@@ -188,6 +192,8 @@ fn run_cargo_version_which_doesnt_support_lockfile_v2<
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
     let matches = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
 
+    let reporter = fake_reporter();
+
     // Limit the available versions: this ensures we don't want to incrementally install more toolchains
     //  as more Rust toolchains become available.
     let available_versions: ReleaseIndex = FromIterator::from_iter(vec![
@@ -200,5 +206,12 @@ fn run_cargo_version_which_doesnt_support_lockfile_v2<
     ]);
 
     // Determine the MSRV from the index of available releases.
-    cargo_msrv::determine_msrv(&matches, &available_versions).expect("Unable to run MSRV process")
+    cargo_msrv::determine_msrv(&matches, &reporter, &available_versions)
+        .expect("Unable to run MSRV process")
+}
+
+fn fake_reporter() -> Reporter<'static> {
+    ReporterBuilder::new("", "")
+        .output_format(OutputFormat::None)
+        .build()
 }

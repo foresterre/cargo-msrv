@@ -14,6 +14,12 @@ pub enum OutputFormat {
     None,
 }
 
+impl Default for OutputFormat {
+    fn default() -> Self {
+        Self::Human
+    }
+}
+
 /// Gets a [`Config`] from the given matches, but sets output_format to None
 ///
 /// This is meant to be used for testing
@@ -102,6 +108,10 @@ impl<'a> Config<'a> {
 
     pub fn check_command(&self) -> &Vec<&'a str> {
         &self.check_command
+    }
+
+    pub fn check_command_string(&self) -> String {
+        self.check_command.join(" ")
     }
 
     pub fn crate_path(&self) -> Option<&Path> {

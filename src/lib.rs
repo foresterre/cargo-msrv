@@ -4,8 +4,8 @@
 use crate::check::{as_toolchain_specifier, check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
-use crate::reporter::{json, ui};
-use crate::reporter::{Output, ProgressAction, __private::NoOutput};
+use crate::reporter::Reporter;
+use crate::reporter::{Output, ProgressAction};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{
     semver, Channel, FetchResources, Release, ReleaseIndex, RustChangelog, RustDist, Source,
@@ -21,7 +21,7 @@ pub mod fetch;
 pub mod lockfile;
 pub mod reporter;
 
-pub fn run_app(config: &Config) -> TResult<()> {
+pub fn run_app(config: &Config, reporter: &Reporter) -> TResult<()> {
     let index = match config.release_source() {
         ReleaseSource::RustChangelog => {
             RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
@@ -30,13 +30,17 @@ pub fn run_app(config: &Config) -> TResult<()> {
     };
 
     match config.action_intent() {
-        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, &index),
-        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, &index),
+        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, &index),
+        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, &index),
     }
 }
 
-fn run_determine_msrv_action(config: &Config, release_index: &ReleaseIndex) -> TResult<()> {
-    match determine_msrv(config, release_index)? {
+fn run_determine_msrv_action(
+    config: &Config,
+    reporter: &Reporter,
+    release_index: &ReleaseIndex,
+) -> TResult<()> {
+    match determine_msrv(config, reporter, release_index)? {
         MinimalCompatibility::NoCompatibleToolchains => {
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
                 command: config.check_command().join(" "),
@@ -51,7 +55,11 @@ fn run_determine_msrv_action(config: &Config, release_index: &ReleaseIndex) -> T
     }
 }
 
-fn run_verify_msrv_action(config: &Config, _release_index: &ReleaseIndex) -> TResult<()> {
+fn run_verify_msrv_action(
+    config: &Config,
+    reporter: &Reporter,
+    _release_index: &ReleaseIndex,
+) -> TResult<()> {
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
 
@@ -68,28 +76,10 @@ fn run_verify_msrv_action(config: &Config, _release_index: &ReleaseIndex) -> TRe
 
     let version = semver::Version::parse(&msrv).map_err(CargoMSRVError::SemverError)?;
 
-    let cmd = config.check_command().join(" ");
-
-    match config.output_format() {
-        config::OutputFormat::Human => {
-            let reporter = ui::HumanPrinter::new(1, config.target(), &cmd);
-            reporter.mode(ModeIntent::VerifyMSRV);
-            let status = check_toolchain(&version, config, &reporter)?;
-            report_verify_completion(&reporter, status, &cmd);
-        }
-        config::OutputFormat::Json => {
-            let reporter = json::JsonPrinter::new(1, config.target(), &cmd);
-            reporter.mode(ModeIntent::VerifyMSRV);
-            let status = check_toolchain(&version, config, &reporter)?;
-            report_verify_completion(&reporter, status, &cmd);
-        }
-        config::OutputFormat::None => {
-            let reporter = NoOutput;
-            reporter.mode(ModeIntent::VerifyMSRV);
-            let status = check_toolchain(&version, config, &reporter)?;
-            report_verify_completion(&reporter, status, &cmd);
-        }
-    };
+    let cmd = config.check_command_string();
+    reporter.mode(ModeIntent::VerifyMSRV);
+    let status = check_toolchain(&version, config, reporter)?;
+    report_verify_completion(reporter, status, &cmd);
 
     Ok(())
 }
@@ -141,9 +131,10 @@ impl From<Outcome> for MinimalCompatibility {
 
 pub fn determine_msrv(
     config: &Config,
+    reporter: &Reporter,
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
-    let cmd = config.check_command().join(" ");
+    let cmd = config.check_command_string();
 
     let releases = index.releases();
 
@@ -169,24 +160,9 @@ pub fn determine_msrv(
         })
         .collect::<Vec<_>>();
 
-    match config.output_format() {
-        config::OutputFormat::Human => {
-            let ui = ui::HumanPrinter::new(included_releases.len() as u64, config.target(), &cmd);
-            ui.mode(ModeIntent::DetermineMSRV);
-            determine_msrv_impl(config, &included_releases, &cmd, &ui)
-        }
-        config::OutputFormat::Json => {
-            let output =
-                json::JsonPrinter::new(included_releases.len() as u64, config.target(), &cmd);
-            output.mode(ModeIntent::DetermineMSRV);
-            determine_msrv_impl(config, &included_releases, &cmd, &output)
-        }
-        config::OutputFormat::None => {
-            let output = NoOutput;
-            output.mode(ModeIntent::DetermineMSRV);
-            determine_msrv_impl(config, &included_releases, &cmd, &output)
-        }
-    }
+    reporter.mode(ModeIntent::DetermineMSRV);
+    reporter.set_steps(included_releases.len() as u64);
+    determine_msrv_impl(config, &included_releases, &cmd, reporter)
 }
 
 fn determine_msrv_impl(

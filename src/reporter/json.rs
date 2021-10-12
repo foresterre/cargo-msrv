@@ -5,15 +5,15 @@ use crate::config::ModeIntent;
 use crate::reporter::ProgressAction;
 use rust_releases::semver;
 
-pub struct JsonPrinter<'a> {
+pub struct JsonPrinter<'s, 't> {
     finished: Cell<u64>,
     steps: Cell<u64>,
-    toolchain: &'a str,
-    cmd: &'a str,
+    toolchain: &'s str,
+    cmd: &'t str,
 }
 
-impl<'a> JsonPrinter<'a> {
-    pub fn new(steps: u64, toolchain: &'a str, cmd: &'a str) -> Self {
+impl<'s, 't> JsonPrinter<'s, 't> {
+    pub fn new(steps: u64, toolchain: &'s str, cmd: &'t str) -> Self {
         Self {
             finished: Cell::new(0),
             steps: Cell::new(steps),
@@ -30,9 +30,10 @@ impl<'a> JsonPrinter<'a> {
     }
 }
 
-impl crate::Output for JsonPrinter<'_> {
+impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     fn mode(&self, mode: ModeIntent) {
         let mode: &str = mode.into();
+
         println!(
             "{}",
             object! {

@@ -4,15 +4,15 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
 use std::borrow::Cow;
 
-pub struct HumanPrinter<'config> {
+pub struct HumanPrinter<'s, 't> {
     term: Term,
     progress: ProgressBar,
-    toolchain: &'config str,
-    cmd: &'config str,
+    toolchain: &'s str,
+    cmd: &'t str,
 }
 
-impl<'config> HumanPrinter<'config> {
-    pub fn new(steps: u64, toolchain: &'config str, cmd: &'config str) -> Self {
+impl<'s, 't> HumanPrinter<'s, 't> {
+    pub fn new(steps: u64, toolchain: &'s str, cmd: &'t str) -> Self {
         let term = Term::stderr();
 
         let progress = ProgressBar::new(steps).with_style(
@@ -96,7 +96,7 @@ impl<'config> HumanPrinter<'config> {
     }
 }
 
-impl<'config> crate::Output for HumanPrinter<'config> {
+impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
     fn mode(&self, action: ModeIntent) {
         self.welcome(self.toolchain, self.cmd, action);
     }
