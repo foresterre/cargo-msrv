@@ -105,13 +105,18 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
         self.set_progress_bar_length(steps);
     }
 
-    fn progress(&self, action: crate::ProgressAction, version: &semver::Version) {
-        let action = match action {
-            crate::ProgressAction::Installing => "Installing",
-            crate::ProgressAction::Checking => "Checking",
+    fn progress(&self, action: crate::ProgressAction) {
+        let (action, version) = match action {
+            crate::ProgressAction::Installing(version) => ("Installing", Some(version)),
+            crate::ProgressAction::Checking(version) => ("Checking", Some(version)),
+            crate::ProgressAction::FetchingIndex => ("Fetching index", None),
         };
 
-        self.show_progress(action, version);
+        if let Some(version) = version {
+            self.show_progress(action, version);
+        } else {
+            let _ = self.term.write_line(action);
+        }
     }
 
     fn complete_step(&self, version: &semver::Version, success: bool) {

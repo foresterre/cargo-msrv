@@ -22,6 +22,8 @@ pub mod lockfile;
 pub mod reporter;
 
 pub fn run_app(config: &Config, reporter: &Reporter) -> TResult<()> {
+    reporter.progress(ProgressAction::FetchingIndex);
+
     let index = match config.release_source() {
         ReleaseSource::RustChangelog => {
             RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
@@ -204,7 +206,7 @@ fn test_against_releases_linearly(
     output: &impl Output,
 ) -> TResult<()> {
     for release in releases {
-        output.progress(ProgressAction::Checking, release.version());
+        output.progress(ProgressAction::Checking(release.version()));
         let outcome = check_toolchain(release.version(), config, output)?;
 
         if !outcome.is_success() {
@@ -230,7 +232,7 @@ fn test_against_releases_bisect(
     let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(releases);
     let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
-        output.progress(ProgressAction::Checking, release.version());
+        output.progress(ProgressAction::Checking(release.version()));
 
         // increment progressed items
         let steps = progressed.replace(progressed.get().saturating_add(1));

@@ -96,7 +96,7 @@ fn download_if_required(
     output: &impl Output,
 ) -> TResult<()> {
     let toolchain = toolchain_specifier.to_owned();
-    output.progress(ProgressAction::Installing, version);
+    output.progress(ProgressAction::Installing(version));
 
     let status = command(&["install", "--profile", "minimal", &toolchain], None)
         .and_then(|mut c| c.wait().map_err(CargoMSRVError::Io))?;
@@ -131,7 +131,7 @@ fn try_building(
     cmd.extend_from_slice(check);
 
     let mut child = command(&cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
-    output.progress(ProgressAction::Checking, version);
+    output.progress(ProgressAction::Checking(version));
 
     let status = child.wait()?;
 
