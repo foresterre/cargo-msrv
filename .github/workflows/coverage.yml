@@ -23,7 +23,7 @@ jobs:
       - name: run_code_coverage
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: "--all-features -- --test-threads=1"
+          args: "--all-features --ignore-tests -- --test-threads=1"
 
       - name: upload_code_coverage
         uses: codecov/codecov-action@v2.1.0
