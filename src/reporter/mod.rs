@@ -7,9 +7,10 @@ pub mod json;
 pub mod ui;
 
 #[derive(Debug, Clone, Copy)]
-pub enum ProgressAction {
-    Installing,
-    Checking,
+pub enum ProgressAction<'a> {
+    Installing(&'a semver::Version),
+    Checking(&'a semver::Version),
+    FetchingIndex,
 }
 
 pub trait Output {
@@ -20,7 +21,7 @@ pub trait Output {
     fn set_steps(&self, steps: u64);
 
     // Reports the currently running
-    fn progress(&self, action: ProgressAction, version: &semver::Version);
+    fn progress(&self, action: ProgressAction);
     fn complete_step(&self, version: &semver::Version, success: bool);
     fn finish_success(&self, mode: ModeIntent, version: &semver::Version);
     fn finish_failure(&self, mode: ModeIntent, cmd: &str);
@@ -45,8 +46,8 @@ impl<'output> Output for Reporter<'output> {
         self.output.set_steps(steps)
     }
 
-    fn progress(&self, action: ProgressAction, version: &Version) {
-        self.output.progress(action, version)
+    fn progress(&self, action: ProgressAction) {
+        self.output.progress(action)
     }
 
     fn complete_step(&self, version: &Version, success: bool) {
@@ -108,7 +109,7 @@ pub mod __private {
     impl Output for NoOutput {
         fn mode(&self, _action: ModeIntent) {}
         fn set_steps(&self, _steps: u64) {}
-        fn progress(&self, _action: ProgressAction, _version: &semver::Version) {}
+        fn progress(&self, _action: ProgressAction) {}
         fn complete_step(&self, _version: &semver::Version, _success: bool) {}
         fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
         fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}

@@ -49,23 +49,33 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
         self.steps.set(steps);
     }
 
-    fn progress(&self, action: crate::ProgressAction, version: &semver::Version) {
-        let action = match action {
-            ProgressAction::Installing => "installing",
-            ProgressAction::Checking => "checking",
+    fn progress(&self, action: crate::ProgressAction) {
+        let action_str = match action {
+            ProgressAction::Installing(_) => "installing",
+            ProgressAction::Checking(_) => "checking",
+            ProgressAction::FetchingIndex => "fetching-index",
         };
 
-        println!(
-            "{}",
-            object! {
-                reason: action,
-                version: version.to_string(),
-                step: self.finished.get(),
-                total: self.steps.get(),
-                toolchain: self.toolchain,
-                check_cmd: self.cmd,
-            }
-        );
+        match action {
+            ProgressAction::Installing(version) | ProgressAction::Checking(version) => println!(
+                "{}",
+                object! {
+                    reason: action_str,
+                    version: version.to_string(),
+                    step: self.finished.get(),
+                    total: self.steps.get(),
+                    toolchain: self.toolchain,
+                    check_cmd: self.cmd,
+                }
+            ),
+            ProgressAction::FetchingIndex => println!(
+                "{}",
+                object! {
+                    reason: action_str,
+                    check_cmd: self.cmd
+                }
+            ),
+        };
     }
 
     fn complete_step(&self, version: &semver::Version, success: bool) {
