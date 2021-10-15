@@ -78,6 +78,7 @@ pub struct Config<'a> {
     ignore_lockfile: bool,
     output_format: OutputFormat,
     release_source: ReleaseSource,
+    no_tracing: bool,
 }
 
 impl<'a> Config<'a> {
@@ -95,6 +96,7 @@ impl<'a> Config<'a> {
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
+            no_tracing: false,
         }
     }
 
@@ -148,6 +150,10 @@ impl<'a> Config<'a> {
 
     pub fn release_source(&self) -> ReleaseSource {
         self.release_source
+    }
+
+    pub fn no_tracing(&self) -> bool {
+        self.no_tracing
     }
 }
 
@@ -220,6 +226,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn release_source(mut self, release_source: ReleaseSource) -> Self {
         self.inner.release_source = release_source;
+        self
+    }
+
+    pub fn no_tracing(mut self, choice: bool) -> Self {
+        self.inner.no_tracing = choice;
         self
     }
 
@@ -298,6 +309,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             let release_source = ReleaseSource::try_from(release_source)?;
             builder = builder.release_source(release_source);
         }
+
+        builder = builder.no_tracing(arg_matches.is_present(id::ARG_NO_LOG));
 
         Ok(builder.build())
     }

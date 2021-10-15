@@ -90,6 +90,7 @@ fn examine_toolchain(
     )
 }
 
+#[tracing::instrument]
 fn download_if_required(
     version: &semver::Version,
     toolchain_specifier: &str,
@@ -97,6 +98,8 @@ fn download_if_required(
 ) -> TResult<()> {
     let toolchain = toolchain_specifier.to_owned();
     output.progress(ProgressAction::Installing(version));
+
+    tracing::info!("Installing toolchain {}", toolchain);
 
     let status = command(&["install", "--profile", "minimal", &toolchain], None)
         .and_then(|mut c| c.wait().map_err(CargoMSRVError::Io))?;

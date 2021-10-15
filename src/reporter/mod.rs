@@ -2,6 +2,7 @@ use crate::config;
 use crate::config::ModeIntent;
 use rust_releases::semver;
 use rust_releases::semver::Version;
+use std::fmt::Debug;
 
 pub mod json;
 pub mod ui;
@@ -13,7 +14,7 @@ pub enum ProgressAction<'a> {
     FetchingIndex,
 }
 
-pub trait Output {
+pub trait Output: Debug {
     // Shows the mode in which cargo-msrv will operate
     fn mode(&self, mode: ModeIntent);
 
@@ -27,6 +28,7 @@ pub trait Output {
     fn finish_failure(&self, mode: ModeIntent, cmd: &str);
 }
 
+#[derive(Debug)]
 pub struct Reporter<'output> {
     output: Box<dyn Output + 'output>,
 }
@@ -104,6 +106,7 @@ pub mod __private {
     use rust_releases::semver;
 
     /// This is meant to be used for testing
+    #[derive(Debug)]
     pub struct NoOutput;
 
     impl Output for NoOutput {
