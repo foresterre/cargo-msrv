@@ -15,7 +15,7 @@ msrv = "1.51.0"
 clap = "2.33.0"
 
 # UI
-console = "0.14.1"
+console = "0.15.0"
 indicatif = "0.16.2"
 
 # json output
