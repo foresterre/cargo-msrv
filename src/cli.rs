@@ -16,6 +16,7 @@ pub mod id {
     pub const ARG_VERIFY: &str = "verify_msrv";
     pub const ARG_RELEASE_SOURCE: &str = "release_source";
     pub const ARG_NO_LOG: &str = "no_log";
+    pub const ARG_NO_READ_MIN_EDITION: &str = "no_read_min_edition";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -137,6 +138,12 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                 .arg(Arg::with_name(id::ARG_NO_LOG)
                     .long("no-log")
                     .help("Disable logging")
+                    .takes_value(false)
+                )
+                .arg(Arg::with_name(id::ARG_NO_READ_MIN_EDITION)
+                    .long("no-read-min-edition")
+                    .help("If provided, the `package.edition` value in the Cargo.toml will not \
+                    be used to reduce search space.")
                     .takes_value(false)
                 )
                 .arg(

@@ -79,6 +79,7 @@ pub struct Config<'a> {
     output_format: OutputFormat,
     release_source: ReleaseSource,
     no_tracing: bool,
+    no_read_min_edition: bool,
 }
 
 impl<'a> Config<'a> {
@@ -97,6 +98,7 @@ impl<'a> Config<'a> {
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
             no_tracing: false,
+            no_read_min_edition: false,
         }
     }
 
@@ -154,6 +156,10 @@ impl<'a> Config<'a> {
 
     pub fn no_tracing(&self) -> bool {
         self.no_tracing
+    }
+
+    pub fn no_read_min_version(&self) -> bool {
+        self.no_read_min_edition
     }
 }
 
