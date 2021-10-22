@@ -3,6 +3,7 @@ use clap::ArgMatches;
 use rust_releases::semver;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
+use rust_releases::semver::Op;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -79,7 +80,7 @@ pub struct Config<'a> {
     output_format: OutputFormat,
     release_source: ReleaseSource,
     no_tracing: bool,
-    no_read_min_edition: bool,
+    no_read_min_edition: Option<semver::Version>,
 }
 
 impl<'a> Config<'a> {
@@ -98,7 +99,7 @@ impl<'a> Config<'a> {
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
             no_tracing: false,
-            no_read_min_edition: false,
+            no_read_min_edition: None,
         }
     }
 
@@ -158,8 +159,8 @@ impl<'a> Config<'a> {
         self.no_tracing
     }
 
-    pub fn no_read_min_version(&self) -> bool {
-        self.no_read_min_edition
+    pub fn no_read_min_version(&self) -> Option<&semver::Version> {
+        self.no_read_min_edition.as_ref()
     }
 }
 
@@ -285,6 +286,23 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
 
         if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
             builder = builder.minimum_version(parse_version(min)?)
+        }
+
+        // overwrite the min version if the no-read-min-edition flag is not present
+        // The absense of the flag means we want to determine the min version by looking at
+        // the Cargo.toml file and finding the edition field there.
+        if let Some(_) = !arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) {
+            let document =
+                decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
+
+            let edition = document
+                .get("package")
+                .and_then(|field| field.get("edition"))
+                .and_then(|value| value.as_string())
+                .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
+
+            builder = builder.minimum_version(parse_version(edition.as_str())?);
+
         }
 
         if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
