@@ -4,12 +4,14 @@
 use crate::check::{as_toolchain_specifier, check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::manifest::{CargoManifest, CargoManifestParser, TomlMap, TomlParser};
 use crate::reporter::Reporter;
 use crate::reporter::{Output, ProgressAction};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{
     semver, Channel, FetchResources, Release, ReleaseIndex, RustChangelog, RustDist, Source,
 };
+use std::convert::TryFrom;
 use std::path::PathBuf;
 
 pub mod check;
@@ -19,6 +21,7 @@ pub mod config;
 pub mod errors;
 pub mod fetch;
 pub mod lockfile;
+pub(crate) mod manifest;
 pub mod reporter;
 
 pub fn run_app(config: &Config, reporter: &Reporter) -> TResult<()> {
@@ -57,30 +60,33 @@ fn run_determine_msrv_action(
     }
 }
 
-fn run_verify_msrv_action(
+// NB: only public for integration testing
+pub fn run_verify_msrv_action(
     config: &Config,
     reporter: &Reporter,
-    _release_index: &ReleaseIndex,
+    release_index: &ReleaseIndex,
 ) -> TResult<()> {
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
 
     let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
-    let document =
-        decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
 
-    let msrv = document
-        .get("package")
-        .and_then(|field| field.get("metadata"))
-        .and_then(|field| field.get("msrv"))
-        .and_then(|value| value.as_string())
+    let manifest = CargoManifestParser::default().parse::<TomlMap>(&contents)?;
+    let manifest = CargoManifest::try_from(manifest)?;
+
+    let version = manifest
+        .minimum_rust_version()
         .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
-
-    let version = semver::Version::parse(&msrv).map_err(CargoMSRVError::SemverError)?;
+    let version = version.try_to_semver(
+        release_index
+            .releases()
+            .iter()
+            .map(|release| release.version()),
+    )?;
 
     let cmd = config.check_command_string();
     reporter.mode(ModeIntent::VerifyMSRV);
-    let status = check_toolchain(&version, config, reporter)?;
+    let status = check_toolchain(version, config, reporter)?;
     report_verify_completion(reporter, status, &cmd);
 
     Ok(())
