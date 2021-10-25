@@ -12,6 +12,8 @@ pub enum OutputFormat {
     Json,
     /// No output -- meant to be used for testing
     None,
+    /// Save all versions tested and save success result for all runs -- meant to be used for testing
+    TestSuccesses,
 }
 
 impl Default for OutputFormat {
@@ -240,6 +242,11 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn no_read_min_edition(mut self, version: semver::Version) -> Self {
+        self.inner.no_read_min_edition = Some(version);
+        self
+    }
+
     pub fn build(self) -> Config<'a> {
         self.inner
     }
@@ -284,24 +291,26 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         }
 
         match arg_matches.value_of(id::ARG_MIN) {
-            Some(min) => { builder = builder.minimum_version(parse_version(min)?) }
+            Some(min) => builder = builder.minimum_version(parse_version(min)?),
             None if arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
             None => {
-                //TODO fix file reading stuff => distinction between lib and config filesG
-                let crate_folder = crate_path.map(|p: &str| PathBuf::from(p)).unwrap();
+                let crate_folder = if let Some(ref path) = builder.inner.crate_path {
+                    Ok(path.to_path_buf())
+                } else {
+                    std::env::current_dir().map_err(CargoMSRVError::Io)
+                }?;
                 let cargo_toml = crate_folder.join("Cargo.toml");
 
                 let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
-                let document =
-                    decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
+                let document = decent_toml_rs_alternative::parse_toml(&contents)
+                    .map_err(CargoMSRVError::ParseToml)?;
 
-                let edition = document
+                if let Some(edition) = document
                     .get("package")
                     .and_then(|field| field.get("edition"))
-                    .and_then(|value| value.as_string())
-                    .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
-
-                builder = builder.minimum_version(parse_version(edition.as_str())?)
+                    .and_then(|value| value.as_string()) {
+                    builder = builder.minimum_version(parse_version(edition.as_str())?)
+                }
             }
         }
 

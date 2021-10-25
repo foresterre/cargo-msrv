@@ -2,7 +2,7 @@ use json::object;
 use std::cell::Cell;
 
 use crate::config::ModeIntent;
-use crate::reporter::ProgressAction;
+use crate::reporter::{ExposeOutput, ProgressAction};
 use rust_releases::semver;
 
 #[derive(Debug)]
@@ -30,6 +30,8 @@ impl<'s, 't> JsonPrinter<'s, 't> {
         }
     }
 }
+
+impl<'s, 't> ExposeOutput for JsonPrinter<'s, 't> {}
 
 impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     fn mode(&self, mode: ModeIntent) {
