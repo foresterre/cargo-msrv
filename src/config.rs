@@ -3,7 +3,6 @@ use clap::ArgMatches;
 use rust_releases::semver;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
-use rust_releases::semver::Op;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -284,25 +283,26 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             builder = builder.target(target);
         }
 
-        if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
-            builder = builder.minimum_version(parse_version(min)?)
-        }
+        match arg_matches.value_of(id::ARG_MIN) {
+            Some(min) => { builder = builder.minimum_version(parse_version(min)?) }
+            None if arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
+            None => {
+                //TODO fix file reading stuff => distinction between lib and config filesG
+                let crate_folder = crate_path.map(|p: &str| PathBuf::from(p)).unwrap();
+                let cargo_toml = crate_folder.join("Cargo.toml");
 
-        // overwrite the min version if the no-read-min-edition flag is not present
-        // The absense of the flag means we want to determine the min version by looking at
-        // the Cargo.toml file and finding the edition field there.
-        if let Some(_) = !arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) {
-            let document =
-                decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
+                let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
+                let document =
+                    decent_toml_rs_alternative::parse_toml(&contents).map_err(CargoMSRVError::ParseToml)?;
 
-            let edition = document
-                .get("package")
-                .and_then(|field| field.get("edition"))
-                .and_then(|value| value.as_string())
-                .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
+                let edition = document
+                    .get("package")
+                    .and_then(|field| field.get("edition"))
+                    .and_then(|value| value.as_string())
+                    .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
 
-            builder = builder.minimum_version(parse_version(edition.as_str())?);
-
+                builder = builder.minimum_version(parse_version(edition.as_str())?)
+            }
         }
 
         if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
