@@ -25,7 +25,7 @@ json = "0.12.4"
 decent-toml-rs-alternative = "0.3.0"
 
 tracing = "0.1"
-tracing-subscriber = "0.2"
+tracing-subscriber = "0.3"
 tracing-appender = "0.1"
 dirs = "4.0.0"
 
