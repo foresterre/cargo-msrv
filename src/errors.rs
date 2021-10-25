@@ -17,6 +17,7 @@ pub enum CargoMSRVError {
     Io(io::Error),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
+    NoVersionMatchesManifestMSRV(crate::manifest::BareVersion, Vec<crate::semver::Version>),
     NoMSRVKeyInCargoToml(PathBuf),
     ParseToml(decent_toml_rs_alternative::TomlError),
     RustReleasesSource(rust_releases::RustChangelogError),
@@ -31,6 +32,8 @@ pub enum CargoMSRVError {
     UnableToAccessLogFolder,
     UnableToCacheChannelManifest,
     UnableToFindAnyGoodVersion { command: String },
+    UnableToParseBareVersion { version: String, message: String },
+    UnableToParseBareVersionNumber(std::num::ParseIntError),
     UnableToInitTracing,
     UnableToParseCliArgs,
     UnableToParseRustVersion,
@@ -46,7 +49,8 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::Io(err) => err.fmt(f),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
-            CargoMSRVError::NoMSRVKeyInCargoToml(path) => write!(f, "Unable to find key 'package.metadata.msrv' in '{}'", path.display()), 
+            CargoMSRVError::NoVersionMatchesManifestMSRV(msrv, versions_available) => write!(f, "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}", msrv, versions_available.iter().map(|s| s.to_string()).collect::<Vec<String>>().join(", ")),
+            CargoMSRVError::NoMSRVKeyInCargoToml(path) => write!(f, "Unable to find key 'package.metadata.msrv' in '{}'", path.display()),
             CargoMSRVError::ParseToml(err) => f.write_fmt(format_args!("Unable to parse Cargo.toml {:?}", err)),
             CargoMSRVError::RustReleasesSource(err) => err.fmt(f),
             CargoMSRVError::RustReleasesRustDistSource(err) => err.fmt(f),
@@ -68,6 +72,8 @@ If the above does succeed, or you think cargo-msrv errored in another way, pleas
 report the issue at: https://github.com/foresterre/cargo-msrv/issues
 
 Thank you in advance!"#, command.as_str()),
+            CargoMSRVError::UnableToParseBareVersion { version, message } => write!(f, "Unable to parse bare two- or three component Rust version from '{}': {}.", version, message),
+            CargoMSRVError::UnableToParseBareVersionNumber(err) => write!(f, "Unable to parse bare two- or three component Rust version: {}.", err),
             CargoMSRVError::UnableToParseCliArgs => write!(f, "Unable to parse the CLI arguments. Use `cargo msrv help` for more info."),
             CargoMSRVError::UnableToParseRustVersion => write!(f, "The Rust stable version could not be parsed from the stable channel manifest."),
             CargoMSRVError::UnableToRunCheck => write!(f, "Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually." )

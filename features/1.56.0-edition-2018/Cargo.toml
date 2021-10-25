@@ -1,8 +1,8 @@
 [package]
-name = "v_1_35_0"
+name = "v_1_56_0"
 version = "0.1.0"
 authors = ["foresterre <garm@ilumeo.com>"]
 edition = "2018"
+rust-version = "1.56"
 
-[package.metadata]
-msrv = "1.35.0"
+[dependencies]

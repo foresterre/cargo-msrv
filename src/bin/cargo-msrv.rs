@@ -42,7 +42,7 @@ fn init_and_run(config: &Config) -> TResult<()> {
 
     tracing::info!("Running app");
 
-    let _ = run_app(&config, &reporter)?;
+    let _ = run_app(config, &reporter)?;
 
     tracing::info!("Finished app");
 
@@ -52,7 +52,7 @@ fn init_and_run(config: &Config) -> TResult<()> {
 fn init_tracing() -> TResult<tracing_appender::non_blocking::WorkerGuard> {
     let log_folder = dirs::data_local_dir()
         .map(|path| path.join("cargo-msrv"))
-        .ok_or_else(|| CargoMSRVError::UnableToAccessLogFolder)?;
+        .ok_or(CargoMSRVError::UnableToAccessLogFolder)?;
 
     let file_appender = RollingFileAppender::new(Rotation::DAILY, log_folder, "cargo-msrv-log");
     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
