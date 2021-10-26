@@ -31,7 +31,7 @@ compatible or not. This command should be runnable through `rustup run <toolchai
 
 **Options:**
 ```
-cargo-msrv
+cargo-msrv 
 Helps with finding the Minimal Supported Rust Version (MSRV)
 
 USAGE:
@@ -55,10 +55,19 @@ OPTIONS:
             compatible. [aliases: maximum]
         --min <min>
             Earliest (least recent) version to take into account. Version must match a valid Rust toolchain, and be
-            semver compatible. [aliases: minimum]
+            semver compatible. Edition aliases may also be used. [aliases: minimum]
+        --no-log
+            Disable logging
+
+        --no-read-min-edition
+            If provided, the `package.edition` value in the Cargo.toml will not be used to reduce search space.
+
         --output-format <output_format>
             Output status messages in machine-readable format. Machine-readable status updates will be printed in the
             requested format to stdout. [possible values: json]
+        --release-source <release_source>
+            Select the rust-releases source to use as the release index [default: rust-changelog]  [possible
+            values: rust-changelog, rust-dist]
         --path <DIR>
             Path to the cargo project directory
 
@@ -72,9 +81,10 @@ OPTIONS:
             Prints version information
 
         --verify
-            Verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'. When this flag is
-            present, cargo-msrv will not attempt to determine the true MSRV. It will only attempt to verify specified
-            MSRV, the Rust build passes similarly to regular cargo-msrv runs.
+            Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml. When this flag is present, cargo-
+            msrv will not attempt to determine the true MSRV. Instead it attempts to verify whether for the
+            specified MSRV, the `check` command passes. This is similar to how we determine whether a Rust toolchain
+            version is compatible for your crate or not.
 
 ARGS:
     <COMMAND>...
@@ -82,10 +92,10 @@ ARGS:
             i.e. the command should work like so: `rustup run <toolchain> <COMMAND>`. The default check action is `cargo
             check --all`.
 
-If arguments are provided after two dashes (`--`), they will be used as a custom command to validate whether a Rust
-version is compatible. By default for this validation the command `cargo build` is used. Commands should be runnable by
-rustup, i.e. validation commands will be passed to rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only
-need to provide the <COMMAND...> part.
+An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, used to validate
+whether a Rust toolchain version is compatible. The default `check` command is "cargo build". A custom `check` command
+should be runnable by rustup, as they will be passed on to rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll
+only need to provide the <COMMAND...> part.
 ```
 
 ### JSON format
