@@ -308,7 +308,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
                 if let Some(edition) = document
                     .get("package")
                     .and_then(|field| field.get("edition"))
-                    .and_then(|value| value.as_string()) {
+                    .and_then(|value| value.as_string())
+                {
                     builder = builder.minimum_version(parse_version(edition.as_str())?)
                 }
             }

@@ -1,8 +1,8 @@
 use crate::config;
 use crate::config::ModeIntent;
-use crate::reporter::__private::SuccessOutput;
+use crate::reporter::__private::ExposeOutput;
+
 use rust_releases::semver;
-use rust_releases::semver::Version;
 use std::fmt::Debug;
 
 pub mod json;
@@ -27,24 +27,6 @@ pub trait Output: Debug + ExposeOutput {
     fn complete_step(&self, version: &semver::Version, success: bool);
     fn finish_success(&self, mode: ModeIntent, version: &semver::Version);
     fn finish_failure(&self, mode: ModeIntent, cmd: &str);
-}
-
-pub trait ExposeOutput {
-    fn expose(&self) -> Option<Vec<(bool, semver::Version)>> {
-        None
-    }
-}
-
-impl<'output> ExposeOutput for Reporter<'output> {
-    fn expose(&self) -> Option<Vec<(bool, Version)>> {
-        self.output.expose()
-    }
-}
-
-impl ExposeOutput for SuccessOutput {
-    fn expose(&self) -> Option<Vec<(bool, semver::Version)>> {
-        Some(self.successes())
-    }
 }
 
 #[derive(Debug)]
@@ -122,10 +104,28 @@ impl<'s> ReporterBuilder<'s> {
 
 pub mod __private {
     use crate::config::ModeIntent;
-    use crate::reporter::{ExposeOutput, Output, ProgressAction};
+    use crate::reporter::json::JsonPrinter;
+    use crate::reporter::ui::HumanPrinter;
+    use crate::reporter::{Output, ProgressAction, Reporter};
     use rust_releases::semver;
     use std::cell::RefCell;
     use std::rc::Rc;
+
+    pub trait ExposeOutput {
+        fn expose_successes(&self) -> Option<Vec<(bool, semver::Version)>> {
+            None
+        }
+    }
+
+    impl<'output> ExposeOutput for Reporter<'output> {
+        fn expose_successes(&self) -> Option<Vec<(bool, semver::Version)>> {
+            self.output.expose_successes()
+        }
+    }
+
+    impl<'s, 't> ExposeOutput for HumanPrinter<'s, 't> {}
+
+    impl<'s, 't> ExposeOutput for JsonPrinter<'s, 't> {}
 
     /// This is meant to be used for testing
     #[derive(Debug)]
@@ -146,6 +146,12 @@ pub mod __private {
     #[derive(Debug)]
     pub struct SuccessOutput {
         successes: Rc<RefCell<Vec<(bool, semver::Version)>>>,
+    }
+
+    impl ExposeOutput for SuccessOutput {
+        fn expose_successes(&self) -> Option<Vec<(bool, semver::Version)>> {
+            Some(self.successes())
+        }
     }
 
     impl Output for SuccessOutput {

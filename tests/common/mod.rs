@@ -5,7 +5,7 @@ use cargo_msrv::errors::TResult;
 use cargo_msrv::reporter::__private::{NoOutput, SuccessOutput};
 use cargo_msrv::reporter::json::JsonPrinter;
 use cargo_msrv::reporter::ui::HumanPrinter;
-use cargo_msrv::reporter::{ExposeOutput, Reporter, ReporterBuilder};
+use cargo_msrv::reporter::{Reporter, ReporterBuilder};
 use cargo_msrv::MinimalCompatibility;
 use rust_releases::semver::Version;
 use rust_releases::{semver, Release, ReleaseIndex};

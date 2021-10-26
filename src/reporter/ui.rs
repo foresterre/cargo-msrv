@@ -1,5 +1,5 @@
 use crate::config::ModeIntent;
-use crate::reporter::ExposeOutput;
+
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
@@ -105,8 +105,6 @@ impl<'s, 't> HumanPrinter<'s, 't> {
         );
     }
 }
-
-impl<'s, 't> ExposeOutput for HumanPrinter<'s, 't> {}
 
 impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
     fn mode(&self, action: ModeIntent) {
