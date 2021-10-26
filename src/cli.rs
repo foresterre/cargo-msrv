@@ -121,8 +121,8 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                 )
                 .arg(Arg::with_name(id::ARG_VERIFY)
                     .long("verify")
-                    .help("Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml")
-                    .long_help("Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml. \
+                    .help("Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml")
+                    .long_help("Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. \
                     When this flag is present, cargo-msrv will not attempt to determine the true MSRV. \
                     Instead it attempts to verify whether for the specified MSRV, the `check` command passes. This is similar to \
                     how we determine whether a Rust toolchain version is compatible for your crate or not.")
@@ -142,7 +142,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                 )
                 .arg(Arg::with_name(id::ARG_NO_READ_MIN_EDITION)
                     .long("no-read-min-edition")
-                    .help("If provided, the `package.edition` value in the Cargo.toml will not \
+                    .help("If provided, the 'package.edition' value in the Cargo.toml will not \
                     be used to reduce search space.")
                     .takes_value(false)
                 )

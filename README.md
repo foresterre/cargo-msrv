@@ -60,7 +60,7 @@ OPTIONS:
             Disable logging
 
         --no-read-min-edition
-            If provided, the `package.edition` value in the Cargo.toml will not be used to reduce search space.
+            If provided, the 'package.edition' value in the Cargo.toml will not be used to reduce search space.
 
         --output-format <output_format>
             Output status messages in machine-readable format. Machine-readable status updates will be printed in the
@@ -81,10 +81,10 @@ OPTIONS:
             Prints version information
 
         --verify
-            Verify the MSRV defined in the 'package.metadata.msrv' key in Cargo.toml. When this flag is present, cargo-
-            msrv will not attempt to determine the true MSRV. Instead it attempts to verify whether for the
-            specified MSRV, the `check` command passes. This is similar to how we determine whether a Rust toolchain
-            version is compatible for your crate or not.
+            Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. When
+            this flag is present, cargo-msrv will not attempt to determine the true MSRV. Instead it attempts to verify
+            whether for the specified MSRV, the `check` command passes. This is similar to how we determine whether a
+            Rust toolchain version is compatible for your crate or not.
 
 ARGS:
     <COMMAND>...
