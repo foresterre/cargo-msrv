@@ -1,4 +1,5 @@
 use crate::config::ModeIntent;
+
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;

@@ -4,7 +4,7 @@ mod common;
 use cargo_msrv::MinimalCompatibility;
 use common::*;
 use parameterized::parameterized;
-use rust_releases::semver;
+use rust_releases::{semver, Release};
 
 #[parameterized(
     folder = {
@@ -155,4 +155,64 @@ fn msrv_with_old_lockfile() {
 
     let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args);
     assert_eq!(result.unwrap_version().minor, 29);
+}
+
+mod minimum_from_edition {
+    use super::*;
+    use cargo_msrv::reporter::__private::ExposeOutput;
+
+    #[test]
+    fn msrv_min_with_edition_in_cargo_toml() {
+        let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("features")
+            .join("1.30.0");
+        let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+
+        let versions = vec![
+            Release::new_stable(semver::Version::new(1, 32, 0)),
+            Release::new_stable(semver::Version::new(1, 31, 0)),
+            Release::new_stable(semver::Version::new(1, 30, 0)),
+            Release::new_stable(semver::Version::new(1, 29, 0)),
+        ];
+        let (result, reporter) = run_msrv_with_releases(with_args, versions);
+        assert_eq!(result.unwrap_version().minor, 31);
+        assert_eq!(
+            reporter.expose_successes().unwrap(),
+            vec![
+                (true, semver::Version::new(1, 32, 0)),
+                (true, semver::Version::new(1, 31, 0)),
+            ]
+        );
+    }
+
+    #[test]
+    fn msrv_no_minimum_with_flag() {
+        let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("features")
+            .join("1.30.0");
+        let with_args = vec![
+            "cargo",
+            "msrv",
+            "--path",
+            folder.to_str().unwrap(),
+            "--no-read-min-edition",
+        ];
+
+        let versions = vec![
+            Release::new_stable(semver::Version::new(1, 32, 0)),
+            Release::new_stable(semver::Version::new(1, 31, 0)),
+            Release::new_stable(semver::Version::new(1, 30, 0)),
+            Release::new_stable(semver::Version::new(1, 29, 0)),
+        ];
+        let (result, reporter) = run_msrv_with_releases(with_args, versions);
+        assert_eq!(result.unwrap_version().minor, 31);
+        assert_eq!(
+            reporter.expose_successes().unwrap(),
+            vec![
+                (true, semver::Version::new(1, 32, 0)),
+                (true, semver::Version::new(1, 31, 0)),
+                (false, semver::Version::new(1, 30, 0)),
+            ]
+        );
+    }
 }

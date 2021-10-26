@@ -1,0 +1,8 @@
+[package]
+name = "v_1_30_with_edition_2018"
+description = "If the edition field in this Cargo lockfile is being used to set the minimum value, the 2018 value will result in 1.31. Otherwise, the feature used in the main.rs is supported since 1.30."
+version = "0.1.0"
+edition = "2018"
+authors = ["foresterre <garm@ilumeo.com>"]
+
+[workspace]

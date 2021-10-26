@@ -12,6 +12,8 @@ pub enum OutputFormat {
     Json,
     /// No output -- meant to be used for testing
     None,
+    /// Save all versions tested and save success result for all runs -- meant to be used for testing
+    TestSuccesses,
 }
 
 impl Default for OutputFormat {
@@ -79,6 +81,7 @@ pub struct Config<'a> {
     output_format: OutputFormat,
     release_source: ReleaseSource,
     no_tracing: bool,
+    no_read_min_edition: Option<semver::Version>,
 }
 
 impl<'a> Config<'a> {
@@ -97,6 +100,7 @@ impl<'a> Config<'a> {
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
             no_tracing: false,
+            no_read_min_edition: None,
         }
     }
 
@@ -154,6 +158,10 @@ impl<'a> Config<'a> {
 
     pub fn no_tracing(&self) -> bool {
         self.no_tracing
+    }
+
+    pub fn no_read_min_version(&self) -> Option<&semver::Version> {
+        self.no_read_min_edition.as_ref()
     }
 }
 
@@ -234,6 +242,11 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn no_read_min_edition(mut self, version: semver::Version) -> Self {
+        self.inner.no_read_min_edition = Some(version);
+        self
+    }
+
     pub fn build(self) -> Config<'a> {
         self.inner
     }
@@ -277,8 +290,29 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             builder = builder.target(target);
         }
 
-        if let Some(min) = arg_matches.value_of(id::ARG_MIN) {
-            builder = builder.minimum_version(parse_version(min)?)
+        match arg_matches.value_of(id::ARG_MIN) {
+            Some(min) => builder = builder.minimum_version(parse_version(min)?),
+            None if arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
+            None => {
+                let crate_folder = if let Some(ref path) = builder.inner.crate_path {
+                    Ok(path.to_path_buf())
+                } else {
+                    std::env::current_dir().map_err(CargoMSRVError::Io)
+                }?;
+                let cargo_toml = crate_folder.join("Cargo.toml");
+
+                let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
+                let document = decent_toml_rs_alternative::parse_toml(&contents)
+                    .map_err(CargoMSRVError::ParseToml)?;
+
+                if let Some(edition) = document
+                    .get("package")
+                    .and_then(|field| field.get("edition"))
+                    .and_then(|value| value.as_string())
+                {
+                    builder = builder.minimum_version(parse_version(edition.as_str())?)
+                }
+            }
         }
 
         if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
