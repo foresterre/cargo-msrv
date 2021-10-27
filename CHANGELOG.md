@@ -1,12 +1,16 @@
 # [unreleased]
 
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.11.0...HEAD
+
+# [0.11.0] - 2021-10-28
+
 * Added `--release-source` which allows users to select a rust-releases source.
 * A message is now shown to inform users when the index is being updated.
 * Verify can now also read and use the `package.rust-version` MSRV key in the `Cargo.toml` manifest.
 * When the `package.edition` is set, the first release supporting this edition will now be set as the minimum version.
 This behaviour can be disabled by providing the `--no-read-min-edition` flag.
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.10.0...HEAD
+[0.11.0]: https://github.com/foresterre/cargo-msrv/compare/v0.10.0...v0.11.0
 
 # [0.10.0] - 2021-10-01
 
