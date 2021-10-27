@@ -33,6 +33,7 @@ pub fn cli() -> App<'static, 'static> {
         .max_term_width(120)
         .subcommand(
             SubCommand::with_name(id::SUB_COMMAND_MSRV)
+                .version(env!("CARGO_PKG_VERSION"))
                 .usage("cargo msrv [OPTIONS]")
                 .about("Helps with finding the Minimal Supported Rust Version (MSRV)")
                 .after_help("\

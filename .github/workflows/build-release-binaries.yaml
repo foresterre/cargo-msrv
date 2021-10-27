@@ -30,6 +30,12 @@ jobs:
       - name: build_${{ matrix.target }}_release_binary
         run: cargo build --target=${{ matrix.target }} --release
 
+      - name: install_cargo_about
+        run: cargo install cargo-about
+
+      - name: generate_dep_licenses_file
+        run: cargo about generate --output-file third-party-licenses.html about.hbs
+
       # Remove once python 3 is the default
       - uses: actions/setup-python@v2.2.2
         with:
@@ -51,19 +57,19 @@ jobs:
       - name: pack_archive_macos
         if: matrix.os == 'macos-latest'
         shell: bash
-        run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
+        run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
 
       - name: pack_archive_linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv
+        run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
 
       - name: pack_archive_windows
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/cargo-msrv.exe ./cargo-msrv.exe
-          7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./cargo-msrv.exe
+          7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./cargo-msrv.exe ./third-party-licenses.html ./LICENSE-APACHE ./LICENSE-MIT ./README.md
 
       - name: upload_artifact
         uses: actions/upload-release-asset@v1.0.2
