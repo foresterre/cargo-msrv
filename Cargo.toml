@@ -24,10 +24,14 @@ json = "0.12.4"
 # read Cargo.toml
 decent-toml-rs-alternative = "0.3.0"
 
-tracing = "0.1"
-tracing-subscriber = "0.2"
-tracing-appender = "0.1"
 dirs = "4.0.0"
+tracing = "0.1"
+tracing-appender = "0.2"
+
+
+[dependencies.tracing-subscriber]
+version = "0.3"
+features = ["json"]
 
 # Get the available rust versions
 [dependencies.rust-releases]
