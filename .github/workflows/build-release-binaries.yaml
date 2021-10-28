@@ -37,14 +37,6 @@ jobs:
       - name: generate_dep_licenses_file
         run: cargo about generate --output-file third-party-licenses.html about.hbs
 
-      - name: DEBUG_ls_not_windows
-        if: matrix.os != 'windows-latest'
-        run: ls -l
-
-      - name: DEBUG_ls_windows
-        if: matrix.os == 'windows-latest'
-        run: dir
-
       # Remove once python 3 is the default
       - uses: actions/setup-python@v2.2.2
         with:
