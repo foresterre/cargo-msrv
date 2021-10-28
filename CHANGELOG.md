@@ -1,6 +1,12 @@
 # [unreleased]
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.11.0...HEAD
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...HEAD
+
+# [0.11.1] - 2021-10-28
+
+This release is equal to `v0.11.0`, except that the automated 'release build and packaging' task was fixed.  
+
+[0.11.1]: https://github.com/foresterre/cargo-msrv/compare/v0.11.0...v0.11.1
 
 # [0.11.0] - 2021-10-28
 
