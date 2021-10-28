@@ -156,7 +156,6 @@ fn msrv_with_old_lockfile() {
 
 mod minimum_from_edition {
     use super::*;
-    use cargo_msrv::reporter::__private::ExposeOutput;
 
     #[test]
     fn msrv_min_with_edition_in_cargo_toml() {
@@ -174,7 +173,7 @@ mod minimum_from_edition {
         let (result, reporter) = run_msrv_with_releases(with_args, versions);
         assert_eq!(result.unwrap_version().minor, 31);
         assert_eq!(
-            reporter.expose_successes().unwrap(),
+            reporter.expose_successes(),
             vec![
                 (true, semver::Version::new(1, 32, 0)),
                 (true, semver::Version::new(1, 31, 0)),
@@ -203,7 +202,7 @@ mod minimum_from_edition {
         let (result, reporter) = run_msrv_with_releases(with_args, versions);
         assert_eq!(result.unwrap_version().minor, 31);
         assert_eq!(
-            reporter.expose_successes().unwrap(),
+            reporter.expose_successes(),
             vec![
                 (true, semver::Version::new(1, 32, 0)),
                 (true, semver::Version::new(1, 31, 0)),

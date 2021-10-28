@@ -5,7 +5,6 @@ use crate::check::{as_toolchain_specifier, check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlMap, TomlParser};
-use crate::reporter::Reporter;
 use crate::reporter::{Output, ProgressAction};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{
@@ -24,7 +23,7 @@ pub mod lockfile;
 pub(crate) mod manifest;
 pub mod reporter;
 
-pub fn run_app(config: &Config, reporter: &Reporter) -> TResult<()> {
+pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     reporter.progress(ProgressAction::FetchingIndex);
 
     let index = match config.release_source() {
@@ -40,9 +39,9 @@ pub fn run_app(config: &Config, reporter: &Reporter) -> TResult<()> {
     }
 }
 
-fn run_determine_msrv_action(
+fn run_determine_msrv_action<R: Output>(
     config: &Config,
-    reporter: &Reporter,
+    reporter: &R,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
     match determine_msrv(config, reporter, release_index)? {
@@ -61,9 +60,9 @@ fn run_determine_msrv_action(
 }
 
 // NB: only public for integration testing
-pub fn run_verify_msrv_action(
+pub fn run_verify_msrv_action<R: Output>(
     config: &Config,
-    reporter: &Reporter,
+    reporter: &R,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
     let crate_folder = crate_root_folder(config)?;
@@ -137,9 +136,9 @@ impl From<Outcome> for MinimalCompatibility {
     }
 }
 
-pub fn determine_msrv(
+pub fn determine_msrv<R: Output>(
     config: &Config,
-    reporter: &Reporter,
+    reporter: &R,
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let cmd = config.check_command_string();
