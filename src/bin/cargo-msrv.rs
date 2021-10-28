@@ -1,6 +1,6 @@
-use cargo_msrv::config::Config;
+use cargo_msrv::config::{self, Config};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
-use cargo_msrv::reporter::ReporterBuilder;
+use cargo_msrv::reporter;
 use cargo_msrv::{cli, run_app};
 use std::convert::TryFrom;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
@@ -32,17 +32,31 @@ fn _main() -> TResult<Option<tracing_appender::non_blocking::WorkerGuard>> {
 }
 
 fn init_and_run(config: &Config) -> TResult<()> {
-    let target = config.target().as_str();
-    let cmd = config.check_command_string();
-
-    tracing::info!("Initializing reporter");
-    let reporter = ReporterBuilder::new(target, cmd.as_str())
-        .output_format(config.output_format())
-        .build();
-
     tracing::info!("Running app");
 
-    let _ = run_app(config, &reporter)?;
+    let _ = match config.output_format() {
+        config::OutputFormat::Human => {
+            let custom_cmd = config.check_command_string();
+            let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);
+            run_app(config, &reporter)
+        }
+        config::OutputFormat::Json => {
+            let custom_cmd = config.check_command_string();
+            let reporter = reporter::json::JsonPrinter::new(1, config.target(), &custom_cmd);
+            run_app(config, &reporter)
+        }
+        config::OutputFormat::None => {
+            // for testing without any output
+            let reporter = reporter::__private::NoOutput;
+
+            run_app(config, &reporter)
+        }
+        config::OutputFormat::TestSuccesses => {
+            // for collecting success results during testing
+            let reporter = reporter::__private::SuccessOutput::default();
+            run_app(config, &reporter)
+        }
+    }?;
 
     tracing::info!("Finished app");
 

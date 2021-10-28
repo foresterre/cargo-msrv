@@ -5,8 +5,8 @@ use cargo_msrv::errors::TResult;
 use cargo_msrv::reporter::__private::{NoOutput, SuccessOutput};
 use cargo_msrv::reporter::json::JsonPrinter;
 use cargo_msrv::reporter::ui::HumanPrinter;
-use cargo_msrv::reporter::{Reporter, ReporterBuilder};
-use cargo_msrv::MinimalCompatibility;
+use cargo_msrv::reporter::Output;
+use cargo_msrv::{reporter, MinimalCompatibility};
 use rust_releases::semver::Version;
 use rust_releases::{semver, Release, ReleaseIndex};
 use std::ffi::OsString;
@@ -33,7 +33,7 @@ pub fn run_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
 pub fn run_msrv_with_releases<I, T, S>(
     with_args: I,
     releases: S,
-) -> (MinimalCompatibility, Reporter<'static>)
+) -> (MinimalCompatibility, SuccessOutput)
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,
@@ -58,11 +58,17 @@ where
     )
 }
 
-fn run<T, I, S, F, R>(with_args: I, releases: S, reporter: &Reporter, action: F) -> TResult<R>
+fn run<T, I, S, F, R, Reporter>(
+    with_args: I,
+    releases: S,
+    reporter: &Reporter,
+    action: F,
+) -> TResult<R>
 where
     T: Into<OsString> + Clone,
     I: IntoIterator<Item = T>,
     S: IntoIterator<Item = Release>,
+    Reporter: Output,
     F: FnOnce(&Config, &Reporter, &ReleaseIndex) -> TResult<R>,
 {
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
@@ -103,14 +109,10 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
         .expect("Unable to run MSRV process")
 }
 
-pub fn fake_reporter() -> Reporter<'static> {
-    ReporterBuilder::new("", "")
-        .output_format(OutputFormat::None)
-        .build()
+pub fn fake_reporter() -> reporter::__private::NoOutput {
+    reporter::__private::NoOutput
 }
 
-pub fn test_reporter() -> Reporter<'static> {
-    ReporterBuilder::new("", "")
-        .output_format(OutputFormat::TestSuccesses)
-        .build()
+pub fn test_reporter() -> reporter::__private::SuccessOutput {
+    reporter::__private::SuccessOutput::default()
 }
