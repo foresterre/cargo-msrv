@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           cp  ./target/${{ matrix.target }}/release/cargo-msrv cargo-msrv
-          gtar -C --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
+          gtar --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
 
       - name: pack_archive_linux
         if: matrix.os == 'ubuntu-latest'
