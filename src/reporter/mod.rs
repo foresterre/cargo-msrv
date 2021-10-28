@@ -1,5 +1,4 @@
 use crate::config::ModeIntent;
-use crate::reporter::__private::ExposeOutput;
 
 use rust_releases::semver;
 use std::fmt::Debug;
@@ -14,7 +13,7 @@ pub enum ProgressAction<'a> {
     FetchingIndex,
 }
 
-pub trait Output: Debug + ExposeOutput {
+pub trait Output: Debug {
     // Shows the mode in which cargo-msrv will operate
     fn mode(&self, mode: ModeIntent);
 
@@ -30,28 +29,14 @@ pub trait Output: Debug + ExposeOutput {
 
 pub mod __private {
     use crate::config::ModeIntent;
-    use crate::reporter::json::JsonPrinter;
-    use crate::reporter::ui::HumanPrinter;
     use crate::reporter::{Output, ProgressAction};
     use rust_releases::semver;
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    pub trait ExposeOutput {
-        fn expose_successes(&self) -> Option<Vec<(bool, semver::Version)>> {
-            None
-        }
-    }
-
-    impl<'s, 't> ExposeOutput for HumanPrinter<'s, 't> {}
-
-    impl<'s, 't> ExposeOutput for JsonPrinter<'s, 't> {}
-
     /// This is meant to be used for testing
     #[derive(Debug)]
     pub struct NoOutput;
-
-    impl ExposeOutput for NoOutput {}
 
     impl Output for NoOutput {
         fn mode(&self, _action: ModeIntent) {}
@@ -68,9 +53,9 @@ pub mod __private {
         successes: Rc<RefCell<Vec<(bool, semver::Version)>>>,
     }
 
-    impl ExposeOutput for SuccessOutput {
-        fn expose_successes(&self) -> Option<Vec<(bool, semver::Version)>> {
-            Some(self.successes())
+    impl SuccessOutput {
+        pub fn expose_successes(&self) -> Vec<(bool, semver::Version)> {
+            self.successes()
         }
     }
 
@@ -95,7 +80,7 @@ pub mod __private {
     }
     impl SuccessOutput {
         pub fn successes(&self) -> Vec<(bool, semver::Version)> {
-            self.successes.clone().borrow().clone()
+            self.successes.clone().borrow().to_owned()
         }
     }
 }
