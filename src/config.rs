@@ -259,11 +259,7 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         use crate::cli::id;
         use crate::fetch::default_target;
 
-        let arg_matches = matches
-            .subcommand_matches(id::SUB_COMMAND_MSRV)
-            .ok_or(CargoMSRVError::UnableToParseCliArgs)?;
-
-        let action_intent = if arg_matches.is_present(id::ARG_VERIFY) {
+        let action_intent = if matches.is_present(id::ARG_VERIFY) {
             ModeIntent::VerifyMSRV
         } else {
             ModeIntent::DetermineMSRV
@@ -275,24 +271,24 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         let mut builder = ConfigBuilder::new(action_intent, &target);
 
         // set the command which will be used to check if a project can build
-        let check_cmd = arg_matches.values_of(id::ARG_CUSTOM_CHECK);
+        let check_cmd = matches.values_of(id::ARG_CUSTOM_CHECK);
         if let Some(cmd) = check_cmd {
             builder = builder.check_command(cmd.collect());
         }
 
         // set the cargo workspace path
-        let crate_path = arg_matches.value_of(id::ARG_SEEK_PATH);
+        let crate_path = matches.value_of(id::ARG_SEEK_PATH);
         builder = builder.crate_path(crate_path);
 
         // set a custom target
-        let custom_target = arg_matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
+        let custom_target = matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
         if let Some(target) = custom_target {
             builder = builder.target(target);
         }
 
-        match arg_matches.value_of(id::ARG_MIN) {
+        match matches.value_of(id::ARG_MIN) {
             Some(min) => builder = builder.minimum_version(parse_version(min)?),
-            None if arg_matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
+            None if matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
             None => {
                 let crate_folder = if let Some(ref path) = builder.inner.crate_path {
                     Ok(path.to_path_buf())
@@ -315,20 +311,20 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             }
         }
 
-        if let Some(max) = arg_matches.value_of(id::ARG_MAX) {
+        if let Some(max) = matches.value_of(id::ARG_MAX) {
             builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?)
         }
 
-        builder = builder.bisect(arg_matches.is_present(id::ARG_BISECT));
+        builder = builder.bisect(matches.is_present(id::ARG_BISECT));
 
         builder = builder
-            .include_all_patch_releases(arg_matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
+            .include_all_patch_releases(matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
 
-        builder = builder.output_toolchain_file(arg_matches.is_present(id::ARG_TOOLCHAIN_FILE));
+        builder = builder.output_toolchain_file(matches.is_present(id::ARG_TOOLCHAIN_FILE));
 
-        builder = builder.ignore_lockfile(arg_matches.is_present(id::ARG_IGNORE_LOCKFILE));
+        builder = builder.ignore_lockfile(matches.is_present(id::ARG_IGNORE_LOCKFILE));
 
-        let output_format = arg_matches.value_of(id::ARG_OUTPUT_FORMAT);
+        let output_format = matches.value_of(id::ARG_OUTPUT_FORMAT);
         if let Some(output_format) = output_format {
             let output_format = match output_format {
                 "json" => OutputFormat::Json,
@@ -338,13 +334,13 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             builder = builder.output_format(output_format);
         }
 
-        let release_source = arg_matches.value_of(id::ARG_RELEASE_SOURCE);
+        let release_source = matches.value_of(id::ARG_RELEASE_SOURCE);
         if let Some(release_source) = release_source {
             let release_source = ReleaseSource::try_from(release_source)?;
             builder = builder.release_source(release_source);
         }
 
-        builder = builder.no_tracing(arg_matches.is_present(id::ARG_NO_LOG));
+        builder = builder.no_tracing(matches.is_present(id::ARG_NO_LOG));
 
         Ok(builder.build())
     }

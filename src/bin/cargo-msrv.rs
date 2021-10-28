@@ -7,13 +7,44 @@ use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::filter::LevelFilter;
 
 fn main() {
-    if let Err(err) = _main() {
+    if let Err(err) = _main(args) {
         eprintln!("{}", err);
     }
 }
 
-fn _main() -> TResult<Option<tracing_appender::non_blocking::WorkerGuard>> {
-    let matches = cli::cli().get_matches();
+// When we call cargo-msrv with cargo, cargo will supply the msrv subcommand, in addition
+// to the binary name itself. As a result, when you call cargo-msrv without cargo, for example
+// `cargo-msrv` (without cargo) instead of `cargo msrv` (with cargo), the process will receive
+// too many arguments, and you will have to specify the subcommand again like so: `cargo-msrv msrv`.
+// This function removes the subcommand when it's present in addition to the program name.
+fn args() -> impl IntoIterator<Item = String> {
+    fn cargo_subcommand_name(cargo_subcommand: &str) -> String {
+        if cfg!(target_os = "windows") {
+            format!("cargo-{}.exe", cargo_subcommand)
+        } else {
+            format!("cargo-{}", cargo_subcommand)
+        }
+    }
+    let mut args = std::env::args().collect::<Vec<_>>();
+
+    if args.len() >= 2 {
+        let program = args[0].as_str();
+        let subcommand = args[1].as_str();
+
+        // when `cargo-msrv` and `msrv` are present
+        if program.ends_with(&cargo_subcommand_name(subcommand)) {
+            // remove `msrv`
+            args.remove(1);
+        }
+    }
+
+    args
+}
+
+fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
+    args: F,
+) -> TResult<Option<tracing_appender::non_blocking::WorkerGuard>> {
+    let matches = cli::cli().get_matches_from(args());
     let config = Config::try_from(&matches)?;
 
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
