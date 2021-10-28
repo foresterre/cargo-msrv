@@ -24,7 +24,7 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("features")
         .join(folder);
-    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
     let actual_version = result.unwrap_version();
@@ -50,7 +50,7 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
     let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("features")
         .join(folder);
-    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
     let actual_version = result.unwrap_version();
@@ -63,7 +63,7 @@ fn msrv_unsupported() {
     let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("features")
         .join("unbuildable");
-    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
     assert_eq!(result, MinimalCompatibility::NoCompatibleToolchains);
@@ -88,8 +88,7 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
         .join("features")
         .join(folder);
     let with_args = vec![
-        "cargo",
-        "msrv",
+        "cargo-msrv",
         "--path",
         folder.to_str().unwrap(),
         "--",
@@ -122,8 +121,7 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
         .join("features")
         .join(folder);
     let with_args = vec![
-        "cargo",
-        "msrv",
+        "cargo-msrv",
         "--release-source",
         release_source,
         "--path",
@@ -146,8 +144,7 @@ fn msrv_with_old_lockfile() {
         .join("features")
         .join("1.29.2");
     let with_args = vec![
-        "cargo",
-        "msrv",
+        "cargo-msrv",
         "--path",
         folder.to_str().unwrap(),
         "--ignore-lockfile",
@@ -166,7 +163,7 @@ mod minimum_from_edition {
         let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("features")
             .join("1.30.0");
-        let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+        let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
         let versions = vec![
             Release::new_stable(semver::Version::new(1, 32, 0)),
@@ -191,8 +188,7 @@ mod minimum_from_edition {
             .join("features")
             .join("1.30.0");
         let with_args = vec![
-            "cargo",
-            "msrv",
+            "cargo-msrv",
             "--path",
             folder.to_str().unwrap(),
             "--no-read-min-edition",
