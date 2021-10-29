@@ -7,6 +7,7 @@ use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{Output, ProgressAction};
 
+use crate::subcommands::list::run_list_msrv;
 pub use crate::{
     result::MinimalCompatibility, subcommands::determine_msrv::determine_msrv,
     subcommands::determine_msrv::run_determine_msrv_action,
@@ -17,11 +18,11 @@ pub mod check;
 pub mod cli;
 pub(crate) mod command;
 pub mod config;
+pub(crate) mod dependencies;
 pub mod errors;
 pub(crate) mod fetch;
 pub(crate) mod lockfile;
 pub(crate) mod manifest;
-pub(crate) mod packages;
 pub(crate) mod paths;
 pub mod reporter;
 pub(crate) mod result;
@@ -40,6 +41,6 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     match config.action_intent() {
         ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, &index),
         ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, &index),
-        ModeIntent::List => todo!(),
+        ModeIntent::List => run_list_msrv(config, reporter),
     }
 }

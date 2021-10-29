@@ -12,12 +12,15 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug)]
 pub enum CargoMSRVError {
+    CargoMetadata(cargo_metadata::Error),
     DefaultHostTripleNotFound,
     Env(env::VarError),
     GenericMessage(String),
     Io(io::Error),
+    InvalidConfig(String),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
+    NoCrateRootFound,
     NoVersionMatchesManifestMSRV(crate::manifest::BareVersion, Vec<crate::semver::Version>),
     NoMSRVKeyInCargoToml(PathBuf),
     ParseToml(toml_edit::TomlError),
@@ -44,12 +47,15 @@ pub enum CargoMSRVError {
 impl fmt::Display for CargoMSRVError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
+            CargoMSRVError::CargoMetadata(err) => err.fmt(f),
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::Env(err) => err.fmt(f),
             CargoMSRVError::GenericMessage(msg) => write!(f, "{}", msg.as_str()),
             CargoMSRVError::Io(err) => err.fmt(f),
+            CargoMSRVError::InvalidConfig(msg) => write!(f, "{}", msg),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
+            CargoMSRVError::NoCrateRootFound => write!(f, "No crate root found for given crate"),
             CargoMSRVError::NoVersionMatchesManifestMSRV(msrv, versions_available) => write!(f, "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}", msrv, versions_available.iter().map(|s| s.to_string()).collect::<Vec<String>>().join(", ")),
             CargoMSRVError::NoMSRVKeyInCargoToml(path) => write!(f, "Unable to find key 'package.metadata.msrv' in '{}'", path.display()),
             CargoMSRVError::ParseToml(err) => f.write_fmt(format_args!("Unable to parse Cargo.toml {:?}", err)),
@@ -87,6 +93,12 @@ impl Error for CargoMSRVError {}
 impl From<String> for CargoMSRVError {
     fn from(msg: String) -> Self {
         CargoMSRVError::GenericMessage(msg)
+    }
+}
+
+impl From<cargo_metadata::Error> for CargoMSRVError {
+    fn from(err: cargo_metadata::Error) -> Self {
+        CargoMSRVError::CargoMetadata(err)
     }
 }
 

@@ -158,4 +158,8 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
     fn finish_failure(&self, _mode: ModeIntent, cmd: &str) {
         self.finish_with_err(cmd)
     }
+
+    fn write_line(&self, content: &str) {
+        let _ = self.term.write_line(content);
+    }
 }

@@ -24,11 +24,11 @@ impl<'s, 't> JsonPrinter<'s, 't> {
         }
     }
 
-    fn complete_reason(&self, mode: ModeIntent) -> &'static str {
+    fn reason(&self, mode: ModeIntent) -> &'static str {
         match mode {
             ModeIntent::DetermineMSRV => "msrv-complete",
             ModeIntent::VerifyMSRV => "verify-complete",
-            ModeIntent::List => "list-complete",
+            ModeIntent::List => "msrv-list",
         }
     }
 }
@@ -98,7 +98,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     }
 
     fn finish_success(&self, mode: ModeIntent, version: &semver::Version) {
-        let reason = self.complete_reason(mode);
+        let reason = self.reason(mode);
 
         println!(
             "{}",
@@ -113,7 +113,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     }
 
     fn finish_failure(&self, mode: ModeIntent, _: &str) {
-        let reason = self.complete_reason(mode);
+        let reason = self.reason(mode);
 
         println!(
             "{}",
@@ -124,5 +124,30 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
                 check_cmd: self.cmd,
             }
         );
+    }
+
+    fn write_line(&self, _content: &str) {
+        // TODO Here we want more than str?
+        // let reason = self.reason(mode);
+        // println!(
+        //     "{}",
+        //     object! {
+        //         reason: reason,
+        //         success: true,
+        //         list: [{
+        //             name: name,
+        //             version: version,
+        //             msrv: "",
+        //             dependencies: ,
+        //         }, {
+        //             name: name,
+        //             version: version,
+        //             msrv: "",
+        //             dependencies: ,
+        //         }, ...]
+        //     }
+        // )
+
+        todo!()
     }
 }

@@ -18,7 +18,8 @@ pub mod id {
     pub const ARG_NO_LOG: &str = "no_log";
     pub const ARG_NO_READ_MIN_EDITION: &str = "no_read_min_edition";
 
-    pub const SUB_COMMAND_LIST: &str = "sc.list";
+    pub const SUB_COMMAND_LIST: &str = "list";
+    pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -159,7 +160,14 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
 }
 
 pub fn list() -> App<'static, 'static> {
+    use crate::config::list;
     use clap::SubCommand;
 
-    SubCommand::with_name("list")
+    SubCommand::with_name(id::SUB_COMMAND_LIST).arg(
+        Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
+            .long("type")
+            .takes_value(true)
+            .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
+            .default_value(list::ListVariant::default().as_str()),
+    )
 }
