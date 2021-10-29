@@ -1,4 +1,3 @@
-use crate::fetch::ToolchainSpecifier;
 use std::env;
 use std::error::Error;
 use std::fmt;
@@ -6,6 +5,8 @@ use std::fmt::Formatter;
 use std::io;
 use std::path::PathBuf;
 use std::string::FromUtf8Error;
+
+use crate::fetch::ToolchainSpecifier;
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
 

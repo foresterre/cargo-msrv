@@ -3,6 +3,7 @@ use crate::errors::{CargoMSRVError, TResult};
 
 pub type ToolchainSpecifier = String;
 
+#[allow(unused)]
 /// Verify that the given toolchain is installed.
 /// with `rustup toolchain list`
 pub fn is_toolchain_installed<S: AsRef<str>>(name: S) -> TResult<()> {

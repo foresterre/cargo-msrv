@@ -1,9 +1,9 @@
+use parameterized::parameterized;
 use rust_releases::{semver, Release};
 
-mod common;
-
 use common::*;
-use parameterized::parameterized;
+
+mod common;
 
 #[parameterized(
     folder = {

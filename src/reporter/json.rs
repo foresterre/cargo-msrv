@@ -1,9 +1,10 @@
-use json::object;
 use std::cell::Cell;
+
+use json::object;
+use rust_releases::semver;
 
 use crate::config::ModeIntent;
 use crate::reporter::ProgressAction;
-use rust_releases::semver;
 
 #[derive(Debug)]
 pub struct JsonPrinter<'s, 't> {
@@ -27,6 +28,7 @@ impl<'s, 't> JsonPrinter<'s, 't> {
         match mode {
             ModeIntent::DetermineMSRV => "msrv-complete",
             ModeIntent::VerifyMSRV => "verify-complete",
+            ModeIntent::List => "list-complete",
         }
     }
 }

@@ -1,6 +1,7 @@
-use crate::errors::{CargoMSRVError, TResult};
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
+
+use crate::errors::{CargoMSRVError, TResult};
 
 pub struct LockfileHandler<S: LockfileState> {
     state: PathBuf,
@@ -31,15 +32,6 @@ impl LockfileHandler<Start> {
         let folder = self.state.parent().unwrap();
         std::fs::rename(self.state.as_path(), folder.join(CARGO_LOCK_REPLACEMENT))
             .map_err(CargoMSRVError::Io)?;
-
-        Ok(LockfileHandler {
-            state: self.state,
-            marker: PhantomData,
-        })
-    }
-
-    pub fn remove_lockfile(self) -> TResult<LockfileHandler<Complete>> {
-        std::fs::remove_file(self.state.as_path()).map_err(CargoMSRVError::Io)?;
 
         Ok(LockfileHandler {
             state: self.state,

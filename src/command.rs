@@ -1,7 +1,8 @@
-use crate::errors::TResult;
 use std::ffi::OsStr;
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
+
+use crate::errors::TResult;
 
 pub fn command_with_output<I: IntoIterator<Item = V>, V: AsRef<OsStr>>(
     commands: I,

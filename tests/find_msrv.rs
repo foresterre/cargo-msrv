@@ -1,10 +1,12 @@
 extern crate cargo_msrv;
-mod common;
+
+use parameterized::parameterized;
+use rust_releases::{semver, Release};
 
 use cargo_msrv::MinimalCompatibility;
 use common::*;
-use parameterized::parameterized;
-use rust_releases::{semver, Release};
+
+mod common;
 
 #[parameterized(
     folder = {

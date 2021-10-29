@@ -1,7 +1,8 @@
-use crate::config::ModeIntent;
+use std::fmt::Debug;
 
 use rust_releases::semver;
-use std::fmt::Debug;
+
+use crate::config::ModeIntent;
 
 pub mod json;
 pub mod ui;
@@ -28,11 +29,13 @@ pub trait Output: Debug {
 }
 
 pub mod __private {
-    use crate::config::ModeIntent;
-    use crate::reporter::{Output, ProgressAction};
-    use rust_releases::semver;
     use std::cell::RefCell;
     use std::rc::Rc;
+
+    use rust_releases::semver;
+
+    use crate::config::ModeIntent;
+    use crate::reporter::{Output, ProgressAction};
 
     /// This is meant to be used for testing
     #[derive(Debug)]
