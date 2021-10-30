@@ -1,19 +1,16 @@
-use decent_toml_rs_alternative::TomlValue;
-use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
-
-pub type TomlMap = HashMap<String, TomlValue>;
+use toml_edit::{Document, Item};
 
 pub trait TomlParser {
     type Error;
 
-    fn try_parse<T: TryFrom<TomlMap, Error = Self::Error>>(
+    fn try_parse<T: TryFrom<Document, Error = Self::Error>>(
         &self,
         contents: &str,
     ) -> Result<T, Self::Error>;
 
-    fn parse<T: From<TomlMap>>(&self, contents: &str) -> Result<T, Self::Error>;
+    fn parse<T: From<Document>>(&self, contents: &str) -> Result<T, Self::Error>;
 }
 
 /// A structure for owning the values in a `Cargo.toml` manifest relevant for `cargo-msrv`.
@@ -41,26 +38,28 @@ impl Default for CargoManifestParser {
 impl TomlParser for CargoManifestParser {
     type Error = crate::CargoMSRVError;
 
-    fn try_parse<T: TryFrom<TomlMap, Error = Self::Error>>(
+    fn try_parse<T: TryFrom<Document, Error = Self::Error>>(
         &self,
         contents: &str,
     ) -> Result<T, Self::Error> {
-        decent_toml_rs_alternative::parse_toml(contents)
+        contents
+            .parse::<Document>()
             .map_err(crate::CargoMSRVError::ParseToml)
             .and_then(TryFrom::try_from)
     }
 
-    fn parse<T: From<TomlMap>>(&self, contents: &str) -> Result<T, Self::Error> {
-        decent_toml_rs_alternative::parse_toml(contents)
+    fn parse<T: From<Document>>(&self, contents: &str) -> Result<T, Self::Error> {
+        contents
+            .parse()
             .map_err(crate::CargoMSRVError::ParseToml)
             .map(From::from)
     }
 }
 
-impl TryFrom<TomlMap> for CargoManifest {
+impl TryFrom<Document> for CargoManifest {
     type Error = crate::CargoMSRVError;
 
-    fn try_from(map: TomlMap) -> Result<Self, Self::Error> {
+    fn try_from(map: Document) -> Result<Self, Self::Error> {
         let minimum_rust_version = minimum_rust_version(&map)?;
 
         Ok(Self {
@@ -132,14 +131,13 @@ impl Display for BareVersion {
     }
 }
 
-fn minimum_rust_version(value: &TomlMap) -> Result<Option<BareVersion>, crate::CargoMSRVError> {
-    match find_minimum_rust_version(value) {
-        Some(ref version) => {
-            let x = parse_bare_version(version.as_str())?;
-            Ok(Some(x))
-        }
-        None => Ok(None),
-    }
+fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::CargoMSRVError> {
+    let version = match find_minimum_rust_version(value) {
+        Some(version) => version,
+        None => return Ok(None),
+    };
+
+    Ok(Some(parse_bare_version(version)?))
 }
 
 fn parse_bare_version(value: &str) -> Result<BareVersion, crate::CargoMSRVError> {
@@ -190,34 +188,42 @@ fn parse_bare_version(value: &str) -> Result<BareVersion, crate::CargoMSRVError>
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
-fn find_minimum_rust_version(map: &TomlMap) -> Option<String> {
+fn find_minimum_rust_version(document: &Document) -> Option<&str> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-    fn find_rust_version(map: &TomlMap) -> Option<String> {
-        map.get("package")
-            .and_then(|field| field.get("rust-version"))
-            .and_then(|value| value.as_string())
+    fn find_rust_version(document: &Document) -> Option<&str> {
+        document
+            .as_table()
+            .get("package")
+            .and_then(Item::as_table)
+            .and_then(|package| package.get("rust-version"))
+            .and_then(|rust_version| rust_version.as_str())
     }
 
     /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
     /// 1.56.0
-    fn find_metadata_msrv(map: &TomlMap) -> Option<String> {
-        map.get("package")
-            .and_then(|field| field.get("metadata"))
-            .and_then(|field| field.get("msrv"))
-            .and_then(|value| value.as_string())
+    fn find_metadata_msrv(document: &Document) -> Option<&str> {
+        document
+            .as_table()
+            .get("package")
+            .and_then(Item::as_table)
+            .and_then(|package| package.get("metadata"))
+            .and_then(Item::as_table)
+            .and_then(|metadata| metadata.get("msrv"))
+            .and_then(|msrv| msrv.as_str())
     }
 
     // Parse the MSRV from the `package.rust-version` key if it exists,
     // and try to fallback to our own `package.metadata.msrv` if it doesn't
-    find_rust_version(map).or_else(|| find_metadata_msrv(map))
+    find_rust_version(document).or_else(|| find_metadata_msrv(document))
 }
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlMap, TomlParser};
+    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
     use std::convert::TryFrom;
+    use toml_edit::Document;
 
     #[test]
     fn parse_toml() {
@@ -230,7 +236,7 @@ edition = "2018"
 "#;
 
         assert!(CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .is_ok());
     }
 
@@ -245,7 +251,7 @@ edition = "2018"
 "#;
 
         assert!(CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .is_err());
     }
 
@@ -260,7 +266,7 @@ edition = "2018"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -280,7 +286,7 @@ rust-version = "1.56.0"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -301,7 +307,7 @@ rust-version = "1.56.0-nightly"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -322,7 +328,7 @@ rust-version = "1.56"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -356,7 +362,7 @@ rust-version = "{}"
         );
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(&contents)
+            .parse::<Document>(&contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest);
@@ -378,7 +384,7 @@ msrv = "1.51.0"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -401,7 +407,7 @@ msrv = "1.51"
 "#;
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(contents)
+            .parse::<Document>(contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
@@ -437,7 +443,7 @@ msrv = "{}"
         );
 
         let manifest = CargoManifestParser::default()
-            .parse::<TomlMap>(&contents)
+            .parse::<Document>(&contents)
             .unwrap();
 
         let manifest = CargoManifest::try_from(manifest);
