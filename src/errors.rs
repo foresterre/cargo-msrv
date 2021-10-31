@@ -19,7 +19,7 @@ pub enum CargoMSRVError {
     InvalidUTF8(FromUtf8Error),
     NoVersionMatchesManifestMSRV(crate::manifest::BareVersion, Vec<crate::semver::Version>),
     NoMSRVKeyInCargoToml(PathBuf),
-    ParseToml(decent_toml_rs_alternative::TomlError),
+    ParseToml(toml_edit::TomlError),
     RustReleasesSource(rust_releases::RustChangelogError),
     RustReleasesRustDistSource(rust_releases::RustDistError),
     RustReleasesSourceParseError(String),
@@ -113,8 +113,8 @@ impl From<std::num::ParseIntError> for CargoMSRVError {
     }
 }
 
-impl From<decent_toml_rs_alternative::TomlError> for CargoMSRVError {
-    fn from(err: decent_toml_rs_alternative::TomlError) -> Self {
+impl From<toml_edit::TomlError> for CargoMSRVError {
+    fn from(err: toml_edit::TomlError) -> Self {
         CargoMSRVError::ParseToml(err)
     }
 }

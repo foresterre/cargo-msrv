@@ -4,7 +4,7 @@
 use crate::check::{as_toolchain_specifier, check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlMap, TomlParser};
+use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::reporter::{Output, ProgressAction};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{
@@ -70,7 +70,7 @@ pub fn run_verify_msrv_action<R: Output>(
 
     let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
 
-    let manifest = CargoManifestParser::default().parse::<TomlMap>(&contents)?;
+    let manifest = CargoManifestParser::default().parse::<toml_edit::Document>(&contents)?;
     let manifest = CargoManifest::try_from(manifest)?;
 
     let version = manifest

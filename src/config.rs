@@ -3,6 +3,7 @@ use clap::ArgMatches;
 use rust_releases::semver;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
+use toml_edit::{Document, Item};
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -298,15 +299,18 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
                 let cargo_toml = crate_folder.join("Cargo.toml");
 
                 let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
-                let document = decent_toml_rs_alternative::parse_toml(&contents)
+                let document = contents
+                    .parse::<Document>()
                     .map_err(CargoMSRVError::ParseToml)?;
 
                 if let Some(edition) = document
+                    .as_table()
                     .get("package")
-                    .and_then(|field| field.get("edition"))
-                    .and_then(|value| value.as_string())
+                    .and_then(Item::as_table)
+                    .and_then(|package_table| package_table.get("edition"))
+                    .and_then(Item::as_str)
                 {
-                    builder = builder.minimum_version(parse_version(edition.as_str())?)
+                    builder = builder.minimum_version(parse_version(edition)?)
                 }
             }
         }
