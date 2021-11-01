@@ -126,28 +126,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
         );
     }
 
-    fn write_line(&self, _content: &str) {
-        // TODO Here we want more than str?
-        // let reason = self.reason(mode);
-        // println!(
-        //     "{}",
-        //     object! {
-        //         reason: reason,
-        //         success: true,
-        //         list: [{
-        //             name: name,
-        //             version: version,
-        //             msrv: "",
-        //             dependencies: ,
-        //         }, {
-        //             name: name,
-        //             version: version,
-        //             msrv: "",
-        //             dependencies: ,
-        //         }, ...]
-        //     }
-        // )
-
-        todo!()
+    fn write_line(&self, content: &str) {
+        println!("{}", content);
     }
 }

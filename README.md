@@ -28,14 +28,16 @@ From the [AUR](https://aur.archlinux.org/packages/cargo-msrv/) (Arch Linux):
 * `cargo msrv -- <command> ` to use `<command>` as the compatibility check which decides whether a Rust version is
 compatible or not. This command should be runnable through `rustup run <toolchain> <command>`.
 * `cargo msrv --verify`  to verify the MSRV, if defined with the 'package.metadata.msrv' key in the 'Cargo.toml'.
+* `cargo msrv list` to list the MSRV's of your dependencies as specified by their authors 
 
 **Options:**
 ```
-cargo-msrv 
+cargo-msrv
+Martijn Gribnau <garm@ilumeo.com>
 Helps with finding the Minimal Supported Rust Version (MSRV)
 
 USAGE:
-    cargo msrv [OPTIONS]
+    cargo msrv [OPTIONS] or cargo-msrv [OPTIONS]
 
 OPTIONS:
         --bisect
@@ -91,6 +93,14 @@ ARGS:
             If given, this command is used to validate if a Rust version is compatible. Should be available to rustup,
             i.e. the command should work like so: `rustup run <toolchain> <COMMAND>`. The default check action is `cargo
             check --all`.
+
+SUBCOMMANDS:
+    help
+            Prints this message or the help of the given subcommand(s)
+
+    list
+            List the MSRV's specified by dependency crate authors
+
 
 An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, used to validate
 whether a Rust toolchain version is compatible. The default `check` command is "cargo build". A custom `check` command
@@ -179,6 +189,35 @@ Reported when all actions for a mode have been run to completion.
   "toolchain": "x86_64-unknown-linux-gnu",
   // The command used to check each version
   "check_cmd": "cargo check --all"
+}
+```
+
+#### List MSRV's specified by crate authors
+
+Reported upon completion of listing the MSRV's of dependencies for a given crate.
+The `list` output depends on the `variant`.
+```jsonc
+{
+  "reason": "list",
+  // output variant
+  "variant": "ordered-by-msrv" /* OR */ "direct-deps",
+  // always success when returning a result
+  "success": true,
+  // The output of the list subcommand
+  "list": [
+    /* when variant = 'ordered-by-msrv */
+    {
+        "msrv": "<msrv>",
+        "dependencies": ["<dependencies which have this msrv>", ...]
+    }
+    /* OR, when variant = direct-deps */
+    {
+        "dependency": "<dependency crate name>",
+        "version": "<dependency crate version>",
+        "msrv": "<dependency crate msrv>",
+        "depends_on": ["<dependencies of direct dependency crate>", ...]
+    }
+  ],
 }
 ```
 

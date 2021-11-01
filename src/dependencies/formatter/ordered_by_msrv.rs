@@ -2,10 +2,12 @@ use crate::dependencies::formatter::{
     format_version, get_package_metadata_msrv, parse_manifest_workaround,
 };
 use crate::dependencies::DependencyGraph;
+use crate::reporter::Output;
 use cargo_metadata::Package;
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 use std::fmt::Formatter;
+use std::marker::PhantomData;
 
 /// Displays the dependencies of the project as a table, sorted by their specified MSRV.
 ///
@@ -18,31 +20,27 @@ use std::fmt::Formatter;
 ///
 /// MSRV for {crate}: { min(MSRVs) }
 /// ```
-pub(crate) struct ByMSRVFormatter {
+pub(crate) struct ByMSRVFormatter<T: Output> {
     graph: DependencyGraph,
+    output: PhantomData<T>,
 }
 
-impl ByMSRVFormatter {
+impl<T: Output> ByMSRVFormatter<T> {
     pub fn new(graph: DependencyGraph) -> Self {
-        Self { graph }
+        Self {
+            graph,
+            output: PhantomData,
+        }
     }
 }
 
-impl std::fmt::Display for ByMSRVFormatter {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        // Table of dependencies
-        use comfy_table::presets::UTF8_FULL;
-        use comfy_table::*;
-
-        let mut table = Table::new();
-
-        // MSRV = package.rust_version /fallback package.metadata.msrv
-        // Dependency = {name of package}
-        // Type = { direct | transitive }
-        table
-            .load_preset(UTF8_FULL)
-            .set_content_arrangement(ContentArrangement::Dynamic)
-            .set_header(vec!["MSRV", "Dependency"]);
+impl<T: Output> ByMSRVFormatter<T> {
+    fn dependencies_by_msrv<Fi, Fg, B>(&self, init: Fi, f: Fg) -> B
+    where
+        Fi: FnOnce() -> B,
+        Fg: Fn(&mut B, Values),
+    {
+        let mut out = init();
 
         let dependency_graph = &self.graph;
 
@@ -53,7 +51,6 @@ impl std::fmt::Display for ByMSRVFormatter {
         // let mut direct_deps = graph.neighbors_directed(root.into(), Direction::Outgoing);
         let mut bfs = Bfs::new(&graph, root.into());
 
-        // todo: sorting
         use crate::semver;
         let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
 
@@ -78,20 +75,70 @@ impl std::fmt::Display for ByMSRVFormatter {
         }
 
         for (version, packages) in version_map {
-            table.add_row(vec![
-                Cell::new(format_version(version.as_ref())),
-                Cell::new(format_packages(&packages)),
-            ]);
+            let values = Values {
+                msrv: format_version(version.as_ref()),
+                dependencies: packages.iter().map(|p| p.name.to_owned()).collect(),
+            };
+
+            f(&mut out, values);
         }
 
-        table.fmt(f)
+        out
     }
 }
 
-fn format_packages(dependencies: &[&cargo_metadata::Package]) -> String {
-    dependencies
-        .iter()
-        .map(|pkg| pkg.name.to_string())
-        .collect::<Vec<_>>()
-        .join(", ")
+impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // Table of dependencies sorted by MSRV
+        use comfy_table::presets::UTF8_FULL;
+        use comfy_table::*;
+
+        let out = self.dependencies_by_msrv(
+            || {
+                let mut table = Table::new();
+
+                table
+                    .load_preset(UTF8_FULL)
+                    .set_content_arrangement(ContentArrangement::Dynamic)
+                    .set_header(vec!["MSRV", "Dependency"]);
+                table
+            },
+            |acc, next| {
+                acc.add_row(vec![
+                    Cell::new(&next.msrv),
+                    Cell::new(&next.dependencies.join(", ")),
+                ]);
+            },
+        );
+
+        out.fmt(f)
+    }
+}
+
+impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_, '_>> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // Table of dependencies sorted by MSRV
+        use json::object;
+
+        let objects = self.dependencies_by_msrv(Vec::new, |acc, next| {
+            acc.push(object! {
+                "msrv": next.msrv,
+                "dependencies": next.dependencies
+            })
+        });
+
+        let json = object! {
+            reason: "list",
+            variant: crate::config::list::ORDERED_BY_MSRV,
+            success: true,
+            list: objects,
+        };
+
+        writeln!(f, "{}", json)
+    }
+}
+
+struct Values {
+    msrv: String,
+    dependencies: Vec<String>,
 }
