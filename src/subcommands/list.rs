@@ -8,7 +8,6 @@ pub fn run_list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     use crate::dependencies::formatter;
 
     let resolver = CargoMetadataResolver::try_from_config(config)?;
-
     let graph = resolver.resolve()?;
 
     match config.sub_command_config().as_list_cmd_config().variant {
@@ -25,10 +24,19 @@ pub fn run_list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
             }
             OutputFormat::None | OutputFormat::TestSuccesses => {}
         },
-        ListVariant::OrderedByMSRV => {
-            let formatter = formatter::ByMSRVFormatter::new(graph);
-            output.write_line(&format!("{}", formatter));
-        }
+        ListVariant::OrderedByMSRV => match config.output_format() {
+            OutputFormat::Human => {
+                use crate::reporter::ui::HumanPrinter;
+                let formatter = formatter::ByMSRVFormatter::<HumanPrinter>::new(graph);
+                output.write_line(&format!("{}", formatter));
+            }
+            OutputFormat::Json => {
+                use crate::reporter::json::JsonPrinter;
+                let formatter = formatter::ByMSRVFormatter::<JsonPrinter>::new(graph);
+                output.write_line(&format!("{}", formatter));
+            }
+            OutputFormat::None | OutputFormat::TestSuccesses => {}
+        },
     }
 
     Ok(())
