@@ -164,7 +164,7 @@ pub fn list() -> App<'static, 'static> {
     use clap::SubCommand;
 
     SubCommand::with_name(id::SUB_COMMAND_LIST)
-        .help("List the MSRV's specified by dependency crate authors")
+        .about("List the MSRV's specified by dependency crate authors")
         .arg(
             Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
                 .long("type")
