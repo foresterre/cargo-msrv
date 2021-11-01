@@ -182,6 +182,35 @@ Reported when all actions for a mode have been run to completion.
 }
 ```
 
+#### List MSRV's specified by crate authors
+
+Reported upon completion of listing the MSRV's of dependencies for a given crate.
+The `list` output depends on the `variant`.
+```jsonc
+{
+  "reason": "list",
+  // output variant
+  "variant": "ordered-by-msrv" /* OR */ "direct-deps",
+  // always success when returning a result
+  "success": true,
+  // The output of the list subcommand
+  "list": [
+    /* when variant = 'ordered-by-msrv */
+    {
+        "msrv": "<msrv>",
+        "dependencies": ["<dependencies which have this msrv>", ...]
+    }
+    /* OR, when variant = direct-deps */
+    {
+        "dependency": "<dependency crate name>",
+        "version": "<dependency crate version>",
+        "msrv": "<dependency crate msrv>",
+        "depends_on": ["<dependencies of direct dependency crate>", ...]
+    }
+  ],
+}
+```
+
 ### Testing
 
 Tests should be run with a single thread, because otherwise `rustup` uses the a single place for the download cache of a
