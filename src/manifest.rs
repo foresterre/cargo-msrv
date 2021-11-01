@@ -157,16 +157,17 @@ fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::
     Ok(Some(parse_bare_version(version)?))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum ExpectedToken {
     Number,
     Dot,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Error {
     ExpectedEndOfInput,
     Overflow,
+    PreReleaseModifierNotAllowed,
     UnexpectedToken(u8, ExpectedToken),
     UnexpectedEndOfInput,
 }
@@ -176,6 +177,9 @@ impl std::fmt::Display for Error {
         match self {
             Self::ExpectedEndOfInput => write!(f, "Expected end of input"),
             Self::Overflow => write!(f, "Component would overflow"),
+            Self::PreReleaseModifierNotAllowed => {
+                write!(f, "Pre-release modifiers are not allowed")
+            }
             Self::UnexpectedToken(c, expecteed) => write!(
                 f,
                 "Unexpected token '{}', expected token of kind {:?}",
@@ -269,9 +273,12 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, crate::CargoMSRVError>
         return Ok(BareVersion::ThreeComponents(major, minor, patch));
     }
 
-    // TODO we currently do not check validity of pre release modifier, simply discard
+    // Like Cargo, we disallow pre-release modifiers.
+    // https://github.com/rust-lang/cargo/blob/ec38c84ab1d257c9d0129bd9cf7eade1d511a8d2/src/cargo/util/toml/mod.rs#L1117-L1132
     if input[parsed_tokens..].starts_with(&[b'-']) {
-        return Ok(BareVersion::ThreeComponents(major, minor, patch));
+        return Err(CargoMSRVError::BareVersionParse(
+            Error::PreReleaseModifierNotAllowed,
+        ));
     }
 
     Err(CargoMSRVError::BareVersionParse(Error::ExpectedEndOfInput))
@@ -311,7 +318,8 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
+    use crate::errors::CargoMSRVError;
+    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, Error, TomlParser};
     use std::convert::TryFrom;
     use toml_edit::Document;
 
@@ -400,10 +408,13 @@ rust-version = "1.56.0-nightly"
             .parse::<Document>(contents)
             .unwrap();
 
-        let manifest = CargoManifest::try_from(manifest).unwrap();
-        let version = manifest.minimum_rust_version.unwrap();
+        let parse_err = CargoManifest::try_from(manifest).unwrap_err();
 
-        assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
+        if let CargoMSRVError::BareVersionParse(err) = parse_err {
+            assert_eq!(err, Error::PreReleaseModifierNotAllowed);
+        } else {
+            panic!("Incorrect cargo-msrv error type")
+        }
     }
 
     #[test]
@@ -575,16 +586,7 @@ mod bare_version_tests {
         three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18446744073709551615, 0, 0) },
         three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18446744073709551615, 0) },
         three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18446744073709551615) },
-        // two_component_pre_release_id_variant_1 = { "0.0-nightly", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        // two_component_pre_release_id_variant_2 = { "0.0-beta.0", BareVersion::TwoComponents(0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // two_component_pre_release_id_variant_3 = { "0.0-beta.1", BareVersion::TwoComponents(0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // two_component_pre_release_id_variant_4 = { "0.0-anything", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        // two_component_pre_release_id_variant_5 = { "0.0-anything+build", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        three_component_pre_release_id_variant_1 = { "0.0.0-nightly", BareVersion::ThreeComponents(0, 0, 0) },
-        // three_component_pre_release_id_variant_2 = { "0.0.0-beta.0", BareVersion::ThreeComponents(0, 0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // three_component_pre_release_id_variant_3 = { "0.0.0-beta.1", BareVersion::ThreeComponents(0, 0, 0) }, // FIXME: parse versions properly with Lr tokens
-        three_component_pre_release_id_variant_4 = { "0.0.0-anything", BareVersion::ThreeComponents(0, 0, 0) }, 
-        three_component_pre_release_id_variant_5 = { "0.0.0-anything+build", BareVersion::ThreeComponents(0, 0, 0) },
+
     )]
     fn try_from_ok(version: &str, expected: BareVersion) {
         use std::convert::TryFrom;
@@ -612,6 +614,16 @@ mod bare_version_tests {
         neg_int_minor = { "0.-1.0" },
         neg_int_patch = { "0.0.-1" },
         build_postfix_without_pre_release_id = { "0.0.0+some" },
+        two_component_pre_release_id_variant_1 = { "0.0-nightly" },
+        two_component_pre_release_id_variant_2 = { "0.0-beta.0" },
+        two_component_pre_release_id_variant_3 = { "0.0-beta.1" },
+        two_component_pre_release_id_variant_4 = { "0.0-anything", },
+        two_component_pre_release_id_variant_5 = { "0.0-anything+build" },
+        three_component_pre_release_id_variant_2 = { "0.0.0-beta.0" },
+        three_component_pre_release_id_variant_3 = { "0.0.0-beta.1" },
+        three_component_pre_release_id_variant_1 = { "0.0.0-nightly" },
+        three_component_pre_release_id_variant_4 = { "0.0.0-anything" },
+        three_component_pre_release_id_variant_5 = { "0.0.0-anything+build" },
     )]
     fn try_from_err(version: &str) {
         use std::convert::TryFrom;
