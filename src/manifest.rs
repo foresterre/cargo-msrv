@@ -1,3 +1,5 @@
+use crate::errors::CargoMSRVError;
+use crate::manifest::Error::UnexpectedEndOfInput;
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
 use toml_edit::{Document, Item};
@@ -155,51 +157,124 @@ fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::
     Ok(Some(parse_bare_version(version)?))
 }
 
-fn parse_bare_version(value: &str) -> Result<BareVersion, crate::CargoMSRVError> {
-    let mut components = value.split('.');
+#[derive(Debug)]
+pub enum ExpectedToken {
+    Number,
+    Dot,
+}
 
-    let major = components
-        .next()
-        .ok_or_else(|| crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: "Couldn't find first component".to_string(),
-        })
-        .and_then(|c| {
-            c.parse()
-                .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)
-        })?;
+#[derive(Debug)]
+pub enum Error {
+    ExpectedEndOfInput,
+    Overflow,
+    UnexpectedToken(u8, ExpectedToken),
+    UnexpectedEndOfInput,
+}
 
-    let minor = components
-        .next()
-        .ok_or_else(|| crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: "Couldn't find second component".to_string(),
-        })
-        .and_then(|c| {
-            c.parse()
-                .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)
-        })?;
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExpectedEndOfInput => write!(f, "Expected end of input"),
+            Self::Overflow => write!(f, "Component would overflow"),
+            Self::UnexpectedToken(c, expecteed) => write!(
+                f,
+                "Unexpected token '{}', expected token of kind {:?}",
+                c, expecteed
+            ),
+            Self::UnexpectedEndOfInput => write!(f, "Unexpected end of input"),
+        }
+    }
+}
 
-    let version = if let Some(patch) = components.next() {
-        let until_pre_release_id = patch.find('-').unwrap_or(patch.len());
-        let patch = &patch[..until_pre_release_id];
+fn parse_separator(input: &[u8]) -> Result<ParsedTokens, Error> {
+    match input.iter().next() {
+        Some(b'.') => Ok(1),
+        Some(t) => Err(Error::UnexpectedToken(*t, ExpectedToken::Dot)),
+        None => Err(UnexpectedEndOfInput),
+    }
+}
 
-        let patch_num = patch
-            .parse()
-            .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)?;
-        BareVersion::ThreeComponents(major, minor, patch_num)
-    } else {
-        BareVersion::TwoComponents(major, minor)
-    };
+/// Number of tokens last parsed
+type ParsedTokens = usize;
 
-    if let Some(peek) = components.next() {
-        return Err(crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: format!("Unexpected tokens at the end of version number: '{}'", peek),
-        });
+fn parse_number(input: &[u8]) -> Result<(BareVersionUsize, ParsedTokens), Error> {
+    let mut out: BareVersionUsize = 0;
+    let mut len = 0;
+
+    const ZERO_MIN: u8 = b'0' - 1;
+    const NINE_PLUS: u8 = b'9' + 1;
+
+    while let Some(token) = input.get(len) {
+        match token {
+            b'0'..=b'9' => {
+                out = out.checked_mul(10).ok_or(Error::Overflow)?;
+                out = out
+                    .checked_add((*token - b'0') as BareVersionUsize)
+                    .ok_or(Error::Overflow)?;
+
+                len += 1;
+            }
+            0u8..=ZERO_MIN | NINE_PLUS..=u8::MAX => {
+                break;
+            }
+        }
     }
 
-    Ok(version)
+    match len {
+        0 => Err(Error::UnexpectedEndOfInput),
+        _ => Ok((out, len as usize)),
+    }
+}
+
+fn expect_end_of_input(input: &[u8]) -> Result<(), Error> {
+    if input.is_empty() {
+        Ok(())
+    } else {
+        Err(Error::ExpectedEndOfInput)
+    }
+}
+
+/// Parse the [`bare version`] which defines a minimal supported Rust version (MSRV or rust-version
+/// in `Cargo.toml`).
+///
+/// See also the [`semver 2.0 spec`], which the parser is loosely based on. NB: a `bare version` is
+/// not `semver` compatible.
+///
+/// [`bare version`]: https://doc.rust-lang.org/nightly/cargo/reference/manifest.html#the-rust-version-field
+/// [`semver 2.0 spec`]: https://semver.org/spec/v2.0.0.html#backusnaur-form-grammar-for-valid-semver-versions
+fn parse_bare_version(input: &str) -> Result<BareVersion, crate::CargoMSRVError> {
+    let input = input.as_bytes();
+    let mut parsed_tokens = 0;
+
+    let (major, tokens) = parse_number(input)?;
+    parsed_tokens += tokens;
+
+    let tokens = parse_separator(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    let (minor, tokens) = parse_number(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    if expect_end_of_input(&input[parsed_tokens..]).is_ok() {
+        return Ok(BareVersion::TwoComponents(major, minor));
+    }
+
+    let tokens = parse_separator(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    let (patch, tokens) = parse_number(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    if expect_end_of_input(&input[parsed_tokens..]).is_ok() {
+        return Ok(BareVersion::ThreeComponents(major, minor, patch));
+    }
+
+    // TODO we currently do not check validity of pre release modifier, simply discard
+    if input[parsed_tokens..].starts_with(&[b'-']) {
+        return Ok(BareVersion::ThreeComponents(major, minor, patch));
+    }
+
+    Err(CargoMSRVError::BareVersionParse(Error::ExpectedEndOfInput))
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
