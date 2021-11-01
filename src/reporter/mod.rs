@@ -1,7 +1,8 @@
-use crate::config::ModeIntent;
+use std::fmt::Debug;
 
 use rust_releases::semver;
-use std::fmt::Debug;
+
+use crate::config::ModeIntent;
 
 pub mod json;
 pub mod ui;
@@ -25,14 +26,18 @@ pub trait Output: Debug {
     fn complete_step(&self, version: &semver::Version, success: bool);
     fn finish_success(&self, mode: ModeIntent, version: &semver::Version);
     fn finish_failure(&self, mode: ModeIntent, cmd: &str);
+
+    fn write_line(&self, content: &str);
 }
 
 pub mod __private {
-    use crate::config::ModeIntent;
-    use crate::reporter::{Output, ProgressAction};
-    use rust_releases::semver;
     use std::cell::RefCell;
     use std::rc::Rc;
+
+    use rust_releases::semver;
+
+    use crate::config::ModeIntent;
+    use crate::reporter::{Output, ProgressAction};
 
     /// This is meant to be used for testing
     #[derive(Debug)]
@@ -45,6 +50,7 @@ pub mod __private {
         fn complete_step(&self, _version: &semver::Version, _success: bool) {}
         fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
         fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}
+        fn write_line(&self, _content: &str) {}
     }
 
     /// This is meant to be used for testing
@@ -69,6 +75,7 @@ pub mod __private {
         }
         fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
         fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}
+        fn write_line(&self, _content: &str) {}
     }
 
     impl Default for SuccessOutput {

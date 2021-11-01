@@ -1,9 +1,14 @@
-use crate::errors::{CargoMSRVError, TResult};
-use clap::ArgMatches;
-use rust_releases::semver;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 use toml_edit::{Document, Item};
+
+use crate::config::list::ListCmdConfig;
+use clap::ArgMatches;
+use rust_releases::semver;
+
+use crate::errors::{CargoMSRVError, TResult};
+
+pub(crate) mod list;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -36,6 +41,8 @@ pub fn test_config_from_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<Conf
 pub enum ModeIntent {
     // Determines the MSRV for a project
     DetermineMSRV,
+    // List the MSRV's as specified by package authors
+    List,
     // Verifies the given MSRV
     VerifyMSRV,
 }
@@ -44,6 +51,7 @@ impl From<ModeIntent> for &'static str {
     fn from(action: ModeIntent) -> Self {
         match action {
             ModeIntent::DetermineMSRV => "determine-msrv",
+            ModeIntent::List => "list",
             ModeIntent::VerifyMSRV => "verify-msrv",
         }
     }
@@ -83,6 +91,8 @@ pub struct Config<'a> {
     release_source: ReleaseSource,
     no_tracing: bool,
     no_read_min_edition: Option<semver::Version>,
+
+    sub_command_config: SubCommandConfig,
 }
 
 impl<'a> Config<'a> {
@@ -102,6 +112,7 @@ impl<'a> Config<'a> {
             release_source: ReleaseSource::RustChangelog,
             no_tracing: false,
             no_read_min_edition: None,
+            sub_command_config: SubCommandConfig::None,
         }
     }
 
@@ -163,6 +174,10 @@ impl<'a> Config<'a> {
 
     pub fn no_read_min_version(&self) -> Option<&semver::Version> {
         self.no_read_min_edition.as_ref()
+    }
+
+    pub fn sub_command_config(&self) -> &SubCommandConfig {
+        &self.sub_command_config
     }
 }
 
@@ -248,6 +263,11 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn sub_command_config(mut self, cmd_config: SubCommandConfig) -> Self {
+        self.inner.sub_command_config = cmd_config;
+        self
+    }
+
     pub fn build(self) -> Config<'a> {
         self.inner
     }
@@ -260,10 +280,10 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         use crate::cli::id;
         use crate::fetch::default_target;
 
-        let action_intent = if matches.is_present(id::ARG_VERIFY) {
-            ModeIntent::VerifyMSRV
-        } else {
-            ModeIntent::DetermineMSRV
+        let action_intent = match matches.subcommand_matches(id::SUB_COMMAND_LIST) {
+            Some(_list) => ModeIntent::List,
+            None if matches.is_present(id::ARG_VERIFY) => ModeIntent::VerifyMSRV,
+            None => ModeIntent::DetermineMSRV,
         };
 
         // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
@@ -346,6 +366,10 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
 
         builder = builder.no_tracing(matches.is_present(id::ARG_NO_LOG));
 
+        if let Some(list_cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
+            let cmd_config = ListCmdConfig::try_from_args(list_cmd)?;
+            builder = builder.sub_command_config(SubCommandConfig::ListConfig(cmd_config));
+        }
         Ok(builder.build())
     }
 }
@@ -356,6 +380,23 @@ fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
         "2018" => Ok(semver::Version::new(1, 31, 0)),
         "2021" => Ok(semver::Version::new(1, 56, 0)),
         s => semver::Version::parse(s),
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum SubCommandConfig {
+    None,
+    ListConfig(ListCmdConfig),
+}
+
+impl SubCommandConfig {
+    pub(crate) fn as_list_cmd_config(&self) -> &ListCmdConfig {
+        if let Self::ListConfig(c) = self {
+            c
+        } else {
+            // In this case we made a programming error
+            unreachable!()
+        }
     }
 }
 

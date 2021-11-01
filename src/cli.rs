@@ -1,5 +1,6 @@
-use crate::fetch::is_target_available;
 use clap::{App, AppSettings, Arg};
+
+use crate::fetch::is_target_available;
 
 pub mod id {
     pub const ARG_SEEK_PATH: &str = "seek_path";
@@ -16,6 +17,9 @@ pub mod id {
     pub const ARG_RELEASE_SOURCE: &str = "release_source";
     pub const ARG_NO_LOG: &str = "no_log";
     pub const ARG_NO_READ_MIN_EDITION: &str = "no_read_min_edition";
+
+    pub const SUB_COMMAND_LIST: &str = "list";
+    pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -35,6 +39,7 @@ An argument provided after two dashes (`--`), will be interpreted as a custom co
 used to validate whether a Rust toolchain version is compatible. The default `check` command is \
 \"cargo build\". A custom `check` command should be runnable by rustup, as they will be passed on to \
 rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
+        .subcommand(list())
         .arg(
             Arg::with_name(id::ARG_SEEK_PATH)
                 .long("path")
@@ -152,4 +157,17 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                 .last(true)
 
         )
+}
+
+pub fn list() -> App<'static, 'static> {
+    use crate::config::list;
+    use clap::SubCommand;
+
+    SubCommand::with_name(id::SUB_COMMAND_LIST).arg(
+        Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
+            .long("type")
+            .takes_value(true)
+            .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
+            .default_value(list::ListVariant::default().as_str()),
+    )
 }

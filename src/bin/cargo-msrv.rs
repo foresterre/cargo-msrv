@@ -1,10 +1,12 @@
+use std::convert::TryFrom;
+
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
+use tracing_subscriber::filter::LevelFilter;
+
 use cargo_msrv::config::{self, Config};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::reporter;
 use cargo_msrv::{cli, run_app};
-use std::convert::TryFrom;
-use tracing_appender::rolling::{RollingFileAppender, Rotation};
-use tracing_subscriber::filter::LevelFilter;
 
 fn main() {
     if let Err(err) = _main(args) {

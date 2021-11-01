@@ -1,9 +1,10 @@
-use crate::config::ModeIntent;
+use std::borrow::Cow;
 
 use console::{style, Term};
 use indicatif::{ProgressBar, ProgressStyle};
 use rust_releases::semver;
-use std::borrow::Cow;
+
+use crate::config::ModeIntent;
 
 pub struct HumanPrinter<'s, 't> {
     term: Term,
@@ -42,6 +43,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
         let verb = match action_intent {
             ModeIntent::DetermineMSRV => "Determining",
             ModeIntent::VerifyMSRV => "Verifying",
+            ModeIntent::List => "",
         };
 
         let _ = self.term.write_line(
@@ -149,10 +151,15 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
         match mode {
             ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
             ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
+            ModeIntent::List => {}
         }
     }
 
     fn finish_failure(&self, _mode: ModeIntent, cmd: &str) {
         self.finish_with_err(cmd)
+    }
+
+    fn write_line(&self, content: &str) {
+        let _ = self.term.write_line(content);
     }
 }

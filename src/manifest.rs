@@ -85,16 +85,8 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
-    pub fn try_to_semver<'s, I>(
-        &self,
-        iter: I,
-    ) -> Result<&'s crate::semver::Version, crate::CargoMSRVError>
-    where
-        I: IntoIterator<Item = &'s crate::semver::Version>,
-    {
-        let mut iter = iter.into_iter();
-
-        let requirements = match self {
+    pub fn to_comparator(&self) -> crate::semver::Comparator {
+        match self {
             Self::TwoComponents(major, minor) => crate::semver::Comparator {
                 op: crate::semver::Op::Tilde,
                 major: *major,
@@ -109,7 +101,21 @@ impl BareVersion {
                 patch: Some(*patch),
                 pre: crate::semver::Prerelease::EMPTY,
             },
-        };
+        }
+    }
+
+    // Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
+    // version requirement against the given set of available version, while `BareVersion::to_semver_version`
+    // simply rewrites the versions components to their semver::Version counterpart.
+    pub fn try_to_semver<'s, I>(
+        &self,
+        iter: I,
+    ) -> Result<&'s crate::semver::Version, crate::CargoMSRVError>
+    where
+        I: IntoIterator<Item = &'s crate::semver::Version>,
+    {
+        let mut iter = iter.into_iter();
+        let requirements = self.to_comparator();
 
         iter.find(|version| requirements.matches(version))
             .ok_or_else(|| {
@@ -117,6 +123,15 @@ impl BareVersion {
                 let available = iter.map(|v| v.to_owned()).collect();
                 crate::CargoMSRVError::NoVersionMatchesManifestMSRV(requirement, available)
             })
+    }
+
+    pub fn to_semver_version(&self) -> crate::semver::Version {
+        match self {
+            Self::TwoComponents(major, minor) => crate::semver::Version::new(*major, *minor, 0),
+            Self::ThreeComponents(major, minor, patch) => {
+                crate::semver::Version::new(*major, *minor, *patch)
+            }
+        }
     }
 }
 

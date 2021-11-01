@@ -1,16 +1,19 @@
 #![allow(unused)] // allowed since we do use these functions in the actual test files
 
+use std::ffi::OsString;
+use std::iter::FromIterator;
+
+use rust_releases::semver::Version;
+use rust_releases::{semver, Release, ReleaseIndex};
+
 use cargo_msrv::config::{test_config_from_matches, Config, OutputFormat};
 use cargo_msrv::errors::TResult;
+use cargo_msrv::reporter;
 use cargo_msrv::reporter::__private::{NoOutput, SuccessOutput};
 use cargo_msrv::reporter::json::JsonPrinter;
 use cargo_msrv::reporter::ui::HumanPrinter;
 use cargo_msrv::reporter::Output;
-use cargo_msrv::{reporter, MinimalCompatibility};
-use rust_releases::semver::Version;
-use rust_releases::{semver, Release, ReleaseIndex};
-use std::ffi::OsString;
-use std::iter::FromIterator;
+use cargo_msrv::MinimalCompatibility;
 
 pub fn run_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
