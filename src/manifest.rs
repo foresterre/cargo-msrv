@@ -1,3 +1,5 @@
+use crate::errors::CargoMSRVError;
+use crate::manifest::Error::UnexpectedEndOfInput;
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
 use toml_edit::{Document, Item};
@@ -155,51 +157,131 @@ fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::
     Ok(Some(parse_bare_version(version)?))
 }
 
-fn parse_bare_version(value: &str) -> Result<BareVersion, crate::CargoMSRVError> {
-    let mut components = value.split('.');
+#[derive(Debug, Eq, PartialEq)]
+pub enum ExpectedToken {
+    Number,
+    Dot,
+}
 
-    let major = components
-        .next()
-        .ok_or_else(|| crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: "Couldn't find first component".to_string(),
-        })
-        .and_then(|c| {
-            c.parse()
-                .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)
-        })?;
+#[derive(Debug, Eq, PartialEq)]
+pub enum Error {
+    ExpectedEndOfInput,
+    Overflow,
+    PreReleaseModifierNotAllowed,
+    UnexpectedToken(u8, ExpectedToken),
+    UnexpectedEndOfInput,
+}
 
-    let minor = components
-        .next()
-        .ok_or_else(|| crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: "Couldn't find second component".to_string(),
-        })
-        .and_then(|c| {
-            c.parse()
-                .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)
-        })?;
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExpectedEndOfInput => write!(f, "Expected end of input"),
+            Self::Overflow => write!(f, "Component would overflow"),
+            Self::PreReleaseModifierNotAllowed => {
+                write!(f, "Pre-release modifiers are not allowed")
+            }
+            Self::UnexpectedToken(c, expecteed) => write!(
+                f,
+                "Unexpected token '{}', expected token of kind {:?}",
+                c, expecteed
+            ),
+            Self::UnexpectedEndOfInput => write!(f, "Unexpected end of input"),
+        }
+    }
+}
 
-    let version = if let Some(patch) = components.next() {
-        let until_pre_release_id = patch.find('-').unwrap_or(patch.len());
-        let patch = &patch[..until_pre_release_id];
+fn parse_separator(input: &[u8]) -> Result<ParsedTokens, Error> {
+    match input.iter().next() {
+        Some(b'.') => Ok(1),
+        Some(t) => Err(Error::UnexpectedToken(*t, ExpectedToken::Dot)),
+        None => Err(UnexpectedEndOfInput),
+    }
+}
 
-        let patch_num = patch
-            .parse()
-            .map_err(crate::CargoMSRVError::UnableToParseBareVersionNumber)?;
-        BareVersion::ThreeComponents(major, minor, patch_num)
-    } else {
-        BareVersion::TwoComponents(major, minor)
-    };
+/// Number of tokens last parsed
+type ParsedTokens = usize;
 
-    if let Some(peek) = components.next() {
-        return Err(crate::CargoMSRVError::UnableToParseBareVersion {
-            version: value.to_string(),
-            message: format!("Unexpected tokens at the end of version number: '{}'", peek),
-        });
+fn parse_number(input: &[u8]) -> Result<(BareVersionUsize, ParsedTokens), Error> {
+    let mut out: BareVersionUsize = 0;
+    let mut len = 0;
+
+    const ZERO_MIN: u8 = b'0' - 1;
+    const NINE_PLUS: u8 = b'9' + 1;
+
+    while let Some(token) = input.get(len) {
+        match token {
+            b'0'..=b'9' => {
+                out = out.checked_mul(10).ok_or(Error::Overflow)?;
+                out = out
+                    .checked_add((*token - b'0') as BareVersionUsize)
+                    .ok_or(Error::Overflow)?;
+
+                len += 1;
+            }
+            0u8..=ZERO_MIN | NINE_PLUS..=u8::MAX => {
+                break;
+            }
+        }
     }
 
-    Ok(version)
+    match len {
+        0 => Err(Error::UnexpectedEndOfInput),
+        _ => Ok((out, len as usize)),
+    }
+}
+
+fn expect_end_of_input(input: &[u8]) -> Result<(), Error> {
+    if input.is_empty() {
+        Ok(())
+    } else {
+        Err(Error::ExpectedEndOfInput)
+    }
+}
+
+/// Parse the [`bare version`] which defines a minimal supported Rust version (MSRV or rust-version
+/// in `Cargo.toml`).
+///
+/// See also the [`semver 2.0 spec`], which the parser is loosely based on. NB: a `bare version` is
+/// not `semver` compatible.
+///
+/// [`bare version`]: https://doc.rust-lang.org/nightly/cargo/reference/manifest.html#the-rust-version-field
+/// [`semver 2.0 spec`]: https://semver.org/spec/v2.0.0.html#backusnaur-form-grammar-for-valid-semver-versions
+fn parse_bare_version(input: &str) -> Result<BareVersion, crate::CargoMSRVError> {
+    let input = input.as_bytes();
+    let mut parsed_tokens = 0;
+
+    let (major, tokens) = parse_number(input)?;
+    parsed_tokens += tokens;
+
+    let tokens = parse_separator(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    let (minor, tokens) = parse_number(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    if expect_end_of_input(&input[parsed_tokens..]).is_ok() {
+        return Ok(BareVersion::TwoComponents(major, minor));
+    }
+
+    let tokens = parse_separator(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    let (patch, tokens) = parse_number(&input[parsed_tokens..])?;
+    parsed_tokens += tokens;
+
+    if expect_end_of_input(&input[parsed_tokens..]).is_ok() {
+        return Ok(BareVersion::ThreeComponents(major, minor, patch));
+    }
+
+    // Like Cargo, we disallow pre-release modifiers.
+    // https://github.com/rust-lang/cargo/blob/ec38c84ab1d257c9d0129bd9cf7eade1d511a8d2/src/cargo/util/toml/mod.rs#L1117-L1132
+    if input[parsed_tokens..].starts_with(&[b'-']) {
+        return Err(CargoMSRVError::BareVersionParse(
+            Error::PreReleaseModifierNotAllowed,
+        ));
+    }
+
+    Err(CargoMSRVError::BareVersionParse(Error::ExpectedEndOfInput))
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
@@ -236,7 +318,8 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
+    use crate::errors::CargoMSRVError;
+    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, Error, TomlParser};
     use std::convert::TryFrom;
     use toml_edit::Document;
 
@@ -325,10 +408,13 @@ rust-version = "1.56.0-nightly"
             .parse::<Document>(contents)
             .unwrap();
 
-        let manifest = CargoManifest::try_from(manifest).unwrap();
-        let version = manifest.minimum_rust_version.unwrap();
+        let parse_err = CargoManifest::try_from(manifest).unwrap_err();
 
-        assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
+        if let CargoMSRVError::BareVersionParse(err) = parse_err {
+            assert_eq!(err, Error::PreReleaseModifierNotAllowed);
+        } else {
+            panic!("Incorrect cargo-msrv error type")
+        }
     }
 
     #[test]
@@ -500,16 +586,7 @@ mod bare_version_tests {
         three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18446744073709551615, 0, 0) },
         three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18446744073709551615, 0) },
         three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18446744073709551615) },
-        // two_component_pre_release_id_variant_1 = { "0.0-nightly", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        // two_component_pre_release_id_variant_2 = { "0.0-beta.0", BareVersion::TwoComponents(0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // two_component_pre_release_id_variant_3 = { "0.0-beta.1", BareVersion::TwoComponents(0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // two_component_pre_release_id_variant_4 = { "0.0-anything", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        // two_component_pre_release_id_variant_5 = { "0.0-anything+build", BareVersion::TwoComponents(0, 0) }, // FIXME: allow pre release identifiers in two component versions
-        three_component_pre_release_id_variant_1 = { "0.0.0-nightly", BareVersion::ThreeComponents(0, 0, 0) },
-        // three_component_pre_release_id_variant_2 = { "0.0.0-beta.0", BareVersion::ThreeComponents(0, 0, 0) }, // FIXME: parse versions properly with Lr tokens
-        // three_component_pre_release_id_variant_3 = { "0.0.0-beta.1", BareVersion::ThreeComponents(0, 0, 0) }, // FIXME: parse versions properly with Lr tokens
-        three_component_pre_release_id_variant_4 = { "0.0.0-anything", BareVersion::ThreeComponents(0, 0, 0) }, 
-        three_component_pre_release_id_variant_5 = { "0.0.0-anything+build", BareVersion::ThreeComponents(0, 0, 0) },
+
     )]
     fn try_from_ok(version: &str, expected: BareVersion) {
         use std::convert::TryFrom;
@@ -537,6 +614,16 @@ mod bare_version_tests {
         neg_int_minor = { "0.-1.0" },
         neg_int_patch = { "0.0.-1" },
         build_postfix_without_pre_release_id = { "0.0.0+some" },
+        two_component_pre_release_id_variant_1 = { "0.0-nightly" },
+        two_component_pre_release_id_variant_2 = { "0.0-beta.0" },
+        two_component_pre_release_id_variant_3 = { "0.0-beta.1" },
+        two_component_pre_release_id_variant_4 = { "0.0-anything", },
+        two_component_pre_release_id_variant_5 = { "0.0-anything+build" },
+        three_component_pre_release_id_variant_2 = { "0.0.0-beta.0" },
+        three_component_pre_release_id_variant_3 = { "0.0.0-beta.1" },
+        three_component_pre_release_id_variant_1 = { "0.0.0-nightly" },
+        three_component_pre_release_id_variant_4 = { "0.0.0-anything" },
+        three_component_pre_release_id_variant_5 = { "0.0.0-anything+build" },
     )]
     fn try_from_err(version: &str) {
         use std::convert::TryFrom;

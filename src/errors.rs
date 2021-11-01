@@ -12,6 +12,7 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug)]
 pub enum CargoMSRVError {
+    BareVersionParse(crate::manifest::Error),
     CargoMetadata(cargo_metadata::Error),
     DefaultHostTripleNotFound,
     Env(env::VarError),
@@ -36,8 +37,6 @@ pub enum CargoMSRVError {
     UnableToAccessLogFolder,
     UnableToCacheChannelManifest,
     UnableToFindAnyGoodVersion { command: String },
-    UnableToParseBareVersion { version: String, message: String },
-    UnableToParseBareVersionNumber(std::num::ParseIntError),
     UnableToInitTracing,
     UnableToParseCliArgs,
     UnableToParseRustVersion,
@@ -47,6 +46,7 @@ pub enum CargoMSRVError {
 impl fmt::Display for CargoMSRVError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
+            CargoMSRVError::BareVersionParse(err) => write!(f, "Unable to parse minimum rust version: {}", err) ,
             CargoMSRVError::CargoMetadata(err) => err.fmt(f),
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::Env(err) => err.fmt(f),
@@ -79,8 +79,6 @@ If the above does succeed, or you think cargo-msrv errored in another way, pleas
 report the issue at: https://github.com/foresterre/cargo-msrv/issues
 
 Thank you in advance!"#, command.as_str()),
-            CargoMSRVError::UnableToParseBareVersion { version, message } => write!(f, "Unable to parse bare two- or three component Rust version from '{}': {}.", version, message),
-            CargoMSRVError::UnableToParseBareVersionNumber(err) => write!(f, "Unable to parse bare two- or three component Rust version: {}.", err),
             CargoMSRVError::UnableToParseCliArgs => write!(f, "Unable to parse the CLI arguments. Use `cargo msrv help` for more info."),
             CargoMSRVError::UnableToParseRustVersion => write!(f, "The Rust stable version could not be parsed from the stable channel manifest."),
             CargoMSRVError::UnableToRunCheck => write!(f, "Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually." )
@@ -153,5 +151,11 @@ impl From<rust_releases::RustChangelogError> for CargoMSRVError {
 impl From<rust_releases::RustDistError> for CargoMSRVError {
     fn from(err: rust_releases::RustDistError) -> Self {
         CargoMSRVError::RustReleasesRustDistSource(err)
+    }
+}
+
+impl From<crate::manifest::Error> for CargoMSRVError {
+    fn from(err: crate::manifest::Error) -> Self {
+        CargoMSRVError::BareVersionParse(err)
     }
 }
