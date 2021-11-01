@@ -120,15 +120,12 @@ impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_
         // Table of dependencies sorted by MSRV
         use json::object;
 
-        let objects = self.dependencies_by_msrv(
-            || Vec::new(),
-            |acc, next| {
-                acc.push(object! {
-                    "msrv": next.msrv,
-                    "dependencies": next.dependencies
-                })
-            },
-        );
+        let objects = self.dependencies_by_msrv(Vec::new, |acc, next| {
+            acc.push(object! {
+                "msrv": next.msrv,
+                "dependencies": next.dependencies
+            })
+        });
 
         let json = object! {
             reason: "list",

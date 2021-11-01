@@ -57,7 +57,11 @@ impl<T: Output> DirectDependenciesFormatter<T> {
                 name: &package.name,
                 version: &package.version,
                 msrv: format_version(msrv.as_ref()),
-                dependencies: format_dependencies(&package.dependencies),
+                dependencies: package
+                    .dependencies
+                    .iter()
+                    .map(|d| d.name.to_owned())
+                    .collect(),
             };
 
             f(&mut out, values);
@@ -89,7 +93,7 @@ impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::Huma
                     Cell::new(&next.name),
                     Cell::new(&next.version),
                     Cell::new(&next.msrv),
-                    Cell::new(&next.dependencies),
+                    Cell::new(&next.dependencies.join(", ")),
                 ]);
             },
         );
@@ -103,17 +107,14 @@ impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::json::Js
         // Table of dependencies
         use json::object;
 
-        let objects = self.direct_dependencies_msrv(
-            || Vec::new(),
-            |acc, next| {
-                acc.push(object! {
-                    dependency: next.name,
-                    version: format!("{}", next.version),
-                    msrv: next.msrv,
-                    depends_on: next.dependencies,
-                });
-            },
-        );
+        let objects = self.direct_dependencies_msrv(Vec::new, |acc, next| {
+            acc.push(object! {
+                dependency: next.name,
+                version: format!("{}", next.version),
+                msrv: next.msrv,
+                depends_on: next.dependencies,
+            });
+        });
 
         let json = object! {
             reason: "list",
@@ -130,13 +131,5 @@ struct Values<'s, 'v> {
     name: &'s str,
     version: &'v crate::semver::Version,
     msrv: String,
-    dependencies: String,
-}
-
-fn format_dependencies(dependencies: &[cargo_metadata::Dependency]) -> String {
-    dependencies
-        .iter()
-        .map(|dep| dep.name.to_string())
-        .collect::<Vec<_>>()
-        .join(", ")
+    dependencies: Vec<String>,
 }
