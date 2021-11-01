@@ -1,9 +1,16 @@
 # [unreleased]
 
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.12.0...HEAD
+
+# [0.12.0] - 2021-11-01
+
 * Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version key.
 * You can now also simply run cargo-msrv standalone, i.e. `cargo-msrv` instead of `cargo msrv`
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...HEAD
+_Only list available as a subcommand. The determine-msrv and verify-msrv commands have not been ported to subcommands yet,
+but are planned to._
+
+[0.12.0]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...v0.12.0
 
 # [0.11.1] - 2021-10-28
 
