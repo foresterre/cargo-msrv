@@ -163,11 +163,13 @@ pub fn list() -> App<'static, 'static> {
     use crate::config::list;
     use clap::SubCommand;
 
-    SubCommand::with_name(id::SUB_COMMAND_LIST).arg(
-        Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
-            .long("type")
-            .takes_value(true)
-            .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
-            .default_value(list::ListVariant::default().as_str()),
-    )
+    SubCommand::with_name(id::SUB_COMMAND_LIST)
+        .help("List the MSRV's specified by dependency crate authors")
+        .arg(
+            Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
+                .long("type")
+                .takes_value(true)
+                .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
+                .default_value(list::ListVariant::default().as_str()),
+        )
 }
