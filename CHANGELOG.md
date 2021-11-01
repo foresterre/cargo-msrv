@@ -1,5 +1,8 @@
 # [unreleased]
 
+* Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version key.
+* You can now also simply run cargo-msrv standalone, i.e. `cargo-msrv` instead of `cargo msrv`
+
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...HEAD
 
 # [0.11.1] - 2021-10-28
