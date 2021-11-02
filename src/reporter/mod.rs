@@ -24,8 +24,8 @@ pub trait Output: Debug {
     // Reports the currently running
     fn progress(&self, action: ProgressAction);
     fn complete_step(&self, version: &semver::Version, success: bool);
-    fn finish_success(&self, mode: ModeIntent, version: &semver::Version);
-    fn finish_failure(&self, mode: ModeIntent, cmd: &str);
+    fn finish_success(&self, mode: ModeIntent, version: Option<&semver::Version>);
+    fn finish_failure(&self, mode: ModeIntent, cmd: Option<&str>);
 
     fn write_line(&self, content: &str);
 }
@@ -48,8 +48,8 @@ pub mod __private {
         fn set_steps(&self, _steps: u64) {}
         fn progress(&self, _action: ProgressAction) {}
         fn complete_step(&self, _version: &semver::Version, _success: bool) {}
-        fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
-        fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}
+        fn finish_success(&self, _mode: ModeIntent, _version: Option<&semver::Version>) {}
+        fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {}
         fn write_line(&self, _content: &str) {}
     }
 
@@ -73,8 +73,8 @@ pub mod __private {
             let mut successes = self.successes.borrow_mut();
             successes.push((success, version.to_owned()));
         }
-        fn finish_success(&self, _mode: ModeIntent, _version: &semver::Version) {}
-        fn finish_failure(&self, _mode: ModeIntent, _cmd: &str) {}
+        fn finish_success(&self, _mode: ModeIntent, _version: Option<&semver::Version>) {}
+        fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {}
         fn write_line(&self, _content: &str) {}
     }
 

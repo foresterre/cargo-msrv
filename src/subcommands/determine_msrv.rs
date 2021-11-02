@@ -86,10 +86,10 @@ fn determine_msrv_impl(
             toolchain: _,
             version,
         } => {
-            output.finish_success(ModeIntent::DetermineMSRV, version);
+            output.finish_success(ModeIntent::DetermineMSRV, Some(version));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::DetermineMSRV, cmd)
+            output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd))
         }
     }
 

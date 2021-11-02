@@ -110,23 +110,32 @@ only need to provide the <COMMAND...> part.
 
 ### JSON format
 
-There are 6 types of status messages, each type is indicated
+JSON output may be enabled by providing the `--output-format json` flag:
+
+* determine msrv: `cargo msrv --output-format json`, or
+* verify msrv: `cargo msrv --output-format json --verify`, or
+* list msrv's: `cargo msrv --output-format json list`
+
+When the output format is 'json', various types of status messages can be printed. Each type is indicated
 by the `reason` key.
 
 #### Report mode
 
-Reports the mode which will be used by `cargo-msrv`. There are currently two modes:
-`determine-msrv` and `verify-msrv`, which respectively 
+
+Reports the mode which will be used by `cargo-msrv`. These are the currently available modes:
+* `determine-msrv`
+* `verify-msrv`
+* `list-msrv`
 
 ```jsonc
 {
   "reason": "mode",
   // The mode in which cargo-msrv will operate
-  "mode": "determine-msrv" /* OR */ "mode": "verify-msrv",
-    // The toolchain that will be used
+  "mode": "determine-msrv" /* OR */ "mode": "verify-msrv" /* OR */ "list-msrv" ,
+   // The toolchain that will be used
   "toolchain":"x86_64-unknown-linux-gnu",
-  // command used to check a version 
-  "check_cmd":"cargo check --all"}
+  // Command used to check a version. The key will be absent for mode 'list'
+  "check_cmd":"cargo check --all"
 }
 ```
 
@@ -146,7 +155,7 @@ be run to check whether the version of the toolchain is compatible.
   "total": 55,
   // The toolchain that is being used
   "toolchain": "x86_64-unknown-linux-gnu",
-  // The command used to check each version
+  // The command used to check each version. The key will be absent for mode 'list'
   "check_cmd": "cargo check --all"
 }
 ```
@@ -187,7 +196,7 @@ Reported when all actions for a mode have been run to completion.
   "msrv": "1.42.0",
   // The toolchain that is being used
   "toolchain": "x86_64-unknown-linux-gnu",
-  // The command used to check each version
+  // The command used to check each version. The key will be absent for mode 'list'
   "check_cmd": "cargo check --all"
 }
 ```
