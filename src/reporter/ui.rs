@@ -110,6 +110,10 @@ impl<'s, 't> HumanPrinter<'s, 't> {
 
 impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
     fn mode(&self, action: ModeIntent) {
+        if let ModeIntent::List = action {
+            return;
+        }
+
         self.welcome(self.toolchain, self.cmd, action);
     }
 
@@ -147,16 +151,21 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
         }
     }
 
-    fn finish_success(&self, mode: ModeIntent, version: &semver::Version) {
-        match mode {
-            ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
-            ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
-            ModeIntent::List => {}
+    fn finish_success(&self, mode: ModeIntent, version: Option<&semver::Version>) {
+        // for determine-msrv and verify-msrv, we report the status
+        if let Some(version) = version {
+            match mode {
+                ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
+                ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
+                _ => {}
+            }
         }
     }
 
-    fn finish_failure(&self, _mode: ModeIntent, cmd: &str) {
-        self.finish_with_err(cmd)
+    fn finish_failure(&self, _mode: ModeIntent, cmd: Option<&str>) {
+        if let Some(cmd) = cmd {
+            self.finish_with_err(cmd);
+        }
     }
 
     fn write_line(&self, content: &str) {

@@ -134,7 +134,7 @@ impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_
             list: objects,
         };
 
-        writeln!(f, "{}", json)
+        write!(f, "{}", json)
     }
 }
 

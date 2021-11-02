@@ -44,8 +44,8 @@ pub fn run_verify_msrv_action<R: Output>(
 
 fn report_verify_completion(output: &impl Output, status: Outcome, cmd: &str) {
     if status.is_success() {
-        output.finish_success(ModeIntent::VerifyMSRV, status.version());
+        output.finish_success(ModeIntent::VerifyMSRV, Some(status.version()))
     } else {
-        output.finish_failure(ModeIntent::VerifyMSRV, cmd);
+        output.finish_failure(ModeIntent::VerifyMSRV, Some(cmd));
     }
 }

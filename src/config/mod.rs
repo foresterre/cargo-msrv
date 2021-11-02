@@ -51,7 +51,7 @@ impl From<ModeIntent> for &'static str {
     fn from(action: ModeIntent) -> Self {
         match action {
             ModeIntent::DetermineMSRV => "determine-msrv",
-            ModeIntent::List => "list",
+            ModeIntent::List => "list-msrv",
             ModeIntent::VerifyMSRV => "verify-msrv",
         }
     }

@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::filter::LevelFilter;
 
-use cargo_msrv::config::{self, Config};
+use cargo_msrv::config::{self, Config, ModeIntent};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::reporter;
 use cargo_msrv::{cli, run_app};
@@ -74,8 +74,14 @@ fn init_and_run(config: &Config) -> TResult<()> {
             run_app(config, &reporter)
         }
         config::OutputFormat::Json => {
-            let custom_cmd = config.check_command_string();
-            let reporter = reporter::json::JsonPrinter::new(1, config.target(), &custom_cmd);
+            let custom_cmd = if let ModeIntent::List = config.action_intent() {
+                None
+            } else {
+                Some(config.check_command_string())
+            };
+
+            let reporter =
+                reporter::json::JsonPrinter::new(1, config.target(), custom_cmd.as_deref());
             run_app(config, &reporter)
         }
         config::OutputFormat::None => {
