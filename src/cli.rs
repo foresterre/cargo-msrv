@@ -167,7 +167,7 @@ pub fn list() -> App<'static, 'static> {
         .about("List the MSRV's specified by dependency crate authors")
         .arg(
             Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
-                .long("type")
+                .long("variant")
                 .takes_value(true)
                 .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
                 .default_value(list::ListVariant::default().as_str()),
