@@ -44,6 +44,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
             ModeIntent::DetermineMSRV => "Determining",
             ModeIntent::VerifyMSRV => "Verifying",
             ModeIntent::List => "",
+            ModeIntent::Show => "",
         };
 
         let _ = self.term.write_line(
@@ -110,7 +111,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
 
 impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
     fn mode(&self, action: ModeIntent) {
-        if let ModeIntent::List = action {
+        if let ModeIntent::List | ModeIntent::Show = action {
             return;
         }
 
@@ -157,12 +158,20 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
             match mode {
                 ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
                 ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
+                ModeIntent::Show => {
+                    let _ = self.term.write_line(&format!("{}", version));
+                }
                 _ => {}
             }
         }
     }
 
-    fn finish_failure(&self, _mode: ModeIntent, cmd: Option<&str>) {
+    fn finish_failure(&self, mode: ModeIntent, cmd: Option<&str>) {
+        if let ModeIntent::Show = mode {
+            let _ = self.term.write_line("No MSRV in Cargo manifest");
+            return;
+        }
+
         if let Some(cmd) = cmd {
             self.finish_with_err(cmd);
         }

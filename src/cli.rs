@@ -22,7 +22,6 @@ pub mod id {
     pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
 
     pub const SUB_COMMAND_SHOW: &str = "show";
-    pub const SUB_COMMAND_SHOW_NO_PARSE: &str = "show_no_parse";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -183,10 +182,4 @@ pub fn show() -> App<'static, 'static> {
 
     SubCommand::with_name(id::SUB_COMMAND_SHOW)
         .about("Show the MSRV of your crate, as specified in the Cargo manifest")
-        .arg(
-            Arg::with_name(id::SUB_COMMAND_SHOW_NO_PARSE)
-                .long("no-parse")
-                .takes_value(false)
-                .help("Do not attempt to parse the MSRV to check its validity"),
-        )
 }

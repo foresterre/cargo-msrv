@@ -45,6 +45,8 @@ pub enum ModeIntent {
     List,
     // Verifies the given MSRV
     VerifyMSRV,
+    // Shows the MSRV of the current crate as specified in the Cargo manifest
+    Show,
 }
 
 impl From<ModeIntent> for &'static str {
@@ -53,6 +55,7 @@ impl From<ModeIntent> for &'static str {
             ModeIntent::DetermineMSRV => "determine-msrv",
             ModeIntent::List => "list-msrv",
             ModeIntent::VerifyMSRV => "verify-msrv",
+            ModeIntent::Show => "show-msrv",
         }
     }
 }
@@ -280,10 +283,14 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         use crate::cli::id;
         use crate::fetch::default_target;
 
-        let action_intent = match matches.subcommand_matches(id::SUB_COMMAND_LIST) {
-            Some(_list) => ModeIntent::List,
-            None if matches.is_present(id::ARG_VERIFY) => ModeIntent::VerifyMSRV,
-            None => ModeIntent::DetermineMSRV,
+        let action_intent = if matches.subcommand_matches(id::SUB_COMMAND_LIST).is_some() {
+            ModeIntent::List
+        } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
+            ModeIntent::Show
+        } else if matches.is_present(id::ARG_VERIFY) {
+            ModeIntent::VerifyMSRV
+        } else {
+            ModeIntent::DetermineMSRV
         };
 
         // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
@@ -366,10 +373,11 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
 
         builder = builder.no_tracing(matches.is_present(id::ARG_NO_LOG));
 
-        if let Some(list_cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
-            let cmd_config = ListCmdConfig::try_from_args(list_cmd)?;
+        if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
+            let cmd_config = ListCmdConfig::try_from_args(cmd)?;
             builder = builder.sub_command_config(SubCommandConfig::ListConfig(cmd_config));
         }
+
         Ok(builder.build())
     }
 }
@@ -383,21 +391,28 @@ fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
     }
 }
 
+macro_rules! as_sub_command_config {
+    ($subcmd:ident, $variant:ident, $out_type:ty) => {
+        pub(crate) fn $subcmd(&self) -> &$out_type {
+            if let Self::$variant(c) = self {
+                c
+            } else {
+                // In this case we made a programming error
+                unreachable!()
+            }
+        }
+    };
+}
+
 #[derive(Debug, Clone)]
 pub enum SubCommandConfig {
     None,
     ListConfig(ListCmdConfig),
+    ShowConfig,
 }
 
 impl SubCommandConfig {
-    pub(crate) fn as_list_cmd_config(&self) -> &ListCmdConfig {
-        if let Self::ListConfig(c) = self {
-            c
-        } else {
-            // In this case we made a programming error
-            unreachable!()
-        }
-    }
+    as_sub_command_config!(list, ListConfig, ListCmdConfig);
 }
 
 #[cfg(test)]
