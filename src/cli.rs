@@ -20,6 +20,9 @@ pub mod id {
 
     pub const SUB_COMMAND_LIST: &str = "list";
     pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
+
+    pub const SUB_COMMAND_SHOW: &str = "show";
+    pub const SUB_COMMAND_SHOW_NO_PARSE: &str = "show_no_parse";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -40,6 +43,7 @@ used to validate whether a Rust toolchain version is compatible. The default `ch
 \"cargo build\". A custom `check` command should be runnable by rustup, as they will be passed on to \
 rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
         .subcommand(list())
+        .subcommand(show())
         .arg(
             Arg::with_name(id::ARG_SEEK_PATH)
                 .long("path")
@@ -171,5 +175,18 @@ pub fn list() -> App<'static, 'static> {
                 .takes_value(true)
                 .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
                 .default_value(list::ListVariant::default().as_str()),
+        )
+}
+
+pub fn show() -> App<'static, 'static> {
+    use clap::SubCommand;
+
+    SubCommand::with_name(id::SUB_COMMAND_SHOW)
+        .about("Show the MSRV of your crate, as specified in the Cargo manifest")
+        .arg(
+            Arg::with_name(id::SUB_COMMAND_SHOW_NO_PARSE)
+                .long("no-parse")
+                .takes_value(false)
+                .help("Do not attempt to parse the MSRV to check its validity"),
         )
 }
