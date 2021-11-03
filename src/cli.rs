@@ -11,6 +11,7 @@ pub mod id {
     pub const ARG_MAX: &str = "max";
     pub const ARG_BISECT: &str = "bisect";
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
+    pub const ARG_WRITE_CLIPPY_CONFIG: &str = "write_clippy_config";
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
     pub const ARG_OUTPUT_FORMAT: &str = "output_format";
     pub const ARG_VERIFY: &str = "verify_msrv";
@@ -104,6 +105,15 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .long_help("Output a rust-toolchain file with the MSRV as toolchain. \
             The toolchain file will pin the Rust version for this crate. \
             See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.")
+        )
+        .arg(Arg::with_name(id::ARG_WRITE_CLIPPY_CONFIG)
+            .long("write-clippy-config")
+            .help("Write the MSRV to a Clippy config file")
+            .long_help("Write the MSRV to a Clippy config file. \
+            This will configure Clippy to disable lints for Rust versions higher than the MSRV. \
+            See https://github.com/rust-lang/rust-clippy#configuration and \
+            https://github.com/rust-lang/rust-clippy#specifying-the-minimum-supported-rust-version \
+            for more.")
         )
         .arg(Arg::with_name(id::ARG_IGNORE_LOCKFILE)
             .long("ignore-lockfile")
