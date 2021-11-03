@@ -1,4 +1,4 @@
-use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
+use crate::manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser};
 use cargo_metadata::Package;
 pub(crate) use direct_deps::DirectDependenciesFormatter;
 pub(crate) use ordered_by_msrv::ByMSRVFormatter;

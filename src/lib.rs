@@ -8,6 +8,7 @@ use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{Output, ProgressAction};
 
 use crate::subcommands::list::run_list_msrv;
+use crate::subcommands::show::run_show_msrv;
 pub use crate::{
     result::MinimalCompatibility, subcommands::determine_msrv::determine_msrv,
     subcommands::determine_msrv::run_determine_msrv_action,
@@ -42,5 +43,6 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
         ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, &index),
         ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, &index),
         ModeIntent::List => run_list_msrv(config, reporter),
+        ModeIntent::Show => run_show_msrv(config, reporter),
     }
 }

@@ -29,6 +29,7 @@ impl<'s, 't> JsonPrinter<'s, 't> {
             ModeIntent::DetermineMSRV => "msrv-complete",
             ModeIntent::VerifyMSRV => "verify-complete",
             ModeIntent::List => "list-complete",
+            ModeIntent::Show => "show-complete",
         }
     }
 }

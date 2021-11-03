@@ -12,7 +12,7 @@ pub fn run_list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     let resolver = CargoMetadataResolver::try_from_config(config)?;
     let graph = resolver.resolve()?;
 
-    match config.sub_command_config().as_list_cmd_config().variant {
+    match config.sub_command_config().list().variant {
         ListVariant::DirectDeps => match config.output_format() {
             OutputFormat::Human => {
                 use crate::reporter::ui::HumanPrinter;

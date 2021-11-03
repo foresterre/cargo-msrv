@@ -12,7 +12,7 @@ pub type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug)]
 pub enum CargoMSRVError {
-    BareVersionParse(crate::manifest::Error),
+    BareVersionParse(crate::manifest::bare_version::Error),
     CargoMetadata(cargo_metadata::Error),
     DefaultHostTripleNotFound,
     Env(env::VarError),
@@ -22,7 +22,10 @@ pub enum CargoMSRVError {
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
     NoCrateRootFound,
-    NoVersionMatchesManifestMSRV(crate::manifest::BareVersion, Vec<crate::semver::Version>),
+    NoVersionMatchesManifestMSRV(
+        crate::manifest::bare_version::BareVersion,
+        Vec<crate::semver::Version>,
+    ),
     NoMSRVKeyInCargoToml(PathBuf),
     ParseToml(toml_edit::TomlError),
     RustReleasesSource(rust_releases::RustChangelogError),
@@ -36,7 +39,9 @@ pub enum CargoMSRVError {
     UnknownTarget,
     UnableToAccessLogFolder,
     UnableToCacheChannelManifest,
-    UnableToFindAnyGoodVersion { command: String },
+    UnableToFindAnyGoodVersion {
+        command: String,
+    },
     UnableToInitTracing,
     UnableToParseCliArgs,
     UnableToParseRustVersion,
@@ -154,8 +159,8 @@ impl From<rust_releases::RustDistError> for CargoMSRVError {
     }
 }
 
-impl From<crate::manifest::Error> for CargoMSRVError {
-    fn from(err: crate::manifest::Error) -> Self {
+impl From<crate::manifest::bare_version::Error> for CargoMSRVError {
+    fn from(err: crate::manifest::bare_version::Error) -> Self {
         CargoMSRVError::BareVersionParse(err)
     }
 }
