@@ -57,8 +57,8 @@ impl BareVersion {
 
         iter.find(|version| requirements.matches(version))
             .ok_or_else(|| {
-                let requirement = self.to_owned();
-                let available = iter.map(|v| v.to_owned()).collect();
+                let requirement = self.clone();
+                let available = iter.cloned().collect();
                 crate::CargoMSRVError::NoVersionMatchesManifestMSRV(requirement, available)
             })
     }
@@ -129,18 +129,18 @@ fn parse_separator(input: &[u8]) -> Result<ParsedTokens, Error> {
 type ParsedTokens = usize;
 
 fn parse_number(input: &[u8]) -> Result<(BareVersionUsize, ParsedTokens), Error> {
-    let mut out: BareVersionUsize = 0;
-    let mut len = 0;
-
     const ZERO_MIN: u8 = b'0' - 1;
     const NINE_PLUS: u8 = b'9' + 1;
+
+    let mut out: BareVersionUsize = 0;
+    let mut len = 0;
 
     while let Some(token) = input.get(len) {
         match token {
             b'0'..=b'9' => {
                 out = out.checked_mul(10).ok_or(Error::Overflow)?;
                 out = out
-                    .checked_add((*token - b'0') as BareVersionUsize)
+                    .checked_add(BareVersionUsize::from(*token - b'0'))
                     .ok_or(Error::Overflow)?;
 
                 len += 1;
@@ -239,11 +239,11 @@ mod bare_version_tests {
         three_component_one_fifty_four_p10 = { "1.54.10", BareVersion::ThreeComponents(1, 54, 10) },
         two_component_zeros = { "0.0", BareVersion::TwoComponents(0, 0) },
         three_component_zeros = { "0.0.0", BareVersion::ThreeComponents(0, 0, 0) },
-        two_component_large_major = { "18446744073709551615.0", BareVersion::TwoComponents(18446744073709551615, 0) },
-        two_component_large_minor = { "0.18446744073709551615", BareVersion::TwoComponents(0, 18446744073709551615) },
-        three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18446744073709551615, 0, 0) },
-        three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18446744073709551615, 0) },
-        three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18446744073709551615) },
+        two_component_large_major = { "18446744073709551615.0", BareVersion::TwoComponents(18_446_744_073_709_551_615, 0) },
+        two_component_large_minor = { "0.18446744073709551615", BareVersion::TwoComponents(0, 18_446_744_073_709_551_615) },
+        three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18_446_744_073_709_551_615, 0, 0) },
+        three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18_446_744_073_709_551_615, 0) },
+        three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18_446_744_073_709_551_615) },
 
     )]
     fn try_from_ok(version: &str, expected: BareVersion) {
@@ -302,7 +302,7 @@ mod bare_version_tests {
     )]
     fn two_components_to_semver(version: BareVersion, expected: semver::Version) {
         let index = release_indices();
-        let available = index.releases().iter().map(|release| release.version());
+        let available = index.releases().iter().map(Release::version);
 
         let v = version.try_to_semver(available).unwrap();
 
@@ -320,7 +320,7 @@ mod bare_version_tests {
     )]
     fn three_components_to_semver(version: BareVersion, expected: semver::Version) {
         let index = release_indices();
-        let available = index.releases().iter().map(|release| release.version());
+        let available = index.releases().iter().map(Release::version);
 
         let v = version.try_to_semver(available).unwrap();
 

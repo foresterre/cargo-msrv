@@ -40,6 +40,8 @@ impl<T: Output> ByMSRVFormatter<T> {
         Fi: FnOnce() -> B,
         Fg: Fn(&mut B, Values),
     {
+        use crate::semver;
+        
         let mut out = init();
 
         let dependency_graph = &self.graph;
@@ -51,7 +53,7 @@ impl<T: Output> ByMSRVFormatter<T> {
         // let mut direct_deps = graph.neighbors_directed(root.into(), Direction::Outgoing);
         let mut bfs = Bfs::new(&graph, root.into());
 
-        use crate::semver;
+        
         let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
 
         while let Some(nx) = bfs.next(&graph) {
@@ -59,7 +61,7 @@ impl<T: Output> ByMSRVFormatter<T> {
 
             let msrv = package
                 .rust_version
-                .to_owned()
+                .clone()
                 .map(|req| {
                     let comparator = &req.comparators[0];
                     crate::semver::Version::new(
@@ -77,7 +79,7 @@ impl<T: Output> ByMSRVFormatter<T> {
         for (version, packages) in version_map {
             let values = Values {
                 msrv: format_version(version.as_ref()),
-                dependencies: packages.iter().map(|p| p.name.to_owned()).collect(),
+                dependencies: packages.iter().map(|p| p.name.clone()).collect(),
             };
 
             f(&mut out, values);
@@ -91,7 +93,7 @@ impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_,
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies sorted by MSRV
         use comfy_table::presets::UTF8_FULL;
-        use comfy_table::*;
+        use comfy_table::{Cell, ContentArrangement, Table};
 
         let out = self.dependencies_by_msrv(
             || {
@@ -124,7 +126,7 @@ impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_
             acc.push(object! {
                 "msrv": next.msrv,
                 "dependencies": next.dependencies
-            })
+            });
         });
 
         let json = object! {

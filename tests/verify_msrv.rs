@@ -1,7 +1,7 @@
 use parameterized::parameterized;
 use rust_releases::{semver, Release};
 
-use common::*;
+use common::run_verify;
 
 mod common;
 

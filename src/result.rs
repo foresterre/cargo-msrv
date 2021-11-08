@@ -28,7 +28,7 @@ impl MinimalCompatibility {
 
 impl From<Outcome> for MinimalCompatibility {
     fn from(outcome: Outcome) -> Self {
-        let version = outcome.version().to_owned();
+        let version = outcome.version().clone();
         let toolchain = outcome.toolchain().to_string();
 
         if outcome.is_success() {

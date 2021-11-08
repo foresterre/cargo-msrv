@@ -71,7 +71,7 @@ pub mod __private {
         fn progress(&self, _action: ProgressAction) {}
         fn complete_step(&self, version: &semver::Version, success: bool) {
             let mut successes = self.successes.borrow_mut();
-            successes.push((success, version.to_owned()));
+            successes.push((success, version.clone()));
         }
         fn finish_success(&self, _mode: ModeIntent, _version: Option<&semver::Version>) {}
         fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {}

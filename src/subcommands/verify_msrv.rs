@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use rust_releases::ReleaseIndex;
+use rust_releases::{Release, ReleaseIndex};
 use toml_edit::Document;
 
 use crate::check::{check_toolchain, Outcome};
@@ -31,20 +31,20 @@ pub fn run_verify_msrv_action<R: Output>(
         release_index
             .releases()
             .iter()
-            .map(|release| release.version()),
+            .map(Release::version),
     )?;
 
     let cmd = config.check_command_string();
     reporter.mode(ModeIntent::VerifyMSRV);
     let status = check_toolchain(version, config, reporter)?;
-    report_verify_completion(reporter, status, &cmd);
+    report_verify_completion(reporter, &status, &cmd);
 
     Ok(())
 }
 
-fn report_verify_completion(output: &impl Output, status: Outcome, cmd: &str) {
+fn report_verify_completion(output: &impl Output, status: &Outcome, cmd: &str) {
     if status.is_success() {
-        output.finish_success(ModeIntent::VerifyMSRV, Some(status.version()))
+        output.finish_success(ModeIntent::VerifyMSRV, Some(status.version()));
     } else {
         output.finish_failure(ModeIntent::VerifyMSRV, Some(cmd));
     }

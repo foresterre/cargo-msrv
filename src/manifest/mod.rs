@@ -90,7 +90,7 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
             .get("package")
             .and_then(Item::as_table)
             .and_then(|package| package.get("rust-version"))
-            .and_then(|rust_version| rust_version.as_str())
+            .and_then(Item::as_str)
     }
 
     /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
@@ -103,7 +103,7 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
             .and_then(|package| package.get("metadata"))
             .and_then(Item::as_table)
             .and_then(|metadata| metadata.get("msrv"))
-            .and_then(|msrv| msrv.as_str())
+            .and_then(Item::as_str)
     }
 
     // Parse the MSRV from the `package.rust-version` key if it exists,
@@ -209,7 +209,7 @@ rust-version = "1.56.0-nightly"
         if let CargoMSRVError::BareVersionParse(err) = parse_err {
             assert_eq!(err, Error::PreReleaseModifierNotAllowed);
         } else {
-            panic!("Incorrect cargo-msrv error type")
+            panic!("Incorrect cargo-msrv error type");
         }
     }
 
@@ -264,7 +264,7 @@ rust-version = "{}"
 
         let manifest = CargoManifest::try_from(manifest);
 
-        assert!(manifest.is_err())
+        assert!(manifest.is_err());
     }
 
     #[test]
@@ -345,7 +345,7 @@ msrv = "{}"
 
         let manifest = CargoManifest::try_from(manifest);
 
-        assert!(manifest.is_err())
+        assert!(manifest.is_err());
     }
 }
 
@@ -377,11 +377,11 @@ mod bare_version_tests {
         three_component_one_fifty_four_p10 = { "1.54.10", BareVersion::ThreeComponents(1, 54, 10) },
         two_component_zeros = { "0.0", BareVersion::TwoComponents(0, 0) },
         three_component_zeros = { "0.0.0", BareVersion::ThreeComponents(0, 0, 0) },
-        two_component_large_major = { "18446744073709551615.0", BareVersion::TwoComponents(18446744073709551615, 0) },
-        two_component_large_minor = { "0.18446744073709551615", BareVersion::TwoComponents(0, 18446744073709551615) },
-        three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18446744073709551615, 0, 0) },
-        three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18446744073709551615, 0) },
-        three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18446744073709551615) },
+        two_component_large_major = { "18446744073709551615.0", BareVersion::TwoComponents(18_446_744_073_709_551_615, 0) },
+        two_component_large_minor = { "0.18446744073709551615", BareVersion::TwoComponents(0, 18_446_744_073_709_551_615) },
+        three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18_446_744_073_709_551_615, 0, 0) },
+        three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18_446_744_073_709_551_615, 0) },
+        three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18_446_744_073_709_551_615) },
 
     )]
     fn try_from_ok(version: &str, expected: BareVersion) {
@@ -440,7 +440,7 @@ mod bare_version_tests {
     )]
     fn two_components_to_semver(version: BareVersion, expected: semver::Version) {
         let index = release_indices();
-        let available = index.releases().iter().map(|release| release.version());
+        let available = index.releases().iter().map(Release::version);
 
         let v = version.try_to_semver(available).unwrap();
 
@@ -458,7 +458,7 @@ mod bare_version_tests {
     )]
     fn three_components_to_semver(version: BareVersion, expected: semver::Version) {
         let index = release_indices();
-        let available = index.releases().iter().map(|release| release.version());
+        let available = index.releases().iter().map(Release::version);
 
         let v = version.try_to_semver(available).unwrap();
 

@@ -43,8 +43,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
         let verb = match action_intent {
             ModeIntent::DetermineMSRV => "Determining",
             ModeIntent::VerifyMSRV => "Verifying",
-            ModeIntent::List => "",
-            ModeIntent::Show => "",
+            ModeIntent::List | ModeIntent::Show => "",
         };
 
         let _ = self.term.write_line(
@@ -77,7 +76,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
     }
 
     fn set_progress_bar_length(&self, len: u64) {
-        self.progress.set_length(len)
+        self.progress.set_length(len);
     }
 
     fn complete_step(&self, message: impl Into<Cow<'static, str>>) {
@@ -92,7 +91,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
             style("Finished").green().bold(),
             message,
             style(version).cyan()
-        ))
+        ));
     }
 
     fn finish_with_err(&self, cmd: &str) {
@@ -161,7 +160,7 @@ impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
                 ModeIntent::Show => {
                     let _ = self.term.write_line(&format!("{}", version));
                 }
-                _ => {}
+                ModeIntent::List => {}
             }
         }
     }
