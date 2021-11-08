@@ -41,7 +41,7 @@ impl<T: Output> ByMSRVFormatter<T> {
         Fg: Fn(&mut B, Values),
     {
         use crate::semver;
-        
+
         let mut out = init();
 
         let dependency_graph = &self.graph;
@@ -53,7 +53,6 @@ impl<T: Output> ByMSRVFormatter<T> {
         // let mut direct_deps = graph.neighbors_directed(root.into(), Direction::Outgoing);
         let mut bfs = Bfs::new(&graph, root.into());
 
-        
         let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
 
         while let Some(nx) = bfs.next(&graph) {

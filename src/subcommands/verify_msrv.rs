@@ -27,12 +27,7 @@ pub fn run_verify_msrv_action<R: Output>(
     let version = manifest
         .minimum_rust_version()
         .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
-    let version = version.try_to_semver(
-        release_index
-            .releases()
-            .iter()
-            .map(Release::version),
-    )?;
+    let version = version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let cmd = config.check_command_string();
     reporter.mode(ModeIntent::VerifyMSRV);

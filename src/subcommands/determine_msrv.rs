@@ -147,15 +147,14 @@ fn test_against_releases_bisect(
     });
 
     // update compatibility
-    *compatibility = outcome?
-        .map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
-            let version = releases[i].version();
+    *compatibility = outcome?.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
+        let version = releases[i].version();
 
-            MinimalCompatibility::CapableToolchain {
-                toolchain: as_toolchain_specifier(version, config.target()),
-                version: version.clone(),
-            }
-        });
+        MinimalCompatibility::CapableToolchain {
+            toolchain: as_toolchain_specifier(version, config.target()),
+            version: version.clone(),
+        }
+    });
 
     Ok(())
 }
