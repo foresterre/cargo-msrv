@@ -15,16 +15,36 @@ pub fn run_determine_msrv_action<R: Output>(
 ) -> TResult<()> {
     match determine_msrv(config, reporter, release_index)? {
         MinimalCompatibility::NoCompatibleToolchains => {
+            info!("no minimal-compatible toolchain found");
+
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
                 command: config.check_command().join(" "),
             })
         }
-        MinimalCompatibility::CapableToolchain { ref version, .. }
-            if config.output_toolchain_file() =>
-        {
+        MinimalCompatibility::CapableToolchain {
+            toolchain,
+            ref version,
+        } if config.output_toolchain_file() => {
+            let version_formatted = version.to_string();
+            info!(
+                toolchain = toolchain.as_str(),
+                version = version_formatted.as_str(),
+                "found minimal-compatible toolchain"
+            );
+
             output_toolchain_file(config, version)
         }
-        MinimalCompatibility::CapableToolchain { .. } => Ok(()),
+        MinimalCompatibility::CapableToolchain { toolchain, version } => {
+            let version = version.to_string();
+
+            info!(
+                toolchain = toolchain.as_str(),
+                version = version.as_str(),
+                "found minimal-compatible toolchain"
+            );
+
+            Ok(())
+        }
     }
 }
 
@@ -34,9 +54,15 @@ pub fn determine_msrv<R: Output>(
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
     let cmd = config.check_command_string();
-
     let releases = index.releases();
+    let included_releases = filter_releases(config, releases);
 
+    reporter.mode(ModeIntent::DetermineMSRV);
+    reporter.set_steps(included_releases.len() as u64);
+    determine_msrv_impl(config, &included_releases, &cmd, reporter)
+}
+
+fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
     let releases = if config.include_all_patch_releases() {
         releases.to_vec()
     } else {
@@ -48,7 +74,7 @@ pub fn determine_msrv<R: Output>(
     };
 
     // Pre-filter the [min-version:max-version] range
-    let included_releases = releases
+    releases
         .into_iter()
         .filter(|release| {
             include_version(
@@ -57,11 +83,7 @@ pub fn determine_msrv<R: Output>(
                 config.maximum_version(),
             )
         })
-        .collect::<Vec<_>>();
-
-    reporter.mode(ModeIntent::DetermineMSRV);
-    reporter.set_steps(included_releases.len() as u64);
-    determine_msrv_impl(config, &included_releases, &cmd, reporter)
+        .collect::<Vec<_>>()
 }
 
 fn determine_msrv_impl(
@@ -73,6 +95,7 @@ fn determine_msrv_impl(
     let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
 
     output.set_steps(included_releases.len() as u64);
+    info!(bisect_enabled = config.bisect());
 
     // Whether to perform a linear (most recent to least recent), or binary search
     if config.bisect() {

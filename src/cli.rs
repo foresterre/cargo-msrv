@@ -1,3 +1,4 @@
+use crate::config::TracingTargetOption;
 use clap::{App, AppSettings, Arg};
 
 use crate::fetch::is_target_available;
@@ -16,6 +17,8 @@ pub mod id {
     pub const ARG_VERIFY: &str = "verify_msrv";
     pub const ARG_RELEASE_SOURCE: &str = "release_source";
     pub const ARG_NO_LOG: &str = "no_log";
+    pub const ARG_LOG_LEVEL: &str = "log_level";
+    pub const ARG_LOG_TARGET: &str = "log_target";
     pub const ARG_NO_READ_MIN_EDITION: &str = "no_read_min_edition";
 
     pub const SUB_COMMAND_LIST: &str = "list";
@@ -142,6 +145,22 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .long("no-log")
             .help("Disable logging")
             .takes_value(false)
+        )
+        .arg(Arg::with_name(id::ARG_LOG_TARGET)
+            .long("log-target")
+            .help("Specify where the program should output its logs")
+            .takes_value(true)
+            .number_of_values(1)
+            .possible_values(&[TracingTargetOption::FILE, TracingTargetOption::STDOUT])
+            .default_value(TracingTargetOption::FILE)
+        )
+        .arg(Arg::with_name(id::ARG_LOG_LEVEL)
+            .long("log-level")
+            .help("Specify the verbosity of logs the program should output")
+            .takes_value(true)
+            .number_of_values(1)
+            .possible_values(&["error", "warn", "info", "debug", "trace"])
+            .default_value("info")
         )
         .arg(Arg::with_name(id::ARG_NO_READ_MIN_EDITION)
             .long("no-read-min-edition")
