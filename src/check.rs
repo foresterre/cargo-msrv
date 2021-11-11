@@ -143,17 +143,17 @@ fn try_building(
     output.complete_step(version, status.success());
 
     let toolchain = toolchain_specifier.to_owned();
-    let version = version.to_owned();
+    let version = version.clone();
 
-    if !status.success() {
+    if status.success() {
         Ok(Outcome {
-            result: Status::Failure,
+            result: Status::Success,
             toolchain,
             version,
         })
     } else {
         Ok(Outcome {
-            result: Status::Success,
+            result: Status::Failure,
             toolchain,
             version,
         })

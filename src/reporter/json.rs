@@ -24,7 +24,7 @@ impl<'s, 't> JsonPrinter<'s, 't> {
         }
     }
 
-    fn reason(&self, mode: ModeIntent) -> &'static str {
+    fn reason(mode: ModeIntent) -> &'static str {
         match mode {
             ModeIntent::DetermineMSRV => "msrv-complete",
             ModeIntent::VerifyMSRV => "verify-complete",
@@ -47,7 +47,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
             let _ = object.insert("check_cmd", JsonValue::String(cmd.to_string()));
         }
 
-        println!("{}", object)
+        println!("{}", object);
     }
 
     fn set_steps(&self, steps: u64) {
@@ -80,7 +80,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
                     let _ = object.insert("check_cmd", JsonValue::String(cmd.to_string()));
                 }
 
-                println!("{}", object)
+                println!("{}", object);
             }
             ProgressAction::FetchingIndex => println!(
                 "{}",
@@ -108,7 +108,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     }
 
     fn finish_success(&self, mode: ModeIntent, version: Option<&semver::Version>) {
-        let reason = self.reason(mode);
+        let reason = Self::reason(mode);
 
         let mut object = JsonValue::new_object();
         let _ = object.insert("reason", JsonValue::String(reason.to_string()));
@@ -124,11 +124,11 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
             let _ = object.insert("check_cmd", cmd.to_string());
         }
 
-        println!("{}", object)
+        println!("{}", object);
     }
 
     fn finish_failure(&self, mode: ModeIntent, _: Option<&str>) {
-        let reason = self.reason(mode);
+        let reason = Self::reason(mode);
 
         let mut object = JsonValue::new_object();
         let _ = object.insert("reason", reason);

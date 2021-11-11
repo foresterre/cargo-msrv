@@ -89,7 +89,7 @@ fn determine_msrv_impl(
             output.finish_success(ModeIntent::DetermineMSRV, Some(version));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd))
+            output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd));
         }
     }
 
@@ -147,16 +147,14 @@ fn test_against_releases_bisect(
     });
 
     // update compatibility
-    *compatibility = outcome?
-        .map(|i| {
-            let version = releases[i].version();
+    *compatibility = outcome?.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
+        let version = releases[i].version();
 
-            MinimalCompatibility::CapableToolchain {
-                toolchain: as_toolchain_specifier(version, config.target()),
-                version: version.clone(),
-            }
-        })
-        .unwrap_or(MinimalCompatibility::NoCompatibleToolchains);
+        MinimalCompatibility::CapableToolchain {
+            toolchain: as_toolchain_specifier(version, config.target()),
+            version: version.clone(),
+        }
+    });
 
     Ok(())
 }

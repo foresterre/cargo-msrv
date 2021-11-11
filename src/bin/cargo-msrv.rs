@@ -67,7 +67,7 @@ fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
 fn init_and_run(config: &Config) -> TResult<()> {
     tracing::info!("Running app");
 
-    let _ = match config.output_format() {
+    match config.output_format() {
         config::OutputFormat::Human => {
             let custom_cmd = config.check_command_string();
             let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);

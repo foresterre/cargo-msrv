@@ -28,7 +28,7 @@ pub(crate) struct DependencyGraph {
 impl DependencyGraph {
     pub fn empty(root_crate: PackageId) -> Self {
         Self {
-            index: Default::default(),
+            index: HashMap::default(),
             packages: PackageGraph::with_capacity(0, 0),
             root_crate,
         }
@@ -36,7 +36,7 @@ impl DependencyGraph {
 
     pub fn with_capacity(root_crate: PackageId, cap: usize) -> Self {
         Self {
-            index: Default::default(),
+            index: HashMap::default(),
             packages: PackageGraph::with_capacity(cap, cap),
             root_crate,
         }

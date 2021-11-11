@@ -41,7 +41,7 @@ impl<T: Output> DirectDependenciesFormatter<T> {
 
             let msrv = package
                 .rust_version
-                .to_owned()
+                .clone()
                 .map(|req| {
                     let comparator = &req.comparators[0];
                     crate::semver::Version::new(
@@ -60,7 +60,7 @@ impl<T: Output> DirectDependenciesFormatter<T> {
                 dependencies: package
                     .dependencies
                     .iter()
-                    .map(|d| d.name.to_owned())
+                    .map(|d| d.name.clone())
                     .collect(),
             };
 
@@ -75,7 +75,7 @@ impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::Huma
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies
         use comfy_table::presets::UTF8_FULL;
-        use comfy_table::*;
+        use comfy_table::{Cell, ContentArrangement, Table};
 
         let table = self.direct_dependencies_msrv(
             || {

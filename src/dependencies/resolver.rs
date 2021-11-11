@@ -33,7 +33,7 @@ impl DependencyResolver for CargoMetadataResolver {
         let our_crate = result
             .root_package()
             .ok_or(CargoMSRVError::NoCrateRootFound)
-            .map(|pkg| pkg.id.to_owned())?;
+            .map(|pkg| pkg.id.clone())?;
 
         if let Some(dependencies) = result.resolve {
             let node_alloc = dependencies.nodes.len();
@@ -60,7 +60,7 @@ where
 {
     // Add nodes to the petgraph
     for package in packages {
-        let package_id = package.id.to_owned();
+        let package_id = package.id.clone();
         let node_index = graph.packages.add_node(package);
         let _ = graph.index.insert(package_id, node_index.index());
     }

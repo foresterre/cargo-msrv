@@ -319,7 +319,7 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             None if matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
             None => {
                 let crate_folder = if let Some(ref path) = builder.inner.crate_path {
-                    Ok(path.to_path_buf())
+                    Ok(path.clone())
                 } else {
                     std::env::current_dir().map_err(CargoMSRVError::Io)
                 }?;
@@ -337,13 +337,13 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
                     .and_then(|package_table| package_table.get("edition"))
                     .and_then(Item::as_str)
                 {
-                    builder = builder.minimum_version(parse_version(edition)?)
+                    builder = builder.minimum_version(parse_version(edition)?);
                 }
             }
         }
 
         if let Some(max) = matches.value_of(id::ARG_MAX) {
-            builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?)
+            builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?);
         }
 
         builder = builder.bisect(matches.is_present(id::ARG_BISECT));
@@ -436,6 +436,6 @@ mod tests {
     )]
     fn parse_version(input: &str, expected_version: Version) {
         let version = super::super::parse_version(input).unwrap();
-        assert_eq!(version, expected_version)
+        assert_eq!(version, expected_version);
     }
 }

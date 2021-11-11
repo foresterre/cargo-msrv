@@ -4,7 +4,9 @@ use parameterized::parameterized;
 use rust_releases::{semver, Release};
 
 use cargo_msrv::MinimalCompatibility;
-use common::*;
+use common::{
+    run_cargo_version_which_doesnt_support_lockfile_v2, run_msrv, run_msrv_with_releases,
+};
 
 mod common;
 
@@ -157,7 +159,7 @@ fn msrv_with_old_lockfile() {
 }
 
 mod minimum_from_edition {
-    use super::*;
+    use super::{run_msrv_with_releases, semver, Release};
 
     #[test]
     fn msrv_min_with_edition_in_cargo_toml() {
