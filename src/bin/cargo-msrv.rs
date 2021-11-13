@@ -56,7 +56,7 @@ fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
     let mut guard = Option::None;
 
     if let Some(options) = config.tracing() {
-        let tracing_config = TracingConfig::try_from_options(&options)?;
+        let tracing_config = TracingConfig::try_from_options(options)?;
         guard = Some(init_tracing(&tracing_config)?);
     }
 
