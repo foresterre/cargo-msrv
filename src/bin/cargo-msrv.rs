@@ -8,10 +8,31 @@ use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::reporter;
 use cargo_msrv::{cli, run_app};
 
-fn main() {
-    if let Err(err) = _main(args) {
-        eprintln!("{}", err);
+enum ExitCode {
+    Success,
+    Failure,
+}
+
+impl From<ExitCode> for i32 {
+    fn from(code: ExitCode) -> Self {
+        match code {
+            ExitCode::Success => 0,
+            ExitCode::Failure => 1,
+        }
     }
+}
+
+fn main() {
+    std::process::exit(
+        match _main(args) {
+            Ok(_guard) => ExitCode::Success,
+            Err(err) => {
+                eprintln!("{}", err);
+                ExitCode::Failure
+            }
+        }
+        .into(),
+    );
 }
 
 // When we call cargo-msrv with cargo, cargo will supply the msrv subcommand, in addition
