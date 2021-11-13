@@ -8,12 +8,12 @@ use rust_releases::{semver, Release, ReleaseIndex};
 
 use cargo_msrv::config::{test_config_from_matches, Config, OutputFormat};
 use cargo_msrv::errors::TResult;
-use cargo_msrv::reporter;
-use cargo_msrv::reporter::__private::{NoOutput, SuccessOutput};
+use cargo_msrv::reporter::__private::SuccessOutput;
 use cargo_msrv::reporter::json::JsonPrinter;
+use cargo_msrv::reporter::no_output::NoOutput;
 use cargo_msrv::reporter::ui::HumanPrinter;
 use cargo_msrv::reporter::Output;
-use cargo_msrv::MinimalCompatibility;
+use cargo_msrv::{reporter, MinimalCompatibility};
 
 pub fn run_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
@@ -112,8 +112,8 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
         .expect("Unable to run MSRV process")
 }
 
-pub fn fake_reporter() -> reporter::__private::NoOutput {
-    reporter::__private::NoOutput
+pub fn fake_reporter() -> reporter::no_output::NoOutput {
+    reporter::no_output::NoOutput
 }
 
 pub fn test_reporter() -> reporter::__private::SuccessOutput {

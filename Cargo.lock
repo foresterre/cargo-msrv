@@ -137,6 +137,7 @@ dependencies = [
  "dirs",
  "indicatif",
  "json",
+ "once_cell",
  "parameterized",
  "petgraph",
  "rust-releases",

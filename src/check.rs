@@ -2,7 +2,7 @@ use std::path::Path;
 
 use rust_releases::semver;
 
-use crate::command::command;
+use crate::command::RustupCommand;
 use crate::config::Config;
 use crate::errors::{CargoMSRVError, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
@@ -46,6 +46,8 @@ pub fn check_toolchain<'a>(
     config: &'a Config,
     output: &'a impl Output,
 ) -> TResult<Outcome> {
+    info!(ignore_lockfile_enabled = config.ignore_lockfile());
+
     // temporarily move the lockfile if the user opted to ignore it, and it exists
     let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
     let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
@@ -92,7 +94,7 @@ fn examine_toolchain(
     )
 }
 
-#[tracing::instrument]
+#[instrument(skip(output, toolchain_specifier, version))]
 fn download_if_required(
     version: &semver::Version,
     toolchain_specifier: &str,
@@ -101,12 +103,28 @@ fn download_if_required(
     let toolchain = toolchain_specifier.to_owned();
     output.progress(ProgressAction::Installing(version));
 
-    tracing::info!("Installing toolchain {}", toolchain);
+    info!(
+        toolchain = toolchain_specifier,
+        version = format!("{}", version).as_str(),
+        "installing toolchain"
+    );
 
-    let status = command(&["install", "--profile", "minimal", &toolchain], None)
-        .and_then(|mut c| c.wait().map_err(CargoMSRVError::Io))?;
+    let rustup = RustupCommand::new()
+        .with_stdout()
+        .with_stderr()
+        .with_args(&["--profile", "minimal", &toolchain])
+        .install()?;
+
+    let status = rustup.exit_status();
 
     if !status.success() {
+        error!(
+            toolchain = toolchain_specifier,
+            stdout = rustup.stdout(),
+            stderr = rustup.stderr(),
+            "rustup failed to install toolchain"
+        );
+
         return Err(CargoMSRVError::RustupInstallFailed(
             toolchain_specifier.to_string(),
         ));
@@ -132,13 +150,19 @@ fn try_building(
     check: &[&str],
     output: &impl Output,
 ) -> TResult<Outcome> {
-    let mut cmd: Vec<&str> = vec!["run", toolchain_specifier];
+    let mut cmd: Vec<&str> = vec![toolchain_specifier];
     cmd.extend_from_slice(check);
 
-    let mut child = command(&cmd, dir).map_err(|_| CargoMSRVError::UnableToRunCheck)?;
     output.progress(ProgressAction::Checking(version));
 
-    let status = child.wait()?;
+    let rustup_output = RustupCommand::new()
+        .with_args(cmd.iter())
+        .with_optional_dir(dir)
+        .with_stderr()
+        .run()
+        .map_err(|_| CargoMSRVError::UnableToRunCheck)?;
+
+    let status = rustup_output.exit_status();
 
     output.complete_step(version, status.success());
 
@@ -152,6 +176,16 @@ fn try_building(
             version,
         })
     } else {
+        let stderr = rustup_output.stderr();
+        let command = cmd.join(" ");
+
+        info!(
+            toolchain = toolchain_specifier,
+            stderr,
+            cmd = command.as_str(),
+            "try_building run failed"
+        );
+
         Ok(Outcome {
             result: Status::Failure,
             toolchain,

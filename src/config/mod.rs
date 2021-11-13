@@ -16,7 +16,7 @@ pub enum OutputFormat {
     Human,
     /// Json status updates printed to stdout
     Json,
-    /// No output -- meant to be used for testing
+    /// No output -- meant to be used for debugging and testing
     None,
     /// Save all versions tested and save success result for all runs -- meant to be used for testing
     TestSuccesses,
@@ -25,6 +25,17 @@ pub enum OutputFormat {
 impl Default for OutputFormat {
     fn default() -> Self {
         Self::Human
+    }
+}
+
+impl OutputFormat {
+    pub const JSON: &'static str = "json";
+    pub const NONE: &'static str = "void";
+
+    /// A set of formats which may be given as a configuration option
+    ///   through the CLI.
+    pub fn custom_formats() -> &'static [&'static str] {
+        &[Self::JSON, Self::NONE]
     }
 }
 
@@ -66,6 +77,15 @@ pub enum ReleaseSource {
     RustDist,
 }
 
+impl From<ReleaseSource> for &'static str {
+    fn from(value: ReleaseSource) -> Self {
+        match value {
+            ReleaseSource::RustChangelog => "rust-changelog",
+            ReleaseSource::RustDist => "rust-dist",
+        }
+    }
+}
+
 impl TryFrom<&str> for ReleaseSource {
     type Error = CargoMSRVError;
 
@@ -92,7 +112,7 @@ pub struct Config<'a> {
     ignore_lockfile: bool,
     output_format: OutputFormat,
     release_source: ReleaseSource,
-    no_tracing: bool,
+    tracing_config: Option<TracingOptions>,
     no_read_min_edition: Option<semver::Version>,
 
     sub_command_config: SubCommandConfig,
@@ -113,7 +133,7 @@ impl<'a> Config<'a> {
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
-            no_tracing: false,
+            tracing_config: None,
             no_read_min_edition: None,
             sub_command_config: SubCommandConfig::None,
         }
@@ -171,8 +191,9 @@ impl<'a> Config<'a> {
         self.release_source
     }
 
-    pub fn no_tracing(&self) -> bool {
-        self.no_tracing
+    /// Options as to configure tracing (and logging) settings. If absent, tracing will be disabled.
+    pub fn tracing(&self) -> Option<&TracingOptions> {
+        self.tracing_config.as_ref()
     }
 
     pub fn no_read_min_version(&self) -> Option<&semver::Version> {
@@ -256,8 +277,8 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn no_tracing(mut self, choice: bool) -> Self {
-        self.inner.no_tracing = choice;
+    pub fn tracing_config(mut self, cfg: TracingOptions) -> Self {
+        self.inner.tracing_config = Some(cfg);
         self
     }
 
@@ -358,7 +379,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         let output_format = matches.value_of(id::ARG_OUTPUT_FORMAT);
         if let Some(output_format) = output_format {
             let output_format = match output_format {
-                "json" => OutputFormat::Json,
+                OutputFormat::JSON => OutputFormat::Json,
+                OutputFormat::NONE => OutputFormat::None,
                 _ => unreachable!(),
             };
 
@@ -371,7 +393,20 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             builder = builder.release_source(release_source);
         }
 
-        builder = builder.no_tracing(matches.is_present(id::ARG_NO_LOG));
+        //
+        if !matches.is_present(id::ARG_NO_LOG) {
+            let mut config = TracingOptions::default();
+
+            if let Some(log_target) = matches.value_of(id::ARG_LOG_TARGET) {
+                config.target = TracingTargetOption::from_str(log_target);
+            }
+
+            if let Some(level) = matches.value_of(id::ARG_LOG_LEVEL) {
+                config.level = parse_log_level(level);
+            }
+
+            builder = builder.tracing_config(config);
+        }
 
         if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
             let cmd_config = ListCmdConfig::try_from_args(cmd)?;
@@ -389,6 +424,10 @@ fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
         "2021" => Ok(semver::Version::new(1, 56, 0)),
         s => semver::Version::parse(s),
     }
+}
+
+fn parse_log_level(input: &str) -> tracing::Level {
+    input.parse().unwrap_or(tracing::Level::INFO)
 }
 
 macro_rules! as_sub_command_config {
@@ -413,6 +452,53 @@ pub enum SubCommandConfig {
 
 impl SubCommandConfig {
     as_sub_command_config!(list, ListConfig, ListCmdConfig);
+}
+
+#[derive(Debug, Clone)]
+pub struct TracingOptions {
+    target: TracingTargetOption,
+    level: tracing::Level,
+}
+
+impl Default for TracingOptions {
+    fn default() -> Self {
+        Self {
+            target: TracingTargetOption::File,
+            level: tracing::Level::INFO,
+        }
+    }
+}
+
+impl TracingOptions {
+    pub fn target(&self) -> &TracingTargetOption {
+        &self.target
+    }
+
+    pub fn level(&self) -> &tracing::Level {
+        &self.level
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum TracingTargetOption {
+    File,
+    Stdout,
+}
+
+impl TracingTargetOption {
+    pub const FILE: &'static str = "file";
+    pub const STDOUT: &'static str = "stdout";
+
+    /// Parse the tracing target option from a string.
+    ///
+    /// NB: Panics if not a valid input
+    fn from_str(input: &str) -> Self {
+        match input {
+            Self::FILE => Self::File,
+            Self::STDOUT => Self::Stdout,
+            _ => unimplemented!(),
+        }
+    }
 }
 
 #[cfg(test)]

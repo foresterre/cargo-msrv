@@ -1,7 +1,12 @@
 #![deny(clippy::all)]
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
-use rust_releases::{semver, Channel, FetchResources, RustChangelog, RustDist, Source};
+#[macro_use]
+extern crate tracing;
+
+use rust_releases::{
+    semver, Channel, FetchResources, ReleaseIndex, RustChangelog, RustDist, Source,
+};
 
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
@@ -32,6 +37,18 @@ pub(crate) mod subcommands;
 pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     reporter.progress(ProgressAction::FetchingIndex);
 
+    let index = fetch_index(config)?;
+    run_action(config, &index, reporter)
+}
+
+fn fetch_index(config: &Config) -> TResult<ReleaseIndex> {
+    let source = config.release_source();
+
+    info!(
+        source = Into::<&'static str>::into(source),
+        "fetching index"
+    );
+
     let index = match config.release_source() {
         ReleaseSource::RustChangelog => {
             RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
@@ -39,9 +56,20 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
         ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
     };
 
-    match config.action_intent() {
-        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, &index),
-        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, &index),
+    Ok(index)
+}
+
+fn run_action<R: Output>(config: &Config, index: &ReleaseIndex, reporter: &R) -> TResult<()> {
+    let action = config.action_intent();
+
+    info!(
+        action = Into::<&'static str>::into(action),
+        "running action"
+    );
+
+    match action {
+        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, index),
+        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, index),
         ModeIntent::List => run_list_msrv(config, reporter),
         ModeIntent::Show => run_show_msrv(config, reporter),
     }
