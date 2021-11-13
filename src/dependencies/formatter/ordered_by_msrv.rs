@@ -50,7 +50,6 @@ impl<T: Output> ByMSRVFormatter<T> {
         let root = dependency_graph.index[root];
         let graph = &dependency_graph.packages;
 
-        // let mut direct_deps = graph.neighbors_directed(root.into(), Direction::Outgoing);
         let mut bfs = Bfs::new(&graph, root.into());
 
         let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
