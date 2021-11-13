@@ -89,8 +89,9 @@ fn init_and_run(config: &Config) -> TResult<()> {
             run_app(config, &reporter)
         }
         config::OutputFormat::None => {
-            // for testing without any output
-            let reporter = reporter::__private::NoOutput;
+            // To disable regular output. Useful when outputting logs to stdout, as the
+            //   regular output and the log output may otherwise interfere with each other.
+            let reporter = reporter::no_output::NoOutput;
 
             run_app(config, &reporter)
         }

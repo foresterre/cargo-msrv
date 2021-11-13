@@ -1,4 +1,4 @@
-use crate::config::TracingTargetOption;
+use crate::config::{OutputFormat, TracingTargetOption};
 use clap::{App, AppSettings, Arg};
 
 use crate::fetch::is_target_available;
@@ -121,7 +121,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .long("output-format")
             .help("Output status messages in machine-readable format")
             .takes_value(true)
-            .possible_values(&["json"])
+            .possible_values(OutputFormat::custom_formats())
             .long_help("Output status messages in machine-readable format. \
         Machine-readable status updates will be printed in the requested format to stdout.")
         )

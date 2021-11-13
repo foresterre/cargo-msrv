@@ -16,7 +16,7 @@ pub enum OutputFormat {
     Human,
     /// Json status updates printed to stdout
     Json,
-    /// No output -- meant to be used for testing
+    /// No output -- meant to be used for debugging and testing
     None,
     /// Save all versions tested and save success result for all runs -- meant to be used for testing
     TestSuccesses,
@@ -25,6 +25,17 @@ pub enum OutputFormat {
 impl Default for OutputFormat {
     fn default() -> Self {
         Self::Human
+    }
+}
+
+impl OutputFormat {
+    pub const JSON: &'static str = "json";
+    pub const NONE: &'static str = "void";
+
+    /// A set of formats which may be given as a configuration option
+    ///   through the CLI.
+    pub fn custom_formats() -> &'static [&'static str] {
+        &[Self::JSON, Self::NONE]
     }
 }
 
@@ -368,7 +379,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         let output_format = matches.value_of(id::ARG_OUTPUT_FORMAT);
         if let Some(output_format) = output_format {
             let output_format = match output_format {
-                "json" => OutputFormat::Json,
+                OutputFormat::JSON => OutputFormat::Json,
+                OutputFormat::NONE => OutputFormat::None,
                 _ => unreachable!(),
             };
 

@@ -5,6 +5,7 @@ use rust_releases::semver;
 use crate::config::ModeIntent;
 
 pub mod json;
+pub mod no_output;
 pub mod ui;
 
 #[derive(Debug, Clone, Copy)]
@@ -38,20 +39,6 @@ pub mod __private {
 
     use crate::config::ModeIntent;
     use crate::reporter::{Output, ProgressAction};
-
-    /// This is meant to be used for testing
-    #[derive(Debug)]
-    pub struct NoOutput;
-
-    impl Output for NoOutput {
-        fn mode(&self, _action: ModeIntent) {}
-        fn set_steps(&self, _steps: u64) {}
-        fn progress(&self, _action: ProgressAction) {}
-        fn complete_step(&self, _version: &semver::Version, _success: bool) {}
-        fn finish_success(&self, _mode: ModeIntent, _version: Option<&semver::Version>) {}
-        fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {}
-        fn write_line(&self, _content: &str) {}
-    }
 
     /// This is meant to be used for testing
     #[derive(Debug)]
