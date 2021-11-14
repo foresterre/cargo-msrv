@@ -4,7 +4,7 @@ use rust_releases::semver;
 
 use crate::command::RustupCommand;
 use crate::config::Config;
-use crate::errors::{CargoMSRVError, TResult};
+use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::paths::crate_root_folder;
 use crate::reporter::{Output, ProgressAction};
@@ -137,7 +137,14 @@ fn remove_lockfile(config: &Config) -> TResult<()> {
     let lock_file = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
 
     if lock_file.is_file() {
-        std::fs::remove_file(lock_file).map_err(CargoMSRVError::Io)?;
+        std::fs::remove_file(&lock_file).map_err(|err| {
+            CargoMSRVError::Io(
+                err,
+                IoErrorSource::RemoveFile {
+                    path: lock_file.clone(),
+                },
+            )
+        })?;
     }
 
     Ok(())

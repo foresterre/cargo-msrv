@@ -5,7 +5,7 @@ use toml_edit::Document;
 
 use crate::check::{check_toolchain, Outcome};
 use crate::config::{Config, ModeIntent};
-use crate::errors::{CargoMSRVError, TResult};
+use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
 use crate::reporter::Output;
@@ -19,7 +19,14 @@ pub fn run_verify_msrv_action<R: Output>(
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
 
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(CargoMSRVError::Io)?;
+    let contents = std::fs::read_to_string(&cargo_toml).map_err(|err| {
+        CargoMSRVError::Io(
+            err,
+            IoErrorSource::ReadFile {
+                path: cargo_toml.clone(),
+            },
+        )
+    })?;
 
     let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
     let manifest = CargoManifest::try_from(manifest)?;
