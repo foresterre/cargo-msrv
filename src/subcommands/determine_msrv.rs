@@ -3,7 +3,7 @@ use rust_releases::{semver, Release, ReleaseIndex};
 
 use crate::check::{as_toolchain_specifier, check_toolchain};
 use crate::config::{Config, ModeIntent};
-use crate::errors::{CargoMSRVError, TResult};
+use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::paths::crate_root_folder;
 use crate::reporter::{Output, ProgressAction};
 use crate::result::MinimalCompatibility;
@@ -224,7 +224,8 @@ channel = "{}"
         stable_version
     );
 
-    std::fs::write(&path, content)?;
+    std::fs::write(&path, content)
+        .map_err(|err| CargoMSRVError::Io(err, IoErrorSource::WriteFile { path: path.clone() }))?;
     eprintln!("Written toolchain file to '{}'", &path.display());
 
     Ok(())

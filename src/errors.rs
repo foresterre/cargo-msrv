@@ -1,5 +1,6 @@
 use std::env;
 use std::error::Error;
+use std::ffi::OsString;
 use std::fmt;
 use std::fmt::Formatter;
 use std::io;
@@ -17,7 +18,7 @@ pub enum CargoMSRVError {
     DefaultHostTripleNotFound,
     Env(env::VarError),
     GenericMessage(String),
-    Io(io::Error),
+    Io(io::Error, IoErrorSource),
     InvalidConfig(String),
     InvalidRustVersionNumber(std::num::ParseIntError),
     InvalidUTF8(FromUtf8Error),
@@ -56,7 +57,7 @@ impl fmt::Display for CargoMSRVError {
             CargoMSRVError::DefaultHostTripleNotFound => write!(f, "The default host triple (target) could not be found."),
             CargoMSRVError::Env(err) => err.fmt(f),
             CargoMSRVError::GenericMessage(msg) => write!(f, "{}", msg.as_str()),
-            CargoMSRVError::Io(err) => err.fmt(f),
+            CargoMSRVError::Io(err, source) => write!(f, "IO error: '{}'. caused by: '{}'.", err, source),
             CargoMSRVError::InvalidConfig(msg) => write!(f, "{}", msg),
             CargoMSRVError::InvalidRustVersionNumber(err) => err.fmt(f),
             CargoMSRVError::InvalidUTF8(err) => err.fmt(f),
@@ -91,6 +92,37 @@ Thank you in advance!"#, command.as_str()),
     }
 }
 
+#[derive(Debug)]
+pub enum IoErrorSource {
+    CurrentDir,
+    ReadFile { path: PathBuf },
+    WriteFile { path: PathBuf },
+    RemoveFile { path: PathBuf },
+    RenameFile { path: PathBuf },
+    SpawnProcess { name: OsString },
+    WaitForProcessAndCollectOutput { name: OsString },
+}
+
+impl fmt::Display for IoErrorSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::CurrentDir => write!(f, "Unable to determine current working directory"),
+            Self::ReadFile { path } => write!(f, "Unable to read file '{}'", path.display()),
+            Self::WriteFile { path } => write!(f, "Unable to write file '{}'", path.display()),
+            Self::RemoveFile { path } => write!(f, "Unable to remove file '{}'", path.display()),
+            Self::RenameFile { path } => write!(f, "Unable to rename file '{}'", path.display()),
+            Self::SpawnProcess { name } => write!(f, "Unable to spawn process '{:?}'", name),
+            Self::WaitForProcessAndCollectOutput { name } => {
+                write!(
+                    f,
+                    "Unable to collect output from '{:?}', or process did not terminate properly",
+                    name
+                )
+            }
+        }
+    }
+}
+
 impl Error for CargoMSRVError {}
 
 impl From<String> for CargoMSRVError {
@@ -108,12 +140,6 @@ impl From<cargo_metadata::Error> for CargoMSRVError {
 impl From<env::VarError> for CargoMSRVError {
     fn from(err: env::VarError) -> Self {
         CargoMSRVError::Env(err)
-    }
-}
-
-impl From<io::Error> for CargoMSRVError {
-    fn from(err: io::Error) -> Self {
-        CargoMSRVError::Io(err)
     }
 }
 
