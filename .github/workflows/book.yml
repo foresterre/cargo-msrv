@@ -1,0 +1,31 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+name: Book
+
+jobs:
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout_repository
+        uses: actions/checkout@v2.4.0
+
+      - name: setup_mdbook
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: '0.4.13'
+
+      - name: build_mdbook
+        run: |
+          cd book
+          mdbook build
+
+      - name: deploy_mdbook
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./book
