@@ -20,8 +20,8 @@ rust-version = "1.56"
 
 For crates which have an MSRV prior to Rust 1.56, you can use the `package.metadata.msrv` key in the `Cargo.toml` manifest
 instead. The `package.metadata` table exists specifically for tools like cargo-msrv, and within this table, 
-Cargo will not warn about keys it does not understand. Note that this key is tailored to cargo-msrv and may not be supported
-by other tools.
+Cargo will not warn about keys it does not understand. Note that the use of this key is tailored to cargo-msrv and may
+not be supported by other tools.
 
 ```toml
 [package.metadata]
@@ -35,18 +35,22 @@ or pre-release identifiers. For example, `1.56` and `1.56.0` are both valid, whi
 
 **`--variant` variant**
 
-Type of list to print.
+Type of table to print.
 
-The `variant` must be one of: `direct-deps` or `ordered-by-msrv` (default).
+The `variant` must be one of: `ordered-by-msrv` (default) or `direct-deps`.
 
-When the `variant` is `direct-deps`, the program will print a table which lists the following properties for each direct-dependency
-of the given crate: the name of the dependency, the version of the dependency, the MSRV (blank if not specified), it's dependencies.
+When the `variant` is `ordered-by-msrv`, the program will print a table which lists the MSRV for both
+direct and transitive dependencies. The table is sorted by MSRV. When a crate author did not specify an MSRV yet, the
+cell in the MSRV row will be empty.
 
-When the `variant` is `ordered-by-msrv`, the program will print a table
+When the `variant` is `direct-deps`, the program will print a table which lists the following properties for each
+direct-dependency of the given crate: the name of the dependency, the version of the dependency, the MSRV (empty if not
+specified), it's dependencies.
+
 
 # EXAMPLES
 
-1. List the MSRV's for both direct and transitive dependencies, grouped by MSRV
+1. List the MSRV's for both direct and transitive dependencies, grouped by MSRV.
 
 ```shell
 cargo msrv list
