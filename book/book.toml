@@ -1,0 +1,6 @@
+[book]
+authors = ["Martijn Gribnau"]
+language = "en"
+multilingual = false
+src = "src"
+title = "The cargo-msrv Book 🦀"
