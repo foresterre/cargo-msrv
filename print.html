@@ -1,0 +1,420 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The cargo-msrv Book 🦀</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/run.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The cargo-msrv Book 🦀</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/foresterre/cargo-msrv" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>🚧 Section is work-in-progress.</p>
+<h1 id="-introduction"><a class="header" href="#-introduction">✨ Introduction</a></h1>
+<p><code>cargo-msrv</code> is a program which can help you find the MSRV for a Rust crate.</p>
+<p>MSRV stands for 'Minimum Supported Rust Version', which is exactly what it says on the tin: the earliest
+Rust release which a given Rust crate promises to support. Most often support for earlier Rust versions is
+limited by newly introduced Rust language features, library functions or Rust editions.</p>
+<p>For example, if you want to use const generics and be generic over integers, bool's or char's, you must use a Rust
+compiler which supports the const generics MVP. This feature was introduced in <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp">Rust 1.51</a>.
+If you do not have any other code, or configuration, which requires an even newer Rust release, your MSRV would
+be '1.51'.</p>
+<p>While the MSRV has been a well-known concept within the Rust community for a long time, it was also introduced to the
+Cargo build tool and package manager, as the <code>rust-version</code> in <a href="https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-156-2021-10-21">Cargo 1.56</a>,
+which is part of the <a href="https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html#cargo-rust-version">Rust 1.56</a> release
+distribution.</p>
+<h1 id="-how-it-works"><a class="header" href="#-how-it-works">🔬 How it works</a></h1>
+<p>⚠️work-in-progress</p>
+<h1 id="-thanks"><a class="header" href="#-thanks">🥰 Thanks</a></h1>
+<p>Thanks for using cargo-msrv! If you found an issue, or have an issue request, or any other question, feel free to open
+an issue at our GitHub <a href="https://github.com/foresterre/cargo-msrv/issues">repository</a>.</p>
+<p>A special thanks goes to everyone who took the time to report an issue, discuss new features and contributed to the
+documentation or the code! Thank you!</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="getting-started-with-cargo-msrv"><a class="header" href="#getting-started-with-cargo-msrv">Getting started with cargo-msrv</a></h2>
+<ul>
+<li><a href="getting-started/installation.html">Installation</a></li>
+<li><a href="getting-started/quick-start.html">Quick Start</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="-installation"><a class="header" href="#-installation">🌞 Installation</a></h2>
+<h3 id="using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa"><a class="header" href="#using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa">Using <a href="https://doc.rust-lang.org/cargo/commands/cargo-install.html">Cargo</a>:</a></h3>
+<p>You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool (<a href="getting-started/TODO">package</a>).</p>
+<p><strong>How to install the latest stable release?</strong></p>
+<pre><code class="language-shell">cargo install cargo-msrv
+</code></pre>
+<p><strong>How to install the latest development release?</strong></p>
+<p>You may install <em>cargo-msrv</em> from Github:</p>
+<pre><code class="language-shell">cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
+</code></pre>
+<h3 id="aur-arch-linux"><a class="header" href="#aur-arch-linux">AUR (Arch Linux)</a></h3>
+<p>cargo-msrv is available from the Arch Linux user repository (<a href="https://aur.archlinux.org/packages/cargo-msrv/">AUR</a>).</p>
+<p><strong>How to install?</strong></p>
+<pre><code class="language-shell">paru -S cargo-msrv
+</code></pre>
+<p><em>NB: This distribution is not maintained by the cargo-msrv maintainers</em>.</p>
+<h3 id="nix"><a class="header" href="#nix">Nix</a></h3>
+<p>cargo-msrv is available from the Nix package manager and in NixOS (<a href="https://search.nixos.org/packages?channel=21.05&amp;show=cargo-msrv&amp;from=0&amp;size=50&amp;sort=relevance&amp;type=packages&amp;query=cargo-msrv">package</a>):</p>
+<p><strong>How to install (nixpkgs)?</strong></p>
+<pre><code class="language-shell">nix-env -iA nixpkgs.cargo-msrv
+</code></pre>
+<p><strong>How to install (NixOS)?</strong></p>
+<pre><code class="language-shell">nix-env -iA nixos.cargo-msrv
+</code></pre>
+<h3 id="other-options"><a class="header" href="#other-options">Other options</a></h3>
+<p>You may also build the program from source by cloning the <a href="https://github.com/foresterre/cargo-msrv">repository</a>
+and building a release from there.</p>
+<p><strong>How to build a release?</strong></p>
+<pre><code class="language-shell">git clone git@github.com:foresterre/cargo-msrv.git
+git checkout v0.12.0 # NB: Find the latest release tag here: https://github.com/foresterre/cargo-msrv/tags
+cd cargo-msrv
+cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./target/cargo-msrv ./my/install/directory
+</code></pre>
+<p><strong>How to build the latest development version from source?</strong></p>
+<pre><code class="language-shell">git clone git@github.com:foresterre/cargo-msrv.git
+cd cargo-msrv
+cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./target/cargo-msrv ./my/install/directory
+</code></pre>
+<p>You may find additional installation options in the <a href="https://github.com/foresterre/cargo-msrv#install">README</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="-quick-start"><a class="header" href="#-quick-start">⏱️ Quick start</a></h3>
+<p>If all you want to do is find the MSRV for your package, you can run:</p>
+<pre><code class="language-shell">cargo msrv --bisect
+</code></pre>
+<p>This command will attempt to determine the MSRV by doing a binary search on
+acceptable Rust releases. If you require additional options, please refer to the 
+<a href="getting-started/../commands/index.html"><code>cargo-msrv commands</code></a> section.</p>
+<div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
+<h1 id="-concepts"><a class="header" href="#-concepts">🌱 Concepts</a></h1>
+<h2 id="rust-releases-index"><a class="header" href="#rust-releases-index">Rust Releases Index</a></h2>
+<h3 id="source"><a class="header" href="#source">Source</a></h3>
+<ul>
+<li>rust-changelog (default)</li>
+<li>rust-dist</li>
+</ul>
+<h2 id="resolver"><a class="header" href="#resolver">Resolver</a></h2>
+<ul>
+<li>run-toolchain resolver (default): resolver which runs actual toolchains against a crate</li>
+<li>rust-version resolver: author defined resolver, used by <code>cargo-msrv list</code></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
+<h1 id="-cargo-msrv-commands"><a class="header" href="#-cargo-msrv-commands">🕹️ cargo-msrv commands</a></h1>
+<ul>
+<li><a href="commands/./run.html">cargo-msrv</a></li>
+<li><a href="commands/./help.html">cargo-msrv help</a></li>
+<li><a href="commands/./list.html">cargo-msrv list</a></li>
+</ul>
+<h1 id="program-wide-options"><a class="header" href="#program-wide-options">Program wide options</a></h1>
+<p>⚠ work-in-progress.</p>
+<div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
+<h1 id="cargo-msrv"><a class="header" href="#cargo-msrv">cargo-msrv</a></h1>
+<h1 id="description"><a class="header" href="#description">DESCRIPTION</a></h1>
+<p>Find the MSRV for your project.</p>
+<h2 id="options"><a class="header" href="#options">OPTIONS</a></h2>
+<h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
+<!-- ## SEE ALSO --><div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-help"><a class="header" href="#cargo-msrv-help">cargo-msrv help</a></h1>
+<h1 id="command"><a class="header" href="#command">COMMAND</a></h1>
+<ul>
+<li>Standalone: <code>cargo-msrv help [subcommand]</code></li>
+<li>Through Cargo: <code>cargo msrv help [subcommand]</code> </li>
+</ul>
+<h1 id="description-1"><a class="header" href="#description-1">DESCRIPTION</a></h1>
+<p>Help users navigate the cargo-msrv CLI by printing a help message.</p>
+<!-- # OPTIONS -->
+<h1 id="examples-1"><a class="header" href="#examples-1">EXAMPLES</a></h1>
+<ol>
+<li>Get help for cargo-msrv</li>
+</ol>
+<pre><code class="language-shell">cargo msrv help # OR cargo msrv --help
+</code></pre>
+<ol start="2">
+<li>Get help for a cargo-msrv subcommand, for example <code>list</code>:</li>
+</ol>
+<pre><code class="language-shell">cargo msrv help list # OR cargo msrv list --help
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list">cargo-msrv list</a></h1>
+<h1 id="command-1"><a class="header" href="#command-1">COMMAND</a></h1>
+<ul>
+<li>Standalone: <code>cargo-msrv list [options]</code></li>
+<li>Through Cargo: <code>cargo msrv list [options]</code></li>
+</ul>
+<h1 id="description-2"><a class="header" href="#description-2">DESCRIPTION</a></h1>
+<p>List the author specified MSRV for each depended-upon package.</p>
+<p>Authors may specify the MSRV for their crate by adding the <code>package.rust-version</code> key to the <code>Cargo.toml</code> manifest.
+See the <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field">Cargo book</a> for more. This value
+is supported from Rust 1.56 onwards. </p>
+<pre><code class="language-toml">[package]
+rust-version = &quot;1.56&quot;
+</code></pre>
+<p>For crates which have an MSRV prior to Rust 1.56, you can use the <code>package.metadata.msrv</code> key in the <code>Cargo.toml</code> manifest
+instead. The <code>package.metadata</code> table exists specifically for tools like cargo-msrv, and within this table, 
+Cargo will not warn about keys it does not understand. Note that this key is tailored to cargo-msrv and may not be supported
+by other tools.</p>
+<pre><code class="language-toml">[package.metadata]
+msrv = &quot;1.53.0&quot;
+</code></pre>
+<p>Both <code>package.rust-version</code> and <code>package.metadata.msrv</code> require a two or three component version number, without semver operators
+or pre-release identifiers. For example, <code>1.56</code> and <code>1.56.0</code> are both valid, while <code>^1.56.0</code> and <code>1.56.0-beta</code> are not.</p>
+<h1 id="options-1"><a class="header" href="#options-1">OPTIONS</a></h1>
+<p><strong><code>--variant</code> variant</strong></p>
+<p>Type of list to print.</p>
+<p>The <code>variant</code> must be one of: <code>direct-deps</code> or <code>ordered-by-msrv</code> (default).</p>
+<p>When the <code>variant</code> is <code>direct-deps</code>, the program will print a table which lists the following properties for each direct-dependency
+of the given crate: the name of the dependency, the version of the dependency, the MSRV (blank if not specified), it's dependencies.</p>
+<p>When the <code>variant</code> is <code>ordered-by-msrv</code>, the program will print a table</p>
+<h1 id="examples-2"><a class="header" href="#examples-2">EXAMPLES</a></h1>
+<ol>
+<li>List the MSRV's for both direct and transitive dependencies, grouped by MSRV</li>
+</ol>
+<pre><code class="language-shell">cargo msrv list
+</code></pre>
+<p>Output for cargo-msrv commit c76b45a7ae39b52294e303eca6da56fda45b3feb:</p>
+<pre><code class="language-text">Fetching index
+┌────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ MSRV   ┆ Dependency                                                                                                                                │
+╞════════╪═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╡
+│        ┆ typed-builder, tracing-subscriber, tracing-appender, tracing, toml_edit, petgraph, once_cell, json, indicatif, dirs, console,             │
+│        ┆ comfy-table, clap, cargo_metadata, tracing-serde, tracing-log, tracing-core, thread_local, smallvec, sharded-slab, serde_json, serde,     │
+│        ┆ ansi_term, time, crossbeam-channel, tracing-attributes, pin-project-lite, cfg-if, kstring, itertools, indexmap, combine,                  │
+│        ┆ rust-releases-rust-dist, rust-releases-rust-changelog, rust-releases-core, fixedbitset, regex, number_prefix, lazy_static, dirs-sys,      │
+│        ┆ winapi, unicode-width, terminal_size, libc, encode_unicode, strum_macros, strum, crossterm, vec_map, textwrap, strsim, bitflags, atty,    │
+│        ┆ ansi_term, semver, cargo-platform, camino, unicode-xid, log, ryu, itoa, serde_derive, crossbeam-utils, either, hashbrown, autocfg,        │
+│        ┆ memchr, bytes, tokio, rust-releases-io, rusoto_s3, rusoto_core, chrono, regex-syntax, aho-corasick, redox_users,                          │
+│        ┆ winapi-x86_64-pc-windows-gnu, winapi-i686-pc-windows-gnu, heck, signal-hook-mio, signal-hook, parking_lot, mio, crossterm_winapi,         │
+│        ┆ hermit-abi, tokio-macros, signal-hook-registry, num_cpus, directories-next, attohttpc, xml-rs, futures, async-trait, rustc_version,       │
+│        ┆ rusoto_signature, rusoto_credential, hyper-tls, hyper, http, crc32fast, base64, time, num-traits, num-integer, redox_syscall, getrandom,  │
+│        ┆ unicode-segmentation, parking_lot_core, lock_api, instant, ntapi, miow, dirs-sys-next, wildmatch, url, openssl, native-tls, flate2,       │
+│        ┆ futures-util, futures-task, futures-sink, futures-io, futures-executor, futures-core, futures-channel, semver, time, sha2,                │
+│        ┆ percent-encoding, md5, hmac, hex, zeroize, shlex, dirs-next, tokio-native-tls, want, tower-service, socket2, httpdate, httparse,          │
+│        ┆ http-body, fnv, wasi, scopeguard, matches, idna, form_urlencoded, openssl-sys, foreign-types, tempfile, security-framework-sys,           │
+│        ┆ security-framework, schannel, openssl-probe, miniz_oxide, slab, proc-macro-nested, proc-macro-hack, pin-utils, futures-macro,             │
+│        ┆ semver-parser, version_check, time-macros, stdweb, standback, const_fn, opaque-debug, digest, cpufeatures, block-buffer, crypto-mac,      │
+│        ┆ try-lock, unicode-normalization, unicode-bidi, vcpkg, pkg-config, cc, foreign-types-shared, remove_dir_all, rand, core-foundation-sys,    │
+│        ┆ core-foundation, adler, time-macros-impl, wasm-bindgen, stdweb-internal-runtime, stdweb-internal-macros, stdweb-derive, discard,          │
+│        ┆ generic-array, subtle, tinyvec, rand_hc, rand_core, rand_chacha, wasm-bindgen-macro, sha1, base-x, typenum, tinyvec_macros, ppv-lite86,   │
+│        ┆ wasm-bindgen-macro-support, wasm-bindgen-shared, wasm-bindgen-backend, bumpalo                                                            │
+├╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ 1.31.0 ┆ syn, quote, proc-macro2, thiserror, thiserror-impl                                                                                        │
+├╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ 1.51.0 ┆ rust-releases                                                                                                                             │
+├╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ 1.53.0 ┆ cargo-msrv                                                                                                                                │
+└────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+</code></pre>
+<p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
+dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
+<ol start="2">
+<li>List the MSRV's for your direct dependencies using </li>
+</ol>
+<pre><code class="language-shell">cargo msrv list --variant direct-deps
+</code></pre>
+<p>Output for cargo-msrv commit c76b45a7ae39b52294e303eca6da56fda45b3feb:</p>
+<pre><code class="language-text">Fetching index
+┌────────────────────┬─────────┬────────┬──────────────────────────────────────────────────────────────────────────────┐
+│ Dependency         ┆ Version ┆ MSRV   ┆ Depends on                                                                   │
+╞════════════════════╪═════════╪════════╪══════════════════════════════════════════════════════════════════════════════╡
+│ typed-builder      ┆ 0.9.1   ┆        ┆ proc-macro2, quote, syn                                                      │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ tracing-subscriber ┆ 0.3.1   ┆        ┆ ansi_term, lazy_static, matchers, parking_lot, regex, serde, serde_json,     │
+│                    ┆         ┆        ┆ sharded-slab, smallvec, thread_local, time, tracing, tracing-core,           │
+│                    ┆         ┆        ┆ tracing-log, tracing-serde, criterion, log, regex, time, tokio, tracing,     │
+│                    ┆         ┆        ┆ tracing-futures, tracing-log                                                 │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ tracing-appender   ┆ 0.2.0   ┆        ┆ crossbeam-channel, time, tracing-subscriber, tempfile, time, tracing         │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ tracing            ┆ 0.1.29  ┆        ┆ cfg-if, log, pin-project-lite, tracing-attributes, tracing-core, criterion,  │
+│                    ┆         ┆        ┆ futures, log, tokio, wasm-bindgen-test                                       │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ toml_edit          ┆ 0.8.0   ┆        ┆ combine, indexmap, itertools, kstring, serde, criterion, pretty_assertions,  │
+│                    ┆         ┆        ┆ serde_json, toml, toml-test-harness                                          │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ rust-releases      ┆ 0.16.1  ┆ 1.51.0 ┆ rust-releases-channel-manifests, rust-releases-core, rust-releases-io,       │
+│                    ┆         ┆        ┆ rust-releases-rust-changelog, rust-releases-rust-dist,                       │
+│                    ┆         ┆        ┆ rust-releases-rust-dist-with-cli, yare                                       │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ petgraph           ┆ 0.6.0   ┆        ┆ fixedbitset, indexmap, quickcheck, serde, serde_derive, bincode, defmac,     │
+│                    ┆         ┆        ┆ itertools, odds, rand                                                        │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ once_cell          ┆ 1.8.0   ┆        ┆ parking_lot, crossbeam-utils, lazy_static, regex                             │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ json               ┆ 0.12.4  ┆        ┆                                                                              │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ indicatif          ┆ 0.16.2  ┆        ┆ console, lazy_static, number_prefix, rayon, regex, unicode-segmentation,     │
+│                    ┆         ┆        ┆ unicode-width, rand, tokio                                                   │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ dirs               ┆ 4.0.0   ┆        ┆ dirs-sys                                                                     │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ console            ┆ 0.15.0  ┆        ┆ libc, once_cell, regex, terminal_size, unicode-width, encode_unicode,        │
+│                    ┆         ┆        ┆ winapi, winapi-util                                                          │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ comfy-table        ┆ 4.1.1   ┆        ┆ crossterm, strum, strum_macros, unicode-width, criterion, doc-comment,       │
+│                    ┆         ┆        ┆ pretty_assertions, proptest                                                  │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ clap               ┆ 2.33.3  ┆        ┆ atty, bitflags, clippy, strsim, term_size, textwrap, unicode-width, vec_map, │
+│                    ┆         ┆        ┆ yaml-rust, lazy_static, regex, version-sync, ansi_term                       │
+├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+│ cargo_metadata     ┆ 0.14.1  ┆        ┆ camino, cargo-platform, derive_builder, semver, serde, serde_json            │
+└────────────────────┴─────────┴────────┴──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
+dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>
