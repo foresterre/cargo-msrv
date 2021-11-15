@@ -138,22 +138,22 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="-installation"><a class="header" href="#-installation">🌞 Installation</a></h2>
+<p>Packages marked with 🔸 are maintained by community members (i.e. not the cargo-msrv authors)</p>
 <h3 id="using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa"><a class="header" href="#using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa">Using <a href="https://doc.rust-lang.org/cargo/commands/cargo-install.html">Cargo</a>:</a></h3>
-<p>You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool (<a href="TODO">package</a>).</p>
+<p>You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool (<a href="https://crates.io/crates/cargo-msrv">package</a>).</p>
 <p><strong>How to install the latest stable release?</strong></p>
 <pre><code class="language-shell">cargo install cargo-msrv
 </code></pre>
 <p><strong>How to install the latest development release?</strong></p>
-<p>You may install <em>cargo-msrv</em> from Github:</p>
+<p>You may install <em>cargo-msrv</em> from GitHub:</p>
 <pre><code class="language-shell">cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
 </code></pre>
-<h3 id="aur-arch-linux"><a class="header" href="#aur-arch-linux">AUR (Arch Linux)</a></h3>
+<h3 id="aur-arch-linux-"><a class="header" href="#aur-arch-linux-">AUR (Arch Linux) 🔸</a></h3>
 <p>cargo-msrv is available from the Arch Linux user repository (<a href="https://aur.archlinux.org/packages/cargo-msrv/">AUR</a>).</p>
 <p><strong>How to install?</strong></p>
 <pre><code class="language-shell">paru -S cargo-msrv
 </code></pre>
-<p><em>NB: This distribution is not maintained by the cargo-msrv maintainers</em>.</p>
-<h3 id="nix"><a class="header" href="#nix">Nix</a></h3>
+<h3 id="nix-"><a class="header" href="#nix-">Nix 🔸</a></h3>
 <p>cargo-msrv is available from the Nix package manager and in NixOS (<a href="https://search.nixos.org/packages?channel=21.05&amp;show=cargo-msrv&amp;from=0&amp;size=50&amp;sort=relevance&amp;type=packages&amp;query=cargo-msrv">package</a>):</p>
 <p><strong>How to install (nixpkgs)?</strong></p>
 <pre><code class="language-shell">nix-env -iA nixpkgs.cargo-msrv
@@ -161,6 +161,7 @@
 <p><strong>How to install (NixOS)?</strong></p>
 <pre><code class="language-shell">nix-env -iA nixos.cargo-msrv
 </code></pre>
+<p>NB: When installing with <code>nix-shell --pure</code>, ensure that <code>rustup</code> is available in the environment.</p>
 <h3 id="other-options"><a class="header" href="#other-options">Other options</a></h3>
 <p>You may also build the program from source by cloning the <a href="https://github.com/foresterre/cargo-msrv">repository</a>
 and building a release from there.</p>
