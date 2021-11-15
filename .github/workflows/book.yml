@@ -6,7 +6,7 @@ on:
 name: Book
 
 jobs:
-  coverage:
+  book:
     name: coverage
     runs-on: ubuntu-latest
     steps:
