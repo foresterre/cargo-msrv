@@ -9,8 +9,8 @@ Rust release which a given Rust crate promises to support. Most often support fo
 limited by newly introduced Rust language features, library functions or Rust editions.
 
 For example, if you want to use const generics and be generic over integers, bool's or char's, you must use a Rust
-compiler which supports the const generics MVP. This feature was introduced in [Rust 1.51](https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp),
-which. If you then do not have any code, or configuration which requires an even newer Rust release, your MSRV would
+compiler which supports the const generics MVP. This feature was introduced in [Rust 1.51](https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp).
+If you do not have any other code, or configuration, which requires an even newer Rust release, your MSRV would
 be '1.51'.
 
 While the MSRV has been a well-known concept within the Rust community for a long time, it was also introduced to the
@@ -25,7 +25,7 @@ distribution.
 # 🥰 Thanks
 
 Thanks for using cargo-msrv! If you found an issue, or have an issue request, or any other question, feel free to open
-an issue at: report the issue at our Github [repository](https://github.com/foresterre/cargo-msrv/issues).
+an issue at our GitHub [repository](https://github.com/foresterre/cargo-msrv/issues).
 
 A special thanks goes to everyone who took the time to report an issue, discuss new features and contributed to the
 documentation or the code! Thank you!
