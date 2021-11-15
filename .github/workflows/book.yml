@@ -19,13 +19,11 @@ jobs:
           mdbook-version: '0.4.13'
 
       - name: build_mdbook
-        run: |
-          cd book
-          mdbook build
+        run: cd book && mdbook build -d ../output
 
       - name: deploy_mdbook
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./book
+          publish_dir: ./output
