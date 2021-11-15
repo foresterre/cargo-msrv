@@ -1,8 +1,10 @@
 ## 🌞 Installation
 
+Packages marked with 🔸 are maintained by community members (i.e. not the cargo-msrv authors)
+
 ### Using [Cargo](https://doc.rust-lang.org/cargo/commands/cargo-install.html):
 
-You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool ([package](TODO)).
+You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool ([package](https://crates.io/crates/cargo-msrv)).
 
 **How to install the latest stable release?**
 
@@ -12,13 +14,13 @@ cargo install cargo-msrv
 
 **How to install the latest development release?**
 
-You may install _cargo-msrv_ from Github:
+You may install _cargo-msrv_ from GitHub:
 
 ```shell
 cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
 ```
 
-### AUR (Arch Linux)
+### AUR (Arch Linux) 🔸
 
 cargo-msrv is available from the Arch Linux user repository ([AUR](https://aur.archlinux.org/packages/cargo-msrv/)).
 
@@ -28,9 +30,7 @@ cargo-msrv is available from the Arch Linux user repository ([AUR](https://aur.a
 paru -S cargo-msrv
 ```
 
-_NB: This distribution is not maintained by the cargo-msrv maintainers_.
-
-### Nix
+### Nix 🔸
 
 cargo-msrv is available from the Nix package manager and in NixOS ([package](https://search.nixos.org/packages?channel=21.05&show=cargo-msrv&from=0&size=50&sort=relevance&type=packages&query=cargo-msrv)):
 
@@ -45,6 +45,8 @@ nix-env -iA nixpkgs.cargo-msrv
 ```shell
 nix-env -iA nixos.cargo-msrv
 ```
+
+NB: When installing with `nix-shell --pure`, ensure that `rustup` is available in the environment.
 
 ### Other options
 
