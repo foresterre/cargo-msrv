@@ -7,7 +7,7 @@ name: Book
 
 jobs:
   book:
-    name: coverage
+    name: build-and-publish-book
     runs-on: ubuntu-latest
     steps:
       - name: checkout_repository
