@@ -34,7 +34,7 @@ most-recent to least-recent order. When a check fails, the previous Rust (if any
 toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
 so it's usually advisable to enable it by default.
 
-In addition to these two strategies, you can inspect the MSRV set by the crate authors on which your project depends.
+In addition to these two strategies, you can inspect the MSRV's set by the crate authors on which your project depends.
 This is achieved by resolving the dependency graph of your crate, and querying each crate for its author specified MSRV.
 Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may give
 you an indication of what your MSRV will be like. You can supply the highest listed version
