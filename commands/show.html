@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Quick Start - The cargo-msrv Book 🦀</title>
+        <title>cargo-msrv show - The cargo-msrv Book 🦀</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/quick-start.html" class="active"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="../concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="../commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../commands/run.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="../commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="../commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="../commands/show.html"><strong aria-hidden="true">4.4.</strong> cargo-msrv show</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="../concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="../commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../commands/run.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="../commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="../commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="../commands/show.html" class="active"><strong aria-hidden="true">4.4.</strong> cargo-msrv show</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,23 +137,29 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="-quick-start"><a class="header" href="#-quick-start">⏱️ Quick start</a></h3>
-<p>If all you want to do is find the MSRV for your package, you can run:</p>
-<pre><code class="language-shell">cargo msrv --bisect
+                        <h1 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show">cargo-msrv show</a></h1>
+<h1 id="command"><a class="header" href="#command">COMMAND</a></h1>
+<ul>
+<li>Standalone: <code>cargo-msrv show</code></li>
+<li>Through Cargo: <code>cargo msrv show</code></li>
+</ul>
+<h1 id="description"><a class="header" href="#description">DESCRIPTION</a></h1>
+<p>Print the crate author specified MSRV.</p>
+<p>This is either the <code>package.rust-version</code> field or the <code>package.metadata.msrv</code> field in the Cargo manifest (<code>Cargo.toml</code>).</p>
+<!-- # OPTIONS -->
+<h1 id="examples"><a class="header" href="#examples">EXAMPLES</a></h1>
+<ol>
+<li>Show the MSRV specified by a crate author</li>
+</ol>
+<pre><code class="language-shell">cargo msrv show
 </code></pre>
-<p>This command will attempt to determine the MSRV by doing a binary search on
-acceptable Rust releases. If you require additional options, please refer to the 
-<a href="../commands/index.html"><code>cargo-msrv commands</code></a> section.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../getting-started/installation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../commands/list.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
-                            </a>
-                            <a rel="next" href="../concepts/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -161,11 +167,8 @@ acceptable Rust releases. If you require additional options, please refer to the
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../getting-started/installation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../commands/list.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a rel="next" href="../concepts/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
