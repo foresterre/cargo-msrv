@@ -10,3 +10,4 @@
   - [cargo-msrv](./commands/run.md) 
   - [cargo-msrv help](./commands/help.md) 
   - [cargo-msrv list](./commands/list.md) 
+  - [cargo-msrv show](./commands/show.md) 
