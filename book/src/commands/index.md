@@ -5,6 +5,7 @@
 * [cargo-msrv](./run.md)
 * [cargo-msrv help](./help.md)
 * [cargo-msrv list](./list.md)
+* [cargo-msrv show](./show.md)
 
 # Program wide options
 
