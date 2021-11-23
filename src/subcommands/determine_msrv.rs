@@ -224,8 +224,10 @@ channel = "{}"
         stable_version
     );
 
-    std::fs::write(&path, content)
-        .map_err(|err| CargoMSRVError::Io(err, IoErrorSource::WriteFile { path: path.clone() }))?;
+    std::fs::write(&path, content).map_err(|error| CargoMSRVError::Io {
+        error,
+        source: IoErrorSource::WriteFile(path.clone()),
+    })?;
     eprintln!("Written toolchain file to '{}'", &path.display());
 
     Ok(())

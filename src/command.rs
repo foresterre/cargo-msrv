@@ -81,15 +81,16 @@ impl RustupCommand {
         self.command.stdout(self.stdout);
         self.command.stderr(self.stderr);
 
-        let child = self.command.spawn().map_err(|err| {
-            CargoMSRVError::Io(err, IoErrorSource::SpawnProcess { name: cmd.clone() })
+        let child = self.command.spawn().map_err(|error| CargoMSRVError::Io {
+            error,
+            source: IoErrorSource::SpawnProcess(cmd.clone()),
         })?;
-        let output = child.wait_with_output().map_err(|err| {
-            CargoMSRVError::Io(
-                err,
-                IoErrorSource::WaitForProcessAndCollectOutput { name: cmd.clone() },
-            )
-        })?;
+        let output = child
+            .wait_with_output()
+            .map_err(|error| CargoMSRVError::Io {
+                error,
+                source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.clone()),
+            })?;
 
         Ok(RustupOutput {
             output,

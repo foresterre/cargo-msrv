@@ -13,8 +13,10 @@ pub fn run_show_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
 
-    let contents = std::fs::read_to_string(&cargo_toml)
-        .map_err(|err| CargoMSRVError::Io(err, IoErrorSource::ReadFile { path: cargo_toml }))?;
+    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
+        error,
+        source: IoErrorSource::ReadFile(cargo_toml),
+    })?;
 
     let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
     let manifest = CargoManifest::try_from(manifest)?;

@@ -1,6 +1,6 @@
 use crate::manifest::bare_version::BareVersion;
 use std::convert::TryFrom;
-use toml_edit::{Document, Item};
+use toml_edit::{Document, Item, TomlError};
 
 pub(crate) mod bare_version;
 
@@ -38,23 +38,17 @@ impl Default for CargoManifestParser {
 }
 
 impl TomlParser for CargoManifestParser {
-    type Error = crate::CargoMSRVError;
+    type Error = TomlError;
 
     fn try_parse<T: TryFrom<Document, Error = Self::Error>>(
         &self,
         contents: &str,
     ) -> Result<T, Self::Error> {
-        contents
-            .parse::<Document>()
-            .map_err(crate::CargoMSRVError::ParseToml)
-            .and_then(TryFrom::try_from)
+        contents.parse::<Document>().and_then(TryFrom::try_from)
     }
 
     fn parse<T: From<Document>>(&self, contents: &str) -> Result<T, Self::Error> {
-        contents
-            .parse()
-            .map_err(crate::CargoMSRVError::ParseToml)
-            .map(From::from)
+        contents.parse().map(From::from)
     }
 }
 

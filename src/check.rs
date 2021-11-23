@@ -137,13 +137,9 @@ fn remove_lockfile(config: &Config) -> TResult<()> {
     let lock_file = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
 
     if lock_file.is_file() {
-        std::fs::remove_file(&lock_file).map_err(|err| {
-            CargoMSRVError::Io(
-                err,
-                IoErrorSource::RemoveFile {
-                    path: lock_file.clone(),
-                },
-            )
+        std::fs::remove_file(&lock_file).map_err(|error| CargoMSRVError::Io {
+            error,
+            source: IoErrorSource::RemoveFile(lock_file.clone()),
         })?;
     }
 

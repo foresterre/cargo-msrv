@@ -25,10 +25,7 @@ impl CargoMetadataResolver {
 
 impl DependencyResolver for CargoMetadataResolver {
     fn resolve(&self) -> TResult<DependencyGraph> {
-        let result = self
-            .metadata_command
-            .exec()
-            .map_err(CargoMSRVError::CargoMetadata)?;
+        let result = self.metadata_command.exec()?;
 
         let our_crate = result
             .root_package()

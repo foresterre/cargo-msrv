@@ -31,13 +31,9 @@ impl LockfileHandler<Start> {
     pub fn move_lockfile(self) -> TResult<LockfileHandler<Moved>> {
         let folder = self.state.parent().unwrap();
         std::fs::rename(self.state.as_path(), folder.join(CARGO_LOCK_REPLACEMENT)).map_err(
-            |err| {
-                CargoMSRVError::Io(
-                    err,
-                    IoErrorSource::RenameFile {
-                        path: self.state.clone(),
-                    },
-                )
+            |error| CargoMSRVError::Io {
+                error,
+                source: IoErrorSource::RenameFile(self.state.clone()),
             },
         )?;
 
@@ -52,13 +48,9 @@ impl LockfileHandler<Moved> {
     pub fn move_lockfile_back(self) -> TResult<LockfileHandler<Complete>> {
         let folder = self.state.parent().unwrap();
         std::fs::rename(folder.join(CARGO_LOCK_REPLACEMENT), self.state.as_path()).map_err(
-            |err| {
-                CargoMSRVError::Io(
-                    err,
-                    IoErrorSource::RenameFile {
-                        path: self.state.clone(),
-                    },
-                )
+            |err| CargoMSRVError::Io {
+                error: err,
+                source: IoErrorSource::RenameFile(self.state.clone()),
             },
         )?;
 
