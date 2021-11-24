@@ -342,19 +342,18 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
                 let crate_folder = if let Some(ref path) = builder.inner.crate_path {
                     Ok(path.clone())
                 } else {
-                    std::env::current_dir()
-                        .map_err(|err| CargoMSRVError::Io(err, IoErrorSource::CurrentDir))
+                    std::env::current_dir().map_err(|error| CargoMSRVError::Io {
+                        error,
+                        source: IoErrorSource::CurrentDir,
+                    })
                 }?;
                 let cargo_toml = crate_folder.join("Cargo.toml");
 
-                let contents = std::fs::read_to_string(&cargo_toml).map_err(|err| {
-                    CargoMSRVError::Io(
-                        err,
-                        IoErrorSource::ReadFile {
-                            path: cargo_toml.clone(),
-                        },
-                    )
-                })?;
+                let contents =
+                    std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
+                        error,
+                        source: IoErrorSource::ReadFile(cargo_toml.clone()),
+                    })?;
                 let document = contents
                     .parse::<Document>()
                     .map_err(CargoMSRVError::ParseToml)?;

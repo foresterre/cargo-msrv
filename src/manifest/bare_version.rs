@@ -1,4 +1,3 @@
-use crate::errors::CargoMSRVError;
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
 
@@ -11,7 +10,7 @@ pub enum BareVersion {
 }
 
 impl<'s> TryFrom<&'s str> for BareVersion {
-    type Error = crate::CargoMSRVError;
+    type Error = Error;
 
     fn try_from(value: &'s str) -> Result<Self, Self::Error> {
         parse_bare_version(value)
@@ -19,7 +18,7 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
-    pub fn try_parse(version: &str) -> Result<BareVersion, crate::CargoMSRVError> {
+    pub fn try_parse(version: &str) -> Result<BareVersion, Error> {
         parse_bare_version(version)
     }
 
@@ -48,7 +47,7 @@ impl BareVersion {
     pub fn try_to_semver<'s, I>(
         &self,
         iter: I,
-    ) -> Result<&'s crate::semver::Version, crate::CargoMSRVError>
+    ) -> Result<&'s crate::semver::Version, NoVersionMatchesManifestMsrvError>
     where
         I: IntoIterator<Item = &'s crate::semver::Version>,
     {
@@ -59,7 +58,10 @@ impl BareVersion {
             .ok_or_else(|| {
                 let requirement = self.clone();
                 let available = iter.cloned().collect();
-                crate::CargoMSRVError::NoVersionMatchesManifestMSRV(requirement, available)
+                NoVersionMatchesManifestMsrvError {
+                    requested: requirement,
+                    available,
+                }
             })
     }
 
@@ -90,31 +92,22 @@ pub enum ExpectedToken {
     Dot,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, thiserror::Error)]
 pub enum Error {
+    #[error("Expected end of input")]
     ExpectedEndOfInput,
-    Overflow,
-    PreReleaseModifierNotAllowed,
-    UnexpectedToken(u8, ExpectedToken),
-    UnexpectedEndOfInput,
-}
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ExpectedEndOfInput => write!(f, "Expected end of input"),
-            Self::Overflow => write!(f, "Component would overflow"),
-            Self::PreReleaseModifierNotAllowed => {
-                write!(f, "Pre-release modifiers are not allowed")
-            }
-            Self::UnexpectedToken(c, expecteed) => write!(
-                f,
-                "Unexpected token '{}', expected token of kind {:?}",
-                c, expecteed
-            ),
-            Self::UnexpectedEndOfInput => write!(f, "Unexpected end of input"),
-        }
-    }
+    #[error("Component would overflow")]
+    Overflow,
+
+    #[error("Pre-release modifiers are not allowed")]
+    PreReleaseModifierNotAllowed,
+
+    #[error("Unexpected token '{0}', expected token of kind {1:?}")]
+    UnexpectedToken(u8, ExpectedToken),
+
+    #[error("Unexpected end of input")]
+    UnexpectedEndOfInput,
 }
 
 fn parse_separator(input: &[u8]) -> Result<ParsedTokens, Error> {
@@ -173,7 +166,7 @@ fn expect_end_of_input(input: &[u8]) -> Result<(), Error> {
 ///
 /// [`bare version`]: https://doc.rust-lang.org/nightly/cargo/reference/manifest.html#the-rust-version-field
 /// [`semver 2.0 spec`]: https://semver.org/spec/v2.0.0.html#backusnaur-form-grammar-for-valid-semver-versions
-fn parse_bare_version(input: &str) -> Result<BareVersion, crate::CargoMSRVError> {
+fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
     let input = input.as_bytes();
     let mut parsed_tokens = 0;
 
@@ -203,13 +196,37 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, crate::CargoMSRVError>
     // Like Cargo, we disallow pre-release modifiers.
     // https://github.com/rust-lang/cargo/blob/ec38c84ab1d257c9d0129bd9cf7eade1d511a8d2/src/cargo/util/toml/mod.rs#L1117-L1132
     if input[parsed_tokens..].starts_with(&[b'-']) {
-        return Err(CargoMSRVError::BareVersionParse(
-            Error::PreReleaseModifierNotAllowed,
-        ));
+        return Err(Error::PreReleaseModifierNotAllowed);
     }
 
-    Err(CargoMSRVError::BareVersionParse(Error::ExpectedEndOfInput))
+    Err(Error::ExpectedEndOfInput)
 }
+
+#[derive(Debug)]
+pub struct NoVersionMatchesManifestMsrvError {
+    pub requested: crate::manifest::bare_version::BareVersion,
+    pub available: Vec<crate::semver::Version>,
+}
+
+impl std::fmt::Display for NoVersionMatchesManifestMsrvError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let available = self
+            .available
+            .iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        write!(
+            f,
+            "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}",
+            self.requested,
+            available,
+        )
+    }
+}
+
+impl std::error::Error for NoVersionMatchesManifestMsrvError {}
 
 #[cfg(test)]
 mod bare_version_tests {

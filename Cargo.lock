@@ -129,6 +129,7 @@ dependencies = [
  "parameterized",
  "petgraph",
  "rust-releases",
+ "thiserror",
  "toml_edit",
  "tracing",
  "tracing-appender",

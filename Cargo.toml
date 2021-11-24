@@ -36,6 +36,7 @@ comfy-table = "4.1.1"
 typed-builder = "0.9.1"
 
 once_cell = "1.8.0"
+thiserror = "1.0.30"
 
 [dependencies.tracing-subscriber]
 version = "0.3"

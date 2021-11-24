@@ -19,13 +19,9 @@ pub fn run_verify_msrv_action<R: Output>(
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
 
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(|err| {
-        CargoMSRVError::Io(
-            err,
-            IoErrorSource::ReadFile {
-                path: cargo_toml.clone(),
-            },
-        )
+    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
+        error,
+        source: IoErrorSource::ReadFile(cargo_toml.clone()),
     })?;
 
     let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
