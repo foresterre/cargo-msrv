@@ -1,14 +1,27 @@
+use crate::config::list::ListVariant;
+use crate::config::OutputFormat;
 use crate::manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser};
 use cargo_metadata::Package;
-pub(crate) use direct_deps::DirectDependenciesFormatter;
-pub(crate) use ordered_by_msrv::ByMSRVFormatter;
 use rust_releases::semver::Version;
 use std::convert::TryFrom;
 use std::path::Path;
 use toml_edit::Document;
 
-pub mod direct_deps;
-pub mod ordered_by_msrv;
+use super::DependencyGraph;
+
+mod direct_deps;
+mod ordered_by_msrv;
+
+pub(crate) fn format(
+    graph: &DependencyGraph,
+    variant: ListVariant,
+    format: OutputFormat,
+) -> Option<String> {
+    match variant {
+        ListVariant::DirectDeps => direct_deps::format(graph, format),
+        ListVariant::OrderedByMSRV => ordered_by_msrv::format(graph, format),
+    }
+}
 
 #[allow(unused)]
 pub(super) fn format_version_req(version_req: Option<&crate::semver::VersionReq>) -> String {
@@ -52,4 +65,20 @@ pub(super) fn get_package_metadata_msrv(package: &Package) -> Option<crate::semv
         .get("msrv")
         .and_then(|v| v.as_str())
         .and_then(|v| crate::semver::Version::parse(v).ok())
+}
+
+fn msrv(package: &Package) -> Option<Version> {
+    package
+        .rust_version
+        .clone()
+        .map(|req| {
+            let comparator = &req.comparators[0];
+            crate::semver::Version::new(
+                comparator.major,
+                comparator.minor.unwrap_or_default(),
+                comparator.patch.unwrap_or_default(),
+            )
+        })
+        .or_else(|| get_package_metadata_msrv(package))
+        .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())) // todo: add last one as option to config
 }
