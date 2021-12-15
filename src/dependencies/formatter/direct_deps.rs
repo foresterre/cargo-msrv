@@ -1,135 +1,107 @@
+use crate::config::OutputFormat;
 use crate::dependencies::formatter::{
     format_version, get_package_metadata_msrv, parse_manifest_workaround,
 };
 use crate::dependencies::DependencyGraph;
-use crate::reporter::Output;
-use std::marker::PhantomData;
+use comfy_table::presets::UTF8_FULL;
+use comfy_table::{Cell, ContentArrangement, Table};
 
-pub(crate) struct DirectDependenciesFormatter<T: Output> {
-    graph: DependencyGraph,
-    output: PhantomData<T>,
-}
-
-impl<T: Output> DirectDependenciesFormatter<T> {
-    pub fn new(graph: DependencyGraph) -> Self {
-        Self {
-            graph,
-            output: PhantomData,
+pub(crate) fn format(format: OutputFormat, graph: &DependencyGraph) -> Option<String> {
+    match format {
+        OutputFormat::Human => {
+            let values = direct_dependencies_msrv(graph);
+            Some(format_human(values))
         }
-    }
-}
-
-impl<T: Output> DirectDependenciesFormatter<T> {
-    fn direct_dependencies_msrv<Fi, Fg, B>(&self, init: Fi, f: Fg) -> B
-    where
-        Fi: FnOnce() -> B,
-        Fg: Fn(&mut B, Values<'_, '_>),
-    {
-        let mut out = init();
-
-        let dependency_graph = &self.graph;
-
-        let root = &dependency_graph.root_crate;
-        let root = dependency_graph.index[root];
-
-        let graph = &dependency_graph.packages;
-
-        let neighbors = graph.neighbors_directed(root.into(), petgraph::Direction::Outgoing);
-
-        for dep in neighbors {
-            let package = &graph[dep];
-
-            let msrv = package
-                .rust_version
-                .clone()
-                .map(|req| {
-                    let comparator = &req.comparators[0];
-                    crate::semver::Version::new(
-                        comparator.major,
-                        comparator.minor.unwrap_or_default(),
-                        comparator.patch.unwrap_or_default(),
-                    )
-                })
-                .or_else(|| get_package_metadata_msrv(package))
-                .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())); // todo: add last one as option to config
-
-            let values = Values {
-                name: &package.name,
-                version: &package.version,
-                msrv: format_version(msrv.as_ref()),
-                dependencies: package
-                    .dependencies
-                    .iter()
-                    .map(|d| d.name.clone())
-                    .collect(),
-            };
-
-            f(&mut out, values);
+        OutputFormat::Json => {
+            let values = direct_dependencies_msrv(graph);
+            Some(format_json(values))
         }
-
-        out
+        OutputFormat::None | OutputFormat::TestSuccesses => None,
     }
 }
 
-impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Table of dependencies
-        use comfy_table::presets::UTF8_FULL;
-        use comfy_table::{Cell, ContentArrangement, Table};
-
-        let table = self.direct_dependencies_msrv(
-            || {
-                let mut table = Table::new();
-                table
-                    .load_preset(UTF8_FULL)
-                    .set_table_width(120) // fallback for ContentArrangement::Dynamic
-                    .set_content_arrangement(ContentArrangement::Dynamic)
-                    .set_header(vec!["Dependency", "Version", "MSRV", "Depends on"]);
-
-                table
-            },
-            |acc, next| {
-                acc.add_row(vec![
-                    Cell::new(&next.name),
-                    Cell::new(&next.version),
-                    Cell::new(&next.msrv),
-                    Cell::new(&next.dependencies.join(", ")),
-                ]);
-            },
-        );
-
-        table.fmt(f)
-    }
-}
-
-impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::json::JsonPrinter<'_, '_>> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Table of dependencies
-        use json::object;
-
-        let objects = self.direct_dependencies_msrv(Vec::new, |acc, next| {
-            acc.push(object! {
-                dependency: next.name,
-                version: format!("{}", next.version),
-                msrv: next.msrv,
-                depends_on: next.dependencies,
-            });
-        });
-
-        let json = object! {
-            reason: "list",
-            variant: crate::config::list::DIRECT_DEPS,
-            success: true,
-            list: objects,
-        };
-
-        writeln!(f, "{}", json)
-    }
-}
-
-struct Values<'s, 'v> {
-    name: &'s str,
-    version: &'v crate::semver::Version,
+struct Values<'a> {
+    name: &'a str,
+    version: &'a crate::semver::Version,
     msrv: String,
     dependencies: Vec<String>,
+}
+
+fn direct_dependencies_msrv(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
+    let package_id = &graph.root_crate;
+    let root_index = graph.index[package_id].into();
+    let neighbors = graph
+        .packages
+        .neighbors_directed(root_index, petgraph::Direction::Outgoing);
+
+    neighbors.map(move |dependency| {
+        let package = &graph.packages[dependency];
+
+        let msrv = package
+            .rust_version
+            .clone()
+            .map(|req| {
+                let comparator = &req.comparators[0];
+                crate::semver::Version::new(
+                    comparator.major,
+                    comparator.minor.unwrap_or_default(),
+                    comparator.patch.unwrap_or_default(),
+                )
+            })
+            .or_else(|| get_package_metadata_msrv(package))
+            .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())); // todo: add last one as option to config
+
+        Values {
+            name: &package.name,
+            version: &package.version,
+            msrv: format_version(msrv.as_ref()),
+            dependencies: package
+                .dependencies
+                .iter()
+                .map(|d| d.name.clone())
+                .collect(),
+        }
+    })
+}
+
+fn format_human<'a>(values: impl Iterator<Item = Values<'a>>) -> String {
+    let mut table = Table::new();
+    table
+        .load_preset(UTF8_FULL)
+        .set_table_width(120) // fallback for ContentArrangement::Dynamic
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_header(vec!["Dependency", "Version", "MSRV", "Depends on"]);
+
+    for value in values {
+        table.add_row(vec![
+            Cell::new(&value.name),
+            Cell::new(&value.version),
+            Cell::new(&value.msrv),
+            Cell::new(&value.dependencies.join(", ")),
+        ]);
+    }
+
+    table.to_string()
+}
+
+fn format_json<'a>(values: impl Iterator<Item = Values<'a>>) -> String {
+    let objects: Vec<_> = values
+        .map(|value| {
+            json::object! {
+                dependency: value.name,
+                version: value.version.to_string(),
+                msrv: value.msrv,
+                depends_on: value.dependencies,
+            }
+        })
+        .collect();
+
+    let json = json::object! {
+        reason: "list",
+        variant: crate::config::list::DIRECT_DEPS,
+        success: true,
+        list: objects,
+    };
+
+    json.to_string()
 }
