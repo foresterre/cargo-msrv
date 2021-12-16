@@ -1,7 +1,5 @@
 use crate::config::OutputFormat;
-use crate::dependencies::formatter::{
-    format_version, get_package_metadata_msrv, parse_manifest_workaround,
-};
+use crate::dependencies::formatter::format_version;
 use crate::dependencies::DependencyGraph;
 use crate::semver;
 use cargo_metadata::Package;
@@ -10,14 +8,14 @@ use comfy_table::{Cell, ContentArrangement, Table};
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 
-pub(crate) fn format(format: OutputFormat, graph: &DependencyGraph) -> Option<String> {
+pub(crate) fn format(graph: &DependencyGraph, format: OutputFormat) -> Option<String> {
     match format {
         OutputFormat::Human => {
-            let values = dependencies_by_msrv(graph);
+            let values = dependencies(graph);
             Some(format_human(values))
         }
         OutputFormat::Json => {
-            let values = dependencies_by_msrv(graph);
+            let values = dependencies(graph);
             Some(format_json(values))
         }
         OutputFormat::None | OutputFormat::TestSuccesses => None,
@@ -29,7 +27,7 @@ struct Values {
     dependencies: Vec<String>,
 }
 
-fn dependencies_by_msrv(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
+fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
     let package_id = &graph.root_crate;
     let root_index = graph.index[package_id].into();
     let mut bfs = Bfs::new(&graph.packages, root_index);
@@ -39,19 +37,7 @@ fn dependencies_by_msrv(graph: &DependencyGraph) -> impl Iterator<Item = Values>
     while let Some(nx) = bfs.next(&graph.packages) {
         let package = &graph.packages[nx];
 
-        let msrv = package
-            .rust_version
-            .clone()
-            .map(|req| {
-                let comparator = &req.comparators[0];
-                crate::semver::Version::new(
-                    comparator.major,
-                    comparator.minor.unwrap_or_default(),
-                    comparator.patch.unwrap_or_default(),
-                )
-            })
-            .or_else(|| get_package_metadata_msrv(package))
-            .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())); // todo: add last one as option to config
+        let msrv = super::msrv(package);
 
         version_map.entry(msrv).or_default().push(package);
     }

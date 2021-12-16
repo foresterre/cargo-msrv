@@ -1,19 +1,17 @@
 use crate::config::OutputFormat;
-use crate::dependencies::formatter::{
-    format_version, get_package_metadata_msrv, parse_manifest_workaround,
-};
+use crate::dependencies::formatter::format_version;
 use crate::dependencies::DependencyGraph;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{Cell, ContentArrangement, Table};
 
-pub(crate) fn format(format: OutputFormat, graph: &DependencyGraph) -> Option<String> {
+pub(crate) fn format(graph: &DependencyGraph, format: OutputFormat) -> Option<String> {
     match format {
         OutputFormat::Human => {
-            let values = direct_dependencies_msrv(graph);
+            let values = dependencies(graph);
             Some(format_human(values))
         }
         OutputFormat::Json => {
-            let values = direct_dependencies_msrv(graph);
+            let values = dependencies(graph);
             Some(format_json(values))
         }
         OutputFormat::None | OutputFormat::TestSuccesses => None,
@@ -27,7 +25,7 @@ struct Values<'a> {
     dependencies: Vec<String>,
 }
 
-fn direct_dependencies_msrv(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
+fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
     let package_id = &graph.root_crate;
     let root_index = graph.index[package_id].into();
     let neighbors = graph
@@ -37,19 +35,7 @@ fn direct_dependencies_msrv(graph: &DependencyGraph) -> impl Iterator<Item = Val
     neighbors.map(move |dependency| {
         let package = &graph.packages[dependency];
 
-        let msrv = package
-            .rust_version
-            .clone()
-            .map(|req| {
-                let comparator = &req.comparators[0];
-                crate::semver::Version::new(
-                    comparator.major,
-                    comparator.minor.unwrap_or_default(),
-                    comparator.patch.unwrap_or_default(),
-                )
-            })
-            .or_else(|| get_package_metadata_msrv(package))
-            .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())); // todo: add last one as option to config
+        let msrv = super::msrv(package);
 
         Values {
             name: &package.name,
