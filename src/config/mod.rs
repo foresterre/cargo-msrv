@@ -416,7 +416,7 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         }
 
         if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
-            let cmd_config = ListCmdConfig::try_from_args(cmd)?;
+            let cmd_config = ListCmdConfig::try_from(cmd)?;
             builder = builder.sub_command_config(SubCommandConfig::ListConfig(cmd_config));
         }
 
