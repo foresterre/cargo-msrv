@@ -1,9 +1,12 @@
-use crate::dependencies::formatter::{
-    format_version, get_package_metadata_msrv, parse_manifest_workaround,
-};
-use crate::dependencies::DependencyGraph;
-use crate::reporter::Output;
 use std::marker::PhantomData;
+
+use crate::{
+    dependencies::{
+        formatter::{format_version, get_package_metadata_msrv, parse_manifest_workaround},
+        DependencyGraph,
+    },
+    reporter::Output,
+};
 
 pub(crate) struct DirectDependenciesFormatter<T: Output> {
     graph: DependencyGraph,
@@ -74,8 +77,7 @@ impl<T: Output> DirectDependenciesFormatter<T> {
 impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies
-        use comfy_table::presets::UTF8_FULL;
-        use comfy_table::{Cell, ContentArrangement, Table};
+        use comfy_table::{presets::UTF8_FULL, Cell, ContentArrangement, Table};
 
         let table = self.direct_dependencies_msrv(
             || {

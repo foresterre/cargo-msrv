@@ -32,13 +32,14 @@ pub trait Output: Debug {
 }
 
 pub mod __private {
-    use std::cell::RefCell;
-    use std::rc::Rc;
+    use std::{cell::RefCell, rc::Rc};
 
     use rust_releases::semver;
 
-    use crate::config::ModeIntent;
-    use crate::reporter::{Output, ProgressAction};
+    use crate::{
+        config::ModeIntent,
+        reporter::{Output, ProgressAction},
+    };
 
     /// This is meant to be used for testing
     #[derive(Debug)]
@@ -54,14 +55,20 @@ pub mod __private {
 
     impl Output for SuccessOutput {
         fn mode(&self, _action: ModeIntent) {}
+
         fn set_steps(&self, _steps: u64) {}
+
         fn progress(&self, _action: ProgressAction) {}
+
         fn complete_step(&self, version: &semver::Version, success: bool) {
             let mut successes = self.successes.borrow_mut();
             successes.push((success, version.clone()));
         }
+
         fn finish_success(&self, _mode: ModeIntent, _version: Option<&semver::Version>) {}
+
         fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {}
+
         fn write_line(&self, _content: &str) {}
     }
 

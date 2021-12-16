@@ -1,8 +1,9 @@
-use crate::config::list::ListVariant;
-use crate::config::{Config, ModeIntent, OutputFormat};
-use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
-use crate::errors::TResult;
-use crate::reporter::Output;
+use crate::{
+    config::{list::ListVariant, Config, ModeIntent, OutputFormat},
+    dependencies::resolver::{CargoMetadataResolver, DependencyResolver},
+    errors::TResult,
+    reporter::Output,
+};
 
 pub fn run_list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     use crate::dependencies::formatter;

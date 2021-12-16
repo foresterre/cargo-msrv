@@ -1,5 +1,7 @@
-use std::marker::PhantomData;
-use std::path::{Path, PathBuf};
+use std::{
+    marker::PhantomData,
+    path::{Path, PathBuf},
+};
 
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 

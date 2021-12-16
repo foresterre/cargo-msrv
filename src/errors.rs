@@ -1,11 +1,6 @@
-use std::env;
-use std::ffi::OsString;
-use std::io;
-use std::path::PathBuf;
-use std::string::FromUtf8Error;
+use std::{env, ffi::OsString, io, path::PathBuf, string::FromUtf8Error};
 
-use crate::fetch::ToolchainSpecifier;
-use crate::manifest::bare_version::NoVersionMatchesManifestMsrvError;
+use crate::{fetch::ToolchainSpecifier, manifest::bare_version::NoVersionMatchesManifestMsrvError};
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
 
@@ -74,10 +69,16 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),
 
-    #[error("The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains.")]
+    #[error(
+        "The given toolchain could not be found. Run `rustup toolchain list` for an overview of \
+         installed toolchains."
+    )]
     ToolchainNotInstalled,
 
-    #[error("The given target could not be found. Run `rustup target list` for an overview of available toolchains.")]
+    #[error(
+        "The given target could not be found. Run `rustup target list` for an overview of \
+         available toolchains."
+    )]
     UnknownTarget,
 
     #[error("Unable to access log folder, run with --no-log to try again without logging.")]
@@ -107,7 +108,10 @@ Thank you in advance!"#
     #[error("The Rust stable version could not be parsed from the stable channel manifest.")]
     UnableToParseRustVersion,
 
-    #[error("Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually.")]
+    #[error(
+        "Unable to run the checking command. If --check <cmd> is specified, you could try to \
+         verify if you can run the cmd manually."
+    )]
     UnableToRunCheck,
 }
 

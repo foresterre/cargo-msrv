@@ -1,5 +1,6 @@
-use clap::ArgMatches;
 use std::str::FromStr;
+
+use clap::ArgMatches;
 use typed_builder::TypedBuilder;
 
 #[derive(Clone, Debug, TypedBuilder)]
@@ -47,7 +48,7 @@ impl FromStr for ListVariant {
                 return Err(crate::CargoMSRVError::InvalidConfig(format!(
                     "No such list variant '{}'",
                     elsy
-                )))
+                )));
             }
         })
     }

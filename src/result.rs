@@ -5,14 +5,16 @@ use crate::check::Outcome;
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MinimalCompatibility {
-    /// A toolchain is compatible, if the outcome of a toolchain check results in a success
+    /// A toolchain is compatible, if the outcome of a toolchain check results
+    /// in a success
     CapableToolchain {
         // toolchain specifier
         toolchain: String,
         // checked Rust version
         version: semver::Version,
     },
-    /// Compatibility is none, if the check on the last available toolchain fails
+    /// Compatibility is none, if the check on the last available toolchain
+    /// fails
     NoCompatibleToolchains,
 }
 

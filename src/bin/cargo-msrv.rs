@@ -1,12 +1,15 @@
-use std::convert::TryFrom;
-use std::path::{Path, PathBuf};
+use std::{
+    convert::TryFrom,
+    path::{Path, PathBuf},
+};
 
+use cargo_msrv::{
+    cli,
+    config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption},
+    errors::{CargoMSRVError, TResult},
+    reporter, run_app,
+};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
-
-use cargo_msrv::config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption};
-use cargo_msrv::errors::{CargoMSRVError, TResult};
-use cargo_msrv::reporter;
-use cargo_msrv::{cli, run_app};
 
 enum ExitCode {
     Success,
@@ -35,11 +38,13 @@ fn main() {
     );
 }
 
-// When we call cargo-msrv with cargo, cargo will supply the msrv subcommand, in addition
-// to the binary name itself. As a result, when you call cargo-msrv without cargo, for example
-// `cargo-msrv` (without cargo) instead of `cargo msrv` (with cargo), the process will receive
-// too many arguments, and you will have to specify the subcommand again like so: `cargo-msrv msrv`.
-// This function removes the subcommand when it's present in addition to the program name.
+// When we call cargo-msrv with cargo, cargo will supply the msrv subcommand, in
+// addition to the binary name itself. As a result, when you call cargo-msrv
+// without cargo, for example `cargo-msrv` (without cargo) instead of `cargo
+// msrv` (with cargo), the process will receive too many arguments, and you will
+// have to specify the subcommand again like so: `cargo-msrv msrv`.
+// This function removes the subcommand when it's present in addition to the
+// program name.
 fn args() -> impl IntoIterator<Item = String> {
     fn cargo_subcommand_name(cargo_subcommand: &str) -> String {
         if cfg!(target_os = "windows") {
@@ -70,9 +75,10 @@ fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
     let matches = cli::cli().get_matches_from(args());
     let config = Config::try_from(&matches)?;
 
-    // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
-    // long as the lifetime of the worker guard. If we don't do this, the guard would be dropped after
-    // the scope of `if !config.no_tracing() { ... }` ended, and as a result, anything logged in
+    // NB: We must collect the guard of the non-blocking tracing appender, since it
+    // will only live as long as the lifetime of the worker guard. If we don't
+    // do this, the guard would be dropped after the scope of `if
+    // !config.no_tracing() { ... }` ended, and as a result, anything logged in
     // `init_and_run` would not be logged.
     let mut guard = Option::None;
 

@@ -2,12 +2,14 @@ use std::path::Path;
 
 use rust_releases::semver;
 
-use crate::command::RustupCommand;
-use crate::config::Config;
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
-use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::paths::crate_root_folder;
-use crate::reporter::{Output, ProgressAction};
+use crate::{
+    command::RustupCommand,
+    config::Config,
+    errors::{CargoMSRVError, IoErrorSource, TResult},
+    lockfile::{LockfileHandler, CARGO_LOCK},
+    paths::crate_root_folder,
+    reporter::{Output, ProgressAction},
+};
 
 #[derive(Clone, Debug)]
 pub struct Outcome {

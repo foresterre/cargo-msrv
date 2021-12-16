@@ -8,16 +8,18 @@ use rust_releases::{
     semver, Channel, FetchResources, ReleaseIndex, RustChangelog, RustDist, Source,
 };
 
-use crate::config::{Config, ModeIntent, ReleaseSource};
-use crate::errors::{CargoMSRVError, TResult};
-use crate::reporter::{Output, ProgressAction};
-
-use crate::subcommands::list::run_list_msrv;
-use crate::subcommands::show::run_show_msrv;
+use crate::{
+    config::{Config, ModeIntent, ReleaseSource},
+    errors::{CargoMSRVError, TResult},
+    reporter::{Output, ProgressAction},
+    subcommands::{list::run_list_msrv, show::run_show_msrv},
+};
 pub use crate::{
-    result::MinimalCompatibility, subcommands::determine_msrv::determine_msrv,
-    subcommands::determine_msrv::run_determine_msrv_action,
-    subcommands::verify_msrv::run_verify_msrv_action,
+    result::MinimalCompatibility,
+    subcommands::{
+        determine_msrv::{determine_msrv, run_determine_msrv_action},
+        verify_msrv::run_verify_msrv_action,
+    },
 };
 
 pub mod check;

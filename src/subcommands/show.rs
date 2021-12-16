@@ -1,11 +1,14 @@
-use crate::config::{Config, ModeIntent};
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
-use crate::manifest::bare_version::BareVersion;
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
-use crate::paths::crate_root_folder;
-use crate::reporter::Output;
 use std::convert::TryFrom;
+
 use toml_edit::Document;
+
+use crate::{
+    config::{Config, ModeIntent},
+    errors::{CargoMSRVError, IoErrorSource, TResult},
+    manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser},
+    paths::crate_root_folder,
+    reporter::Output,
+};
 
 pub fn run_show_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     output.mode(ModeIntent::Show);

@@ -1,15 +1,18 @@
-use crate::dependencies::formatter::{
-    format_version, get_package_metadata_msrv, parse_manifest_workaround,
-};
-use crate::dependencies::DependencyGraph;
-use crate::reporter::Output;
+use std::{collections::BTreeMap, fmt::Formatter, marker::PhantomData};
+
 use cargo_metadata::Package;
 use petgraph::visit::Bfs;
-use std::collections::BTreeMap;
-use std::fmt::Formatter;
-use std::marker::PhantomData;
 
-/// Displays the dependencies of the project as a table, sorted by their specified MSRV.
+use crate::{
+    dependencies::{
+        formatter::{format_version, get_package_metadata_msrv, parse_manifest_workaround},
+        DependencyGraph,
+    },
+    reporter::Output,
+};
+
+/// Displays the dependencies of the project as a table, sorted by their
+/// specified MSRV.
 ///
 /// For example:
 ///
@@ -90,8 +93,7 @@ impl<T: Output> ByMSRVFormatter<T> {
 impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies sorted by MSRV
-        use comfy_table::presets::UTF8_FULL;
-        use comfy_table::{Cell, ContentArrangement, Table};
+        use comfy_table::{presets::UTF8_FULL, Cell, ContentArrangement, Table};
 
         let out = self.dependencies_by_msrv(
             || {

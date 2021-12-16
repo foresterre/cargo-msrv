@@ -1,5 +1,7 @@
-use std::convert::TryFrom;
-use std::fmt::{Display, Formatter};
+use std::{
+    convert::TryFrom,
+    fmt::{Display, Formatter},
+};
 
 type BareVersionUsize = u64;
 
@@ -41,9 +43,10 @@ impl BareVersion {
         }
     }
 
-    // Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
-    // version requirement against the given set of available version, while `BareVersion::to_semver_version`
-    // simply rewrites the versions components to their semver::Version counterpart.
+    // Compared to `BareVersion::to_semver_version`, this method tries to satisfy a
+    // specified semver version requirement against the given set of available
+    // version, while `BareVersion::to_semver_version` simply rewrites the
+    // versions components to their semver::Version counterpart.
     pub fn try_to_semver<'s, I>(
         &self,
         iter: I,
@@ -158,11 +161,11 @@ fn expect_end_of_input(input: &[u8]) -> Result<(), Error> {
     }
 }
 
-/// Parse the [`bare version`] which defines a minimal supported Rust version (MSRV or rust-version
-/// in `Cargo.toml`).
+/// Parse the [`bare version`] which defines a minimal supported Rust version
+/// (MSRV or rust-version in `Cargo.toml`).
 ///
-/// See also the [`semver 2.0 spec`], which the parser is loosely based on. NB: a `bare version` is
-/// not `semver` compatible.
+/// See also the [`semver 2.0 spec`], which the parser is loosely based on. NB:
+/// a `bare version` is not `semver` compatible.
 ///
 /// [`bare version`]: https://doc.rust-lang.org/nightly/cargo/reference/manifest.html#the-rust-version-field
 /// [`semver 2.0 spec`]: https://semver.org/spec/v2.0.0.html#backusnaur-form-grammar-for-valid-semver-versions
@@ -219,9 +222,9 @@ impl std::fmt::Display for NoVersionMatchesManifestMsrvError {
 
         write!(
             f,
-            "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}",
-            self.requested,
-            available,
+            "The MSRV requirement ({}) in the Cargo manifest did not match any available version, \
+             available: {}",
+            self.requested, available,
         )
     }
 }
@@ -230,10 +233,12 @@ impl std::error::Error for NoVersionMatchesManifestMsrvError {}
 
 #[cfg(test)]
 mod bare_version_tests {
-    use crate::manifest::BareVersion;
-    use rust_releases::{semver, Release, ReleaseIndex};
     use std::iter::FromIterator;
+
+    use rust_releases::{semver, Release, ReleaseIndex};
     use yare::parameterized;
+
+    use crate::manifest::BareVersion;
 
     fn release_indices() -> ReleaseIndex {
         FromIterator::from_iter(vec![

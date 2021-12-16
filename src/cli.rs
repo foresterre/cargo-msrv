@@ -1,7 +1,9 @@
-use crate::config::{OutputFormat, TracingTargetOption};
 use clap::{App, AppSettings, Arg};
 
-use crate::fetch::is_target_available;
+use crate::{
+    config::{OutputFormat, TracingTargetOption},
+    fetch::is_target_available,
+};
 
 pub mod id {
     pub const ARG_SEEK_PATH: &str = "seek_path";
@@ -182,8 +184,9 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
 }
 
 pub fn list() -> App<'static, 'static> {
-    use crate::config::list;
     use clap::SubCommand;
+
+    use crate::config::list;
 
     SubCommand::with_name(id::SUB_COMMAND_LIST)
         .about("List the MSRV's specified by dependency crate authors")

@@ -1,12 +1,16 @@
-use std::convert::TryFrom;
-use std::path::{Path, PathBuf};
-use toml_edit::{Document, Item};
+use std::{
+    convert::TryFrom,
+    path::{Path, PathBuf},
+};
 
-use crate::config::list::ListCmdConfig;
 use clap::ArgMatches;
 use rust_releases::semver;
+use toml_edit::{Document, Item};
 
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::{
+    config::list::ListCmdConfig,
+    errors::{CargoMSRVError, IoErrorSource, TResult},
+};
 
 pub(crate) mod list;
 
@@ -18,7 +22,8 @@ pub enum OutputFormat {
     Json,
     /// No output -- meant to be used for debugging and testing
     None,
-    /// Save all versions tested and save success result for all runs -- meant to be used for testing
+    /// Save all versions tested and save success result for all runs -- meant
+    /// to be used for testing
     TestSuccesses,
 }
 
@@ -191,7 +196,8 @@ impl<'a> Config<'a> {
         self.release_source
     }
 
-    /// Options as to configure tracing (and logging) settings. If absent, tracing will be disabled.
+    /// Options as to configure tracing (and logging) settings. If absent,
+    /// tracing will be disabled.
     pub fn tracing(&self) -> Option<&TracingOptions> {
         self.tracing_config.as_ref()
     }
@@ -301,8 +307,7 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
     type Error = CargoMSRVError;
 
     fn try_from(matches: &'config ArgMatches<'config>) -> Result<Self, Self::Error> {
-        use crate::cli::id;
-        use crate::fetch::default_target;
+        use crate::{cli::id, fetch::default_target};
 
         let action_intent = if matches.subcommand_matches(id::SUB_COMMAND_LIST).is_some() {
             ModeIntent::List
@@ -314,7 +319,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             ModeIntent::DetermineMSRV
         };
 
-        // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
+        // FIXME: if set, we don't need to do this; in case we can't find it, it may
+        // fail here, but atm can't be manually supplied at all
         let target = default_target()?;
 
         let mut builder = ConfigBuilder::new(action_intent, &target);
