@@ -66,9 +66,11 @@ jobs:
 
       # install: rust
       - name: install_rust
-        uses: hecrj/setup-rust-action@v1
+        uses: actions-rs/toolchain@v1
         with:
-          rust-version: ${{ matrix.rust }}
+          toolchain: ${{ matrix.rust }}
+          override: true
+          profile: minimal
 
       # build / doc / test
       - name: build_all
@@ -86,9 +88,11 @@ jobs:
         with:
           fetch-depth: 1
       - name: install_rust
-        uses: hecrj/setup-rust-action@v1
+        uses: actions-rs/toolchain@v1
         with:
-          rust-version: stable
+          toolchain: stable
+          override: true
+          profile: minimal
       - name: install_rustfmt
         run: rustup component add rustfmt
       - name: check_formatting
