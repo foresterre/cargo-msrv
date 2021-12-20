@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 type BareVersionUsize = u64;
 
@@ -7,6 +8,14 @@ type BareVersionUsize = u64;
 pub enum BareVersion {
     TwoComponents(BareVersionUsize, BareVersionUsize),
     ThreeComponents(BareVersionUsize, BareVersionUsize, BareVersionUsize),
+}
+
+impl FromStr for BareVersion {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
+    }
 }
 
 impl<'s> TryFrom<&'s str> for BareVersion {
@@ -18,10 +27,6 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
-    pub fn try_parse(version: &str) -> Result<BareVersion, Error> {
-        parse_bare_version(version)
-    }
-
     pub fn to_comparator(&self) -> crate::semver::Comparator {
         match self {
             Self::TwoComponents(major, minor) => crate::semver::Comparator {

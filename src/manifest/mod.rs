@@ -70,7 +70,7 @@ fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::
         None => return Ok(None),
     };
 
-    Ok(Some(BareVersion::try_parse(version)?))
+    Ok(Some(version.parse()?))
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
