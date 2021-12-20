@@ -1,29 +1,24 @@
 use clap::ArgMatches;
-use std::str::FromStr;
-use typed_builder::TypedBuilder;
+use std::{convert::TryFrom, str::FromStr};
 
-#[derive(Clone, Debug, TypedBuilder)]
+#[derive(Clone, Debug)]
 pub struct ListCmdConfig {
-    #[builder(default)]
     pub variant: ListVariant,
 }
 
-impl ListCmdConfig {
-    pub fn try_from_args(args: &ArgMatches) -> Result<Self, crate::CargoMSRVError> {
+impl<'a> TryFrom<&'a ArgMatches<'a>> for ListCmdConfig {
+    type Error = crate::CargoMSRVError;
+
+    fn try_from(args: &'a ArgMatches) -> Result<Self, Self::Error> {
         use crate::cli::id;
 
         let variant = if let Some(var) = args.value_of(id::SUB_COMMAND_LIST_VARIANT) {
-            let typ = ListVariant::from_str(var)?;
-            Some(typ)
+            ListVariant::from_str(var)?
         } else {
-            None
+            ListVariant::default()
         };
 
-        let config = ListCmdConfig::builder()
-            .variant(variant.unwrap_or_default())
-            .build();
-
-        Ok(config)
+        Ok(ListCmdConfig { variant })
     }
 }
 
