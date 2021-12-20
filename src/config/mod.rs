@@ -206,6 +206,7 @@ impl<'a> Config<'a> {
 }
 
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct ConfigBuilder<'a> {
     inner: Config<'a>,
 }
