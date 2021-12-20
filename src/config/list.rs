@@ -1,5 +1,6 @@
-use clap::ArgMatches;
 use std::{convert::TryFrom, str::FromStr};
+
+use clap::ArgMatches;
 
 #[derive(Clone, Debug)]
 pub struct ListCmdConfig {
@@ -42,7 +43,7 @@ impl FromStr for ListVariant {
                 return Err(crate::CargoMSRVError::InvalidConfig(format!(
                     "No such list variant '{}'",
                     elsy
-                )))
+                )));
             }
         })
     }

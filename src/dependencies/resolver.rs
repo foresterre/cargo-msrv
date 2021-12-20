@@ -1,8 +1,11 @@
-use crate::config::Config;
-use crate::dependencies::DependencyGraph;
-use crate::errors::{CargoMSRVError, TResult};
-use crate::paths::crate_root_folder;
 use cargo_metadata::MetadataCommand;
+
+use crate::{
+    config::Config,
+    dependencies::DependencyGraph,
+    errors::{CargoMSRVError, TResult},
+    paths::crate_root_folder,
+};
 
 pub(crate) trait DependencyResolver {
     fn resolve(&self) -> TResult<DependencyGraph>;
@@ -49,7 +52,8 @@ impl DependencyResolver for CargoMetadataResolver {
     }
 }
 
-/// Builds a package graph from  1) a set of packages and 2) a given dependency graph.
+/// Builds a package graph from  1) a set of packages and 2) a given dependency
+/// graph.
 fn build_package_graph<Ip, Id>(graph: &mut DependencyGraph, packages: Ip, dependencies: Id)
 where
     Ip: IntoIterator<Item = cargo_metadata::Package>,

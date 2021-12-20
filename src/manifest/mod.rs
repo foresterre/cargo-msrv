@@ -1,6 +1,8 @@
-use crate::manifest::bare_version::BareVersion;
 use std::convert::TryFrom;
+
 use toml_edit::{Document, Item, TomlError};
+
+use crate::manifest::bare_version::BareVersion;
 
 pub(crate) mod bare_version;
 
@@ -15,7 +17,8 @@ pub trait TomlParser {
     fn parse<T: From<Document>>(&self, contents: &str) -> Result<T, Self::Error>;
 }
 
-/// A structure for owning the values in a `Cargo.toml` manifest relevant for `cargo-msrv`.
+/// A structure for owning the values in a `Cargo.toml` manifest relevant for
+/// `cargo-msrv`.
 #[derive(Debug)]
 pub struct CargoManifest {
     minimum_rust_version: Option<BareVersion>,
@@ -27,7 +30,8 @@ impl CargoManifest {
     }
 }
 
-/// A parser for `Cargo.toml` files. Only handles the parts necessary for `cargo-msrv`.
+/// A parser for `Cargo.toml` files. Only handles the parts necessary for
+/// `cargo-msrv`.
 #[derive(Debug)]
 pub struct CargoManifestParser;
 
@@ -73,7 +77,8 @@ fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::
     Ok(Some(BareVersion::try_parse(version)?))
 }
 
-/// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
+/// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest
+/// data.
 fn find_minimum_rust_version(document: &Document) -> Option<&str> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
@@ -87,8 +92,8 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
             .and_then(Item::as_str)
     }
 
-    /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
-    /// 1.56.0
+    /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release
+    /// of Rust 1.56.0
     fn find_metadata_msrv(document: &Document) -> Option<&str> {
         document
             .as_table()
@@ -107,11 +112,16 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::errors::CargoMSRVError;
-    use crate::manifest::bare_version::Error;
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
     use std::convert::TryFrom;
+
     use toml_edit::Document;
+
+    use crate::{
+        errors::CargoMSRVError,
+        manifest::{
+            bare_version::Error, BareVersion, CargoManifest, CargoManifestParser, TomlParser,
+        },
+    };
 
     #[test]
     fn parse_toml() {
@@ -123,9 +133,11 @@ edition = "2018"
 [dependencies]
 "#;
 
-        assert!(CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .is_ok());
+        assert!(
+            CargoManifestParser::default()
+                .parse::<Document>(contents)
+                .is_ok()
+        );
     }
 
     #[test]
@@ -138,9 +150,11 @@ edition = "2018"
 [dependencies]
 "#;
 
-        assert!(CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .is_err());
+        assert!(
+            CargoManifestParser::default()
+                .parse::<Document>(contents)
+                .is_err()
+        );
     }
 
     #[test]
@@ -345,10 +359,12 @@ msrv = "{}"
 
 #[cfg(test)]
 mod bare_version_tests {
-    use crate::manifest::BareVersion;
-    use rust_releases::{semver, Release, ReleaseIndex};
     use std::iter::FromIterator;
+
+    use rust_releases::{semver, Release, ReleaseIndex};
     use yare::parameterized;
+
+    use crate::manifest::BareVersion;
 
     fn release_indices() -> ReleaseIndex {
         FromIterator::from_iter(vec![

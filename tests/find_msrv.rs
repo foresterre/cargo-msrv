@@ -1,12 +1,11 @@
 extern crate cargo_msrv;
 
-use parameterized::parameterized;
-use rust_releases::{semver, Release};
-
 use cargo_msrv::MinimalCompatibility;
 use common::{
     run_cargo_version_which_doesnt_support_lockfile_v2, run_msrv, run_msrv_with_releases,
 };
+use parameterized::parameterized;
+use rust_releases::{semver, Release};
 
 mod common;
 

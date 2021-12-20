@@ -1,12 +1,13 @@
-use rust_releases::linear::LatestStableReleases;
-use rust_releases::{semver, Release, ReleaseIndex};
+use rust_releases::{linear::LatestStableReleases, semver, Release, ReleaseIndex};
 
-use crate::check::{as_toolchain_specifier, check_toolchain};
-use crate::config::{Config, ModeIntent};
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
-use crate::paths::crate_root_folder;
-use crate::reporter::{Output, ProgressAction};
-use crate::result::MinimalCompatibility;
+use crate::{
+    check::{as_toolchain_specifier, check_toolchain},
+    config::{Config, ModeIntent},
+    errors::{CargoMSRVError, IoErrorSource, TResult},
+    paths::crate_root_folder,
+    reporter::{Output, ProgressAction},
+    result::MinimalCompatibility,
+};
 
 pub fn run_determine_msrv_action<R: Output>(
     config: &Config,

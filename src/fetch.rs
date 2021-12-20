@@ -1,6 +1,9 @@
-use crate::command::RustupCommand;
-use crate::errors::{CargoMSRVError, TResult};
 use std::ffi::OsString;
+
+use crate::{
+    command::RustupCommand,
+    errors::{CargoMSRVError, TResult},
+};
 
 pub type ToolchainSpecifier = String;
 
@@ -29,8 +32,8 @@ pub fn is_target_available<S: AsRef<str>>(name: S) -> TResult<()> {
     Err(CargoMSRVError::UnknownTarget)
 }
 
-/// Uses the `.rustup/settings.toml` file to determine the default target (aka the
-/// `default_host_triple`) if not set by a user.
+/// Uses the `.rustup/settings.toml` file to determine the default target (aka
+/// the `default_host_triple`) if not set by a user.
 pub fn default_target() -> TResult<String> {
     let output = RustupCommand::new().with_stdout().show()?;
 

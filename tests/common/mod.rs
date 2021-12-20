@@ -1,19 +1,17 @@
 #![allow(unused)] // allowed since we do use these functions in the actual test files
 
-use std::ffi::OsString;
-use std::iter::FromIterator;
+use std::{ffi::OsString, iter::FromIterator};
 
-use rust_releases::semver::Version;
-use rust_releases::{semver, Release, ReleaseIndex};
-
-use cargo_msrv::config::{test_config_from_matches, Config, OutputFormat};
-use cargo_msrv::errors::TResult;
-use cargo_msrv::reporter::__private::SuccessOutput;
-use cargo_msrv::reporter::json::JsonPrinter;
-use cargo_msrv::reporter::no_output::NoOutput;
-use cargo_msrv::reporter::ui::HumanPrinter;
-use cargo_msrv::reporter::Output;
-use cargo_msrv::{reporter, MinimalCompatibility};
+use cargo_msrv::{
+    config::{test_config_from_matches, Config, OutputFormat},
+    errors::TResult,
+    reporter,
+    reporter::{
+        __private::SuccessOutput, json::JsonPrinter, no_output::NoOutput, ui::HumanPrinter, Output,
+    },
+    MinimalCompatibility,
+};
+use rust_releases::{semver, semver::Version, Release, ReleaseIndex};
 
 pub fn run_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
@@ -77,8 +75,8 @@ where
     let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
     let config = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
 
-    // Limit the available versions: this ensures we don't need to incrementally install more toolchains
-    //  as more Rust toolchains become available.
+    // Limit the available versions: this ensures we don't need to incrementally
+    // install more toolchains  as more Rust toolchains become available.
     let available_versions: ReleaseIndex = FromIterator::from_iter(releases);
 
     // Determine the MSRV from the index of available releases.
@@ -96,8 +94,8 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
 
     let reporter = fake_reporter();
 
-    // Limit the available versions: this ensures we don't want to incrementally install more toolchains
-    //  as more Rust toolchains become available.
+    // Limit the available versions: this ensures we don't want to incrementally
+    // install more toolchains  as more Rust toolchains become available.
     let available_versions: ReleaseIndex = FromIterator::from_iter(vec![
         Release::new_stable(semver::Version::new(1, 39, 0)),
         Release::new_stable(semver::Version::new(1, 38, 0)),

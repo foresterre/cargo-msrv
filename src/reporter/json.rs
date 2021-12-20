@@ -3,8 +3,7 @@ use std::cell::Cell;
 use json::{number::Number, object, JsonValue};
 use rust_releases::semver;
 
-use crate::config::ModeIntent;
-use crate::reporter::ProgressAction;
+use crate::{config::ModeIntent, reporter::ProgressAction};
 
 #[derive(Debug)]
 pub struct JsonPrinter<'s, 't> {

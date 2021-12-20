@@ -3,12 +3,14 @@ use std::convert::TryFrom;
 use rust_releases::{Release, ReleaseIndex};
 use toml_edit::Document;
 
-use crate::check::{check_toolchain, Outcome};
-use crate::config::{Config, ModeIntent};
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
-use crate::paths::crate_root_folder;
-use crate::reporter::Output;
+use crate::{
+    check::{check_toolchain, Outcome},
+    config::{Config, ModeIntent},
+    errors::{CargoMSRVError, IoErrorSource, TResult},
+    manifest::{CargoManifest, CargoManifestParser, TomlParser},
+    paths::crate_root_folder,
+    reporter::Output,
+};
 
 // NB: only public for integration testing
 pub fn run_verify_msrv_action<R: Output>(

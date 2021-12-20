@@ -1,11 +1,12 @@
-use crate::manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser};
+use std::{convert::TryFrom, path::Path};
+
 use cargo_metadata::Package;
 pub(crate) use direct_deps::DirectDependenciesFormatter;
 pub(crate) use ordered_by_msrv::ByMSRVFormatter;
 use rust_releases::semver::Version;
-use std::convert::TryFrom;
-use std::path::Path;
 use toml_edit::Document;
+
+use crate::manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser};
 
 pub mod direct_deps;
 pub mod ordered_by_msrv;
@@ -27,8 +28,8 @@ pub(super) fn format_version(version_req: Option<&crate::semver::Version>) -> St
     }
 }
 
-// Workaround: manual parsing since current (1.56) version of cargo-metadata doesn't yet output the
-//  rust-version
+// Workaround: manual parsing since current (1.56) version of cargo-metadata
+// doesn't yet output the  rust-version
 pub(super) fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semver::Version> {
     fn parse(path: &Path) -> Option<Version> {
         std::fs::read_to_string(path)
