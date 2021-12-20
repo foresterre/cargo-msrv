@@ -66,11 +66,7 @@ fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
     let releases = if config.include_all_patch_releases() {
         releases.to_vec()
     } else {
-        releases
-            .to_vec()
-            .into_iter()
-            .latest_stable_releases()
-            .collect()
+        releases.iter().cloned().latest_stable_releases().collect()
     };
 
     // Pre-filter the [min-version:max-version] range
