@@ -50,6 +50,3 @@ features = ["rust-releases-rust-changelog", "rust-releases-rust-dist"]
 parameterized = "0.3.1"
 yare = "1.0.1"
 
-[[bin]]
-name = "cargo-msrv"
-path = "src/bin/cargo-msrv.rs"
