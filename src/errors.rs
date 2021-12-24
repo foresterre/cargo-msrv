@@ -47,7 +47,7 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
 
-    #[error("Unable to find key 'package.metadata.msrv' in '{0}'")]
+    #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
     NoMSRVKeyInCargoToml(PathBuf),
 
     #[error("Unable to parse Cargo.toml: {0}")]
