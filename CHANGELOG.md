@@ -1,6 +1,22 @@
 # [unreleased]
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.12.0...HEAD
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...HEAD
+
+# [0.13.0] - 2021-12-25
+
+* Fixed: Help text of the list subcommand will now be shown correctly   
+* Fixed: The json output of the list subcommand will now also report when it's done
+* Changed: Renamed list subcommand option "type" to "variant"
+* Added: Subcommand "show" which shows the MSRV for the crate in your current working directory
+* Added: Logging to a file (default) or the stdout for developer information; can also be disabled entirely
+* Added: Output format option 'void', which disables user targeted output
+* Changed: `cargo-msrv` now exits with a non-zero exit code on failure
+* Changed: Clarify the reason when the program fails because of an IO error
+* Added: Book covering cargo-msrv topics, and its subcommands
+* Changed: Suggest `package.rust-version` is missing when MSRV can't be found in the Cargo manifest
+* Fixed: Return non-zero exit code when verify command fails
+
+[0.13.0]: https://github.com/foresterre/cargo-msrv/compare/v0.12.0...v0.13.0
 
 # [0.12.0] - 2021-11-01
 
