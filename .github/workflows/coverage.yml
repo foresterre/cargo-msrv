@@ -20,10 +20,15 @@ jobs:
           profile: minimal
           override: true
 
+      # Circumvent running into a Tarpaulin error, returned because in a test, we run our crate binary locally which
+      # requires some sort of recompilation, and (/or/..), exits (as we expect for our test) with a non-zero exit code.
+      - name: build_crate_including_tests
+        run: cargo build --tests
+
       - name: run_code_coverage
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: "--all-features --ignore-tests --timeout=300 -- --test-threads=1"
+          args: "--all-features --ignore-tests --exclude-files='tests/verify_exit_code.rs' -- --test-threads=1"
 
       - name: upload_code_coverage
         uses: codecov/codecov-action@v2.1.0
