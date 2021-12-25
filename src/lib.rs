@@ -26,6 +26,7 @@ pub(crate) mod command;
 pub mod config;
 pub(crate) mod dependencies;
 pub mod errors;
+pub mod exit_code;
 pub(crate) mod fetch;
 pub(crate) mod lockfile;
 pub(crate) mod manifest;

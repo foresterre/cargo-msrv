@@ -1,0 +1,9 @@
+[package]
+name = "v_unbuildable"
+version = "0.1.0"
+authors = ["foresterre <garm@ilumeo.com>"]
+edition = "2021"
+rust-version = "1.57"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

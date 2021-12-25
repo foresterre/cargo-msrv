@@ -1,6 +1,7 @@
 use std::convert::TryFrom;
+use std::path::PathBuf;
 
-use rust_releases::{Release, ReleaseIndex};
+use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::Document;
 
 use crate::check::{check_toolchain, Outcome};
@@ -29,7 +30,7 @@ pub fn run_verify_msrv_action<R: Output>(
 
     let version = manifest
         .minimum_rust_version()
-        .ok_or(CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml))?;
+        .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml.to_owned()))?;
     let version = version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let cmd = config.check_command_string();
@@ -37,7 +38,14 @@ pub fn run_verify_msrv_action<R: Output>(
     let status = check_toolchain(version, config, reporter)?;
     report_verify_completion(reporter, &status, &cmd);
 
-    Ok(())
+    if status.is_success() {
+        Ok(())
+    } else {
+        Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed {
+            expected_msrv: version.to_owned(),
+            manifest: cargo_toml,
+        }))
+    }
 }
 
 fn report_verify_completion(output: &impl Output, status: &Outcome, cmd: &str) {
@@ -46,4 +54,15 @@ fn report_verify_completion(output: &impl Output, status: &Outcome, cmd: &str) {
     } else {
         output.finish_failure(ModeIntent::VerifyMSRV, Some(cmd));
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error(
+        "Crate source was found to be incompatible with its MSRV '{expected_msrv}', as defined in '{manifest}'"
+    )]
+    VerifyFailed {
+        expected_msrv: semver::Version,
+        manifest: PathBuf,
+    },
 }
