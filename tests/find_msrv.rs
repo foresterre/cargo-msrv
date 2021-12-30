@@ -3,6 +3,7 @@ extern crate cargo_msrv;
 use parameterized::parameterized;
 use rust_releases::{semver, Release};
 
+use crate::common::fixtures_path;
 use cargo_msrv::MinimalCompatibility;
 use common::{
     run_cargo_version_which_doesnt_support_lockfile_v2, run_msrv, run_msrv_with_releases,
@@ -25,9 +26,8 @@ mod common;
     }
 )]
 fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
+
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
@@ -51,9 +51,8 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     }
 )]
 fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
+
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
@@ -64,9 +63,8 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
 
 #[test]
 fn msrv_unsupported() {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join("unbuildable");
+    let folder = fixtures_path().join("unbuildable");
+
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
@@ -88,9 +86,8 @@ fn msrv_unsupported() {
     }
 )]
 fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
+
     let with_args = vec![
         "cargo-msrv",
         "--path",
@@ -121,9 +118,8 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     }
 )]
 fn msrv_with_release_source(release_source: &str, folder: &str, expected_version: semver::Version) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
+
     let with_args = vec![
         "cargo-msrv",
         "--release-source",
@@ -144,9 +140,7 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
 
 #[test]
 fn msrv_with_old_lockfile() {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join("1.29.2");
+    let folder = fixtures_path().join("1.29.2");
     let with_args = vec![
         "cargo-msrv",
         "--path",
@@ -160,12 +154,12 @@ fn msrv_with_old_lockfile() {
 
 mod minimum_from_edition {
     use super::{run_msrv_with_releases, semver, Release};
+    use crate::fixtures_path;
 
     #[test]
     fn msrv_min_with_edition_in_cargo_toml() {
-        let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("features")
-            .join("1.30.0");
+        let folder = fixtures_path().join("1.30.0");
+
         let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
         let versions = vec![
@@ -187,9 +181,8 @@ mod minimum_from_edition {
 
     #[test]
     fn msrv_no_minimum_with_flag() {
-        let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("features")
-            .join("1.30.0");
+        let folder = fixtures_path().join("1.30.0");
+
         let with_args = vec![
             "cargo-msrv",
             "--path",

@@ -2,6 +2,7 @@
 
 use std::ffi::OsString;
 use std::iter::FromIterator;
+use std::path::PathBuf;
 
 use rust_releases::semver::Version;
 use rust_releases::{semver, Release, ReleaseIndex};
@@ -118,4 +119,10 @@ pub fn fake_reporter() -> reporter::no_output::NoOutput {
 
 pub fn test_reporter() -> reporter::__private::SuccessOutput {
     reporter::__private::SuccessOutput::default()
+}
+
+pub fn fixtures_path() -> PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("fixtures")
 }
