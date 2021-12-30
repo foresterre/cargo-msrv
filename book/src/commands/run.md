@@ -149,7 +149,7 @@ Verify the MSRV specified by a crate author in the 'package.rust-version' or the
 Cargo manifest `Cargo.toml`. When this flag is present, cargo-msrv will not attempt to determine the true MSRV. 
 Instead, it only attempts to verify whether for the specified MSRV, the _cargo-msrv check_ command passes.
 
-_NB: This option will be moved to its own subcommand soon: `cargo msrv verify`_
+_DEPRECATED: use `cargo msrv verify` instead_
 
 **`--` ...cmd** 
 
