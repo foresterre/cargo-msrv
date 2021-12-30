@@ -103,7 +103,8 @@ OPTIONS:
             Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. When
             this flag is present, cargo-msrv will not attempt to determine the true MSRV. Instead it attempts to verify
             whether for the specified MSRV, the `check` command passes. This is similar to how we determine whether a
-            Rust toolchain version is compatible for your crate or not.
+            Rust toolchain version is compatible for your crate or not. DEPRECATED: use the `cargo msrv verify`
+            subcommand instead.
 
 ARGS:
     <COMMAND>...
@@ -116,11 +117,14 @@ SUBCOMMANDS:
             Prints this message or the help of the given subcommand(s)
 
     list
-            List the MSRV's specified by dependency crate authors
+            List the MSRV's specified by dependency crate authors.
 
     show
-            Show the MSRV of your crate, as specified in the Cargo manifest
+            Show the MSRV of your crate, as specified in the Cargo manifest.
 
+    verify
+            Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or
+            'package.metadata.msrv' key in the Cargo.toml manifest.
 
 An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, used to validate
 whether a Rust toolchain version is compatible. The default `check` command is "cargo build". A custom `check` command
@@ -133,7 +137,7 @@ only need to provide the <COMMAND...> part.
 JSON output may be enabled by providing the `--output-format json` flag:
 
 * determine msrv: `cargo msrv --output-format json`, or
-* verify msrv: `cargo msrv --output-format json --verify`, or
+* verify msrv: `cargo msrv --output-format json verify`, or
 * list msrv's: `cargo msrv --output-format json list`
 
 When the output format is 'json', various types of status messages can be printed. Each type is indicated

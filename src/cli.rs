@@ -135,7 +135,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             When this flag is present, cargo-msrv will not attempt to determine the true MSRV. \
             Instead it attempts to verify whether for the specified MSRV, the `check` command passes. This is similar to \
             how we determine whether a Rust toolchain version is compatible for your crate or not. \
-            DEPRECATED: use the `cargo msrv verify` subcommand instead")
+            DEPRECATED: use the `cargo msrv verify` subcommand instead.")
             .takes_value(false)
         )
         .arg(Arg::with_name(id::ARG_RELEASE_SOURCE)
