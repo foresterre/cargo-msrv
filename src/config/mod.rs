@@ -309,7 +309,7 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             ModeIntent::List
         } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
             ModeIntent::Show
-        } else if matches.is_present(id::ARG_VERIFY) {
+        } else if matches.is_present(id::SUB_COMMAND_VERIFY) || matches.is_present(id::ARG_VERIFY) {
             ModeIntent::VerifyMSRV
         } else {
             ModeIntent::DetermineMSRV

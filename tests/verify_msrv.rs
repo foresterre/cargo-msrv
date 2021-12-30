@@ -61,8 +61,13 @@ fn verify_failed_no_msrv_specified(folder: &str) {
     assert!(result.is_err());
 }
 
-#[test]
-fn verify_success_zero_exit_code() {
+#[parameterized(
+    verify_variant = {
+        "--verify", // as flag on default command
+        "verify", // as sub command after options and flags
+    }
+)]
+fn verify_success_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
     let test_subject = [cargo_msrv_dir, "features", "1.56.0-edition-2021"].join("/");
@@ -73,9 +78,9 @@ fn verify_success_zero_exit_code() {
             "--manifest-path",
             &cargo_msrv_manifest,
             "--",
-            "--verify",
             "--path",
             &test_subject,
+            verify_variant,
         ])
         .spawn()
         .expect("Unable to spawn cargo-msrv via cargo in test");
@@ -90,8 +95,13 @@ fn verify_success_zero_exit_code() {
     assert_eq!(exit_code, Into::<i32>::into(expected))
 }
 
-#[test]
-fn verify_failure_non_zero_exit_code() {
+#[parameterized(
+    verify_variant = {
+        "--verify", // as flag on default command
+        "verify", // as sub command after options and flags
+    }
+)]
+fn verify_failure_non_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
 
@@ -103,9 +113,9 @@ fn verify_failure_non_zero_exit_code() {
             "--manifest-path",
             &cargo_msrv_manifest,
             "--",
-            "--verify",
             "--path",
             &test_subject,
+            verify_variant,
         ])
         .spawn()
         .expect("Unable to spawn cargo-msrv via cargo in test");

@@ -25,6 +25,8 @@ pub mod id {
     pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
 
     pub const SUB_COMMAND_SHOW: &str = "show";
+
+    pub const SUB_COMMAND_VERIFY: &str = "verify";
 }
 
 pub fn cli() -> App<'static, 'static> {
@@ -46,6 +48,7 @@ used to validate whether a Rust toolchain version is compatible. The default `ch
 rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
         .subcommand(list())
         .subcommand(show())
+        .subcommand(verify())
         .arg(
             Arg::with_name(id::ARG_SEEK_PATH)
                 .long("path")
@@ -127,11 +130,12 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
         )
         .arg(Arg::with_name(id::ARG_VERIFY)
             .long("verify")
-            .help("Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml")
+            .help("DEPRECATED: Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml")
             .long_help("Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. \
             When this flag is present, cargo-msrv will not attempt to determine the true MSRV. \
             Instead it attempts to verify whether for the specified MSRV, the `check` command passes. This is similar to \
-            how we determine whether a Rust toolchain version is compatible for your crate or not.")
+            how we determine whether a Rust toolchain version is compatible for your crate or not. \
+            DEPRECATED: use the `cargo msrv verify` subcommand instead.")
             .takes_value(false)
         )
         .arg(Arg::with_name(id::ARG_RELEASE_SOURCE)
@@ -186,7 +190,7 @@ pub fn list() -> App<'static, 'static> {
     use clap::SubCommand;
 
     SubCommand::with_name(id::SUB_COMMAND_LIST)
-        .about("List the MSRV's specified by dependency crate authors")
+        .about("List the MSRV's specified by dependency crate authors.")
         .arg(
             Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
                 .long("variant")
@@ -200,5 +204,12 @@ pub fn show() -> App<'static, 'static> {
     use clap::SubCommand;
 
     SubCommand::with_name(id::SUB_COMMAND_SHOW)
-        .about("Show the MSRV of your crate, as specified in the Cargo manifest")
+        .about("Show the MSRV of your crate, as specified in the Cargo manifest.")
+}
+
+pub fn verify() -> App<'static, 'static> {
+    use clap::SubCommand;
+
+    SubCommand::with_name(id::SUB_COMMAND_VERIFY)
+        .about("Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest.")
 }

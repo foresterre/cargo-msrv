@@ -1,5 +1,8 @@
 # [unreleased]
 
+* Added: Verify as a subcommand
+* Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand
+
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...HEAD
 
 # [0.13.0] - 2021-12-25
