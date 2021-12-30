@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/run.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">4.4.</strong> cargo-msrv show</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/run.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">4.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="commands/verify.html"><strong aria-hidden="true">4.5.</strong> cargo-msrv verify</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -248,6 +248,7 @@ acceptable Rust releases. If you require additional options, please refer to the
 <li><a href="commands/./help.html">cargo-msrv help</a></li>
 <li><a href="commands/./list.html">cargo-msrv list</a></li>
 <li><a href="commands/./show.html">cargo-msrv show</a></li>
+<li><a href="commands/./verify.html">cargo-msrv verify</a></li>
 </ul>
 <h1 id="program-wide-options"><a class="header" href="#program-wide-options">Program wide options</a></h1>
 <p>⚠ work-in-progress.</p>
@@ -347,7 +348,7 @@ See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-fil
 <p>Verify the MSRV specified by a crate author in the 'package.rust-version' or the 'package.metadata.msrv' key, in the
 Cargo manifest <code>Cargo.toml</code>. When this flag is present, cargo-msrv will not attempt to determine the true MSRV. 
 Instead, it only attempts to verify whether for the specified MSRV, the <em>cargo-msrv check</em> command passes.</p>
-<p><em>NB: This option will be moved to its own subcommand soon: <code>cargo msrv verify</code></em></p>
+<p><em>DEPRECATED: use <code>cargo msrv verify</code> instead</em></p>
 <p><strong><code>--</code> ...cmd</strong> </p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
 <code>cargo check --all</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
@@ -543,6 +544,69 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </ol>
 <pre><code class="language-shell">cargo msrv show
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify">cargo-msrv verify</a></h1>
+<h1 id="command-4"><a class="header" href="#command-4">COMMAND</a></h1>
+<ul>
+<li>Standalone: <code>cargo-msrv verify</code></li>
+<li>Through Cargo: <code>cargo msrv verify</code></li>
+</ul>
+<h1 id="description-4"><a class="header" href="#description-4">DESCRIPTION</a></h1>
+<p>Verify whether the MSRV can be satisfied.</p>
+<p>The MSRV can be specified in the Cargo manifest (<code>Cargo.toml</code>) using either the <code>package.rust-version</code> (Rust &gt;=1.56, recommended), 
+or the <code>package.metadata.msrv</code> field.</p>
+<p>If the check fails, the program returns with a non-zero exit code.</p>
+<!-- # OPTIONS -->
+<h1 id="examples-4"><a class="header" href="#examples-4">EXAMPLES</a></h1>
+<ol>
+<li>Verify whether the MSRV specified in the Cargo manifest is satisfiable (Good case).</li>
+</ol>
+<p>Given a minimal rust crate with the following Cargo.toml manifest:</p>
+<pre><code class="language-toml">[package]
+name = &quot;example&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2021&quot;
+rust-version = &quot;1.56.0&quot;
+</code></pre>
+<p>and this minimal lib.rs file:</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    println!(&quot;Hello world&quot;);
+}
+</code></pre></pre>
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key. 
+Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
+and the program returns a with exit code 0 (success).</p>
+<pre><code class="language-shell">cargo msrv verify # Will succeed, and return with exit code 0
+</code></pre>
+<ol start="2">
+<li>Verify whether the MSRV specified in the Cargo manifest is satisfiable (Bad case).</li>
+</ol>
+<p>Given a minimal rust crate with the following Cargo.toml manifest:</p>
+<pre><code class="language-toml">[package]
+name = &quot;example&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2021&quot;
+rust-version = &quot;1.56.0&quot;
+</code></pre>
+<p>and this minimal lib.rs file:</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let cmd = Command::new(&quot;ls&quot;);
+    assert_eq!(cmd.get_program(), &quot;ls&quot;); // will fail because Command::get_program was introduced in 1.57, which is greater than 1.56 (the MSRV)
+}
+</code></pre></pre>
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key.
+Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
+and the program returns a with a non-zero exit code (failure).</p>
+<pre><code class="language-shell">cargo msrv verify # Will fail, and return a non-zero exit code
+</code></pre>
+<ol start="3">
+<li>Run the 'verify' subcommand on a crate not in our current working directory.</li>
+</ol>
+<pre><code class="language-shell">cargo msrv --path path/to/my/crate verify
+</code></pre>
+<p>This example shows how to use arguments (in this case <code>--path</code>) shared between the default cargo-msrv command and verify.
+Note that shared arguments must be specified before the subcommand (here <code>verify</code>).</p>
 
                     </main>
 
