@@ -3,6 +3,7 @@ use parameterized::parameterized;
 use rust_releases::{semver, Release};
 use std::process::Command;
 
+use crate::common::fixtures_path;
 use common::run_verify;
 
 mod common;
@@ -16,9 +17,7 @@ mod common;
     }
 )]
 fn verify(folder: &str) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_verify(
@@ -42,9 +41,7 @@ fn verify(folder: &str) {
     }
 )]
 fn verify_failed_no_msrv_specified(folder: &str) {
-    let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("features")
-        .join(folder);
+    let folder = fixtures_path().join(folder);
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_verify(
@@ -70,7 +67,7 @@ fn verify_failed_no_msrv_specified(folder: &str) {
 fn verify_success_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
-    let test_subject = [cargo_msrv_dir, "features", "1.56.0-edition-2021"].join("/");
+    let test_subject = [cargo_msrv_dir, "tests", "fixtures", "1.56.0-edition-2021"].join("/");
 
     let mut process = Command::new("cargo")
         .args(&[
@@ -105,7 +102,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
 
-    let test_subject = [cargo_msrv_dir, "features", "unbuildable-with-msrv"].join("/");
+    let test_subject = [cargo_msrv_dir, "tests", "fixtures", "unbuildable-with-msrv"].join("/");
 
     let mut process = Command::new("cargo")
         .args(&[
