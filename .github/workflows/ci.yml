@@ -64,6 +64,15 @@ jobs:
       - name: checkout_repository
         uses: actions/checkout@v2.4.0
 
+      # setup Rust toolchain cache
+      - name: cache_rustup
+        uses: actions/cache@v2
+        with:
+          # only match numbered versions, i.e. exclude rolling stable/beta/nightly toolchains as they change between releases
+          path: |
+            ~/.rustup/toolchains/*.*.*
+          key: ${{ runner.os }}-rust-toolchain-${{ hashFiles('**/rustc*') }}
+
       # install: rust
       - name: install_rust
         uses: actions-rs/toolchain@v1
