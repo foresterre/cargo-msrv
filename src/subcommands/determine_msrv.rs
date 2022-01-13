@@ -1,12 +1,13 @@
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Release, ReleaseIndex};
 
-use crate::check::{as_toolchain_specifier, check_toolchain};
+use crate::check::{Check, RunCheck};
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::paths::crate_root_folder;
 use crate::reporter::{Output, ProgressAction};
 use crate::result::MinimalCompatibility;
+use crate::toolchain::ToolchainSpec;
 
 pub fn run_determine_msrv_action<R: Output>(
     config: &Config,
@@ -121,9 +122,13 @@ fn test_against_releases_linearly(
     config: &Config,
     output: &impl Output,
 ) -> TResult<()> {
+    let runner = RunCheck::new(output);
+
     for release in releases {
         output.progress(ProgressAction::Checking(release.version()));
-        let outcome = check_toolchain(release.version(), config, output)?;
+
+        let toolchain = ToolchainSpec::new(config.target(), release.version());
+        let outcome = runner.check(config, &toolchain)?;
 
         if !outcome.is_success() {
             break;
@@ -144,6 +149,8 @@ fn test_against_releases_bisect(
 ) -> TResult<()> {
     use rust_releases::bisect::{Bisect, Narrow};
 
+    let runner = RunCheck::new(output);
+
     // track progressed items
     let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(releases);
@@ -154,7 +161,8 @@ fn test_against_releases_bisect(
         let steps = progressed.replace(progressed.get().saturating_add(1));
         output.set_steps(steps + (remainder as u64));
 
-        let outcome = check_toolchain(release.version(), config, output)?;
+        let toolchain = ToolchainSpec::new(config.target(), release.version());
+        let outcome = runner.check(config, &toolchain)?;
 
         if outcome.is_success() {
             // Expand search space
@@ -170,7 +178,9 @@ fn test_against_releases_bisect(
         let version = releases[i].version();
 
         MinimalCompatibility::CapableToolchain {
-            toolchain: as_toolchain_specifier(version, config.target()),
+            toolchain: ToolchainSpec::new(config.target(), version)
+                .spec()
+                .to_string(),
             version: version.clone(),
         }
     });

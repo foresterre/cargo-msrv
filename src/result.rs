@@ -1,6 +1,6 @@
 use rust_releases::semver;
 
-use crate::check::Outcome;
+use crate::outcome::Outcome;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -29,7 +29,7 @@ impl MinimalCompatibility {
 impl From<Outcome> for MinimalCompatibility {
     fn from(outcome: Outcome) -> Self {
         let version = outcome.version().clone();
-        let toolchain = outcome.toolchain().to_string();
+        let toolchain = outcome.toolchain_spec().to_string();
 
         if outcome.is_success() {
             MinimalCompatibility::CapableToolchain { version, toolchain }

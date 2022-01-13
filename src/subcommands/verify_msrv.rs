@@ -4,12 +4,14 @@ use std::path::PathBuf;
 use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::Document;
 
-use crate::check::{check_toolchain, Outcome};
+use crate::check::{Check, RunCheck};
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
+use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
 use crate::reporter::Output;
+use crate::toolchain::ToolchainSpec;
 
 // NB: only public for integration testing
 pub fn run_verify_msrv_action<R: Output>(
@@ -35,7 +37,10 @@ pub fn run_verify_msrv_action<R: Output>(
 
     let cmd = config.check_command_string();
     reporter.mode(ModeIntent::VerifyMSRV);
-    let status = check_toolchain(version, config, reporter)?;
+
+    let runner = RunCheck::new(reporter);
+    let toolchain = ToolchainSpec::new(config.target(), version);
+    let status = runner.check(config, &toolchain)?;
     report_verify_completion(reporter, &status, &cmd);
 
     if status.is_success() {
@@ -48,9 +53,9 @@ pub fn run_verify_msrv_action<R: Output>(
     }
 }
 
-fn report_verify_completion(output: &impl Output, status: &Outcome, cmd: &str) {
-    if status.is_success() {
-        output.finish_success(ModeIntent::VerifyMSRV, Some(status.version()));
+fn report_verify_completion(output: &impl Output, outcome: &Outcome, cmd: &str) {
+    if outcome.is_success() {
+        output.finish_success(ModeIntent::VerifyMSRV, Some(outcome.version()));
     } else {
         output.finish_failure(ModeIntent::VerifyMSRV, Some(cmd));
     }
