@@ -25,15 +25,18 @@ pub mod cli;
 pub(crate) mod command;
 pub mod config;
 pub(crate) mod dependencies;
+pub(crate) mod download;
 pub mod errors;
 pub mod exit_code;
 pub(crate) mod fetch;
 pub(crate) mod lockfile;
 pub(crate) mod manifest;
+pub(crate) mod outcome;
 pub(crate) mod paths;
 pub mod reporter;
 pub(crate) mod result;
 pub(crate) mod subcommands;
+pub(crate) mod toolchain;
 
 pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     reporter.progress(ProgressAction::FetchingIndex);
