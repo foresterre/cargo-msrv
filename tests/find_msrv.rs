@@ -68,7 +68,11 @@ fn msrv_unsupported() {
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
-    assert_eq!(result, MinimalCompatibility::NoCompatibleToolchains);
+
+    assert!(matches!(
+        result,
+        MinimalCompatibility::NoCompatibleToolchains { .. }
+    ));
 }
 
 #[parameterized(

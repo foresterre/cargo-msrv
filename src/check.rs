@@ -5,7 +5,7 @@ use crate::config::Config;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::outcome::{Outcome, Status};
+use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
 use crate::reporter::{Output, ProgressAction};
 use crate::toolchain::ToolchainSpec;
@@ -90,11 +90,7 @@ impl<'reporter, R: Output> RunCheck<'reporter, R> {
             .complete_step(toolchain.version(), status.success());
 
         if status.success() {
-            Ok(Outcome::new(
-                Status::Success,
-                toolchain.spec().to_string(),
-                toolchain.version().clone(),
-            ))
+            Ok(Outcome::new_success(toolchain.to_owned()))
         } else {
             let stderr = rustup_output.stderr();
             let command = cmd.join(" ");
@@ -106,10 +102,9 @@ impl<'reporter, R: Output> RunCheck<'reporter, R> {
                 "try_building run failed"
             );
 
-            Ok(Outcome::new(
-                Status::Failure,
-                toolchain.spec().to_string(),
-                toolchain.version().clone(),
+            Ok(Outcome::new_failure(
+                toolchain.to_owned(),
+                rustup_output.take_stderr(),
             ))
         }
     }

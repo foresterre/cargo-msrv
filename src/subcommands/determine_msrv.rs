@@ -15,7 +15,7 @@ pub fn run_determine_msrv_action<R: Output>(
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
     match determine_msrv(config, reporter, release_index)? {
-        MinimalCompatibility::NoCompatibleToolchains => {
+        MinimalCompatibility::NoCompatibleToolchains { .. } => {
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
@@ -89,7 +89,7 @@ fn determine_msrv_impl(
     cmd: &str,
     output: &impl Output,
 ) -> TResult<MinimalCompatibility> {
-    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
+    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains { reason: None };
 
     output.set_steps(included_releases.len() as u64);
     info!(bisect_enabled = config.bisect());
@@ -108,7 +108,7 @@ fn determine_msrv_impl(
         } => {
             output.finish_success(ModeIntent::DetermineMSRV, Some(version));
         }
-        MinimalCompatibility::NoCompatibleToolchains => {
+        MinimalCompatibility::NoCompatibleToolchains { .. } => {
             output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd));
         }
     }
@@ -171,19 +171,22 @@ fn test_against_releases_bisect(
             // Shrink search space
             TResult::Ok(Narrow::ToLeft)
         }
-    });
+    })?;
 
     // update compatibility
-    *compatibility = outcome?.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
-        let version = releases[i].version();
+    *compatibility = match outcome {
+        Some(i) => {
+            let version = releases[i].version();
 
-        MinimalCompatibility::CapableToolchain {
-            toolchain: ToolchainSpec::new(config.target(), version)
-                .spec()
-                .to_string(),
-            version: version.clone(),
+            MinimalCompatibility::CapableToolchain {
+                toolchain: ToolchainSpec::new(config.target(), version)
+                    .spec()
+                    .to_string(),
+                version: version.clone(),
+            }
         }
-    });
+        None => MinimalCompatibility::NoCompatibleToolchains { reason: None },
+    };
 
     Ok(())
 }

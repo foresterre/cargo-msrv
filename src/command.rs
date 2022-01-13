@@ -119,6 +119,14 @@ impl RustupOutput {
             .as_str()
     }
 
+    pub fn take_stderr(self) -> String {
+        let output = self.output;
+
+        self.stderr
+            .into_inner()
+            .unwrap_or_else(|| String::from_utf8_lossy(&output.stderr).into_owned())
+    }
+
     pub fn exit_status(&self) -> std::process::ExitStatus {
         self.output.status
     }

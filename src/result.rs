@@ -13,7 +13,7 @@ pub enum MinimalCompatibility {
         version: semver::Version,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
-    NoCompatibleToolchains,
+    NoCompatibleToolchains { reason: Option<String> },
 }
 
 impl MinimalCompatibility {
@@ -28,13 +28,17 @@ impl MinimalCompatibility {
 
 impl From<Outcome> for MinimalCompatibility {
     fn from(outcome: Outcome) -> Self {
-        let version = outcome.version().clone();
-        let toolchain = outcome.toolchain_spec().to_string();
-
-        if outcome.is_success() {
-            MinimalCompatibility::CapableToolchain { version, toolchain }
-        } else {
-            MinimalCompatibility::NoCompatibleToolchains
+        match outcome {
+            Outcome::Success { toolchain } => MinimalCompatibility::CapableToolchain {
+                version: toolchain.version().clone(),
+                toolchain: toolchain.spec().to_string(),
+            },
+            Outcome::Failure {
+                toolchain: _,
+                error_reason,
+            } => MinimalCompatibility::NoCompatibleToolchains {
+                reason: error_reason,
+            },
         }
     }
 }

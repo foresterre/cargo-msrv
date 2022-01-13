@@ -1,41 +1,48 @@
+use crate::toolchain::OwnedToolchainSpec;
 use rust_releases::semver;
 
 #[derive(Clone, Debug)]
-pub struct Outcome {
-    status: Status,
-    // toolchain specifier
-    toolchain_spec: String,
-    // checked Rust version
-    version: semver::Version,
+pub enum Outcome {
+    Success {
+        toolchain: OwnedToolchainSpec,
+    },
+    Failure {
+        toolchain: OwnedToolchainSpec,
+        // output of the check failure
+        error_reason: Option<String>,
+    },
 }
 
 impl Outcome {
-    pub fn new(status: Status, toolchain_spec: String, version: semver::Version) -> Self {
-        Self {
-            status,
-            toolchain_spec,
-            version,
+    pub fn new_success(toolchain: OwnedToolchainSpec) -> Self {
+        Self::Success { toolchain }
+    }
+
+    pub fn new_failure(toolchain: OwnedToolchainSpec, error_reason: String) -> Self {
+        Self::Failure {
+            toolchain,
+            error_reason: Some(error_reason),
         }
     }
 
     pub fn is_success(&self) -> bool {
-        match self.status {
-            Status::Success => true,
-            Status::Failure => false,
+        match self {
+            Self::Success { .. } => true,
+            Self::Failure { .. } => false,
         }
     }
 
     pub fn version(&self) -> &semver::Version {
-        &self.version
+        match self {
+            Self::Success { toolchain } => toolchain.version(),
+            Self::Failure { toolchain, .. } => toolchain.version(),
+        }
     }
 
     pub fn toolchain_spec(&self) -> &str {
-        &self.toolchain_spec
+        match self {
+            Self::Success { toolchain } => toolchain.spec(),
+            Self::Failure { toolchain, .. } => toolchain.spec(),
+        }
     }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum Status {
-    Success,
-    Failure,
 }
