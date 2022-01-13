@@ -11,6 +11,13 @@ pub enum MinimalCompatibility {
         toolchain: String,
         // checked Rust version
         version: semver::Version,
+        // TODO: Optioon or Vec?
+        // for linear, option would be more appropriate,
+        // for bisect, vec, since we don't necessarily have the last version;
+        //      idea: use vec in the test_against_releases and
+        //          if nth_release >= 2 && nth_release - 1 was tested, then return Some(Outcome of nth - 1),
+        //          else None
+        // failures: Option<Vec<Outcome>>,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
     NoCompatibleToolchains { reason: Option<String> },

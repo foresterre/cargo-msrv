@@ -4,6 +4,7 @@ use rust_releases::{semver, Release, ReleaseIndex};
 use crate::check::{Check, RunCheck};
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
 use crate::reporter::{Output, ProgressAction};
 use crate::result::MinimalCompatibility;
@@ -151,10 +152,13 @@ fn test_against_releases_bisect(
 
     let runner = RunCheck::new(output);
 
+    let mut last_outcomes = Vec::<Outcome>::with_capacity(8);
+
     // track progressed items
     let progressed = std::cell::Cell::new(0u64);
     let mut binary_search = Bisect::from_slice(releases);
-    let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
+
+    let nth_release = binary_search.search_with_result_and_remainder(|release, remainder| {
         output.progress(ProgressAction::Checking(release.version()));
 
         // increment progressed items
@@ -174,7 +178,7 @@ fn test_against_releases_bisect(
     })?;
 
     // update compatibility
-    *compatibility = match outcome {
+    *compatibility = match nth_release {
         Some(i) => {
             let version = releases[i].version();
 
