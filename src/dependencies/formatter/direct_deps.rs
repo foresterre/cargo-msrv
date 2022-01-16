@@ -71,7 +71,7 @@ impl<T: Output> DirectDependenciesFormatter<T> {
     }
 }
 
-impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
+impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::HumanPrinter<'_>> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies
         use comfy_table::presets::UTF8_FULL;
@@ -102,7 +102,7 @@ impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::ui::Huma
     }
 }
 
-impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::json::JsonPrinter<'_, '_>> {
+impl std::fmt::Display for DirectDependenciesFormatter<crate::reporter::json::JsonPrinter<'_>> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies
         use json::object;

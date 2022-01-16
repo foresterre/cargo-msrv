@@ -6,15 +6,15 @@ use rust_releases::semver;
 
 use crate::config::ModeIntent;
 
-pub struct HumanPrinter<'s, 't> {
+pub struct HumanPrinter<'a> {
     term: Term,
     progress: ProgressBar,
-    toolchain: &'s str,
-    cmd: &'t str,
+    toolchain: &'a str,
+    cmd: &'a str,
 }
 
-impl std::fmt::Debug for HumanPrinter<'_, '_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl std::fmt::Debug for HumanPrinter<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_fmt(format_args!(
             "toolchain = {}, cmd = {}",
             self.toolchain, self.cmd
@@ -22,8 +22,8 @@ impl std::fmt::Debug for HumanPrinter<'_, '_> {
     }
 }
 
-impl<'s, 't> HumanPrinter<'s, 't> {
-    pub fn new(steps: u64, toolchain: &'s str, cmd: &'t str) -> Self {
+impl<'a> HumanPrinter<'a> {
+    pub fn new(steps: u64, toolchain: &'a str, cmd: &'a str) -> Self {
         let term = Term::stderr();
 
         let progress = ProgressBar::new(steps).with_style(
@@ -108,7 +108,7 @@ impl<'s, 't> HumanPrinter<'s, 't> {
     }
 }
 
-impl<'s, 't> crate::Output for HumanPrinter<'s, 't> {
+impl<'a> crate::Output for HumanPrinter<'a> {
     fn mode(&self, action: ModeIntent) {
         if let ModeIntent::List | ModeIntent::Show = action {
             return;

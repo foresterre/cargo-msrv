@@ -87,7 +87,7 @@ impl<T: Output> ByMSRVFormatter<T> {
     }
 }
 
-impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_, '_>> {
+impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies sorted by MSRV
         use comfy_table::presets::UTF8_FULL;
@@ -115,7 +115,7 @@ impl std::fmt::Display for ByMSRVFormatter<crate::reporter::ui::HumanPrinter<'_,
     }
 }
 
-impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_, '_>> {
+impl std::fmt::Display for ByMSRVFormatter<crate::reporter::json::JsonPrinter<'_>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // Table of dependencies sorted by MSRV
         use json::object;

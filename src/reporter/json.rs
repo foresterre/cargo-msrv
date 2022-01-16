@@ -1,21 +1,22 @@
 use std::cell::Cell;
 
-use json::{number::Number, object, JsonValue};
+use json::object::Object;
+use json::JsonValue;
 use rust_releases::semver;
 
 use crate::config::ModeIntent;
 use crate::reporter::ProgressAction;
 
 #[derive(Debug)]
-pub struct JsonPrinter<'s, 't> {
+pub struct JsonPrinter<'a> {
     finished: Cell<u64>,
     steps: Cell<u64>,
-    toolchain: &'s str,
-    cmd: Option<&'t str>,
+    toolchain: &'a str,
+    cmd: Option<&'a str>,
 }
 
-impl<'s, 't> JsonPrinter<'s, 't> {
-    pub fn new(steps: u64, toolchain: &'s str, cmd: Option<&'t str>) -> Self {
+impl<'a> JsonPrinter<'a> {
+    pub fn new(steps: u64, toolchain: &'a str, cmd: Option<&'a str>) -> Self {
         Self {
             finished: Cell::new(0),
             steps: Cell::new(steps),
@@ -34,20 +35,20 @@ impl<'s, 't> JsonPrinter<'s, 't> {
     }
 }
 
-impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
+impl<'a> crate::Output for JsonPrinter<'a> {
     fn mode(&self, mode: ModeIntent) {
         let mode: &str = mode.into();
 
-        let mut object = JsonValue::new_object();
-        let _ = object.insert("reason", JsonValue::String("mode".to_string()));
-        let _ = object.insert("mode", JsonValue::String(mode.to_string()));
-        let _ = object.insert("toolchain", JsonValue::String(self.toolchain.to_string()));
+        let mut object = Object::new();
+        object.insert("reason", "mode".into());
+        object.insert("mode", mode.into());
+        object.insert("toolchain", self.toolchain.into());
 
         if let Some(cmd) = self.cmd {
-            let _ = object.insert("check_cmd", JsonValue::String(cmd.to_string()));
+            object.insert("check_cmd", cmd.into());
         }
 
-        println!("{}", object);
+        println!("{}", JsonValue::Object(object));
     }
 
     fn set_steps(&self, steps: u64) {
@@ -63,28 +64,22 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
 
         match action {
             ProgressAction::Installing(version) | ProgressAction::Checking(version) => {
-                let mut object = JsonValue::new_object();
-                let _ = object.insert("reason", JsonValue::String(action_str.to_string()));
-                let _ = object.insert("version", JsonValue::String(version.to_string()));
-                let _ = object.insert(
-                    "step",
-                    JsonValue::Number(Number::from(self.finished.get() as f64)),
-                );
-                let _ = object.insert(
-                    "total",
-                    JsonValue::Number(Number::from(self.steps.get() as f64)),
-                );
-                let _ = object.insert("toolchain", JsonValue::String(self.toolchain.to_string()));
+                let mut object = Object::new();
+                object.insert("reason", action_str.into());
+                object.insert("version", version.to_string().into());
+                object.insert("step", self.finished.get().into());
+                object.insert("total", self.steps.get().into());
+                object.insert("toolchain", self.toolchain.into());
 
                 if let Some(cmd) = self.cmd {
-                    let _ = object.insert("check_cmd", JsonValue::String(cmd.to_string()));
+                    object.insert("check_cmd", cmd.into());
                 }
 
-                println!("{}", object);
+                println!("{}", JsonValue::Object(object));
             }
             ProgressAction::FetchingIndex => println!(
                 "{}",
-                object! {
+                json::object! {
                     reason: action_str,
                 }
             ),
@@ -94,7 +89,7 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     fn complete_step(&self, version: &semver::Version, success: bool) {
         println!(
             "{}",
-            object! {
+            json::object! {
                 reason: "check-complete",
                 version: version.to_string(),
                 step: self.finished.get(),
@@ -110,36 +105,36 @@ impl<'s, 't> crate::Output for JsonPrinter<'s, 't> {
     fn finish_success(&self, mode: ModeIntent, version: Option<&semver::Version>) {
         let reason = Self::reason(mode);
 
-        let mut object = JsonValue::new_object();
-        let _ = object.insert("reason", JsonValue::String(reason.to_string()));
-        let _ = object.insert("success", JsonValue::Boolean(true));
+        let mut object = Object::new();
+        object.insert("reason", reason.into());
+        object.insert("success", true.into());
 
         if let Some(version) = version {
-            let _ = object.insert("msrv", version.to_string());
+            object.insert("msrv", version.to_string().into());
         }
 
-        let _ = object.insert("toolchain", JsonValue::String(self.toolchain.to_string()));
+        object.insert("toolchain", self.toolchain.into());
 
         if let Some(cmd) = self.cmd {
-            let _ = object.insert("check_cmd", cmd.to_string());
+            object.insert("check_cmd", cmd.into());
         }
 
-        println!("{}", object);
+        println!("{}", JsonValue::Object(object));
     }
 
     fn finish_failure(&self, mode: ModeIntent, _: Option<&str>) {
         let reason = Self::reason(mode);
 
-        let mut object = JsonValue::new_object();
-        let _ = object.insert("reason", reason);
-        let _ = object.insert("success", JsonValue::Boolean(false));
-        let _ = object.insert("toolchain", JsonValue::String(self.toolchain.to_string()));
+        let mut object = Object::new();
+        object.insert("reason", reason.into());
+        object.insert("success", false.into());
+        object.insert("toolchain", self.toolchain.into());
 
         if let Some(cmd) = self.cmd {
-            let _ = object.insert("check_cmd", JsonValue::String(cmd.to_string()));
+            object.insert("check_cmd", cmd.into());
         }
 
-        println!("{}", object);
+        println!("{}", JsonValue::Object(object));
     }
 
     fn write_line(&self, content: &str) {
