@@ -64,6 +64,15 @@ jobs:
       - name: checkout_repository
         uses: actions/checkout@v2.4.0
 
+      - name: cache_rustup
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.rustup/toolchains
+          key: |
+            ${{ runner.os }}-rust-toolchain-${{ hashFiles('**/rustc*') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-toolchain-
 
       # install: rust
       - name: install_rust
@@ -72,17 +81,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
-
-      - name: cache_rustup
-        uses: actions/cache@v2
-        with:
-          # only match numbered versions, i.e. exclude rolling stable/beta/nightly toolchains as they change between releases
-          path: |
-            ~/.rustup/toolchains/*.*.*
-          key: |
-            ${{ runner.os }}-rust-toolchain-${{ hashFiles('**/rustc*') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-toolchain-
 
       # build / doc / test
       - name: build_all
