@@ -15,9 +15,6 @@ vulnerability = "deny"
 unmaintained = "deny"
 notice = "deny"
 ignore = [
-    # stdweb is unmaintained
-    "RUSTSEC-2020-0056",
-
     # Potential segfault in the time crate
     # NB: has been fixed in time >=0.2.23, however waiting on chrono crate to update
     # chrono PR: https://github.com/chronotope/chrono/pull/578
