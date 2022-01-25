@@ -73,20 +73,6 @@ jobs:
           override: true
           profile: minimal
 
-      # build / doc / test
-      - name: build_all
-        run: cargo build --verbose --all
-
-      - name: test_all
-        run: cargo test --verbose --all -- --test-threads=1
-
-      # show installed toolchains
-      - name: show_installed_toolchains
-        run: |
-          ls ~/.rustup/toolchains
-          ls ~/.rustup/toolchains/*.*.* 
-
-      # setup Rust toolchain cache
       - name: cache_rustup
         uses: actions/cache@v2
         with:
@@ -95,6 +81,24 @@ jobs:
             ~/.rustup/toolchains/*.*.*
           key: |
             ${{ runner.os }}-rust-toolchain-${{ hashFiles('**/rustc*') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-toolchain-
+
+      # build / doc / test
+      - name: build_all
+        run: cargo build --verbose --all
+
+      - name: test_all
+        run: cargo test --verbose --all -- --test-threads=1
+
+      # show installed toolchains
+      - name: show_installed_toolchains_all
+        run: |
+          ls ~/.rustup/toolchains
+
+      - name: show_installed_toolchains_versioned
+        run: |
+          ls ~/.rustup/toolchains/*.*.* 
 
   rustfmt:
     name: rustfmt
