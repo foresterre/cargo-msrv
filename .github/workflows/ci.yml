@@ -80,6 +80,12 @@ jobs:
       - name: test_all
         run: cargo test --verbose --all -- --test-threads=1
 
+      # show installed toolchains
+      - name: show_installed_toolchains
+        run: |
+          ls ~/.rustup/toolchains
+          ls ~/.rustup/toolchains/*.*.* 
+
       # setup Rust toolchain cache
       - name: cache_rustup
         uses: actions/cache@v2
