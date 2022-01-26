@@ -77,8 +77,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "bisector"
-version = "0.1.0"
-source = "git+https://github.com/foresterre/bisector.git?rev=0827620#0827620dccb3b71ebcfc277ba071fd94728c0fcc"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aef5b62b0fe1f2ad7df88b4b60d470353e03d41d4c9c2fd18cd99971301ae3fa"
 
 [[package]]
 name = "bitflags"

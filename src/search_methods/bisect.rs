@@ -3,7 +3,7 @@ use crate::outcome::Status;
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::ToolchainSpec;
 use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
-use bisector::{Bisector, Either, Indices, Step};
+use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
 
 pub struct Bisect<R: Check> {
@@ -20,15 +20,15 @@ impl<R: Check> Bisect<R> {
         release: &Release,
         config: &Config,
         output: &impl Output,
-    ) -> Either<String, ()> {
+    ) -> ConvergeTo<String, ()> {
         output.progress(ProgressAction::Checking(release.version()));
 
         let toolchain = ToolchainSpec::new(config.target(), release.version());
         let outcome = runner.check(config, &toolchain).unwrap();
 
         match outcome.status() {
-            Status::Success => Either::Right(()),
-            Status::Failure(msg) => Either::Left(msg),
+            Status::Success => ConvergeTo::Right(()),
+            Status::Failure(msg) => ConvergeTo::Left(msg),
         }
     }
 
@@ -84,10 +84,10 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
             Self::update_progress_bar(iteration, next_indices, output);
 
             match step {
-                Either::Left(error) => {
+                ConvergeTo::Left(error) => {
                     last_failure_report = Some(error);
                 }
-                Either::Right(_) => {
+                ConvergeTo::Right(_) => {
                     last_compatible_index = Some(indices);
                 }
             }
