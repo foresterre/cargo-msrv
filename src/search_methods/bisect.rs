@@ -20,15 +20,16 @@ impl<R: Check> Bisect<R> {
         release: &Release,
         config: &Config,
         output: &impl Output,
-    ) -> ConvergeTo<String, ()> {
+    ) -> ConvergeTo<TResult<String>, ()> {
         output.progress(ProgressAction::Checking(release.version()));
 
         let toolchain = ToolchainSpec::new(config.target(), release.version());
-        let outcome = runner.check(config, &toolchain).unwrap();
-
-        match outcome.status() {
-            Status::Success => ConvergeTo::Right(()),
-            Status::Failure(msg) => ConvergeTo::Left(msg),
+        match runner.check(config, &toolchain) {
+            Ok(outcome) => match outcome.status() {
+                Status::Success => ConvergeTo::Right(()),
+                Status::Failure(msg) => ConvergeTo::Left(Ok(msg)),
+            },
+            Err(err) => ConvergeTo::Left(Err(err)),
         }
     }
 
@@ -84,9 +85,10 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
             Self::update_progress_bar(iteration, next_indices, output);
 
             match step {
-                ConvergeTo::Left(error) => {
-                    last_failure_report = Some(error);
+                ConvergeTo::Left(Ok(message)) => {
+                    last_failure_report = Some(message);
                 }
+                ConvergeTo::Left(Err(unrecoverable_error)) => return Err(unrecoverable_error),
                 ConvergeTo::Right(_) => {
                     last_compatible_index = Some(indices);
                 }
