@@ -107,7 +107,7 @@ impl<'reporter, R: Output> RunCheck<'reporter, R> {
             );
 
             Ok(Outcome::new(
-                Status::Failure,
+                Status::Failure(stderr.to_string()),
                 toolchain.spec().to_string(),
                 toolchain.version().clone(),
             ))

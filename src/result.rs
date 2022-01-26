@@ -1,7 +1,5 @@
 use rust_releases::semver;
 
-use crate::outcome::Outcome;
-
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MinimalCompatibility {
@@ -11,6 +9,8 @@ pub enum MinimalCompatibility {
         toolchain: String,
         // checked Rust version
         version: semver::Version,
+        // last error
+        last_error: Option<String>,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
     NoCompatibleToolchains,
@@ -23,18 +23,5 @@ impl MinimalCompatibility {
         }
 
         panic!("Unable to unwrap MinimalCompatibility (CapableToolchain::version)")
-    }
-}
-
-impl From<Outcome> for MinimalCompatibility {
-    fn from(outcome: Outcome) -> Self {
-        let version = outcome.version().clone();
-        let toolchain = outcome.toolchain_spec().to_string();
-
-        if outcome.is_success() {
-            MinimalCompatibility::CapableToolchain { version, toolchain }
-        } else {
-            MinimalCompatibility::NoCompatibleToolchains
-        }
     }
 }

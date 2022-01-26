@@ -1,13 +1,13 @@
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Release, ReleaseIndex};
 
-use crate::check::{Check, RunCheck};
+use crate::check::RunCheck;
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::paths::crate_root_folder;
-use crate::reporter::{Output, ProgressAction};
+use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
-use crate::toolchain::ToolchainSpec;
+use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 
 pub fn run_determine_msrv_action<R: Output>(
     config: &Config,
@@ -25,6 +25,7 @@ pub fn run_determine_msrv_action<R: Output>(
         MinimalCompatibility::CapableToolchain {
             toolchain,
             ref version,
+            last_error: _,
         } if config.output_toolchain_file() => {
             let version_formatted = version.to_string();
             info!(
@@ -35,7 +36,11 @@ pub fn run_determine_msrv_action<R: Output>(
 
             output_toolchain_file(config, version)
         }
-        MinimalCompatibility::CapableToolchain { toolchain, version } => {
+        MinimalCompatibility::CapableToolchain {
+            toolchain,
+            version,
+            last_error: _,
+        } => {
             let version = version.to_string();
 
             info!(
@@ -54,13 +59,12 @@ pub fn determine_msrv<R: Output>(
     reporter: &R,
     index: &rust_releases::ReleaseIndex,
 ) -> TResult<MinimalCompatibility> {
-    let cmd = config.check_command_string();
     let releases = index.releases();
     let included_releases = filter_releases(config, releases);
 
     reporter.mode(ModeIntent::DetermineMSRV);
     reporter.set_steps(included_releases.len() as u64);
-    determine_msrv_impl(config, &included_releases, &cmd, reporter)
+    determine_msrv_impl(config, &included_releases, reporter)
 }
 
 fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
@@ -86,25 +90,41 @@ fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
 fn determine_msrv_impl(
     config: &Config,
     included_releases: &[Release],
-    cmd: &str,
     output: &impl Output,
 ) -> TResult<MinimalCompatibility> {
-    let mut compatibility = MinimalCompatibility::NoCompatibleToolchains;
-
     output.set_steps(included_releases.len() as u64);
     info!(bisect_enabled = config.bisect());
 
     // Whether to perform a linear (most recent to least recent), or binary search
-    if config.bisect() {
-        test_against_releases_bisect(included_releases, &mut compatibility, config, output)?;
-    } else {
-        test_against_releases_linearly(included_releases, &mut compatibility, config, output)?;
-    }
+    let runner = RunCheck::new(output);
 
-    match &compatibility {
+    if config.bisect() {
+        run_searcher(Bisect::new(runner), included_releases, config, output)
+    } else {
+        run_searcher(Linear::new(runner), included_releases, config, output)
+    }
+}
+
+fn run_searcher(
+    method: impl FindMinimalCapableToolchain,
+    releases: &[Release],
+    config: &Config,
+    output: &impl Output,
+) -> TResult<MinimalCompatibility> {
+    let minimum_capable = method.find_toolchain(releases, config, output)?;
+
+    let cmd = config.check_command_string();
+    report_outcome(&minimum_capable, &cmd, output);
+
+    Ok(minimum_capable)
+}
+
+fn report_outcome(minimum_capable: &MinimalCompatibility, cmd: &str, output: &impl Output) {
+    match minimum_capable {
         MinimalCompatibility::CapableToolchain {
             toolchain: _,
             version,
+            last_error: _,
         } => {
             output.finish_success(ModeIntent::DetermineMSRV, Some(version));
         }
@@ -112,80 +132,6 @@ fn determine_msrv_impl(
             output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd));
         }
     }
-
-    Ok(compatibility)
-}
-
-fn test_against_releases_linearly(
-    releases: &[Release],
-    compatibility: &mut MinimalCompatibility,
-    config: &Config,
-    output: &impl Output,
-) -> TResult<()> {
-    let runner = RunCheck::new(output);
-
-    for release in releases {
-        output.progress(ProgressAction::Checking(release.version()));
-
-        let toolchain = ToolchainSpec::new(config.target(), release.version());
-        let outcome = runner.check(config, &toolchain)?;
-
-        if !outcome.is_success() {
-            break;
-        }
-
-        *compatibility = outcome.into();
-    }
-
-    Ok(())
-}
-
-// Use a binary search to find the MSRV
-fn test_against_releases_bisect(
-    releases: &[Release],
-    compatibility: &mut MinimalCompatibility,
-    config: &Config,
-    output: &impl Output,
-) -> TResult<()> {
-    use rust_releases::bisect::{Bisect, Narrow};
-
-    let runner = RunCheck::new(output);
-
-    // track progressed items
-    let progressed = std::cell::Cell::new(0u64);
-    let mut binary_search = Bisect::from_slice(releases);
-    let outcome = binary_search.search_with_result_and_remainder(|release, remainder| {
-        output.progress(ProgressAction::Checking(release.version()));
-
-        // increment progressed items
-        let steps = progressed.replace(progressed.get().saturating_add(1));
-        output.set_steps(steps + (remainder as u64));
-
-        let toolchain = ToolchainSpec::new(config.target(), release.version());
-        let outcome = runner.check(config, &toolchain)?;
-
-        if outcome.is_success() {
-            // Expand search space
-            TResult::Ok(Narrow::ToRight)
-        } else {
-            // Shrink search space
-            TResult::Ok(Narrow::ToLeft)
-        }
-    });
-
-    // update compatibility
-    *compatibility = outcome?.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
-        let version = releases[i].version();
-
-        MinimalCompatibility::CapableToolchain {
-            toolchain: ToolchainSpec::new(config.target(), version)
-                .spec()
-                .to_string(),
-            version: version.clone(),
-        }
-    });
-
-    Ok(())
 }
 
 fn include_version(
