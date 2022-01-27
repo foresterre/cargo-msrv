@@ -2,7 +2,7 @@ use rust_releases::semver;
 
 #[derive(Clone, Debug)]
 pub struct Outcome {
-    status: Status,
+    pub(crate) status: Status,
     // toolchain specifier
     toolchain_spec: String,
     // checked Rust version
@@ -21,8 +21,12 @@ impl Outcome {
     pub fn is_success(&self) -> bool {
         match self.status {
             Status::Success => true,
-            Status::Failure => false,
+            Status::Failure(_) => false,
         }
+    }
+
+    pub fn status(&self) -> Status {
+        self.status.clone()
     }
 
     pub fn version(&self) -> &semver::Version {
@@ -34,8 +38,8 @@ impl Outcome {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum Status {
     Success,
-    Failure,
+    Failure(String),
 }
