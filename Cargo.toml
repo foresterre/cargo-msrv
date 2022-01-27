@@ -22,7 +22,7 @@ indicatif = "0.16.2"
 json = "0.12.4"
 
 # read Cargo.toml
-toml_edit = "0.13.0"
+toml_edit = "0.13.1"
 
 dirs = "4.0.0"
 tracing = "0.1"
