@@ -98,6 +98,18 @@ impl TryFrom<&str> for ReleaseSource {
     }
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum SearchMethod {
+    Linear,
+    Bisect,
+}
+
+impl Default for SearchMethod {
+    fn default() -> Self {
+        Self::Linear
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
     mode_intent: ModeIntent,
@@ -107,7 +119,7 @@ pub struct Config<'a> {
     include_all_patch_releases: bool,
     minimum_version: Option<semver::Version>,
     maximum_version: Option<semver::Version>,
-    bisect: bool,
+    search_method: SearchMethod,
     output_toolchain_file: bool,
     ignore_lockfile: bool,
     output_format: OutputFormat,
@@ -128,7 +140,7 @@ impl<'a> Config<'a> {
             include_all_patch_releases: false,
             minimum_version: None,
             maximum_version: None,
-            bisect: false,
+            search_method: SearchMethod::default(),
             output_toolchain_file: false,
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
@@ -171,8 +183,8 @@ impl<'a> Config<'a> {
         self.maximum_version.as_ref()
     }
 
-    pub fn bisect(&self) -> bool {
-        self.bisect
+    pub fn search_method(&self) -> SearchMethod {
+        self.search_method
     }
 
     pub fn output_toolchain_file(&self) -> bool {
@@ -253,8 +265,8 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn bisect(mut self, answer: bool) -> Self {
-        self.inner.bisect = answer;
+    pub fn search_method(mut self, method: SearchMethod) -> Self {
+        self.inner.search_method = method;
         self
     }
 
@@ -375,7 +387,14 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?);
         }
 
-        builder = builder.bisect(matches.is_present(id::ARG_BISECT));
+        builder = match (
+            matches.is_present(id::ARG_LINEAR),
+            matches.is_present(id::ARG_BISECT),
+        ) {
+            (true, false) => builder.search_method(SearchMethod::Linear),
+            (false, true) => builder.search_method(SearchMethod::Bisect),
+            _ => builder.search_method(SearchMethod::default()),
+        };
 
         builder = builder
             .include_all_patch_releases(matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));

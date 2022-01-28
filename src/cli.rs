@@ -11,6 +11,7 @@ pub mod id {
     pub const ARG_MIN: &str = "min";
     pub const ARG_MAX: &str = "max";
     pub const ARG_BISECT: &str = "bisect";
+    pub const ARG_LINEAR: &str = "linear";
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
     pub const ARG_OUTPUT_FORMAT: &str = "output_format";
@@ -105,6 +106,13 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
         .arg(Arg::with_name(id::ARG_BISECT)
             .long("bisect")
             .help("Use a binary search to find the MSRV instead of a linear search")
+            .conflicts_with(id::ARG_LINEAR)
+            .takes_value(false)
+        )
+        .arg(Arg::with_name(id::ARG_LINEAR)
+            .long("linear")
+            .help("Use a linear search to find the MSRV, by checking toolchains from latest to earliest")
+            .conflicts_with(id::ARG_BISECT)
             .takes_value(false)
         )
         .arg(Arg::with_name(id::ARG_TOOLCHAIN_FILE)
