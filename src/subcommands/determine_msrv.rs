@@ -2,7 +2,7 @@ use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Release, ReleaseIndex};
 
 use crate::check::RunCheck;
-use crate::config::{Config, ModeIntent};
+use crate::config::{Config, ModeIntent, SearchMethod};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::paths::crate_root_folder;
 use crate::reporter::Output;
@@ -93,15 +93,18 @@ fn determine_msrv_impl(
     output: &impl Output,
 ) -> TResult<MinimalCompatibility> {
     output.set_steps(included_releases.len() as u64);
-    info!(bisect_enabled = config.bisect());
+    info!(search_method = ?config.search_method());
 
     // Whether to perform a linear (most recent to least recent), or binary search
     let runner = RunCheck::new(output);
 
-    if config.bisect() {
-        run_searcher(Bisect::new(runner), included_releases, config, output)
-    } else {
-        run_searcher(Linear::new(runner), included_releases, config, output)
+    match config.search_method() {
+        SearchMethod::Linear => {
+            run_searcher(Linear::new(runner), included_releases, config, output)
+        }
+        SearchMethod::Bisect => {
+            run_searcher(Bisect::new(runner), included_releases, config, output)
+        }
     }
 }
 
