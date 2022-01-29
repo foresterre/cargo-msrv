@@ -7,6 +7,9 @@ license = "Apache-2.0/MIT"
 edition = "2018"
 repository = "https://github.com/foresterre/cargo-msrv"
 
+keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
+
 [package.metadata]
 msrv = "1.53.0"
 
