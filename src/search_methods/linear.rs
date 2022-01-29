@@ -1,7 +1,7 @@
 use crate::check::Check;
-use crate::outcome::{Outcome, Status};
+use crate::outcome::{FailureOutcome, Outcome};
 use crate::search_methods::FindMinimalCapableToolchain;
-use crate::toolchain::ToolchainSpec;
+use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
 use rust_releases::Release;
 
@@ -22,24 +22,21 @@ impl<R: Check> Linear<R> {
     ) -> TResult<Outcome> {
         output.progress(ProgressAction::Checking(release.version()));
 
-        let toolchain = ToolchainSpec::new(config.target(), release.version());
+        let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
     }
 
     fn minimum_capable(
-        releases: &[Release],
+        releases: &[rust_releases::Release],
         index_of_msrv: Option<usize>,
-        last_error: Option<String>,
+        last_error: Option<FailureOutcome>,
         config: &Config,
     ) -> MinimalCompatibility {
         index_of_msrv.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
             let version = releases[i].version();
 
             MinimalCompatibility::CapableToolchain {
-                toolchain: ToolchainSpec::new(config.target(), version)
-                    .spec()
-                    .to_string(),
-                version: version.clone(),
+                toolchain: OwnedToolchainSpec::new(version, config.target()),
                 last_error,
             }
         })
@@ -47,10 +44,10 @@ impl<R: Check> Linear<R> {
 }
 
 impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
-    fn find_toolchain(
+    fn find_toolchain<'spec>(
         &self,
-        search_space: &[Release],
-        config: &Config,
+        search_space: &'spec [Release],
+        config: &'spec Config,
         output: &impl Output,
     ) -> TResult<MinimalCompatibility> {
         let mut last_compatible_index = None;
@@ -59,8 +56,8 @@ impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
         for (i, release) in search_space.iter().enumerate() {
             let outcome = Self::run_check(&self.runner, release, config, output)?;
 
-            if let Status::Failure(msg) = outcome.status() {
-                last_failure_report = Some(msg);
+            if let Outcome::Failure(reason) = outcome {
+                last_failure_report = Some(reason);
                 break;
             }
 

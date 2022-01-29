@@ -1,8 +1,9 @@
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::RunCheck;
-use crate::config::{Config, ModeIntent, SearchMethod};
+use crate::config::{Config, ModeIntent, OutputFormat, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::formatter::{FormatUserOutput, Human, Json};
 use crate::releases::filter_releases;
 use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
@@ -24,17 +25,15 @@ pub fn run_find_msrv_action<R: Output>(
         }
         MinimalCompatibility::CapableToolchain {
             toolchain,
-            ref version,
             last_error: _,
         } => {
             info!(
                 %toolchain,
-                %version,
                 "found minimal-compatible toolchain"
             );
 
             if config.output_toolchain_file() {
-                write_toolchain_file(config, version)?;
+                write_toolchain_file(config, toolchain.version())?;
             }
 
             Ok(())
@@ -86,23 +85,32 @@ fn run_searcher(
 ) -> TResult<MinimalCompatibility> {
     let minimum_capable = method.find_toolchain(releases, config, output)?;
 
-    let cmd = config.check_command_string();
-    report_outcome(&minimum_capable, &cmd, output);
+    report_outcome(&minimum_capable, config, output);
 
     Ok(minimum_capable)
 }
 
-fn report_outcome(minimum_capable: &MinimalCompatibility, cmd: &str, output: &impl Output) {
+fn report_outcome(minimum_capable: &MinimalCompatibility, config: &Config, output: &impl Output) {
     match minimum_capable {
         MinimalCompatibility::CapableToolchain {
-            toolchain: _,
-            version,
-            last_error: _,
+            toolchain,
+            last_error,
         } => {
-            output.finish_success(ModeIntent::Find, Some(version));
+            if let Some(failure_outcome) = last_error {
+                match config.output_format() {
+                    OutputFormat::Human => {
+                        output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome))
+                    }
+                    OutputFormat::Json => {
+                        output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome))
+                    }
+                    _ => {}
+                };
+            }
+            output.finish_success(ModeIntent::Find, Some(toolchain.version()));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::Find, Some(cmd));
+            output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
         }
     }
 }

@@ -39,7 +39,7 @@ pub fn run_verify_msrv_action<R: Output>(
     reporter.mode(ModeIntent::Verify);
 
     let runner = RunCheck::new(reporter);
-    let toolchain = ToolchainSpec::new(config.target(), version);
+    let toolchain = ToolchainSpec::new(version, config.target());
     let status = runner.check(config, &toolchain)?;
     report_verify_completion(reporter, &status, &cmd);
 

@@ -104,6 +104,15 @@ pub enum SearchMethod {
     Bisect,
 }
 
+impl From<SearchMethod> for &'static str {
+    fn from(method: SearchMethod) -> Self {
+        match method {
+            SearchMethod::Linear => "linear",
+            SearchMethod::Bisect => "bisect",
+        }
+    }
+}
+
 impl Default for SearchMethod {
     fn default() -> Self {
         Self::Linear
