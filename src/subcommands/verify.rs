@@ -36,7 +36,7 @@ pub fn run_verify_msrv_action<R: Output>(
     let version = version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let cmd = config.check_command_string();
-    reporter.mode(ModeIntent::VerifyMSRV);
+    reporter.mode(ModeIntent::Verify);
 
     let runner = RunCheck::new(reporter);
     let toolchain = ToolchainSpec::new(config.target(), version);
@@ -55,9 +55,9 @@ pub fn run_verify_msrv_action<R: Output>(
 
 fn report_verify_completion(output: &impl Output, outcome: &Outcome, cmd: &str) {
     if outcome.is_success() {
-        output.finish_success(ModeIntent::VerifyMSRV, Some(outcome.version()));
+        output.finish_success(ModeIntent::Verify, Some(outcome.version()));
     } else {
-        output.finish_failure(ModeIntent::VerifyMSRV, Some(cmd));
+        output.finish_failure(ModeIntent::Verify, Some(cmd));
     }
 }
 

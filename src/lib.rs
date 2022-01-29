@@ -15,9 +15,8 @@ use crate::reporter::{Output, ProgressAction};
 use crate::subcommands::list::run_list_msrv;
 use crate::subcommands::show::run_show_msrv;
 pub use crate::{
-    result::MinimalCompatibility, subcommands::determine_msrv::determine_msrv,
-    subcommands::determine_msrv::run_determine_msrv_action,
-    subcommands::verify_msrv::run_verify_msrv_action,
+    result::MinimalCompatibility, subcommands::find::find_msrv,
+    subcommands::find::run_find_msrv_action, subcommands::verify::run_verify_msrv_action,
 };
 
 pub mod check;
@@ -33,11 +32,13 @@ pub(crate) mod lockfile;
 pub(crate) mod manifest;
 pub(crate) mod outcome;
 pub(crate) mod paths;
+pub(crate) mod releases;
 pub mod reporter;
 pub(crate) mod result;
 pub(crate) mod search_methods;
 pub(crate) mod subcommands;
 pub(crate) mod toolchain;
+pub(crate) mod toolchain_file;
 
 pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     reporter.progress(ProgressAction::FetchingIndex);
@@ -73,8 +74,8 @@ fn run_action<R: Output>(config: &Config, index: &ReleaseIndex, reporter: &R) ->
     );
 
     match action {
-        ModeIntent::DetermineMSRV => run_determine_msrv_action(config, reporter, index),
-        ModeIntent::VerifyMSRV => run_verify_msrv_action(config, reporter, index),
+        ModeIntent::Find => run_find_msrv_action(config, reporter, index),
+        ModeIntent::Verify => run_verify_msrv_action(config, reporter, index),
         ModeIntent::List => run_list_msrv(config, reporter),
         ModeIntent::Show => run_show_msrv(config, reporter),
     }

@@ -27,8 +27,8 @@ impl<'a> JsonPrinter<'a> {
 
     fn reason(mode: ModeIntent) -> &'static str {
         match mode {
-            ModeIntent::DetermineMSRV => "msrv-complete",
-            ModeIntent::VerifyMSRV => "verify-complete",
+            ModeIntent::Find => "msrv-complete",
+            ModeIntent::Verify => "verify-complete",
             ModeIntent::List => "list-complete",
             ModeIntent::Show => "show-complete",
         }

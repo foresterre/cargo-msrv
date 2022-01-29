@@ -29,7 +29,7 @@ pub fn run_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
             Release::new_stable(semver::Version::new(1, 34, 0)),
         ],
         &fake_reporter(),
-        cargo_msrv::determine_msrv,
+        cargo_msrv::find_msrv,
     )
     .unwrap()
 }
@@ -44,7 +44,7 @@ where
     S: IntoIterator<Item = Release>,
 {
     let reporter = test_reporter();
-    let compatibility = run(with_args, releases, &reporter, cargo_msrv::determine_msrv).unwrap();
+    let compatibility = run(with_args, releases, &reporter, cargo_msrv::find_msrv).unwrap();
     (compatibility, reporter)
 }
 
@@ -109,7 +109,7 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
     ]);
 
     // Determine the MSRV from the index of available releases.
-    cargo_msrv::determine_msrv(&matches, &reporter, &available_versions)
+    cargo_msrv::find_msrv(&matches, &reporter, &available_versions)
         .expect("Unable to run MSRV process")
 }
 
