@@ -177,6 +177,6 @@ impl<'a> crate::Output for HumanPrinter<'a> {
     }
 
     fn write_line(&self, content: &str) {
-        let _ = self.term.write_line(content);
+        let _ = self.progress.println(content);
     }
 }
