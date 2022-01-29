@@ -1,10 +1,10 @@
-use rust_releases::linear::LatestStableReleases;
 use rust_releases::{semver, Release, ReleaseIndex};
 
 use crate::check::RunCheck;
 use crate::config::{Config, ModeIntent, SearchMethod};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::paths::crate_root_folder;
+use crate::releases::filter_releases;
 use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
@@ -67,26 +67,6 @@ pub fn find_msrv<R: Output>(
     run_with_search_method(config, &included_releases, reporter)
 }
 
-fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
-    let releases = if config.include_all_patch_releases() {
-        releases.to_vec()
-    } else {
-        releases.iter().cloned().latest_stable_releases().collect()
-    };
-
-    // Pre-filter the [min-version:max-version] range
-    releases
-        .into_iter()
-        .filter(|release| {
-            include_version(
-                release.version(),
-                config.minimum_version(),
-                config.maximum_version(),
-            )
-        })
-        .collect::<Vec<_>>()
-}
-
 fn run_with_search_method(
     config: &Config,
     included_releases: &[Release],
@@ -139,19 +119,6 @@ fn report_outcome(minimum_capable: &MinimalCompatibility, cmd: &str, output: &im
     }
 }
 
-fn include_version(
-    current: &semver::Version,
-    min_version: Option<&semver::Version>,
-    max_version: Option<&semver::Version>,
-) -> bool {
-    match (min_version, max_version) {
-        (Some(min), Some(max)) => current >= min && current <= max,
-        (Some(min), None) => current >= min,
-        (None, Some(max)) => current <= max,
-        (None, None) => true,
-    }
-}
-
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 
@@ -188,73 +155,4 @@ channel = "{}"
     eprintln!("Written toolchain file to '{}'", &path.display());
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use parameterized::{ide, parameterized};
-    use rust_releases::semver::Version;
-
-    use super::*;
-
-    ide!();
-
-    #[parameterized(current = {
-        50, // -inf <= x <= inf
-        50, // 1.50.0 <= x <= inf
-        50, // -inf <= x <= 1.50.0
-        50, // 1.50.0 <= x <= 1.50.0
-        50, // 1.49.0 <= x <= 1.50.0
-    }, min = {
-        None,
-        Some(50),
-        None,
-        Some(50),
-        Some(49),
-    }, max = {
-        None,
-        None,
-        Some(50),
-        Some(50),
-        Some(50),
-    })]
-    fn test_included_versions(current: u64, min: Option<u64>, max: Option<u64>) {
-        let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
-
-        assert!(include_version(
-            &current,
-            min_version.as_ref(),
-            max_version.as_ref()
-        ));
-    }
-
-    #[parameterized(current = {
-        50, // -inf <= x <= 1.49.0 : false
-        50, // 1.51 <= x <= inf    : false
-        50, // 1.51 <= x <= 1.52.0 : false
-        50, // 1.48 <= x <= 1.49.0 : false
-    }, min = {
-        None,
-        Some(51),
-        Some(51),
-        Some(48),
-    }, max = {
-        Some(49),
-        None,
-        Some(52),
-        Some(49),
-    })]
-    fn test_excluded_versions(current: u64, min: Option<u64>, max: Option<u64>) {
-        let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
-
-        assert!(!include_version(
-            &current,
-            min_version.as_ref(),
-            max_version.as_ref()
-        ));
-    }
 }

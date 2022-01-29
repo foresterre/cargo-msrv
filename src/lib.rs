@@ -32,6 +32,7 @@ pub(crate) mod lockfile;
 pub(crate) mod manifest;
 pub(crate) mod outcome;
 pub(crate) mod paths;
+pub(crate) mod releases;
 pub mod reporter;
 pub(crate) mod result;
 pub(crate) mod search_methods;
