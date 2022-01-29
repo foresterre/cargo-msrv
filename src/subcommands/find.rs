@@ -1,9 +1,8 @@
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::RunCheck;
-use crate::config::{Config, ModeIntent, OutputFormat, SearchMethod};
+use crate::config::{Config, ModeIntent, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
-use crate::formatter::{FormatUserOutput, Human, Json};
 use crate::releases::filter_releases;
 use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
@@ -23,10 +22,7 @@ pub fn run_find_msrv_action<R: Output>(
                 command: config.check_command().join(" "),
             })
         }
-        MinimalCompatibility::CapableToolchain {
-            toolchain,
-            last_error: _,
-        } => {
+        MinimalCompatibility::CapableToolchain { toolchain } => {
             info!(
                 %toolchain,
                 "found minimal-compatible toolchain"
@@ -92,21 +88,7 @@ fn run_searcher(
 
 fn report_outcome(minimum_capable: &MinimalCompatibility, config: &Config, output: &impl Output) {
     match minimum_capable {
-        MinimalCompatibility::CapableToolchain {
-            toolchain,
-            last_error,
-        } => {
-            if let Some(failure_outcome) = last_error {
-                match config.output_format() {
-                    OutputFormat::Human => {
-                        output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome))
-                    }
-                    OutputFormat::Json => {
-                        output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome))
-                    }
-                    _ => {}
-                };
-            }
+        MinimalCompatibility::CapableToolchain { toolchain } => {
             output.finish_success(ModeIntent::Find, Some(toolchain.version()));
         }
         MinimalCompatibility::NoCompatibleToolchains => {

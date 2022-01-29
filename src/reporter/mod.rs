@@ -1,8 +1,11 @@
 use std::fmt::Debug;
 
+use crate::Config;
 use rust_releases::semver;
 
-use crate::config::ModeIntent;
+use crate::config::{ModeIntent, OutputFormat};
+use crate::formatter::{FormatUserOutput, Human, Json};
+use crate::outcome::{FailureOutcome, SuccessOutcome};
 
 pub mod json;
 pub mod no_output;
@@ -77,4 +80,32 @@ pub mod __private {
             self.successes.clone().borrow().to_owned()
         }
     }
+}
+
+pub fn write_succeeded_check(
+    success_outcome: &SuccessOutcome,
+    config: &Config,
+    output: &impl Output,
+) {
+    match config.output_format() {
+        OutputFormat::Human => {
+            output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome))
+        }
+        OutputFormat::Json => {
+            output.write_line(&FormatUserOutput::<Json>::format_line(success_outcome))
+        }
+        _ => {}
+    };
+}
+
+pub fn write_failed_check(failure_outcome: &FailureOutcome, config: &Config, output: &impl Output) {
+    match config.output_format() {
+        OutputFormat::Human => {
+            output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome))
+        }
+        OutputFormat::Json => {
+            output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome))
+        }
+        _ => {}
+    };
 }

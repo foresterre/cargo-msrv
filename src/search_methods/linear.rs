@@ -1,5 +1,6 @@
 use crate::check::Check;
-use crate::outcome::{FailureOutcome, Outcome};
+use crate::outcome::Outcome;
+use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
@@ -29,7 +30,6 @@ impl<R: Check> Linear<R> {
     fn minimum_capable(
         releases: &[rust_releases::Release],
         index_of_msrv: Option<usize>,
-        last_error: Option<FailureOutcome>,
         config: &Config,
     ) -> MinimalCompatibility {
         index_of_msrv.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
@@ -37,7 +37,6 @@ impl<R: Check> Linear<R> {
 
             MinimalCompatibility::CapableToolchain {
                 toolchain: OwnedToolchainSpec::new(version, config.target()),
-                last_error,
             }
         })
     }
@@ -51,14 +50,18 @@ impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
         output: &impl Output,
     ) -> TResult<MinimalCompatibility> {
         let mut last_compatible_index = None;
-        let mut last_failure_report = None;
 
         for (i, release) in search_space.iter().enumerate() {
             let outcome = Self::run_check(&self.runner, release, config, output)?;
 
-            if let Outcome::Failure(reason) = outcome {
-                last_failure_report = Some(reason);
-                break;
+            match outcome {
+                Outcome::Failure(outcome) => {
+                    write_failed_check(&outcome, config, output);
+                    break;
+                }
+                Outcome::Success(outcome) => {
+                    write_succeeded_check(&outcome, config, output);
+                }
             }
 
             last_compatible_index = Some(i);
@@ -67,7 +70,6 @@ impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
         Ok(Self::minimum_capable(
             search_space,
             last_compatible_index,
-            last_failure_report,
             config,
         ))
     }

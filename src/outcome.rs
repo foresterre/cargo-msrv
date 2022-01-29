@@ -49,6 +49,32 @@ pub struct SuccessOutcome {
     toolchain_spec: OwnedToolchainSpec,
 }
 
+impl FormatUserOutput<Human> for SuccessOutcome {
+    fn format_line(&self) -> String {
+        format!(
+            "Check for toolchain '{}' succeeded",
+            self.toolchain_spec.spec(),
+        )
+    }
+}
+
+impl FormatUserOutput<Json> for SuccessOutcome {
+    fn format_line(&self) -> String {
+        let version = self.toolchain_spec.version();
+        let toolchain = self.toolchain_spec.spec();
+
+        format!(
+            "{}",
+            json::object! {
+                reason: "last-check-success-message",
+                version: format!("{}", version),
+                experimental: true, // Message is more unstable other messages and will likely change in the future
+                toolchain: toolchain,
+            }
+        )
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FailureOutcome {
     toolchain_spec: OwnedToolchainSpec,
@@ -82,7 +108,7 @@ impl FormatUserOutput<Json> for FailureOutcome {
             json::object! {
                 reason: "last-check-failure-message",
                 version: format!("{}", version),
-                experimental: true, // Message is not final and will likely change in the future
+                experimental: true,  // Message is more unstable other messages and will likely change in the future
                 toolchain: toolchain,
                 error_message: error_message,
             }

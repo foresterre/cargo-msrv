@@ -1,4 +1,3 @@
-use crate::outcome::FailureOutcome;
 use crate::toolchain::OwnedToolchainSpec;
 use rust_releases::semver;
 
@@ -9,8 +8,6 @@ pub enum MinimalCompatibility {
     CapableToolchain {
         // toolchain
         toolchain: OwnedToolchainSpec,
-        // last error
-        last_error: Option<FailureOutcome>,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
     NoCompatibleToolchains,
