@@ -38,6 +38,7 @@ pub(crate) mod result;
 pub(crate) mod search_methods;
 pub(crate) mod subcommands;
 pub(crate) mod toolchain;
+pub(crate) mod toolchain_file;
 
 pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     reporter.progress(ProgressAction::FetchingIndex);
