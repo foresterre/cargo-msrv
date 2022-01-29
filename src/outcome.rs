@@ -1,5 +1,7 @@
 use crate::formatter::{FormatUserOutput, Human, Json};
 use crate::toolchain::OwnedToolchainSpec;
+use comfy_table::presets::UTF8_FULL;
+use comfy_table::{ContentArrangement, Table};
 use rust_releases::semver;
 
 #[derive(Clone, Debug)]
@@ -55,10 +57,16 @@ pub struct FailureOutcome {
 
 impl FormatUserOutput<Human> for FailureOutcome {
     fn format_line(&self) -> String {
+        let mut table = Table::new();
+        table
+            .load_preset(UTF8_FULL)
+            .set_content_arrangement(ContentArrangement::Dynamic)
+            .add_row(vec![self.error_message.as_str().trim()]);
+
         format!(
-            "Check for toolchain '{}' failed with:\n{}",
+            "\nCheck for toolchain '{}' failed with:\n{}",
             self.toolchain_spec.spec(),
-            self.error_message.as_str()
+            table.to_string()
         )
     }
 }
