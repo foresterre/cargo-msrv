@@ -9,12 +9,12 @@ use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 
-pub fn run_determine_msrv_action<R: Output>(
+pub fn run_find_msrv_action<R: Output>(
     config: &Config,
     reporter: &R,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
-    match determine_msrv(config, reporter, release_index)? {
+    match find_msrv(config, reporter, release_index)? {
         MinimalCompatibility::NoCompatibleToolchains => {
             info!("no minimal-compatible toolchain found");
 
@@ -54,7 +54,7 @@ pub fn run_determine_msrv_action<R: Output>(
     }
 }
 
-pub fn determine_msrv<R: Output>(
+pub fn find_msrv<R: Output>(
     config: &Config,
     reporter: &R,
     index: &rust_releases::ReleaseIndex,
@@ -62,9 +62,9 @@ pub fn determine_msrv<R: Output>(
     let releases = index.releases();
     let included_releases = filter_releases(config, releases);
 
-    reporter.mode(ModeIntent::DetermineMSRV);
+    reporter.mode(ModeIntent::Find);
     reporter.set_steps(included_releases.len() as u64);
-    determine_msrv_impl(config, &included_releases, reporter)
+    run_with_search_method(config, &included_releases, reporter)
 }
 
 fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
@@ -87,18 +87,20 @@ fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
         .collect::<Vec<_>>()
 }
 
-fn determine_msrv_impl(
+fn run_with_search_method(
     config: &Config,
     included_releases: &[Release],
     output: &impl Output,
 ) -> TResult<MinimalCompatibility> {
     output.set_steps(included_releases.len() as u64);
-    info!(search_method = ?config.search_method());
 
-    // Whether to perform a linear (most recent to least recent), or binary search
+    let search_method = config.search_method();
+    info!(?search_method);
+
     let runner = RunCheck::new(output);
 
-    match config.search_method() {
+    // Run a linear or binary search depending on the configuration
+    match search_method {
         SearchMethod::Linear => {
             run_searcher(Linear::new(runner), included_releases, config, output)
         }
@@ -129,10 +131,10 @@ fn report_outcome(minimum_capable: &MinimalCompatibility, cmd: &str, output: &im
             version,
             last_error: _,
         } => {
-            output.finish_success(ModeIntent::DetermineMSRV, Some(version));
+            output.finish_success(ModeIntent::Find, Some(version));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::DetermineMSRV, Some(cmd));
+            output.finish_failure(ModeIntent::Find, Some(cmd));
         }
     }
 }

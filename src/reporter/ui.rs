@@ -41,8 +41,8 @@ impl<'a> HumanPrinter<'a> {
 
     fn welcome(&self, target: &str, cmd: &str, action_intent: ModeIntent) {
         let verb = match action_intent {
-            ModeIntent::DetermineMSRV => "Determining",
-            ModeIntent::VerifyMSRV => "Verifying",
+            ModeIntent::Find => "Determining",
+            ModeIntent::Verify => "Verifying",
             ModeIntent::List | ModeIntent::Show => "",
         };
 
@@ -155,8 +155,8 @@ impl<'a> crate::Output for HumanPrinter<'a> {
         // for determine-msrv and verify-msrv, we report the status
         if let Some(version) = version {
             match mode {
-                ModeIntent::DetermineMSRV => self.finish_with_ok("The MSRV is:", version),
-                ModeIntent::VerifyMSRV => self.finish_with_ok("Satisfied MSRV check:", version),
+                ModeIntent::Find => self.finish_with_ok("The MSRV is:", version),
+                ModeIntent::Verify => self.finish_with_ok("Satisfied MSRV check:", version),
                 ModeIntent::Show => {
                     let _ = self.term.write_line(&format!("{}", version));
                 }

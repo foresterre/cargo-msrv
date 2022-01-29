@@ -6,7 +6,7 @@ use std::string::FromUtf8Error;
 
 use crate::fetch::ToolchainSpecifier;
 use crate::manifest::bare_version::NoVersionMatchesManifestMsrvError;
-use crate::subcommands::verify_msrv;
+use crate::subcommands::verify;
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
 
@@ -73,7 +73,7 @@ pub enum CargoMSRVError {
     SemverError(#[from] rust_releases::semver::Error),
 
     #[error(transparent)]
-    SubCommandVerify(#[from] verify_msrv::Error),
+    SubCommandVerify(#[from] verify::Error),
 
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),

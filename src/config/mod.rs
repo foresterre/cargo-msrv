@@ -51,11 +51,11 @@ pub fn test_config_from_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<Conf
 #[derive(Debug, Clone, Copy)]
 pub enum ModeIntent {
     // Determines the MSRV for a project
-    DetermineMSRV,
+    Find,
     // List the MSRV's as specified by package authors
     List,
     // Verifies the given MSRV
-    VerifyMSRV,
+    Verify,
     // Shows the MSRV of the current crate as specified in the Cargo manifest
     Show,
 }
@@ -63,9 +63,9 @@ pub enum ModeIntent {
 impl From<ModeIntent> for &'static str {
     fn from(action: ModeIntent) -> Self {
         match action {
-            ModeIntent::DetermineMSRV => "determine-msrv",
+            ModeIntent::Find => "determine-msrv",
             ModeIntent::List => "list-msrv",
-            ModeIntent::VerifyMSRV => "verify-msrv",
+            ModeIntent::Verify => "verify-msrv",
             ModeIntent::Show => "show-msrv",
         }
     }
@@ -322,9 +322,9 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
         } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
             ModeIntent::Show
         } else if matches.is_present(id::SUB_COMMAND_VERIFY) || matches.is_present(id::ARG_VERIFY) {
-            ModeIntent::VerifyMSRV
+            ModeIntent::Verify
         } else {
-            ModeIntent::DetermineMSRV
+            ModeIntent::Find
         };
 
         // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
