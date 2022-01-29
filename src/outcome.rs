@@ -60,7 +60,7 @@ impl FormatUserOutput<Human> for FailureOutcome {
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
-            .set_content_arrangement(ContentArrangement::Dynamic)
+            .set_content_arrangement(ContentArrangement::DynamicFullWidth)
             .add_row(vec![self.error_message.as_str().trim()]);
 
         format!(
