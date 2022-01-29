@@ -66,7 +66,7 @@ impl FormatUserOutput<Human> for FailureOutcome {
         format!(
             "\nCheck for toolchain '{}' failed with:\n{}",
             self.toolchain_spec.spec(),
-            table.to_string()
+            table
         )
     }
 }
