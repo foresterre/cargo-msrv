@@ -7,6 +7,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 # [unreleased]
 
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...HEAD
+
+# [0.14.0] - 2022-01-30
+
 * Added: Verify as a subcommand
 * Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand.
 * Changed: Changed terminology from 'Determine MSRV' to 'Find MSRV' for top level cargo-msrv command.
@@ -16,7 +20,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Added: Flag `--no-check-feedback` which disables the feedback messages printed after each check.
 
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...HEAD
+[0.14.0]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...v0.14.0
 
 # [0.13.0] - 2021-12-25
 
