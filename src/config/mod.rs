@@ -115,7 +115,7 @@ impl From<SearchMethod> for &'static str {
 
 impl Default for SearchMethod {
     fn default() -> Self {
-        Self::Linear
+        Self::Bisect
     }
 }
 
