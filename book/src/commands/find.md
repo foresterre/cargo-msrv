@@ -46,7 +46,13 @@ implementation. If you don't know where to start, create a new issue, we're happ
 
 **`--bisect`**
 
-Use a binary search to find the MSRV instead of a linear search
+Use a binary search to find the MSRV. This is usually faster than using a linear search.
+The binary search strategy is the default since `cargo-msrv v0.14.0`.
+
+**`--linear`**
+
+Use a linear search to find the MSRV, by checking toolchains from latest to earliest.
+The linear search strategy was the default prior to `cargo-msrv v0.14.0`.
 
 **`-h, --help`**
 
@@ -92,11 +98,17 @@ and be semver compatible. An example of an acceptable versions is "1.35.0", whil
 
 
 **`--min` version**
+
 Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain version,
 and be semver compatible. Edition aliases may also be used. An example of an acceptable versions is "1.35.0", while
 "1.35", "^1.35.0" and "1.35.0-beta" are not valid. Editions map to the first version in which they were introduced, so
 for example "1.56.0" for edition "2018".
 
+**`--no-check-feedback`**
+
+If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in which
+checks ran, and their results. This is especially useful if you want to know why a certain Rust version was deemed to be
+incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.  
 
 **`--no-log`**
 
@@ -162,11 +174,20 @@ When provided, the trailing command (`cmd`) will be used as the _cargo-msrv chec
 cargo msrv --bisect
 ```
 
-2. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
+or (from cargo-msrv `v0.14.0`, `bisect` is the default search method):
 
 ```shell
 cargo msrv
 ```
+
+2. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
+
+```shell
+cargo msrv --linear
+```
+
+NB: Prior to cargo-msrv `v0.14.0`, `linear` was the default search strategy, and no flag was available explicitly
+use this search strategy.
 
 3. Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
 `cargo test`.
