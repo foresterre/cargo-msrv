@@ -33,17 +33,14 @@ toolchain helps us to be more precise<sup>1</sup>.
 
 ### Future work
 
-_1. We aim to make bisect the default strategy eventually. The reasons for it not already being the case are described
-in [this](https://github.com/foresterre/cargo-msrv/issues/97) issue._
+_1. Currently, the 'Find your MSRV' action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
+in the near future, e.g. `cargo-msrv find` (subcommand name subject to change)._
 
-_2. Currently, this action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
-in the near future, e.g. `cargo-msrv run` (subcommand name subject to change)._
-
-_3. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
+_2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition._
 
-_4. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
-implementation. If you don't know where to start, create a new issue, we're happy to help!_  
+_3. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
+implementation. If you don't know where to start, create a new issue, we're happy to help!_ 
 
 ## OPTIONS
 
