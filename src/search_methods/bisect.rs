@@ -1,7 +1,8 @@
 use crate::check::Check;
-use crate::outcome::Status;
+use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
+use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::search_methods::FindMinimalCapableToolchain;
-use crate::toolchain::ToolchainSpec;
+use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
 use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
@@ -20,14 +21,14 @@ impl<R: Check> Bisect<R> {
         release: &Release,
         config: &Config,
         output: &impl Output,
-    ) -> TResult<ConvergeTo<String, ()>> {
+    ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
         output.progress(ProgressAction::Checking(release.version()));
 
-        let toolchain = ToolchainSpec::new(config.target(), release.version());
+        let toolchain = ToolchainSpec::new(release.version(), config.target());
         match runner.check(config, &toolchain) {
-            Ok(outcome) => match outcome.status() {
-                Status::Success => Ok(ConvergeTo::Right(())),
-                Status::Failure(msg) => Ok(ConvergeTo::Left(msg)),
+            Ok(outcome) => match outcome {
+                Outcome::Success(outcome) => Ok(ConvergeTo::Right(outcome)),
+                Outcome::Failure(outcome) => Ok(ConvergeTo::Left(outcome)),
             },
             Err(err) => Err(err),
         }
@@ -41,18 +42,13 @@ impl<R: Check> Bisect<R> {
     fn minimum_capable(
         releases: &[Release],
         index_of_msrv: Option<Indices>,
-        last_error: Option<String>,
         config: &Config,
     ) -> MinimalCompatibility {
         index_of_msrv.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
             let version = releases[i.middle()].version();
 
             MinimalCompatibility::CapableToolchain {
-                toolchain: ToolchainSpec::new(config.target(), version)
-                    .spec()
-                    .to_string(),
-                version: version.clone(),
-                last_error,
+                toolchain: OwnedToolchainSpec::new(version, config.target()),
             }
         })
     }
@@ -71,7 +67,6 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
         let mut indices = Indices::from_bisector(&searcher);
 
         let mut last_compatible_index = None;
-        let mut last_failure_report = None;
 
         while let Step {
             indices: next_indices,
@@ -85,11 +80,12 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
             Self::update_progress_bar(iteration, next_indices, output);
 
             match step {
-                ConvergeTo::Left(message) => {
-                    last_failure_report = Some(message);
+                ConvergeTo::Left(outcome) => {
+                    write_failed_check(&outcome, config, output);
                 }
-                ConvergeTo::Right(_) => {
+                ConvergeTo::Right(outcome) => {
                     last_compatible_index = Some(indices);
+                    write_succeeded_check(&outcome, config, output)
                 }
             }
 
@@ -99,7 +95,6 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
         Ok(Self::minimum_capable(
             search_space,
             last_compatible_index,
-            last_failure_report,
             config,
         ))
     }

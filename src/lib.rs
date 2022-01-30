@@ -28,6 +28,7 @@ pub(crate) mod download;
 pub mod errors;
 pub mod exit_code;
 pub(crate) mod fetch;
+pub(crate) mod formatter;
 pub(crate) mod lockfile;
 pub(crate) mod manifest;
 pub(crate) mod outcome;

@@ -22,19 +22,14 @@ pub fn run_find_msrv_action<R: Output>(
                 command: config.check_command().join(" "),
             })
         }
-        MinimalCompatibility::CapableToolchain {
-            toolchain,
-            ref version,
-            last_error: _,
-        } => {
+        MinimalCompatibility::CapableToolchain { toolchain } => {
             info!(
                 %toolchain,
-                %version,
                 "found minimal-compatible toolchain"
             );
 
             if config.output_toolchain_file() {
-                write_toolchain_file(config, version)?;
+                write_toolchain_file(config, toolchain.version())?;
             }
 
             Ok(())
@@ -86,23 +81,18 @@ fn run_searcher(
 ) -> TResult<MinimalCompatibility> {
     let minimum_capable = method.find_toolchain(releases, config, output)?;
 
-    let cmd = config.check_command_string();
-    report_outcome(&minimum_capable, &cmd, output);
+    report_outcome(&minimum_capable, config, output);
 
     Ok(minimum_capable)
 }
 
-fn report_outcome(minimum_capable: &MinimalCompatibility, cmd: &str, output: &impl Output) {
+fn report_outcome(minimum_capable: &MinimalCompatibility, config: &Config, output: &impl Output) {
     match minimum_capable {
-        MinimalCompatibility::CapableToolchain {
-            toolchain: _,
-            version,
-            last_error: _,
-        } => {
-            output.finish_success(ModeIntent::Find, Some(version));
+        MinimalCompatibility::CapableToolchain { toolchain } => {
+            output.finish_success(ModeIntent::Find, Some(toolchain.version()));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::Find, Some(cmd));
+            output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
         }
     }
 }
