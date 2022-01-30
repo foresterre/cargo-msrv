@@ -26,11 +26,11 @@ From the [AUR](https://aur.archlinux.org/packages/cargo-msrv/) (Arch Linux):
 
 ### Usage
 
-* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/run.html) or [`cargo msrv --bisect`](https://foresterre.github.io/cargo-msrv/commands/run.html) to find the MSRV for a Cargo project in your current working directory. 
-* [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/run.html) to find the MSRV for a Cargo project in the `<dir>` directory.
-* [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/run.html) to use `<command>` as the compatibility check which decides whether a Rust version is
-compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
-* [`cargo msrv --verify`](https://foresterre.github.io/cargo-msrv/commands/run.html)  to verify the MSRV as specified by a crate author\
+* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html) or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in your current working directory. 
+* [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in the `<dir>` directory.
+* [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the compatibility check which decides whether a Rust version is
+  compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
+* [`cargo msrv --verify`](https://foresterre.github.io/cargo-msrv/commands/find.html)  to verify the MSRV as specified by a crate author\
   * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or `package.metadata.msrv` keys
     in the 'Cargo.toml' manifest. See the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
     for a more detailed description.
@@ -60,21 +60,27 @@ OPTIONS:
         --include-all-patch-releases
             Include all patch releases, instead of only the last
 
+        --linear
+            Use a linear search to find the MSRV, by checking toolchains from latest to earliest
+
         --ignore-lockfile
             Temporarily removes the lockfile, so it will not interfere with the building process. This is important when
             testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.
         --log-level <log_level>
-            Specify the verbosity of logs the program should output [default: info]  [possible values: error, warn,
-            info, debug, trace]
+            Specify the verbosity of logs the program should output [default: info]  [possible values:
+            error, warn, info, debug, trace]
         --log-target <log_target>
-            Specify where the program should output its logs [default: file]  [possible values: file, stdout]
-
+            Specify where the program should output its logs [default: file]  [possible values: file,
+            stdout]
         --max <max>
             Latest (most recent) version to take into account.Version must match a valid Rust toolchain, and be semver
             compatible. [aliases: maximum]
         --min <min>
             Earliest (least recent) version to take into account. Version must match a valid Rust toolchain, and be
             semver compatible. Edition aliases may also be used. [aliases: minimum]
+        --no-check-feedback
+            If provided, the outcome of each individual check will not be printed.
+
         --no-log
             Disable logging
 
@@ -85,8 +91,8 @@ OPTIONS:
             Output status messages in machine-readable format. Machine-readable status updates will be printed in the
             requested format to stdout. [possible values: json, void]
         --release-source <release_source>
-            Select the rust-releases source to use as the release index [default: rust-changelog]  [possible values:
-            rust-changelog, rust-dist]
+            Select the rust-releases source to use as the release index [default: rust-changelog]  [possible
+            values: rust-changelog, rust-dist]
         --path <DIR>
             Path to the cargo project directory
 
