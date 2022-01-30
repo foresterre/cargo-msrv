@@ -22,7 +22,7 @@ From the [AUR](https://aur.archlinux.org/packages/cargo-msrv/) (Arch Linux):
 
 ### Preview
 
-![cargo-msrv preview](https://user-images.githubusercontent.com/67644597/115533258-db1f7c80-a296-11eb-864f-c2e363fdb83d.gif)
+[![asciicast](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF.svg)](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF)
 
 ### Usage
 
