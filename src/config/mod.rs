@@ -135,6 +135,7 @@ pub struct Config<'a> {
     release_source: ReleaseSource,
     tracing_config: Option<TracingOptions>,
     no_read_min_edition: Option<semver::Version>,
+    no_check_feedback: bool,
 
     sub_command_config: SubCommandConfig,
 }
@@ -156,6 +157,7 @@ impl<'a> Config<'a> {
             release_source: ReleaseSource::RustChangelog,
             tracing_config: None,
             no_read_min_edition: None,
+            no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
         }
     }
@@ -219,6 +221,10 @@ impl<'a> Config<'a> {
 
     pub fn no_read_min_version(&self) -> Option<&semver::Version> {
         self.no_read_min_edition.as_ref()
+    }
+
+    pub fn no_check_feedback(&self) -> bool {
+        self.no_check_feedback
     }
 
     pub fn sub_command_config(&self) -> &SubCommandConfig {
@@ -306,6 +312,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn no_read_min_edition(mut self, version: semver::Version) -> Self {
         self.inner.no_read_min_edition = Some(version);
+        self
+    }
+
+    pub fn no_check_feedback(mut self, choice: bool) -> Self {
+        self.inner.no_check_feedback = choice;
         self
     }
 
@@ -443,6 +454,8 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
 
             builder = builder.tracing_config(config);
         }
+
+        builder = builder.no_check_feedback(matches.is_present(id::ARG_NO_CHECK_FEEDBACK));
 
         if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
             let cmd_config = ListCmdConfig::try_from(cmd)?;

@@ -21,6 +21,7 @@ pub mod id {
     pub const ARG_LOG_LEVEL: &str = "log_level";
     pub const ARG_LOG_TARGET: &str = "log_target";
     pub const ARG_NO_READ_MIN_EDITION: &str = "no_read_min_edition";
+    pub const ARG_NO_CHECK_FEEDBACK: &str = "no_check_feedback";
 
     pub const SUB_COMMAND_LIST: &str = "list";
     pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
@@ -178,6 +179,11 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .long("no-read-min-edition")
             .help("If provided, the 'package.edition' value in the Cargo.toml will not \
             be used to reduce search space.")
+            .takes_value(false)
+        )
+        .arg(Arg::with_name(id::ARG_NO_CHECK_FEEDBACK)
+            .long("no-check-feedback")
+            .help("If provided, the outcome of each individual check will not be printed.")
             .takes_value(false)
         )
         .arg(

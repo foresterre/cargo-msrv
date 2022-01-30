@@ -87,6 +87,10 @@ pub fn write_succeeded_check(
     config: &Config,
     output: &impl Output,
 ) {
+    if config.no_check_feedback() {
+        return;
+    }
+
     match config.output_format() {
         OutputFormat::Human => {
             output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome))
@@ -99,6 +103,10 @@ pub fn write_succeeded_check(
 }
 
 pub fn write_failed_check(failure_outcome: &FailureOutcome, config: &Config, output: &impl Output) {
+    if config.no_check_feedback() {
+        return;
+    }
+
     match config.output_format() {
         OutputFormat::Human => {
             output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome))
