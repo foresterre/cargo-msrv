@@ -33,23 +33,26 @@ toolchain helps us to be more precise<sup>1</sup>.
 
 ### Future work
 
-_1. We aim to make bisect the default strategy eventually. The reasons for it not already being the case are described
-in [this](https://github.com/foresterre/cargo-msrv/issues/97) issue._
+_1. Currently, the 'Find your MSRV' action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
+in the near future, e.g. `cargo-msrv find` (subcommand name subject to change)._
 
-_2. Currently, this action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
-in the near future, e.g. `cargo-msrv run` (subcommand name subject to change)._
-
-_3. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
+_2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition._
 
-_4. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
-implementation. If you don't know where to start, create a new issue, we're happy to help!_  
+_3. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
+implementation. If you don't know where to start, create a new issue, we're happy to help!_ 
 
 ## OPTIONS
 
 **`--bisect`**
 
-Use a binary search to find the MSRV instead of a linear search
+Use a binary search to find the MSRV. This is usually faster than using a linear search.
+The binary search strategy is the default since `cargo-msrv v0.14.0`.
+
+**`--linear`**
+
+Use a linear search to find the MSRV, by checking toolchains from latest to earliest.
+The linear search strategy was the default prior to `cargo-msrv v0.14.0`.
 
 **`-h, --help`**
 
@@ -95,11 +98,17 @@ and be semver compatible. An example of an acceptable versions is "1.35.0", whil
 
 
 **`--min` version**
+
 Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain version,
 and be semver compatible. Edition aliases may also be used. An example of an acceptable versions is "1.35.0", while
 "1.35", "^1.35.0" and "1.35.0-beta" are not valid. Editions map to the first version in which they were introduced, so
 for example "1.56.0" for edition "2018".
 
+**`--no-check-feedback`**
+
+If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in which
+checks ran, and their results. This is especially useful if you want to know why a certain Rust version was deemed to be
+incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.  
 
 **`--no-log`**
 
@@ -165,11 +174,20 @@ When provided, the trailing command (`cmd`) will be used as the _cargo-msrv chec
 cargo msrv --bisect
 ```
 
-2. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
+or (from cargo-msrv `v0.14.0`, `bisect` is the default search method):
 
 ```shell
 cargo msrv
 ```
+
+2. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
+
+```shell
+cargo msrv --linear
+```
+
+NB: Prior to cargo-msrv `v0.14.0`, `linear` was the default search strategy, and no flag was available explicitly
+use this search strategy.
 
 3. Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
 `cargo test`.
