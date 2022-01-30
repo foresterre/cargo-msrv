@@ -1,30 +1,43 @@
+This is the changelog for [cargo-msrv](https://github.com/foresterre/cargo-msrv), a tool and cargo plugin, which can be
+used to find the Minimum Supported Rust Version (MSRV) of your projects.
+This changelog is aimed at users, and only contains user-relevant changes.
+
+If you found an issue, have a suggestion or want to provide feedback or insights, please feel free to open an issue on
+the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a topic in the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
+
 # [unreleased]
 
 * Added: Verify as a subcommand
-* Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand
+* Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand.
+* Changed: Changed terminology from 'Determine MSRV' to 'Find MSRV' for top level cargo-msrv command.
+* Added: Flag `--linear` to the top cargo-msrv command ('find msrv') to choose explicitly for the `linear` search strategy.
+* Changed: The default search method is now `bisect` instead of `linear`. ⚠
+* Added: Feedback messages printed after each check, allowing users to see why certain Rust versions are not compatible.
+* Added: Flag `--no-check-feedback` which disables the feedback messages printed after each check.
+
 
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...HEAD
 
 # [0.13.0] - 2021-12-25
 
-* Fixed: Help text of the list subcommand will now be shown correctly   
-* Fixed: The json output of the list subcommand will now also report when it's done
-* Changed: Renamed list subcommand option "type" to "variant"
-* Added: Subcommand "show" which shows the MSRV for the crate in your current working directory
-* Added: Logging to a file (default) or the stdout for developer information; can also be disabled entirely
-* Added: Output format option 'void', which disables user targeted output
-* Changed: `cargo-msrv` now exits with a non-zero exit code on failure
-* Changed: Clarify the reason when the program fails because of an IO error
-* Added: Book covering cargo-msrv topics, and its subcommands
-* Changed: Suggest `package.rust-version` is missing when MSRV can't be found in the Cargo manifest
-* Fixed: Return non-zero exit code when verify command fails
+* Fixed: Help text of the list subcommand will now be shown correctly .  
+* Fixed: The json output of the list subcommand will now also report when it's done.
+* Changed: Renamed list subcommand option "type" to "variant".
+* Added: Subcommand "show" which shows the MSRV for the crate in your current working directory.
+* Added: Logging to a file (default) or the stdout for developer information; can also be disabled entirely.
+* Added: Output format option 'void', which disables user targeted output.
+* Changed: `cargo-msrv` now exits with a non-zero exit code on failure.
+* Changed: Clarify the reason when the program fails because of an IO error.
+* Added: Book covering cargo-msrv topics, and its subcommands.
+* Changed: Suggest `package.rust-version` is missing when MSRV can't be found in the Cargo manifest.
+* Fixed: Return non-zero exit code when verify command fails.
 
 [0.13.0]: https://github.com/foresterre/cargo-msrv/compare/v0.12.0...v0.13.0
 
 # [0.12.0] - 2021-11-01
 
 * Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version key.
-* You can now also simply run cargo-msrv standalone, i.e. `cargo-msrv` instead of `cargo msrv`
+* You can now also simply run cargo-msrv standalone, i.e. `cargo-msrv` instead of `cargo msrv`.
 
 _Only list available as a subcommand. The determine-msrv and verify-msrv commands have not been ported to subcommands yet,
 but are planned to._
