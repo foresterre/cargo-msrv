@@ -30,8 +30,8 @@ From the [AUR](https://aur.archlinux.org/packages/cargo-msrv/) (Arch Linux):
 * [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in the `<dir>` directory.
 * [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the compatibility check which decides whether a Rust version is
   compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
-* [`cargo msrv --verify`](https://foresterre.github.io/cargo-msrv/commands/find.html)  to verify the MSRV as specified by a crate author\
-  * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or `package.metadata.msrv` keys
+* [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/find.html)  to verify the MSRV as specified by a crate author\
+  * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv` key
     in the 'Cargo.toml' manifest. See the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
     for a more detailed description.
 * [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your dependencies as specified by their authors 
