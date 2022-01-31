@@ -152,7 +152,7 @@ See [here](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file)
 
 Prints cargo-msrv version information
 
-**`--verify`**
+**`--verify` (DEPRECATED)**
 
 Verify the MSRV specified by a crate author in the 'package.rust-version' or the 'package.metadata.msrv' key, in the
 Cargo manifest `Cargo.toml`. When this flag is present, cargo-msrv will not attempt to determine the true MSRV. 
