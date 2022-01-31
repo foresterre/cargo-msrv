@@ -16,9 +16,9 @@ With Cargo from Github [latest development version]:
 
 `cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main`
 
-From the [AUR](https://aur.archlinux.org/packages/cargo-msrv/) (Arch Linux):
+From the Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/):
 
-`paru -S cargo-msrv`
+`pacman -S cargo-msrv`
 
 ### Preview
 
