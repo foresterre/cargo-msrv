@@ -1,6 +1,6 @@
 ## 🌞 Installation
 
-Packages marked with 🔸 are maintained by community members (i.e. not the cargo-msrv authors)
+Packages marked with 🔸 are maintained by community members (i.e. not the cargo-msrv authors). A big thank you to them!
 
 ### Using [Cargo](https://doc.rust-lang.org/cargo/commands/cargo-install.html):
 
@@ -20,14 +20,14 @@ You may install _cargo-msrv_ from GitHub:
 cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
 ```
 
-### AUR (Arch Linux) 🔸
+### Arch Linux 🔸
 
-cargo-msrv is available from the Arch Linux user repository ([AUR](https://aur.archlinux.org/packages/cargo-msrv/)).
+cargo-msrv is available from the Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/).
 
 **How to install?**
 
 ```shell
-paru -S cargo-msrv
+pacman -S cargo-msrv
 ```
 
 ### Nix 🔸
