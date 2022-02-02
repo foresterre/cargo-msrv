@@ -31,7 +31,7 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let with_args = vec!["cargo-msrv", "--linear", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
-    let actual_version = result.unwrap_version();
+    let actual_version = result.to_version();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -56,7 +56,7 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
     let with_args = vec!["cargo-msrv", "--bisect", "--path", folder.to_str().unwrap()];
 
     let result = run_msrv(with_args);
-    let actual_version = result.unwrap_version();
+    let actual_version = result.to_version();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -99,7 +99,7 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     ];
 
     let result = run_msrv(with_args);
-    let actual_version = result.unwrap_version();
+    let actual_version = result.to_version();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -135,7 +135,7 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
 
     let result = run_msrv(with_args);
 
-    let actual_version = result.unwrap_version();
+    let actual_version = result.to_version();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -152,7 +152,7 @@ fn msrv_with_old_lockfile() {
     ];
 
     let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args);
-    assert_eq!(result.unwrap_version().minor, 29);
+    assert_eq!(result.to_version().minor, 29);
 }
 
 mod minimum_from_edition {
@@ -172,7 +172,7 @@ mod minimum_from_edition {
             Release::new_stable(semver::Version::new(1, 29, 0)),
         ];
         let (result, reporter) = run_msrv_with_releases(with_args, versions);
-        assert_eq!(result.unwrap_version().minor, 31);
+        assert_eq!(result.to_version().minor, 31);
         assert_eq!(
             reporter.expose_successes(),
             vec![
@@ -201,7 +201,7 @@ mod minimum_from_edition {
             Release::new_stable(semver::Version::new(1, 29, 0)),
         ];
         let (result, reporter) = run_msrv_with_releases(with_args, versions);
-        assert_eq!(result.unwrap_version().minor, 31);
+        assert_eq!(result.to_version().minor, 31);
         assert_eq!(
             reporter.expose_successes(),
             vec![

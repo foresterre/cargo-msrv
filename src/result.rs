@@ -14,7 +14,7 @@ pub enum MinimalCompatibility {
 }
 
 impl MinimalCompatibility {
-    pub fn unwrap_version(&self) -> semver::Version {
+    pub fn to_version(&self) -> semver::Version {
         if let Self::CapableToolchain { toolchain, .. } = self {
             return toolchain.version().clone();
         }

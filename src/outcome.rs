@@ -46,7 +46,7 @@ impl Outcome {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SuccessOutcome {
-    toolchain_spec: OwnedToolchainSpec,
+    pub(crate) toolchain_spec: OwnedToolchainSpec,
 }
 
 impl FormatUserOutput<Human> for SuccessOutcome {
@@ -77,8 +77,8 @@ impl FormatUserOutput<Json> for SuccessOutcome {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FailureOutcome {
-    toolchain_spec: OwnedToolchainSpec,
-    error_message: String,
+    pub(crate) toolchain_spec: OwnedToolchainSpec,
+    pub(crate) error_message: String,
 }
 
 impl FormatUserOutput<Human> for FailureOutcome {
