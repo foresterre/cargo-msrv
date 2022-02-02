@@ -7,11 +7,13 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 # [unreleased]
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...HEAD
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...HEAD
 
 # [0.14.1] - 2022-02-02
 
 * Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the alogithm would stop one step too early.
+
+[0.14.1]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...v0.14.1
 
 # [0.14.0] - 2022-01-30
 
