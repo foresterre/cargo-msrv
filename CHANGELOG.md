@@ -9,6 +9,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...HEAD
 
+# [0.14.1] - 2022-02-02
+
+* Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the alogithm would stop one step too early.
+
 # [0.14.0] - 2022-01-30
 
 * Added: Verify as a subcommand
