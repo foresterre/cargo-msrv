@@ -129,6 +129,7 @@ mod tests {
     use std::collections::BTreeSet;
     use std::iter::FromIterator;
 
+    #[derive(Default)]
     struct FakeRunner {
         successes: BTreeSet<semver::Version>,
     }
@@ -137,14 +138,6 @@ mod tests {
         fn from_iter<T: IntoIterator<Item = &'v Version>>(iter: T) -> Self {
             Self {
                 successes: iter.into_iter().map(ToOwned::to_owned).collect(),
-            }
-        }
-    }
-
-    impl Default for FakeRunner {
-        fn default() -> Self {
-            Self {
-                successes: BTreeSet::default(),
             }
         }
     }
