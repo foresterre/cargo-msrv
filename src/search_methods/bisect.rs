@@ -169,7 +169,7 @@ mod tests {
     }
 
     #[yare::parameterized(
-        regression288_all_succeed = {
+        regression288_search_space_of_3_all_succeed = {
             &[
                 Release::new_stable(semver::Version::new(1, 58, 1)),
                 Release::new_stable(semver::Version::new(1, 57, 0)),
@@ -190,18 +190,7 @@ mod tests {
             ],
             semver::Version::new(1, 56, 1)
         },
-        most_recent_succeeds = {
-            &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-            ],
-            &[
-                semver::Version::new(1, 58, 0),
-            ],
-            semver::Version::new(1, 58, 0)
-        },
-        most_recent_two_succeed = {
+        search_space_of_3_most_recent_two_succeed = {
             &[
                 Release::new_stable(semver::Version::new(1, 58, 0)),
                 Release::new_stable(semver::Version::new(1, 57, 0)),
@@ -212,6 +201,157 @@ mod tests {
                 semver::Version::new(1, 57, 0),
             ],
             semver::Version::new(1, 57, 0)
+        },
+        search_space_of_3_most_recent_one_succeeds = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+            ],
+            &[
+                semver::Version::new(1, 58, 0),
+            ],
+            semver::Version::new(1, 58, 0)
+        },
+
+        search_space_of_2_all_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+            ],
+            Version::new(1, 57, 0)
+        },
+        search_space_of_2_most_recent_one_succeeds = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+            ],
+            Version::new(1, 58, 0)
+        },
+        search_space_of_4_all_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 56, 0),
+                semver::Version::new(1, 55, 0),
+            ],
+            Version::new(1, 55, 0)
+        },
+        search_space_of_4_most_recent_three_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 56, 0),
+            ],
+            Version::new(1, 56, 0)
+        },
+        search_space_of_4_most_recent_two_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+            ],
+            Version::new(1, 57, 0)
+        },
+        search_space_of_4_most_recent_one_succeeds = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+            ],
+            Version::new(1, 58, 0)
+        },
+        search_space_of_5_all_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+                Release::new_stable(semver::Version::new(1, 54, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 56, 0),
+                semver::Version::new(1, 55, 0),
+                semver::Version::new(1, 54, 0),
+            ],
+            Version::new(1, 54, 0)
+        },
+        search_space_of_5_most_recent_four_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+                Release::new_stable(semver::Version::new(1, 54, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 56, 0),
+                semver::Version::new(1, 55, 0),
+            ],
+            Version::new(1, 55, 0)
+        },
+        search_space_of_5_most_recent_three_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+                Release::new_stable(semver::Version::new(1, 54, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 56, 0),
+            ],
+            Version::new(1, 56, 0)
+        },
+        search_space_of_5_most_recent_two_succeed = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+                Release::new_stable(semver::Version::new(1, 54, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+                semver::Version::new(1, 57, 0),
+            ],
+            Version::new(1, 57, 0)
+        },
+        search_space_of_5_most_recent_one_succeeds = {
+            &[
+                Release::new_stable(semver::Version::new(1, 58, 0)),
+                Release::new_stable(semver::Version::new(1, 57, 0)),
+                Release::new_stable(semver::Version::new(1, 56, 0)),
+                Release::new_stable(semver::Version::new(1, 55, 0)),
+                Release::new_stable(semver::Version::new(1, 54, 0)),
+            ], &[
+                semver::Version::new(1, 58, 0),
+            ],
+            Version::new(1, 58, 0)
         },
     )]
     fn find_toolchain_with_bisect(
