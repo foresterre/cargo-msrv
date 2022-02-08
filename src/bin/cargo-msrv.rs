@@ -54,7 +54,8 @@ fn args() -> impl IntoIterator<Item = String> {
 fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
     args: F,
 ) -> TResult<Option<TracingGuard>> {
-    let matches = cli::cli().get_matches_from(args());
+    let cli = cli::cli();
+    let matches = cli.get_matches_from(args());
     let config = Config::try_from(&matches)?;
 
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as

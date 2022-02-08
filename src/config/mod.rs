@@ -42,7 +42,7 @@ impl OutputFormat {
 /// Gets a [`Config`] from the given matches, but sets output_format to None
 ///
 /// This is meant to be used for testing
-pub fn test_config_from_matches<'a>(matches: &'a ArgMatches<'a>) -> TResult<Config<'a>> {
+pub fn test_config_from_matches(matches: &ArgMatches) -> TResult<Config> {
     let mut config = Config::try_from(matches)?;
     config.output_format = OutputFormat::None;
     Ok(config)
@@ -330,10 +330,10 @@ impl<'a> ConfigBuilder<'a> {
     }
 }
 
-impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
+impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
     type Error = CargoMSRVError;
 
-    fn try_from(matches: &'config ArgMatches<'config>) -> Result<Self, Self::Error> {
+    fn try_from(matches: &'config ArgMatches) -> Result<Self, Self::Error> {
         use crate::cli::id;
         use crate::fetch::default_target;
 
@@ -341,7 +341,9 @@ impl<'config> TryFrom<&'config ArgMatches<'config>> for Config<'config> {
             ModeIntent::List
         } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
             ModeIntent::Show
-        } else if matches.is_present(id::SUB_COMMAND_VERIFY) || matches.is_present(id::ARG_VERIFY) {
+        } else if matches.subcommand_matches(id::SUB_COMMAND_VERIFY).is_some()
+            || matches.is_present(id::ARG_VERIFY)
+        {
             ModeIntent::Verify
         } else {
             ModeIntent::Find
