@@ -6,7 +6,7 @@ pub struct ListCmdConfig {
     pub variant: ListVariant,
 }
 
-impl<'a> TryFrom<&'a ArgMatches<'a>> for ListCmdConfig {
+impl<'a> TryFrom<&'a ArgMatches> for ListCmdConfig {
     type Error = crate::CargoMSRVError;
 
     fn try_from(args: &'a ArgMatches) -> Result<Self, Self::Error> {

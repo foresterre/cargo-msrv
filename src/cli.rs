@@ -31,17 +31,16 @@ pub mod id {
     pub const SUB_COMMAND_VERIFY: &str = "verify";
 }
 
-pub fn cli() -> App<'static, 'static> {
+pub fn cli() -> App<'static> {
     App::new("cargo-msrv")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Martijn Gribnau <garm@ilumeo.com>")
+        .global_setting(AppSettings::PropagateVersion)
+        .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
         .global_setting(AppSettings::NextLineHelp)
-        .global_setting(AppSettings::ColoredHelp)
-        .global_setting(AppSettings::ColorAuto)
         .global_setting(AppSettings::DontCollapseArgsInUsage)
-        .global_setting(AppSettings::UnifiedHelpMessage)
+        // .global_setting(AppSettings::ArgsNegateSubcommands)
         .max_term_width(120)
-        .usage("cargo msrv [OPTIONS] or cargo-msrv [OPTIONS]")
         .about("Helps with finding the Minimal Supported Rust Version (MSRV)")
         .after_help("\
 An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, \
@@ -52,7 +51,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
         .subcommand(show())
         .subcommand(verify())
         .arg(
-            Arg::with_name(id::ARG_SEEK_PATH)
+            Arg::new(id::ARG_SEEK_PATH)
                 .long("path")
                 .help("Path to the cargo project directory")
                 .takes_value(true)
@@ -70,7 +69,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                 }),
         )
         .arg(
-            Arg::with_name(id::ARG_SEEK_CUSTOM_TARGET)
+            Arg::new(id::ARG_SEEK_CUSTOM_TARGET)
                 .long("target")
                 .help("Check against a custom target (instead of the rustup default)")
                 .takes_value(true)
@@ -83,12 +82,12 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
                     })
                 }),
         )
-        .arg(Arg::with_name(id::ARG_INCLUDE_ALL_PATCH_RELEASES)
+        .arg(Arg::new(id::ARG_INCLUDE_ALL_PATCH_RELEASES)
             .long("include-all-patch-releases")
             .help("Include all patch releases, instead of only the last")
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_MIN)
+        .arg(Arg::new(id::ARG_MIN)
             .long("min")
             .visible_alias("minimum")
             .help("Earliest version to take into account")
@@ -96,7 +95,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
              Version must match a valid Rust toolchain, and be semver compatible. Edition aliases may also be used.")
             .takes_value(true)
         )
-        .arg(Arg::with_name(id::ARG_MAX)
+        .arg(Arg::new(id::ARG_MAX)
             .long("max")
             .visible_alias("maximum")
             .help("Latest version to take into account")
@@ -104,32 +103,32 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
              Version must match a valid Rust toolchain, and be semver compatible.")
             .takes_value(true)
         )
-        .arg(Arg::with_name(id::ARG_BISECT)
+        .arg(Arg::new(id::ARG_BISECT)
             .long("bisect")
             .help("Use a binary search to find the MSRV instead of a linear search")
             .conflicts_with(id::ARG_LINEAR)
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_LINEAR)
+        .arg(Arg::new(id::ARG_LINEAR)
             .long("linear")
             .help("Use a linear search to find the MSRV, by checking toolchains from latest to earliest")
             .conflicts_with(id::ARG_BISECT)
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_TOOLCHAIN_FILE)
+        .arg(Arg::new(id::ARG_TOOLCHAIN_FILE)
             .long("toolchain-file")
             .help("Output a rust-toolchain file with the MSRV as toolchain")
             .long_help("Output a rust-toolchain file with the MSRV as toolchain. \
             The toolchain file will pin the Rust version for this crate. \
             See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.")
         )
-        .arg(Arg::with_name(id::ARG_IGNORE_LOCKFILE)
+        .arg(Arg::new(id::ARG_IGNORE_LOCKFILE)
             .long("ignore-lockfile")
             .help("Temporarily removes the lockfile, so it will not interfere with the building process")
             .long_help("Temporarily removes the lockfile, so it will not interfere with the building process. \
             This is important when testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.")
         )
-        .arg(Arg::with_name(id::ARG_OUTPUT_FORMAT)
+        .arg(Arg::new(id::ARG_OUTPUT_FORMAT)
             .long("output-format")
             .help("Output status messages in machine-readable format")
             .takes_value(true)
@@ -137,7 +136,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .long_help("Output status messages in machine-readable format. \
         Machine-readable status updates will be printed in the requested format to stdout.")
         )
-        .arg(Arg::with_name(id::ARG_VERIFY)
+        .arg(Arg::new(id::ARG_VERIFY)
             .long("verify")
             .help("DEPRECATED: Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml")
             .long_help("Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. \
@@ -147,19 +146,19 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             DEPRECATED: use the `cargo msrv verify` subcommand instead.")
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_RELEASE_SOURCE)
+        .arg(Arg::new(id::ARG_RELEASE_SOURCE)
             .long("release-source")
             .help("Select the rust-releases source to use as the release index")
             .takes_value(true)
             .possible_values(&["rust-changelog", "rust-dist"])
             .default_value("rust-changelog")
         )
-        .arg(Arg::with_name(id::ARG_NO_LOG)
+        .arg(Arg::new(id::ARG_NO_LOG)
             .long("no-log")
             .help("Disable logging")
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_LOG_TARGET)
+        .arg(Arg::new(id::ARG_LOG_TARGET)
             .long("log-target")
             .help("Specify where the program should output its logs")
             .takes_value(true)
@@ -167,7 +166,7 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .possible_values(&[TracingTargetOption::FILE, TracingTargetOption::STDOUT])
             .default_value(TracingTargetOption::FILE)
         )
-        .arg(Arg::with_name(id::ARG_LOG_LEVEL)
+        .arg(Arg::new(id::ARG_LOG_LEVEL)
             .long("log-level")
             .help("Specify the verbosity of logs the program should output")
             .takes_value(true)
@@ -175,38 +174,37 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .possible_values(&["error", "warn", "info", "debug", "trace"])
             .default_value("info")
         )
-        .arg(Arg::with_name(id::ARG_NO_READ_MIN_EDITION)
+        .arg(Arg::new(id::ARG_NO_READ_MIN_EDITION)
             .long("no-read-min-edition")
             .help("If provided, the 'package.edition' value in the Cargo.toml will not \
             be used to reduce search space.")
             .takes_value(false)
         )
-        .arg(Arg::with_name(id::ARG_NO_CHECK_FEEDBACK)
+        .arg(Arg::new(id::ARG_NO_CHECK_FEEDBACK)
             .long("no-check-feedback")
             .help("If provided, the outcome of each individual check will not be printed.")
             .takes_value(false)
         )
         .arg(
-            Arg::with_name(id::ARG_CUSTOM_CHECK)
+            Arg::new(id::ARG_CUSTOM_CHECK)
                 .value_name("COMMAND")
                 .help("If given, this command is used to validate if a Rust version is \
                 compatible. Should be available to rustup, i.e. the command should work like \
                 so: `rustup run <toolchain> <COMMAND>`. \
                 The default check action is `cargo check --all`.")
-                .multiple(true)
+                .multiple_values(true)
                 .last(true)
 
         )
 }
 
-pub fn list() -> App<'static, 'static> {
+pub fn list() -> App<'static> {
     use crate::config::list;
-    use clap::SubCommand;
 
-    SubCommand::with_name(id::SUB_COMMAND_LIST)
+    App::new(id::SUB_COMMAND_LIST)
         .about("List the MSRV's specified by dependency crate authors.")
         .arg(
-            Arg::with_name(id::SUB_COMMAND_LIST_VARIANT)
+            Arg::new(id::SUB_COMMAND_LIST_VARIANT)
                 .long("variant")
                 .takes_value(true)
                 .possible_values(&[list::DIRECT_DEPS, list::ORDERED_BY_MSRV])
@@ -214,16 +212,22 @@ pub fn list() -> App<'static, 'static> {
         )
 }
 
-pub fn show() -> App<'static, 'static> {
-    use clap::SubCommand;
-
-    SubCommand::with_name(id::SUB_COMMAND_SHOW)
+pub fn show() -> App<'static> {
+    App::new(id::SUB_COMMAND_SHOW)
         .about("Show the MSRV of your crate, as specified in the Cargo manifest.")
 }
 
-pub fn verify() -> App<'static, 'static> {
-    use clap::SubCommand;
-
-    SubCommand::with_name(id::SUB_COMMAND_VERIFY)
+pub fn verify() -> App<'static> {
+    App::new(id::SUB_COMMAND_VERIFY)
         .about("Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest.")
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cli::cli;
+
+    #[test]
+    fn cli_conforms() {
+        cli().debug_assert();
+    }
 }
