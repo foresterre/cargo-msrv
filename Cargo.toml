@@ -11,7 +11,7 @@ keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
 [package.metadata]
-msrv = "1.53.0"
+msrv = "1.54.0"
 
 [dependencies]
 # Used for parsing cli arguments.
