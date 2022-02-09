@@ -9,9 +9,11 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...HEAD
 
+* Fixed: Unable to set a custom check command when calling the cargo-msrv verify subcommand.
+
 # [0.14.1] - 2022-02-02
 
-* Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the alogithm would stop one step too early.
+* Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the algorithm would stop one step too early.
 
 [0.14.1]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...v0.14.1
 
