@@ -185,17 +185,22 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .help("If provided, the outcome of each individual check will not be printed.")
             .takes_value(false)
         )
-        .arg(
-            Arg::new(id::ARG_CUSTOM_CHECK)
-                .value_name("COMMAND")
-                .help("If given, this command is used to validate if a Rust version is \
+        .arg(custom_check())
+}
+
+pub fn custom_check() -> Arg<'static> {
+    Arg::new(id::ARG_CUSTOM_CHECK)
+        .value_name("COMMAND")
+        .help(
+            "If given, this command is used to validate if a Rust version is \
                 compatible. Should be available to rustup, i.e. the command should work like \
                 so: `rustup run <toolchain> <COMMAND>`. \
-                The default check action is `cargo check --all`.")
-                .multiple_values(true)
-                .last(true)
-
+                The default check action is `cargo check --all`.",
         )
+        .multiple_values(true)
+        .takes_value(true)
+        .required(false)
+        .last(true)
 }
 
 pub fn list() -> App<'static> {
@@ -220,6 +225,7 @@ pub fn show() -> App<'static> {
 pub fn verify() -> App<'static> {
     App::new(id::SUB_COMMAND_VERIFY)
         .about("Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest.")
+        .arg(custom_check())
 }
 
 #[cfg(test)]

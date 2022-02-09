@@ -355,10 +355,10 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
         let mut builder = ConfigBuilder::new(action_intent, &target);
 
         // set the command which will be used to check if a project can build
-        let check_cmd = matches.values_of(id::ARG_CUSTOM_CHECK);
-        if let Some(cmd) = check_cmd {
-            builder = builder.check_command(cmd.collect());
-        }
+        builder = match matches.subcommand_matches(id::SUB_COMMAND_VERIFY) {
+            Some(verify_cmd) => set_custom_check_command(verify_cmd, builder),
+            None => set_custom_check_command(matches, builder),
+        };
 
         // set the cargo workspace path
         let crate_path = matches.value_of(id::ARG_SEEK_PATH);
@@ -479,6 +479,21 @@ fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
 
 fn parse_log_level(input: &str) -> tracing::Level {
     input.parse().unwrap_or(tracing::Level::INFO)
+}
+
+fn set_custom_check_command<'a>(
+    matches: &'a ArgMatches,
+    builder: ConfigBuilder<'a>,
+) -> ConfigBuilder<'a> {
+    use crate::cli::id;
+
+    let check_cmd = matches.values_of(id::ARG_CUSTOM_CHECK);
+
+    if let Some(custom_cmd) = check_cmd {
+        builder.check_command(custom_cmd.collect())
+    } else {
+        builder
+    }
 }
 
 macro_rules! as_sub_command_config {
