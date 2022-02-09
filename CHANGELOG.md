@@ -9,7 +9,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 [unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...HEAD
 
-# [0.14.2]
+# [0.14.2] - 2022-02-09
 
 [0.14.2]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...v0.14.2
 
