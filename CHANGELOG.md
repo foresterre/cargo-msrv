@@ -7,7 +7,11 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 # [unreleased]
 
-[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...HEAD
+[unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...HEAD
+
+# [0.14.2]
+
+[0.14.2]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...v0.14.2
 
 * Fixed: Unable to set a custom check command when calling the cargo-msrv verify subcommand.
 
