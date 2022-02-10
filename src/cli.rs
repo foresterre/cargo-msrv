@@ -195,7 +195,7 @@ pub fn custom_check() -> Arg<'static> {
             "If given, this command is used to validate if a Rust version is \
                 compatible. Should be available to rustup, i.e. the command should work like \
                 so: `rustup run <toolchain> <COMMAND>`. \
-                The default check action is `cargo check --all`.",
+                The default check action is `cargo check`.",
         )
         .multiple_values(true)
         .takes_value(true)

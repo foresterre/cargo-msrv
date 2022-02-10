@@ -145,7 +145,7 @@ impl<'a> Config<'a> {
         Self {
             mode_intent,
             target,
-            check_command: vec!["cargo", "check", "--all"],
+            check_command: vec!["cargo", "check"],
             crate_path: None,
             include_all_patch_releases: false,
             minimum_version: None,

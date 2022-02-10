@@ -212,3 +212,72 @@ mod minimum_from_edition {
         );
     }
 }
+
+#[parameterized(
+    package = {
+        "a",
+        "b",
+    },
+    expected_version = {
+        semver::Version::new(1,56,1), // `a` has an MSRV of 1.56.1
+        semver::Version::new(1,58,1), // `b` has an MSRV of 1.58.1
+    }
+)]
+fn msrv_in_a_virtual_workspace_default_check_command(
+    package: &str,
+    expected_version: semver::Version,
+) {
+    let folder = fixtures_path().join("virtual-workspace").join(package);
+    let folder = folder.to_str().unwrap();
+
+    let with_args = vec!["cargo-msrv", "--path", folder];
+
+    let versions = vec![
+        Release::new_stable(semver::Version::new(1, 58, 1)),
+        Release::new_stable(semver::Version::new(1, 56, 1)),
+    ];
+    let (result, _) = run_msrv_with_releases(with_args, versions);
+    let actual_version = result.to_version();
+
+    assert_eq!(actual_version, expected_version);
+}
+
+#[parameterized(
+    command = {
+        "cargo check",
+        "cargo check --workspace",
+        "cargo check",
+        "cargo check --workspace",
+    },
+    package = {
+        "a",
+        "a",
+        "b",
+        "b",
+    },
+    expected_version = {
+        semver::Version::new(1,56,1), // `a` has an MSRV of 1.56.1
+        semver::Version::new(1,58,1), // since `b` has a greater MSRV than `a`, the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
+        semver::Version::new(1,58,1), // `b` has an MSRV of 1.58.1
+        semver::Version::new(1,58,1), // the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
+    }
+)]
+fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: semver::Version) {
+    let folder = fixtures_path().join("virtual-workspace").join(package);
+    let folder = folder.to_str().unwrap();
+
+    let base_command = vec!["cargo-msrv", "--path", folder, "--"];
+    let custom_check_command = command.split_ascii_whitespace().collect::<Vec<_>>();
+    let command = vec![base_command, custom_check_command];
+
+    let with_args = command.iter().flatten().collect::<Vec<_>>();
+
+    let versions = vec![
+        Release::new_stable(semver::Version::new(1, 58, 1)),
+        Release::new_stable(semver::Version::new(1, 56, 1)),
+    ];
+    let (result, _) = run_msrv_with_releases(with_args, versions);
+    let actual_version = result.to_version();
+
+    assert_eq!(actual_version, expected_version);
+}
