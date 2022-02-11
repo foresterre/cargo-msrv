@@ -13,6 +13,9 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 [package.metadata]
 msrv = "1.54.0"
 
+[package.metadata.release]
+tag-name = "v{{version}}"
+
 [dependencies]
 # Used for parsing cli arguments.
 clap = "3.0.14"
