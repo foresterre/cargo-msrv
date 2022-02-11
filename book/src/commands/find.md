@@ -84,11 +84,10 @@ When `--no-log` is present, this option will be ignored.
 
 **`--log-target` log_target**
 
-Specify where cargo-msrv should output its debug logs.
+Specify where cargo-msrv should output its internal debug logs.
 Possible values are `file` (default) and `stdout`.
-The log output of `stdout` may interfere with user output. We would suggest to use `--output-format void` in tandem
-with `--log-target stdout`.
-When `--no-log` is present, this option will be ignored.
+The log output of `stdout` may interfere with user output. We would suggest to use `--no-user-output` in tandem
+with `--log-target stdout`. When `--no-log` is present, this option will be ignored.
 
 
 **`--max` version**
@@ -112,7 +111,7 @@ incompatible, for example, so you can identify Rust features which require a cer
 
 **`--no-log`**
 
-Do not write debug log output to the log target.
+Do not write (internal) debug log output to the log target.
 
 
 **`--no-read-min-edition`**
@@ -121,11 +120,18 @@ If provided, the 'package.edition' value in the Cargo.toml will not be used to r
 By default, the edition is read from the `Cargo.toml` file and used as the minimum Rust version. See also `--min`.
 
 
+**`--no-user-output`**
+
+Disables printing of diagnostic status messages. Useful when internal log output messages are printed to the stdout,
+using `--log-target stdout`, so no clipping between the user output prints and log message prints will take place.
+When present, the `--output-format [value]` option will be ignored.
+
 **`--output-format` format**
 
-Output status messages in machine-readable format. Machine-readable status updates will be printed in the requested format to stdout.
-Accepted formats are "json" and "void". In case of "json", JSON output will be written; and in case of "void", no output
-will be written. If this option is absent, a human-readable output format will be shown.  
+Output diagnostic status messages in machine-readable format. Machine-readable status updates will be printed in the
+requested format to stdout. The only accepted format is currently "json", which will print diagnostic messages in a JSON
+format. When this option is absent, human-readable output will be printed. Diagnostic messages can be disabled entirely
+using the `--no-user-output` flag.
 
 **`--release-source` source**
 

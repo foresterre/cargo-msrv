@@ -15,6 +15,7 @@ pub mod id {
     pub const ARG_TOOLCHAIN_FILE: &str = "toolchain_file";
     pub const ARG_IGNORE_LOCKFILE: &str = "lockfile";
     pub const ARG_OUTPUT_FORMAT: &str = "output_format";
+    pub const ARG_NO_USER_OUTPUT: &str = "no_user_output";
     pub const ARG_VERIFY: &str = "verify_msrv";
     pub const ARG_RELEASE_SOURCE: &str = "release_source";
     pub const ARG_NO_LOG: &str = "no_log";
@@ -134,7 +135,16 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             .takes_value(true)
             .possible_values(OutputFormat::custom_formats())
             .long_help("Output status messages in machine-readable format. \
-        Machine-readable status updates will be printed in the requested format to stdout.")
+            Machine-readable status updates will be printed in the requested format to stdout. \
+            Ignored when used in conjunction with the `--no-user-output` flag.")
+        )
+        .arg(Arg::new(id::ARG_NO_USER_OUTPUT)
+            .long("no-user-output")
+            .help("Disables user output")
+            .long_help("Disables user output. Useful when when `--log-target stdout` is present, \
+            so no clipping between the user output prints and log message prints will take place. \
+            When present, the `--output-format [value]` option will be ignored.")
+            .takes_value(false)
         )
         .arg(Arg::new(id::ARG_VERIFY)
             .long("verify")

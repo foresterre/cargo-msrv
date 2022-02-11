@@ -436,10 +436,14 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
 
         builder = builder.ignore_lockfile(matches.is_present(id::ARG_IGNORE_LOCKFILE));
 
-        let output_format = matches.value_of(id::ARG_OUTPUT_FORMAT);
-        if let Some(output_format) = output_format {
-            let output_format = OutputFormat::from_str(output_format);
-            builder = builder.output_format(output_format);
+        if matches.is_present(id::ARG_NO_USER_OUTPUT) {
+            builder = builder.output_format(OutputFormat::None);
+        } else {
+            if let Some(output_format) = matches.value_of(id::ARG_OUTPUT_FORMAT) {
+                let output_format = OutputFormat::from_str(output_format);
+                builder = builder.output_format(output_format);
+            }
+            // else: use default
         }
 
         let release_source = matches.value_of(id::ARG_RELEASE_SOURCE);
