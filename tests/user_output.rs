@@ -8,7 +8,7 @@ mod common;
 #[test]
 fn expect_no_user_output() {
     let cargo_msrv_manifest = Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let test_subject = fixtures_path().join("unbuildable-with-msrv");
+    let test_subject = fixtures_path().join("1.36.0");
 
     let process = Command::new("cargo")
         .args(&[
@@ -31,10 +31,9 @@ fn expect_no_user_output() {
         .wait_with_output()
         .expect("Waiting for process failed during test");
 
-    let _stdout = String::from_utf8_lossy(&output.stdout);
-    let _stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
 
-    // Unable to test for this because of: https://github.com/foresterre/cargo-msrv/issues/263
-    // assert!(stdout.is_empty()); // FIXME(foresterre): #263
-    // assert!(stderr.is_empty()); // FIXME(foresterre): #263
+    assert!(stdout.is_empty());
+    assert!(stderr.is_empty());
 }
