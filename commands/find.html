@@ -194,11 +194,10 @@ Possible values are: <code>error</code>, <code>warn</code>, <code>info</code> (d
 Lower severities include messages of higher severities.
 When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--log-target</code> log_target</strong></p>
-<p>Specify where cargo-msrv should output its debug logs.
+<p>Specify where cargo-msrv should output its internal debug logs.
 Possible values are <code>file</code> (default) and <code>stdout</code>.
-The log output of <code>stdout</code> may interfere with user output. We would suggest to use <code>--output-format void</code> in tandem
-with <code>--log-target stdout</code>.
-When <code>--no-log</code> is present, this option will be ignored.</p>
+The log output of <code>stdout</code> may interfere with user output. We would suggest to use <code>--no-user-output</code> in tandem
+with <code>--log-target stdout</code>. When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--max</code> version</strong></p>
 <p>Latest (most recent) version to take into account. The version must match a valid three component Rust toolchain version, 
 and be semver compatible. An example of an acceptable versions is &quot;1.35.0&quot;, while &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot; are not valid.</p>
@@ -212,14 +211,19 @@ for example &quot;1.56.0&quot; for edition &quot;2018&quot;.</p>
 checks ran, and their results. This is especially useful if you want to know why a certain Rust version was deemed to be
 incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.</p>
 <p><strong><code>--no-log</code></strong></p>
-<p>Do not write debug log output to the log target.</p>
+<p>Do not write (internal) debug log output to the log target.</p>
 <p><strong><code>--no-read-min-edition</code></strong></p>
 <p>If provided, the 'package.edition' value in the Cargo.toml will not be used to reduce search space.
 By default, the edition is read from the <code>Cargo.toml</code> file and used as the minimum Rust version. See also <code>--min</code>.</p>
+<p><strong><code>--no-user-output</code></strong></p>
+<p>Disables printing of diagnostic status messages. Useful when internal log output messages are printed to the stdout,
+using <code>--log-target stdout</code>, so no clipping between the user output prints and log message prints will take place.
+When present, the <code>--output-format [value]</code> option will be ignored.</p>
 <p><strong><code>--output-format</code> format</strong></p>
-<p>Output status messages in machine-readable format. Machine-readable status updates will be printed in the requested format to stdout.
-Accepted formats are &quot;json&quot; and &quot;void&quot;. In case of &quot;json&quot;, JSON output will be written; and in case of &quot;void&quot;, no output
-will be written. If this option is absent, a human-readable output format will be shown.</p>
+<p>Output diagnostic status messages in machine-readable format. Machine-readable status updates will be printed in the
+requested format to stdout. The only accepted format is currently &quot;json&quot;, which will print diagnostic messages in a JSON
+format. When this option is absent, human-readable output will be printed. Diagnostic messages can be disabled entirely
+using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
 <p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code> and <code>rust-dist</code>.
 The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will index
