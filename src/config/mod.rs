@@ -42,7 +42,7 @@ impl OutputFormat {
     /// **Panics**
     ///
     /// Panics if the format is not known, or can not be set by a user.
-    pub fn from_str(item: &str) -> Self {
+    pub fn from_custom_format_str(item: &str) -> Self {
         match item {
             Self::JSON => Self::Json,
             _ => unreachable!(),
@@ -438,12 +438,9 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
 
         if matches.is_present(id::ARG_NO_USER_OUTPUT) {
             builder = builder.output_format(OutputFormat::None);
-        } else {
-            if let Some(output_format) = matches.value_of(id::ARG_OUTPUT_FORMAT) {
-                let output_format = OutputFormat::from_str(output_format);
-                builder = builder.output_format(output_format);
-            }
-            // else: use default
+        } else if let Some(output_format) = matches.value_of(id::ARG_OUTPUT_FORMAT) {
+            let output_format = OutputFormat::from_custom_format_str(output_format);
+            builder = builder.output_format(output_format);
         }
 
         let release_source = matches.value_of(id::ARG_RELEASE_SOURCE);

@@ -15,7 +15,7 @@ fn expect_no_user_output() {
             "run",
             "--quiet",
             "--manifest-path",
-            &cargo_msrv_manifest.to_str().unwrap(),
+            cargo_msrv_manifest.to_str().unwrap(),
             "--",
             "--path",
             test_subject.to_str().unwrap(),
