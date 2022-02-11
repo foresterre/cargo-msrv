@@ -30,12 +30,23 @@ impl Default for OutputFormat {
 
 impl OutputFormat {
     pub const JSON: &'static str = "json";
-    pub const NONE: &'static str = "void";
 
     /// A set of formats which may be given as a configuration option
     ///   through the CLI.
     pub fn custom_formats() -> &'static [&'static str] {
-        &[Self::JSON, Self::NONE]
+        &[Self::JSON]
+    }
+
+    /// Parse the output format from the given `&str`.
+    ///
+    /// **Panics**
+    ///
+    /// Panics if the format is not known, or can not be set by a user.
+    pub fn from_custom_format_str(item: &str) -> Self {
+        match item {
+            Self::JSON => Self::Json,
+            _ => unreachable!(),
+        }
     }
 }
 
@@ -425,14 +436,10 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
 
         builder = builder.ignore_lockfile(matches.is_present(id::ARG_IGNORE_LOCKFILE));
 
-        let output_format = matches.value_of(id::ARG_OUTPUT_FORMAT);
-        if let Some(output_format) = output_format {
-            let output_format = match output_format {
-                OutputFormat::JSON => OutputFormat::Json,
-                OutputFormat::NONE => OutputFormat::None,
-                _ => unreachable!(),
-            };
-
+        if matches.is_present(id::ARG_NO_USER_OUTPUT) {
+            builder = builder.output_format(OutputFormat::None);
+        } else if let Some(output_format) = matches.value_of(id::ARG_OUTPUT_FORMAT) {
+            let output_format = OutputFormat::from_custom_format_str(output_format);
             builder = builder.output_format(output_format);
         }
 

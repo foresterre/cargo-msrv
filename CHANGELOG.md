@@ -9,10 +9,18 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ## [Unreleased]
 
+### Added
+
+* Flag `--no-user-output` which disables user output.
+
 ### Changed
 
-* ⚠️ Breaking change: Changed default cargo-msrv (find) check command from `cargo check --all` to `cargo check`
+* ⚠️ Breaking change: Changed default cargo-msrv (find) check command from `cargo check --all` to `cargo check`.
   * Revert to the old behaviour by running cargo-msrv with a custom check command: `cargo msrv -- cargo check --all`.
+
+### Removed
+
+* ⚠️ Breaking change: Value `void` was removed as a valid format for the `--output-format` option.
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...HEAD
 
