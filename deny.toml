@@ -4,21 +4,30 @@ copyleft = "deny"
 confidence-threshold = 0.925
 allow = [
     "Apache-2.0",
+    "BSD-3-Clause",
+    "ISC",
     "MIT",
     "MPL-2.0",
+    "OpenSSL",
     "Zlib",
-    "BSD-3-Clause"
+]
+
+[[licenses.clarify]]
+name = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0eed23 }
+]
+
+[[licenses.clarify]]
+name = "webpki"
+expression = "ISC"
+license-files = [
+    { path = "LICENSE", hash = 0x001c7e6c }
 ]
 
 [advisories]
 vulnerability = "deny"
 unmaintained = "deny"
 notice = "deny"
-ignore = [
-    # Potential segfault in the time crate
-    # NB: has been fixed in time >=0.2.23, however waiting on chrono crate to update
-    # chrono PR: https://github.com/chronotope/chrono/pull/578
-    "RUSTSEC-2020-0071",
-    # Potential segfault in localtime_r invocations, see 0071
-    "RUSTSEC-2020-0159",
-]
+ignore = []
