@@ -3,12 +3,14 @@ use std::path::{Path, PathBuf};
 use toml_edit::{Document, Item};
 
 use crate::config::list::ListCmdConfig;
+use crate::config::set::SetCmdConfig;
 use clap::ArgMatches;
 use rust_releases::semver;
 
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 
 pub(crate) mod list;
+pub(crate) mod set;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -67,6 +69,8 @@ pub enum ModeIntent {
     List,
     // Verifies the given MSRV
     Verify,
+    // Set the MSRV in the Cargo manifest to a given value
+    Set,
     // Shows the MSRV of the current crate as specified in the Cargo manifest
     Show,
 }
@@ -77,6 +81,7 @@ impl From<ModeIntent> for &'static str {
             ModeIntent::Find => "determine-msrv",
             ModeIntent::List => "list-msrv",
             ModeIntent::Verify => "verify-msrv",
+            ModeIntent::Set => "set-msrv",
             ModeIntent::Show => "show-msrv",
         }
     }
@@ -352,6 +357,8 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
             ModeIntent::List
         } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
             ModeIntent::Show
+        } else if matches.subcommand_matches(id::SUB_COMMAND_SET).is_some() {
+            ModeIntent::Set
         } else if matches.subcommand_matches(id::SUB_COMMAND_VERIFY).is_some()
             || matches.is_present(id::ARG_VERIFY)
         {
@@ -469,6 +476,9 @@ impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
         if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
             let cmd_config = ListCmdConfig::try_from(cmd)?;
             builder = builder.sub_command_config(SubCommandConfig::ListConfig(cmd_config));
+        } else if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_SET) {
+            let cmd_config = SetCmdConfig::try_from(cmd)?;
+            builder = builder.sub_command_config(SubCommandConfig::SetConfig(cmd_config));
         }
 
         Ok(builder.build())
@@ -520,11 +530,13 @@ macro_rules! as_sub_command_config {
 pub enum SubCommandConfig {
     None,
     ListConfig(ListCmdConfig),
+    SetConfig(SetCmdConfig),
     ShowConfig,
 }
 
 impl SubCommandConfig {
     as_sub_command_config!(list, ListConfig, ListCmdConfig);
+    as_sub_command_config!(set, SetConfig, SetCmdConfig);
 }
 
 #[derive(Debug, Clone)]

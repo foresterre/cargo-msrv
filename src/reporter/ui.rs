@@ -43,7 +43,7 @@ impl<'a> HumanPrinter<'a> {
         let verb = match action_intent {
             ModeIntent::Find => "Determining",
             ModeIntent::Verify => "Verifying",
-            ModeIntent::List | ModeIntent::Show => "",
+            ModeIntent::List | ModeIntent::Set | ModeIntent::Show => "",
         };
 
         let _ = self.term.write_line(
@@ -160,7 +160,7 @@ impl<'a> crate::Output for HumanPrinter<'a> {
                 ModeIntent::Show => {
                     let _ = self.term.write_line(&format!("{}", version));
                 }
-                ModeIntent::List => {}
+                ModeIntent::List | ModeIntent::Set => {}
             }
         }
     }

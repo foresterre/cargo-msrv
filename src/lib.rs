@@ -13,6 +13,7 @@ use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{Output, ProgressAction};
 
 use crate::subcommands::list::run_list_msrv;
+use crate::subcommands::set::run_set_msrv;
 use crate::subcommands::show::run_show_msrv;
 pub use crate::{
     result::MinimalCompatibility, subcommands::find::find_msrv,
@@ -78,6 +79,7 @@ fn run_action<R: Output>(config: &Config, index: &ReleaseIndex, reporter: &R) ->
         ModeIntent::Find => run_find_msrv_action(config, reporter, index),
         ModeIntent::Verify => run_verify_msrv_action(config, reporter, index),
         ModeIntent::List => run_list_msrv(config, reporter),
+        ModeIntent::Set => run_set_msrv(config, reporter),
         ModeIntent::Show => run_show_msrv(config, reporter),
     }
 }
