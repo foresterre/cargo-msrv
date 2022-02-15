@@ -128,7 +128,7 @@ pub enum IoErrorSource {
 
     #[error("Unable to open file '{0}'")]
     OpenFile(PathBuf),
-    
+
     #[error("Unable to read file '{0}'")]
     ReadFile(PathBuf),
 

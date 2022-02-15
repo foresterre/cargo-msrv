@@ -1,6 +1,6 @@
-use std::convert::TryFrom;
-use clap::ArgMatches;
 use crate::manifest::bare_version::BareVersion;
+use clap::ArgMatches;
+use std::convert::TryFrom;
 
 #[derive(Clone, Debug)]
 pub struct SetCmdConfig {
