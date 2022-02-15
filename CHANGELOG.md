@@ -12,6 +12,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 ### Added
 
 * Flag `--no-user-output` which disables user output.
+* Subcommand `cargo msrv set`, which can be used to write a given MSRV to the Cargo manifest.
 
 ### Changed
 
