@@ -1,7 +1,9 @@
 use crate::config::{OutputFormat, TracingTargetOption};
 use clap::{App, AppSettings, Arg};
+use std::str::FromStr;
 
 use crate::fetch::is_target_available;
+use crate::manifest::bare_version::BareVersion;
 
 pub mod id {
     pub const ARG_SEEK_PATH: &str = "seek_path";
@@ -27,6 +29,9 @@ pub mod id {
     pub const SUB_COMMAND_LIST: &str = "list";
     pub const SUB_COMMAND_LIST_VARIANT: &str = "list_variant";
 
+    pub const SUB_COMMAND_SET: &str = "set";
+    pub const SUB_COMMAND_SET_VALUE: &str = "set_value";
+
     pub const SUB_COMMAND_SHOW: &str = "show";
 
     pub const SUB_COMMAND_VERIFY: &str = "verify";
@@ -49,6 +54,7 @@ used to validate whether a Rust toolchain version is compatible. The default `ch
 \"cargo build\". A custom `check` command should be runnable by rustup, as they will be passed on to \
 rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provide the <COMMAND...> part.")
         .subcommand(list())
+        .subcommand(set())
         .subcommand(show())
         .subcommand(verify())
         .arg(
@@ -227,9 +233,29 @@ pub fn list() -> App<'static> {
         )
 }
 
+pub fn set() -> App<'static> {
+    App::new(id::SUB_COMMAND_SET)
+        .arg(
+            Arg::new(id::SUB_COMMAND_SET_VALUE)
+                .help("The version to be set as MSRV")
+                .value_name("MSRV")
+                .takes_value(true)
+                .required(true)
+                .validator(BareVersion::from_str),
+        )
+        .about("Set the MSRV of the current crate to a given Rust version.")
+}
+
 pub fn show() -> App<'static> {
     App::new(id::SUB_COMMAND_SHOW)
         .about("Show the MSRV of your crate, as specified in the Cargo manifest.")
+        .after_help(
+            "The given version must be a two- or three component Rust version number. \
+                   MSRV values prior to Rust 1.56 will be written to the `package.metadata.msrv` field \
+                   in the Cargo manifest, \
+                   while MSRV's greater or equal to 1.56 will be written to `package.rust-version` \
+                   in the Cargo manifest.",
+        )
 }
 
 pub fn verify() -> App<'static> {
