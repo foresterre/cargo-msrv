@@ -101,7 +101,7 @@ and be semver compatible. An example of an acceptable versions is "1.35.0", whil
 Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain version,
 and be semver compatible. Edition aliases may also be used. An example of an acceptable versions is "1.35.0", while
 "1.35", "^1.35.0" and "1.35.0-beta" are not valid. Editions map to the first version in which they were introduced, so
-for example "1.56.0" for edition "2018".
+for example "1.56.0" for edition "2021".
 
 **`--no-check-feedback`**
 
