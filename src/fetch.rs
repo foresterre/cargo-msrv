@@ -4,9 +4,10 @@ use std::ffi::OsStr;
 
 pub type ToolchainSpecifier = String;
 
+// TODO
 /// Check if the given target is available.
 /// with `rustup target list`
-pub fn is_target_available<S: AsRef<str>>(name: S) -> TResult<()> {
+pub fn _is_target_available<S: AsRef<str>>(name: S) -> TResult<()> {
     let toolchain = name.as_ref();
     let output = RustupCommand::new()
         .with_stdout()

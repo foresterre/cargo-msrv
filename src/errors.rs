@@ -1,3 +1,4 @@
+use crate::cli_new::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use std::env;
 use std::ffi::OsString;
 use std::io;
@@ -5,6 +6,7 @@ use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 use crate::fetch::ToolchainSpecifier;
+use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::NoVersionMatchesManifestMsrvError;
 use crate::subcommands::verify;
 
@@ -53,6 +55,15 @@ pub enum CargoMSRVError {
 
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
     NoMSRVKeyInCargoToml(PathBuf),
+
+    #[error(transparent)]
+    ParseEdition(#[from] ParseEditionError),
+
+    #[error(transparent)]
+    ParseEditionOrVersion(#[from] ParseEditionOrVersionError),
+
+    #[error(transparent)]
+    ParseLogLevel(#[from] ParseLogLevelError),
 
     #[error("Unable to parse Cargo.toml: {0}")]
     ParseToml(#[from] toml_edit::TomlError),

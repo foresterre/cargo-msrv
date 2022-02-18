@@ -1,29 +1,13 @@
-use clap::ArgMatches;
-use std::{convert::TryFrom, str::FromStr};
+use std::fmt::Formatter;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone, Debug)]
 pub struct ListCmdConfig {
-    pub variant: ListVariant,
-}
-
-impl<'a> TryFrom<&'a ArgMatches> for ListCmdConfig {
-    type Error = crate::CargoMSRVError;
-
-    fn try_from(args: &'a ArgMatches) -> Result<Self, Self::Error> {
-        use crate::cli::id;
-
-        let variant = if let Some(var) = args.value_of(id::SUB_COMMAND_LIST_VARIANT) {
-            ListVariant::from_str(var)?
-        } else {
-            ListVariant::default()
-        };
-
-        Ok(Self { variant })
-    }
+    pub variant: ListMsrvVariant,
 }
 
 #[derive(Copy, Clone, Debug)]
-pub enum ListVariant {
+pub enum ListMsrvVariant {
     DirectDeps,
     OrderedByMSRV,
 }
@@ -31,7 +15,7 @@ pub enum ListVariant {
 pub(crate) const DIRECT_DEPS: &str = "direct-deps";
 pub(crate) const ORDERED_BY_MSRV: &str = "ordered-by-msrv";
 
-impl FromStr for ListVariant {
+impl FromStr for ListMsrvVariant {
     type Err = crate::CargoMSRVError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -48,16 +32,22 @@ impl FromStr for ListVariant {
     }
 }
 
-impl ListVariant {
-    pub(crate) const fn as_str(&self) -> &'static str {
+impl fmt::Display for ListMsrvVariant {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::DirectDeps => DIRECT_DEPS,
-            Self::OrderedByMSRV => ORDERED_BY_MSRV,
+            Self::DirectDeps => write!(f, "{}", DIRECT_DEPS),
+            Self::OrderedByMSRV => write!(f, "{}", ORDERED_BY_MSRV),
         }
     }
 }
 
-impl Default for ListVariant {
+impl ListMsrvVariant {
+    pub(crate) const fn variants() -> &'static [&'static str] {
+        &[DIRECT_DEPS, ORDERED_BY_MSRV]
+    }
+}
+
+impl Default for ListMsrvVariant {
     fn default() -> Self {
         Self::OrderedByMSRV
     }

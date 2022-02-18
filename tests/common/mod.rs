@@ -1,5 +1,6 @@
 #![allow(unused)] // allowed since we do use these functions in the actual test files
 
+use clap::Parser;
 use std::ffi::OsString;
 use std::iter::FromIterator;
 use std::path::PathBuf;
@@ -7,7 +8,8 @@ use std::path::PathBuf;
 use rust_releases::semver::Version;
 use rust_releases::{semver, Release, ReleaseIndex};
 
-use cargo_msrv::config::{test_config_from_matches, Config, OutputFormat};
+use cargo_msrv::cli_new::CargoCli;
+use cargo_msrv::config::{test_config_from_cli, Config, OutputFormat};
 use cargo_msrv::errors::TResult;
 use cargo_msrv::reporter::__private::SuccessOutput;
 use cargo_msrv::reporter::json::JsonPrinter;
@@ -75,8 +77,8 @@ where
     Reporter: Output,
     F: FnOnce(&Config, &Reporter, &ReleaseIndex) -> TResult<R>,
 {
-    let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
-    let config = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
+    let matches = CargoCli::parse_args(with_args);
+    let config = test_config_from_cli(&matches).expect("Unable to parse cli arguments");
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
@@ -92,8 +94,8 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
 >(
     with_args: I,
 ) -> MinimalCompatibility {
-    let matches = cargo_msrv::cli::cli().get_matches_from(with_args);
-    let matches = test_config_from_matches(&matches).expect("Unable to parse cli arguments");
+    let matches = CargoCli::parse_args(with_args);
+    let matches = test_config_from_cli(&matches).expect("Unable to parse cli arguments");
 
     let reporter = fake_reporter();
 

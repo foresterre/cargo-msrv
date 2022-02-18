@@ -1,17 +1,19 @@
 use std::convert::TryFrom;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
+use cargo_msrv::cli_new::CargoCli;
 use cargo_msrv::config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter;
-use cargo_msrv::{cli, run_app};
+use cargo_msrv::run_app;
 
 fn main() {
     std::process::exit(
-        match _main(args) {
+        match _main(std::env::args_os) {
             Ok(_guard) => ExitCode::Success,
             Err(err) => {
                 eprintln!("{}", err);
@@ -22,40 +24,11 @@ fn main() {
     );
 }
 
-// When we call cargo-msrv with cargo, cargo will supply the msrv subcommand, in addition
-// to the binary name itself. As a result, when you call cargo-msrv without cargo, for example
-// `cargo-msrv` (without cargo) instead of `cargo msrv` (with cargo), the process will receive
-// too many arguments, and you will have to specify the subcommand again like so: `cargo-msrv msrv`.
-// This function removes the subcommand when it's present in addition to the program name.
-fn args() -> impl IntoIterator<Item = String> {
-    fn cargo_subcommand_name(cargo_subcommand: &str) -> String {
-        if cfg!(target_os = "windows") {
-            format!("cargo-{}.exe", cargo_subcommand)
-        } else {
-            format!("cargo-{}", cargo_subcommand)
-        }
-    }
-    let mut args = std::env::args().collect::<Vec<_>>();
-
-    if args.len() >= 2 {
-        let program = args[0].as_str();
-        let subcommand = args[1].as_str();
-
-        // when `cargo-msrv` and `msrv` are present
-        if program.ends_with(&cargo_subcommand_name(subcommand)) {
-            // remove `msrv`
-            args.remove(1);
-        }
-    }
-
-    args
-}
-
-fn _main<I: IntoIterator<Item = String>, F: FnOnce() -> I>(
+fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     args: F,
 ) -> TResult<Option<TracingGuard>> {
-    let cli = cli::cli();
-    let matches = cli.get_matches_from(args());
+    let matches = CargoCli::parse_args(args());
+
     let config = Config::try_from(&matches)?;
 
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
@@ -172,7 +145,7 @@ impl TracingConfig {
         let target = TracingTarget::try_from_option(config.target())?;
 
         Ok(Self {
-            level: *config.level(),
+            level: (*config.level()).into(),
             target,
         })
     }

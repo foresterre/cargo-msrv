@@ -1,13 +1,17 @@
-use std::convert::TryFrom;
+use clap::ArgEnum;
+use std::convert::{TryFrom, TryInto};
+use std::fmt;
+use std::fmt::Formatter;
 use std::path::{Path, PathBuf};
-use toml_edit::{Document, Item};
+use std::str::FromStr;
 
+use crate::cli_new::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
-use clap::ArgMatches;
 use rust_releases::semver;
 
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::errors::{CargoMSRVError, TResult};
+use crate::log_level::LogLevel;
 
 pub(crate) mod list;
 pub(crate) mod set;
@@ -30,13 +34,39 @@ impl Default for OutputFormat {
     }
 }
 
+impl fmt::Display for OutputFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Human => write!(f, "human"),
+            Self::Json => write!(f, "json"),
+            Self::None => write!(f, "none"),
+            Self::TestSuccesses => write!(f, "test-successes"),
+        }
+    }
+}
+
+impl FromStr for OutputFormat {
+    type Err = CargoMSRVError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "human" => Ok(Self::Human),
+            "json" => Ok(Self::Json),
+            unknown => Err(CargoMSRVError::InvalidConfig(format!(
+                "Given output format '{}' is not valid",
+                unknown
+            ))),
+        }
+    }
+}
+
 impl OutputFormat {
     pub const JSON: &'static str = "json";
 
     /// A set of formats which may be given as a configuration option
     ///   through the CLI.
     pub fn custom_formats() -> &'static [&'static str] {
-        &[Self::JSON]
+        &["human", Self::JSON]
     }
 
     /// Parse the output format from the given `&str`.
@@ -55,8 +85,8 @@ impl OutputFormat {
 /// Gets a [`Config`] from the given matches, but sets output_format to None
 ///
 /// This is meant to be used for testing
-pub fn test_config_from_matches(matches: &ArgMatches) -> TResult<Config> {
-    let mut config = Config::try_from(matches)?;
+pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
+    let mut config = Config::try_from(cli)?;
     config.output_format = OutputFormat::None;
     Ok(config)
 }
@@ -94,6 +124,26 @@ pub enum ReleaseSource {
     RustDist,
 }
 
+impl Default for ReleaseSource {
+    fn default() -> Self {
+        Self::RustChangelog
+    }
+}
+
+impl ReleaseSource {
+    pub(crate) fn variants() -> &'static [&'static str] {
+        &["rust-changelog", "rust-dist"]
+    }
+}
+
+impl FromStr for ReleaseSource {
+    type Err = CargoMSRVError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.try_into()
+    }
+}
+
 impl From<ReleaseSource> for &'static str {
     fn from(value: ReleaseSource) -> Self {
         match value {
@@ -113,6 +163,16 @@ impl TryFrom<&str> for ReleaseSource {
             #[cfg(feature = "rust-releases-dist-source")]
             "rust-dist" => Ok(Self::RustDist),
             s => Err(CargoMSRVError::RustReleasesSourceParseError(s.to_string())),
+        }
+    }
+}
+
+impl fmt::Display for ReleaseSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::RustChangelog => write!(f, "rust-changelog"),
+            #[cfg(feature = "rust-releases-dist-source")]
+            Self::RustDist => write!(f, "rust-dist"),
         }
     }
 }
@@ -138,6 +198,10 @@ impl Default for SearchMethod {
     }
 }
 
+// TODO{foresterre}:
+//  This Config approach does not scale with the amount of options
+//  we now have. It also not allow us to easily merge several layers of option inputs,
+//  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
     mode_intent: ModeIntent,
@@ -284,6 +348,10 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn get_crate_path(&self) -> Option<&Path> {
+        self.inner.crate_path.as_deref()
+    }
+
     pub fn include_all_patch_releases(mut self, answer: bool) -> Self {
         self.inner.include_all_patch_releases = answer;
         self
@@ -349,173 +417,6 @@ impl<'a> ConfigBuilder<'a> {
     }
 }
 
-impl<'config> TryFrom<&'config ArgMatches> for Config<'config> {
-    type Error = CargoMSRVError;
-
-    fn try_from(matches: &'config ArgMatches) -> Result<Self, Self::Error> {
-        use crate::cli::id;
-        use crate::fetch::default_target;
-
-        let action_intent = if matches.subcommand_matches(id::SUB_COMMAND_LIST).is_some() {
-            ModeIntent::List
-        } else if matches.subcommand_matches(id::SUB_COMMAND_SHOW).is_some() {
-            ModeIntent::Show
-        } else if matches.subcommand_matches(id::SUB_COMMAND_SET).is_some() {
-            ModeIntent::Set
-        } else if matches.subcommand_matches(id::SUB_COMMAND_VERIFY).is_some()
-            || matches.is_present(id::ARG_VERIFY)
-        {
-            ModeIntent::Verify
-        } else {
-            ModeIntent::Find
-        };
-
-        // FIXME: if set, we don't need to do this; in case we can't find it, it may fail here, but atm can't be manually supplied at all
-        let target = default_target()?;
-
-        let mut builder = ConfigBuilder::new(action_intent, &target);
-
-        // set the command which will be used to check if a project can build
-        builder = match matches.subcommand_matches(id::SUB_COMMAND_VERIFY) {
-            Some(verify_cmd) => set_custom_check_command(verify_cmd, builder),
-            None => set_custom_check_command(matches, builder),
-        };
-
-        // set the cargo workspace path
-        let crate_path = matches.value_of(id::ARG_SEEK_PATH);
-        builder = builder.crate_path(crate_path);
-
-        // set a custom target
-        let custom_target = matches.value_of(id::ARG_SEEK_CUSTOM_TARGET);
-        if let Some(target) = custom_target {
-            builder = builder.target(target);
-        }
-
-        match matches.value_of(id::ARG_MIN) {
-            Some(min) => builder = builder.minimum_version(parse_version(min)?),
-            None if matches.is_present(id::ARG_NO_READ_MIN_EDITION) => {}
-            None => {
-                let crate_folder = if let Some(ref path) = builder.inner.crate_path {
-                    Ok(path.clone())
-                } else {
-                    std::env::current_dir().map_err(|error| CargoMSRVError::Io {
-                        error,
-                        source: IoErrorSource::CurrentDir,
-                    })
-                }?;
-                let cargo_toml = crate_folder.join("Cargo.toml");
-
-                let contents =
-                    std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
-                        error,
-                        source: IoErrorSource::ReadFile(cargo_toml.clone()),
-                    })?;
-                let document = contents
-                    .parse::<Document>()
-                    .map_err(CargoMSRVError::ParseToml)?;
-
-                if let Some(edition) = document
-                    .as_table()
-                    .get("package")
-                    .and_then(Item::as_table)
-                    .and_then(|package_table| package_table.get("edition"))
-                    .and_then(Item::as_str)
-                {
-                    builder = builder.minimum_version(parse_version(edition)?);
-                }
-            }
-        }
-
-        if let Some(max) = matches.value_of(id::ARG_MAX) {
-            builder = builder.maximum_version(rust_releases::semver::Version::parse(max)?);
-        }
-
-        builder = match (
-            matches.is_present(id::ARG_LINEAR),
-            matches.is_present(id::ARG_BISECT),
-        ) {
-            (true, false) => builder.search_method(SearchMethod::Linear),
-            (false, true) => builder.search_method(SearchMethod::Bisect),
-            _ => builder.search_method(SearchMethod::default()),
-        };
-
-        builder = builder
-            .include_all_patch_releases(matches.is_present(id::ARG_INCLUDE_ALL_PATCH_RELEASES));
-
-        builder = builder.output_toolchain_file(matches.is_present(id::ARG_TOOLCHAIN_FILE));
-
-        builder = builder.ignore_lockfile(matches.is_present(id::ARG_IGNORE_LOCKFILE));
-
-        if matches.is_present(id::ARG_NO_USER_OUTPUT) {
-            builder = builder.output_format(OutputFormat::None);
-        } else if let Some(output_format) = matches.value_of(id::ARG_OUTPUT_FORMAT) {
-            let output_format = OutputFormat::from_custom_format_str(output_format);
-            builder = builder.output_format(output_format);
-        }
-
-        let release_source = matches.value_of(id::ARG_RELEASE_SOURCE);
-        if let Some(release_source) = release_source {
-            let release_source = ReleaseSource::try_from(release_source)?;
-            builder = builder.release_source(release_source);
-        }
-
-        //
-        if !matches.is_present(id::ARG_NO_LOG) {
-            let mut config = TracingOptions::default();
-
-            if let Some(log_target) = matches.value_of(id::ARG_LOG_TARGET) {
-                config.target = TracingTargetOption::from_str(log_target);
-            }
-
-            if let Some(level) = matches.value_of(id::ARG_LOG_LEVEL) {
-                config.level = parse_log_level(level);
-            }
-
-            builder = builder.tracing_config(config);
-        }
-
-        builder = builder.no_check_feedback(matches.is_present(id::ARG_NO_CHECK_FEEDBACK));
-
-        if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_LIST) {
-            let cmd_config = ListCmdConfig::try_from(cmd)?;
-            builder = builder.sub_command_config(SubCommandConfig::ListConfig(cmd_config));
-        } else if let Some(cmd) = matches.subcommand_matches(id::SUB_COMMAND_SET) {
-            let cmd_config = SetCmdConfig::try_from(cmd)?;
-            builder = builder.sub_command_config(SubCommandConfig::SetConfig(cmd_config));
-        }
-
-        Ok(builder.build())
-    }
-}
-
-fn parse_version(input: &str) -> Result<semver::Version, semver::Error> {
-    match input {
-        "2015" => Ok(semver::Version::new(1, 0, 0)),
-        "2018" => Ok(semver::Version::new(1, 31, 0)),
-        "2021" => Ok(semver::Version::new(1, 56, 0)),
-        s => semver::Version::parse(s),
-    }
-}
-
-fn parse_log_level(input: &str) -> tracing::Level {
-    input.parse().unwrap_or(tracing::Level::INFO)
-}
-
-fn set_custom_check_command<'a>(
-    matches: &'a ArgMatches,
-    builder: ConfigBuilder<'a>,
-) -> ConfigBuilder<'a> {
-    use crate::cli::id;
-
-    let check_cmd = matches.values_of(id::ARG_CUSTOM_CHECK);
-
-    if let Some(custom_cmd) = check_cmd {
-        builder.check_command(custom_cmd.collect())
-    } else {
-        builder
-    }
-}
-
 macro_rules! as_sub_command_config {
     ($subcmd:ident, $variant:ident, $out_type:ty) => {
         pub(crate) fn $subcmd(&self) -> &$out_type {
@@ -545,14 +446,20 @@ impl SubCommandConfig {
 #[derive(Debug, Clone)]
 pub struct TracingOptions {
     target: TracingTargetOption,
-    level: tracing::Level,
+    level: LogLevel,
+}
+
+impl TracingOptions {
+    pub fn new(target: TracingTargetOption, level: LogLevel) -> Self {
+        Self { target, level }
+    }
 }
 
 impl Default for TracingOptions {
     fn default() -> Self {
         Self {
             target: TracingTargetOption::File,
-            level: tracing::Level::INFO,
+            level: LogLevel::default(),
         }
     }
 }
@@ -562,54 +469,39 @@ impl TracingOptions {
         &self.target
     }
 
-    pub fn level(&self) -> &tracing::Level {
+    pub fn level(&self) -> &LogLevel {
         &self.level
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, ArgEnum)]
 pub enum TracingTargetOption {
     File,
     Stdout,
 }
 
-impl TracingTargetOption {
-    pub const FILE: &'static str = "file";
-    pub const STDOUT: &'static str = "stdout";
-
-    /// Parse the tracing target option from a string.
-    ///
-    /// NB: Panics if not a valid input
-    fn from_str(input: &str) -> Self {
-        match input {
-            Self::FILE => Self::File,
-            Self::STDOUT => Self::Stdout,
-            _ => unimplemented!(),
-        }
+impl Default for TracingTargetOption {
+    fn default() -> Self {
+        Self::File
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use parameterized::parameterized;
-    use rust_releases::semver::Version;
+impl TracingTargetOption {
+    pub const FILE: &'static str = "file";
+    pub const STDOUT: &'static str = "stdout";
+}
 
-    #[parameterized(
-        input = {
-            "1.35.0",
-            "2015",
-            "2018",
-            "2021",
-        },
-        expected_version = {
-            Version::new(1,35,0),
-            Version::new(1,0,0),
-            Version::new(1,31,0),
-            Version::new(1,56,0),
+impl FromStr for TracingTargetOption {
+    type Err = CargoMSRVError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            Self::FILE => Ok(Self::File),
+            Self::STDOUT => Ok(Self::Stdout),
+            unknown => Err(CargoMSRVError::InvalidConfig(format!(
+                "Given log target '{}' is not valid",
+                unknown
+            ))),
         }
-    )]
-    fn parse_version(input: &str, expected_version: Version) {
-        let version = super::super::parse_version(input).unwrap();
-        assert_eq!(version, expected_version);
     }
 }
