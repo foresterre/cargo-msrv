@@ -9,6 +9,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.0...HEAD
+
+## [0.15.0] - 2022-02-23
+
 ### Added
 
 * Flag `--no-user-output` which disables user output.
@@ -23,7 +27,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 * ⚠️ Breaking change: Value `void` was removed as a valid format for the `--output-format` option.
 
-[Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...HEAD
+[0.15.0]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...0.15.0
 
 
 ## [0.14.2] - 2022-02-09
