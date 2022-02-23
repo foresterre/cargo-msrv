@@ -1,10 +1,19 @@
 accepted = [
     "Apache-2.0",
+    "BSD-3-Clause",
+    "ISC",
     "MIT",
     "MPL-2.0",
+    "OpenSSL",
     "Zlib",
-    "BSD-3-Clause"
 ]
+workarounds = ["ring"]
 
 ignore-build-dependencies = true
 ignore-dev-dependencies = true
+
+[ring]
+accepted = ["ISC", "OpenSSL"]
+
+[webpki]
+accepted = ["ISC"]
