@@ -18,7 +18,7 @@ tag-name = "v{{version}}"
 
 [dependencies]
 # Used for parsing cli arguments.
-clap = "3.0.14"
+clap = "3.1.2"
 
 # UI
 console = "0.15.0"
