@@ -90,6 +90,7 @@ impl From<ModeIntent> for &'static str {
 #[derive(Debug, Clone, Copy)]
 pub enum ReleaseSource {
     RustChangelog,
+    #[cfg(feature = "rust-releases-dist-source")]
     RustDist,
 }
 
@@ -97,6 +98,7 @@ impl From<ReleaseSource> for &'static str {
     fn from(value: ReleaseSource) -> Self {
         match value {
             ReleaseSource::RustChangelog => "rust-changelog",
+            #[cfg(feature = "rust-releases-dist-source")]
             ReleaseSource::RustDist => "rust-dist",
         }
     }
@@ -108,6 +110,7 @@ impl TryFrom<&str> for ReleaseSource {
     fn try_from(source: &str) -> Result<Self, Self::Error> {
         match source {
             "rust-changelog" => Ok(Self::RustChangelog),
+            #[cfg(feature = "rust-releases-dist-source")]
             "rust-dist" => Ok(Self::RustDist),
             s => Err(CargoMSRVError::RustReleasesSourceParseError(s.to_string())),
         }

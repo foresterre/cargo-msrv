@@ -4,9 +4,9 @@
 #[macro_use]
 extern crate tracing;
 
-use rust_releases::{
-    semver, Channel, FetchResources, ReleaseIndex, RustChangelog, RustDist, Source,
-};
+#[cfg(feature = "rust-releases-dist-source")]
+use rust_releases::RustDist;
+use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
 use crate::config::{Config, ModeIntent, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
@@ -61,6 +61,7 @@ fn fetch_index(config: &Config) -> TResult<ReleaseIndex> {
         ReleaseSource::RustChangelog => {
             RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
         }
+        #[cfg(feature = "rust-releases-dist-source")]
         ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
     };
 

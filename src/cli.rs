@@ -162,12 +162,17 @@ rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll only need to provi
             DEPRECATED: use the `cargo msrv verify` subcommand instead.")
             .takes_value(false)
         )
-        .arg(Arg::new(id::ARG_RELEASE_SOURCE)
+        .arg({
+            #[cfg(feature = "rust-releases-dist-source")]
+            let possible_values = &["rust-changelog", "rust-dist"];
+            #[cfg(not(feature = "rust-releases-dist-source"))]
+            let possible_values = &["rust-changelog"];
+            Arg::new(id::ARG_RELEASE_SOURCE)
             .long("release-source")
             .help("Select the rust-releases source to use as the release index")
             .takes_value(true)
-            .possible_values(&["rust-changelog", "rust-dist"])
-            .default_value("rust-changelog")
+            .possible_values(possible_values)
+            .default_value("rust-changelog")}
         )
         .arg(Arg::new(id::ARG_NO_LOG)
             .long("no-log")

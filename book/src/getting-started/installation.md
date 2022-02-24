@@ -12,6 +12,15 @@ You can install cargo-msrv from source by using Cargo, the Rust package manager 
 cargo install cargo-msrv
 ```
 
+**How to install the latest stable release more quickly?**
+
+Similar to the above, but allows for only the default channel to obtain a list of rustc releases.
+This compiles about 40% faster and produces binaries about half the size in the range of 4.5MB.
+
+```shell
+cargo install cargo-msrv --no-default-features
+```
+
 **How to install the latest development release?**
 
 You may install _cargo-msrv_ from GitHub:
