@@ -10,6 +10,10 @@ repository = "https://github.com/foresterre/cargo-msrv"
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
+[features]
+default = ["rust-releases-dist-source"]
+rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
+
 [package.metadata]
 msrv = "1.54.0"
 
@@ -52,7 +56,7 @@ features = ["json"]
 [dependencies.rust-releases]
 version = "0.22.0"
 default-features = false
-features = ["rust-releases-rust-changelog", "rust-releases-rust-dist"]
+features = ["rust-releases-rust-changelog"]
 
 [dev-dependencies]
 parameterized = "0.3.1"

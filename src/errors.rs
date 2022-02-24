@@ -58,6 +58,7 @@ pub enum CargoMSRVError {
     RustReleasesSource(#[from] rust_releases::RustChangelogError),
 
     #[error(transparent)]
+    #[cfg(feature = "rust-releases-dist-source")]
     RustReleasesRustDistSource(#[from] rust_releases::RustDistError),
 
     #[error("Unable to parse rust-releases source from '{0}'")]
