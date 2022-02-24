@@ -188,6 +188,11 @@ documentation or the code! Thank you!</p>
 <p><strong>How to install the latest stable release?</strong></p>
 <pre><code class="language-shell">cargo install cargo-msrv
 </code></pre>
+<p><strong>How to install the latest stable release more quickly?</strong></p>
+<p>Similar to the above, but allows for only the default channel to obtain a list of rustc releases.
+This compiles about 40% faster and produces binaries about half the size in the range of 4.5MB.</p>
+<pre><code class="language-shell">cargo install cargo-msrv --no-default-features
+</code></pre>
 <p><strong>How to install the latest development release?</strong></p>
 <p>You may install <em>cargo-msrv</em> from GitHub:</p>
 <pre><code class="language-shell">cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
