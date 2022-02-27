@@ -45,6 +45,9 @@ pub enum CargoMSRVError {
     #[error("No crate root found for given crate")]
     NoCrateRootFound,
 
+    #[error("Unable to set MSRV for workspace, try setting it for individual packages instead.")]
+    WorkspaceFound,
+
     #[error(transparent)]
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
 
