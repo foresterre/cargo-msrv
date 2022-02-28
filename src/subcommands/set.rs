@@ -21,6 +21,7 @@ pub fn run_set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     })?;
 
     let mut manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
+    check_workspace(&manifest)?;
     let msrv = &config.sub_command_config().set().msrv;
 
     set_msrv(&mut manifest, msrv);
@@ -42,6 +43,16 @@ pub fn run_set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     output.finish_success(ModeIntent::Set, None);
 
     Ok(())
+}
+
+fn check_workspace(manifest: &Document) -> TResult<()> {
+    if manifest.as_table().get("package").is_none()
+        && manifest.as_table().get("workspace").is_some()
+    {
+        Err(CargoMSRVError::WorkspaceFound)
+    } else {
+        Ok(())
+    }
 }
 
 fn set_msrv(manifest: &mut Document, msrv: &BareVersion) {
