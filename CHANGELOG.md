@@ -9,6 +9,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ## [Unreleased]
 
+### Fixed
+
+* Subcommand `cargo msrv set` will now return an error when the Cargo manifest contains a virtual workspace.
+
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
 ## [0.15.1] - 2022-02-24
