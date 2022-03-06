@@ -12,19 +12,11 @@ pub mod ordered_by_msrv;
 
 #[allow(unused)]
 pub(super) fn format_version_req(version_req: Option<&crate::semver::VersionReq>) -> String {
-    if let Some(req) = version_req {
-        format!("{}", req)
-    } else {
-        "".to_string()
-    }
+    version_req.map(ToString::to_string).unwrap_or_default()
 }
 
 pub(super) fn format_version(version_req: Option<&crate::semver::Version>) -> String {
-    if let Some(req) = version_req {
-        format!("{}", req)
-    } else {
-        "".to_string()
-    }
+    version_req.map(ToString::to_string).unwrap_or_default()
 }
 
 // Workaround: manual parsing since current (1.56) version of cargo-metadata doesn't yet output the
