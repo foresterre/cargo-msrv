@@ -22,7 +22,7 @@ const CARGO_LOCK_REPLACEMENT: &str = "Cargo.lock-ignored-for-cargo-msrv";
 
 impl LockfileHandler<Start> {
     pub fn new<P: AsRef<Path>>(lock_file: P) -> Self {
-        LockfileHandler {
+        Self {
             state: lock_file.as_ref().to_path_buf(),
             marker: PhantomData,
         }

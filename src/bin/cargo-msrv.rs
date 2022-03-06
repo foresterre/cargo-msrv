@@ -171,7 +171,7 @@ impl TracingConfig {
     fn try_from_options(config: &TracingOptions) -> TResult<Self> {
         let target = TracingTarget::try_from_option(config.target())?;
 
-        Ok(TracingConfig {
+        Ok(Self {
             level: *config.level(),
             target,
         })
@@ -188,9 +188,9 @@ impl TracingTarget {
         match option {
             TracingTargetOption::File => {
                 let folder = log_folder()?;
-                Ok(TracingTarget::ToDisk(folder))
+                Ok(Self::ToDisk(folder))
             }
-            TracingTargetOption::Stdout => Ok(TracingTarget::Stdout),
+            TracingTargetOption::Stdout => Ok(Self::Stdout),
         }
     }
 }

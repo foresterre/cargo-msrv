@@ -1,6 +1,6 @@
 use crate::command::RustupCommand;
 use crate::errors::{CargoMSRVError, TResult};
-use std::ffi::OsString;
+use std::ffi::OsStr;
 
 pub type ToolchainSpecifier = String;
 
@@ -11,7 +11,7 @@ pub fn is_target_available<S: AsRef<str>>(name: S) -> TResult<()> {
     let output = RustupCommand::new()
         .with_stdout()
         .with_args(&["list"])
-        .execute(OsString::from("target"))?;
+        .execute(OsStr::new("target"))?;
 
     let stdout = output.stdout();
 

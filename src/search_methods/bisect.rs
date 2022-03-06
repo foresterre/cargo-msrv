@@ -85,7 +85,7 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
                 }
                 ConvergeTo::Right(outcome) => {
                     last_compatible_index = Some(indices);
-                    write_succeeded_check(&outcome, config, output)
+                    write_succeeded_check(&outcome, config, output);
                 }
             }
 

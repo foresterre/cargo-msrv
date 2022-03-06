@@ -93,10 +93,10 @@ pub fn write_succeeded_check(
 
     match config.output_format() {
         OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome))
+            output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome));
         }
         OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(success_outcome))
+            output.write_line(&FormatUserOutput::<Json>::format_line(success_outcome));
         }
         _ => {}
     };
@@ -109,10 +109,10 @@ pub fn write_failed_check(failure_outcome: &FailureOutcome, config: &Config, out
 
     match config.output_format() {
         OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome))
+            output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome));
         }
         OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome))
+            output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome));
         }
         _ => {}
     };
