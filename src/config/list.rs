@@ -18,7 +18,7 @@ impl<'a> TryFrom<&'a ArgMatches> for ListCmdConfig {
             ListVariant::default()
         };
 
-        Ok(ListCmdConfig { variant })
+        Ok(Self { variant })
     }
 }
 
