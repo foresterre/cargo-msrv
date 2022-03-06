@@ -32,7 +32,7 @@ pub fn run_verify_msrv_action<R: Output>(
 
     let version = manifest
         .minimum_rust_version()
-        .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml.to_owned()))?;
+        .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(cargo_toml.clone()))?;
     let version = version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let cmd = config.check_command_string();
@@ -47,7 +47,7 @@ pub fn run_verify_msrv_action<R: Output>(
         Ok(())
     } else {
         Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed {
-            expected_msrv: version.to_owned(),
+            expected_msrv: version.clone(),
             manifest: cargo_toml,
         }))
     }
