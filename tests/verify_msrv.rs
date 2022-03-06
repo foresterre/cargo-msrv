@@ -89,7 +89,7 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
     let exit_code = exit_status.code().unwrap();
     let expected = ExitCode::Success;
 
-    assert_eq!(exit_code, Into::<i32>::into(expected))
+    assert_eq!(exit_code, Into::<i32>::into(expected));
 }
 
 #[parameterized(
@@ -124,7 +124,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
     let exit_code = exit_status.code().unwrap();
     let expected = ExitCode::Failure;
 
-    assert_eq!(exit_code, Into::<i32>::into(expected))
+    assert_eq!(exit_code, Into::<i32>::into(expected));
 }
 
 #[test]
@@ -156,5 +156,5 @@ fn verify_subcommand_success_with_custom_check_cmd() {
     let exit_code = exit_status.code().unwrap();
     let expected = ExitCode::Success;
 
-    assert_eq!(exit_code, Into::<i32>::into(expected))
+    assert_eq!(exit_code, Into::<i32>::into(expected));
 }
