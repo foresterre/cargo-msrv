@@ -65,16 +65,16 @@ fn run_with_search_method(
     // Run a linear or binary search depending on the configuration
     match search_method {
         SearchMethod::Linear => {
-            run_searcher(Linear::new(runner), included_releases, config, output)
+            run_searcher(&Linear::new(runner), included_releases, config, output)
         }
         SearchMethod::Bisect => {
-            run_searcher(Bisect::new(runner), included_releases, config, output)
+            run_searcher(&Bisect::new(runner), included_releases, config, output)
         }
     }
 }
 
 fn run_searcher(
-    method: impl FindMinimalCapableToolchain,
+    method: &impl FindMinimalCapableToolchain,
     releases: &[Release],
     config: &Config,
     output: &impl Output,

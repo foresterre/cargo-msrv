@@ -1,4 +1,4 @@
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -50,17 +50,17 @@ impl RustupCommand {
 
     /// Execute `rustup run [...]`
     pub fn run(self) -> TResult<RustupOutput> {
-        self.execute(OsString::from("run"))
+        self.execute(OsStr::new("run"))
     }
 
     /// Execute `rustup install [...]`
     pub fn install(self) -> TResult<RustupOutput> {
-        self.execute(OsString::from("install"))
+        self.execute(OsStr::new("install"))
     }
 
     /// Execute `rustup show [...]`
     pub fn show(self) -> TResult<RustupOutput> {
-        self.execute(OsString::from("show"))
+        self.execute(OsStr::new("show"))
     }
 
     /// Execute a given `rustup` command.
@@ -69,9 +69,9 @@ impl RustupCommand {
     /// * [RustupCommand::run](RustupCommand::run)
     /// * [RustupCommand::install](RustupCommand::run)
     /// * [RustupCommand::show](RustupCommand::run)
-    pub fn execute(mut self, cmd: OsString) -> TResult<RustupOutput> {
+    pub fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
         debug!(
-            cmd = ?cmd.as_os_str(),
+            cmd = ?cmd,
             args = ?self.args.as_slice()
         );
 
@@ -83,13 +83,13 @@ impl RustupCommand {
 
         let child = self.command.spawn().map_err(|error| CargoMSRVError::Io {
             error,
-            source: IoErrorSource::SpawnProcess(cmd.clone()),
+            source: IoErrorSource::SpawnProcess(cmd.to_owned()),
         })?;
         let output = child
             .wait_with_output()
             .map_err(|error| CargoMSRVError::Io {
                 error,
-                source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.clone()),
+                source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.to_owned()),
             })?;
 
         Ok(RustupOutput {
