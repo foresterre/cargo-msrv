@@ -1,8 +1,10 @@
 use cargo_metadata::PackageId;
 use std::collections::HashMap;
 
-pub(crate) mod formatter;
+mod formatter;
 pub(crate) mod resolver;
+
+pub(crate) use formatter::format;
 
 type PackageGraphIndex = usize;
 // NB: stable graph because we need our DependencyGraph::index to be able to bridge between id's
