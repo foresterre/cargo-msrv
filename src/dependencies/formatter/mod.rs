@@ -1,4 +1,4 @@
-use crate::config::list::ListVariant;
+use crate::config::list::ListMsrvVariant;
 use crate::config::OutputFormat;
 use crate::manifest::{bare_version::BareVersion, CargoManifest, CargoManifestParser, TomlParser};
 use cargo_metadata::Package;
@@ -14,12 +14,12 @@ mod ordered_by_msrv;
 
 pub(crate) fn format(
     graph: &DependencyGraph,
-    variant: ListVariant,
+    variant: ListMsrvVariant,
     format: OutputFormat,
 ) -> Option<String> {
     match variant {
-        ListVariant::DirectDeps => direct_deps::format(graph, format),
-        ListVariant::OrderedByMSRV => ordered_by_msrv::format(graph, format),
+        ListMsrvVariant::DirectDeps => direct_deps::format(graph, format),
+        ListMsrvVariant::OrderedByMSRV => ordered_by_msrv::format(graph, format),
     }
 }
 

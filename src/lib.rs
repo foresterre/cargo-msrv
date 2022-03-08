@@ -21,7 +21,7 @@ pub use crate::{
 };
 
 pub mod check;
-pub mod cli;
+pub mod cli_new;
 pub(crate) mod command;
 pub mod config;
 pub(crate) mod dependencies;
@@ -31,6 +31,7 @@ pub mod exit_code;
 pub(crate) mod fetch;
 pub(crate) mod formatter;
 pub(crate) mod lockfile;
+pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod outcome;
 pub(crate) mod paths;
