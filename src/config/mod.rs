@@ -132,7 +132,11 @@ impl Default for ReleaseSource {
 
 impl ReleaseSource {
     pub(crate) fn variants() -> &'static [&'static str] {
-        &["rust-changelog", "rust-dist"]
+        &[
+            "rust-changelog",
+            #[cfg(feature = "rust-releases-dist-source")]
+            "rust-dist",
+        ]
     }
 }
 
