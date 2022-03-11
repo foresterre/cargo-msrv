@@ -6,6 +6,7 @@ description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0/MIT"
 edition = "2018"
 repository = "https://github.com/foresterre/cargo-msrv"
+rust-version = "1.59"
 
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
@@ -14,8 +15,7 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 default = ["rust-releases-dist-source"]
 rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
 
-[package.metadata]
-msrv = "1.54.0"
+
 
 [package.metadata.release]
 tag-name = "v{{version}}"
