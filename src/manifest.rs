@@ -376,7 +376,6 @@ mod bare_version_tests {
         three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18_446_744_073_709_551_615, 0, 0) },
         three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18_446_744_073_709_551_615, 0) },
         three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18_446_744_073_709_551_615) },
-
     )]
     fn try_from_ok(version: &str, expected: BareVersion) {
         use std::convert::TryFrom;
@@ -399,7 +398,7 @@ mod bare_version_tests {
         too_large_int_minor_2c = { "0.18446744073709551616" },
         too_large_int_major_3c = { "18446744073709551616.0.0" },
         too_large_int_minor_3c = { "0.18446744073709551616.0" },
-        too_large_int_patch_3c = { "0.0.18446744073709551616" },        
+        too_large_int_patch_3c = { "0.0.18446744073709551616" },
         neg_int_major = { "-1.0.0" },
         neg_int_minor = { "0.-1.0" },
         neg_int_patch = { "0.0.-1" },
