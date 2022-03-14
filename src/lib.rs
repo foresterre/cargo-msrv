@@ -37,6 +37,7 @@ pub(crate) mod outcome;
 pub(crate) mod paths;
 pub(crate) mod releases;
 pub mod reporter;
+pub(crate) mod reporter_new;
 pub(crate) mod result;
 pub(crate) mod search_methods;
 pub(crate) mod subcommands;
