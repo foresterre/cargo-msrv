@@ -27,10 +27,36 @@ fn include_version(
     min_version: Option<&semver::Version>,
     max_version: Option<&semver::Version>,
 ) -> bool {
-    match (min_version, max_version) {
+    // Workaround for #278:
+    //
+    // What we consider here is that a maximum version of x.y should match `x.y.*`.
+    //
+    // Possibly this function should take BareVersion's as arguments; currently we however don't
+    // and take full semver compatible versions.
+    //
+    // What we need here is a kind of reverse semver Tilde comparator.
+    // Where Tilde allows patch updates, with greater than comparisons, we need 'allow patch updates'
+    // but with less than comparisons.
+    //
+    // For this work around, we let the comparison ignore patch versions for max,
+    // by setting the patch version equal to the current version, ensuring for every current version,
+    // the given patch version will be acceptable.
+    //
+    // Inadvertently however, we may also allow larger patch versions which are precisely specified
+    // as a full semver version, e.g. x.y.z now also matches x.y.f where f > z, since we'll
+    // set f = z in this workaround.
+    let max_version = max_version.map(|v| {
+        if current.patch > v.patch {
+            semver::Version::new(v.major, v.minor, current.patch)
+        } else {
+            v.clone()
+        }
+    });
+
+    match (min_version, &max_version) {
         (Some(min), Some(max)) => current >= min && current <= max,
         (Some(min), None) => current >= min,
-        (None, Some(max)) => current <= max,
+        (None, Some(max)) => current <= max, // todo,
         (None, None) => true,
     }
 }
@@ -43,6 +69,14 @@ mod tests {
     use super::*;
 
     ide!();
+
+    #[test]
+    fn max_should_ignore_patch() {
+        let current = Version::new(1, 54, 1);
+        let max_version = Version::new(1, 54, 0);
+
+        assert!(include_version(&current, None, Some(max_version).as_ref()));
+    }
 
     #[parameterized(current = {
         50, // -inf <= x <= inf

@@ -1,3 +1,5 @@
+use crate::manifest::bare_version;
+use crate::manifest::bare_version::BareVersion;
 use crate::{semver, ReleaseSource};
 use clap::AppSettings;
 use clap::Args;
@@ -9,17 +11,18 @@ pub struct RustReleasesOpts {
     /// Least recent version or edition to take into account
     ///
     /// Given version must match a valid Rust toolchain, and be semver compatible,
-    /// or match a Rust edition alias. For example, the edition alias "2018" would match
-    /// Rust version `1.31.0`, since that's the first version which added support for the Rust
-    /// 2018 edition.
+    /// be a two component `major.minor` version. or match a Rust edition alias.
+    ///
+    /// For example, the edition alias "2018" would match Rust version `1.31.0`, since that's the
+    /// first version which added support for the Rust 2018 edition.
     #[clap(long, value_name = "VERSION_SPEC or EDITION", alias = "minimum")]
-    pub min: Option<EditionOrVersion>, // TODO: currently is semver::Version, instead of BareVersion
+    pub min: Option<EditionOrVersion>,
 
     /// Most recent version to take into account
     ///
     /// Given version must match a valid Rust toolchain, and be semver compatible.
     #[clap(long, value_name = "VERSION_SPEC", alias = "maximum")]
-    pub max: Option<semver::Version>, // TODO: currently is semver::Version, instead of BareVersion
+    pub max: Option<BareVersion>,
 
     /// Include all patch releases, instead of only the last
     #[clap(long)]
@@ -32,14 +35,14 @@ pub struct RustReleasesOpts {
 #[derive(Debug)]
 pub enum EditionOrVersion {
     Edition(Edition),
-    Version(semver::Version),
+    Version(BareVersion),
 }
 
 impl EditionOrVersion {
     pub fn as_version(&self) -> semver::Version {
         match self {
             Self::Edition(edition) => edition.as_version(),
-            Self::Version(version) => version.clone(),
+            Self::Version(version) => version.to_semver_version(),
         }
     }
 }
@@ -88,13 +91,13 @@ impl FromStr for EditionOrVersion {
             .parse::<Edition>()
             .map(EditionOrVersion::Edition)
             .or_else(|edition_err| {
-                semver::Version::parse(input)
+                BareVersion::from_str(input)
                     .map(EditionOrVersion::Version)
-                    .map_err(|semver_err| {
+                    .map_err(|parse_version_err| {
                         ParseEditionOrVersionError::EditionOrVersion(
                             input.to_string(),
                             edition_err,
-                            semver_err,
+                            parse_version_err,
                         )
                     })
             })
@@ -104,5 +107,5 @@ impl FromStr for EditionOrVersion {
 #[derive(Debug, thiserror::Error)]
 pub enum ParseEditionOrVersionError {
     #[error("Value '{0}' could not be parsed as a valid Rust version: {1} + {2}")]
-    EditionOrVersion(String, ParseEditionError, semver::Error),
+    EditionOrVersion(String, ParseEditionError, bare_version::Error),
 }
