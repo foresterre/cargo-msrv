@@ -1,3 +1,4 @@
+use crate::manifest::bare_version;
 use crate::{semver, Config};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
@@ -24,25 +25,42 @@ pub fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
 
 fn include_version(
     current: &semver::Version,
-    min_version: Option<&semver::Version>,
-    max_version: Option<&semver::Version>,
+    min_version: Option<&bare_version::BareVersion>,
+    max_version: Option<&bare_version::BareVersion>,
 ) -> bool {
-    match (min_version, max_version) {
-        (Some(min), Some(max)) => current >= min && current <= max,
-        (Some(min), None) => current >= min,
-        (None, Some(max)) => current <= max,
+    match (min_version, &max_version) {
+        (Some(min), Some(max)) => min.is_at_least(current) && max.is_at_most(current),
+        (Some(min), None) => min.is_at_least(current),
+        (None, Some(max)) => max.is_at_most(current),
         (None, None) => true,
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::manifest::bare_version::BareVersion;
     use parameterized::{ide, parameterized};
     use rust_releases::semver::Version;
 
     use super::*;
 
     ide!();
+
+    #[test]
+    fn max_should_ignore_patch() {
+        let current = Version::new(1, 54, 1);
+        let max_version = BareVersion::TwoComponents(1, 54);
+
+        assert!(include_version(&current, None, Some(max_version).as_ref()));
+    }
+
+    #[test]
+    fn max_should_be_strict_about_patch() {
+        let current = Version::new(1, 54, 1);
+        let max_version = BareVersion::ThreeComponents(1, 54, 0);
+
+        assert!(!include_version(&current, None, Some(max_version).as_ref()));
+    }
 
     #[parameterized(current = {
         50, // -inf <= x <= inf
@@ -65,8 +83,8 @@ mod tests {
     })]
     fn test_included_versions(current: u64, min: Option<u64>, max: Option<u64>) {
         let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
+        let min_version = min.map(|m| BareVersion::ThreeComponents(1, m, 0));
+        let max_version = max.map(|m| BareVersion::ThreeComponents(1, m, 0));
 
         assert!(include_version(
             &current,
@@ -93,8 +111,8 @@ mod tests {
     })]
     fn test_excluded_versions(current: u64, min: Option<u64>, max: Option<u64>) {
         let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
+        let min_version = min.map(|m| BareVersion::ThreeComponents(1, m, 0));
+        let max_version = max.map(|m| BareVersion::ThreeComponents(1, m, 0));
 
         assert!(!include_version(
             &current,

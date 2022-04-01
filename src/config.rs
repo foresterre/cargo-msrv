@@ -12,6 +12,7 @@ use rust_releases::semver;
 
 use crate::errors::{CargoMSRVError, TResult};
 use crate::log_level::LogLevel;
+use crate::manifest::bare_version;
 
 pub(crate) mod list;
 pub(crate) mod set;
@@ -213,8 +214,8 @@ pub struct Config<'a> {
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
     include_all_patch_releases: bool,
-    minimum_version: Option<semver::Version>,
-    maximum_version: Option<semver::Version>,
+    minimum_version: Option<bare_version::BareVersion>,
+    maximum_version: Option<bare_version::BareVersion>,
     search_method: SearchMethod,
     output_toolchain_file: bool,
     ignore_lockfile: bool,
@@ -273,11 +274,11 @@ impl<'a> Config<'a> {
         self.include_all_patch_releases
     }
 
-    pub fn minimum_version(&self) -> Option<&semver::Version> {
+    pub fn minimum_version(&self) -> Option<&bare_version::BareVersion> {
         self.minimum_version.as_ref()
     }
 
-    pub fn maximum_version(&self) -> Option<&semver::Version> {
+    pub fn maximum_version(&self) -> Option<&bare_version::BareVersion> {
         self.maximum_version.as_ref()
     }
 
@@ -361,12 +362,12 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn minimum_version(mut self, version: semver::Version) -> Self {
+    pub fn minimum_version(mut self, version: bare_version::BareVersion) -> Self {
         self.inner.minimum_version = Some(version);
         self
     }
 
-    pub fn maximum_version(mut self, version: semver::Version) -> Self {
+    pub fn maximum_version(mut self, version: bare_version::BareVersion) -> Self {
         self.inner.maximum_version = Some(version);
         self
     }
