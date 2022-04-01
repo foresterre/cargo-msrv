@@ -1,3 +1,4 @@
+use crate::manifest::bare_version;
 use crate::{semver, Config};
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
@@ -24,45 +25,20 @@ pub fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
 
 fn include_version(
     current: &semver::Version,
-    min_version: Option<&semver::Version>,
-    max_version: Option<&semver::Version>,
+    min_version: Option<&bare_version::BareVersion>,
+    max_version: Option<&bare_version::BareVersion>,
 ) -> bool {
-    // Workaround for #278:
-    //
-    // What we consider here is that a maximum version of x.y should match `x.y.*`.
-    //
-    // Possibly this function should take BareVersion's as arguments; currently we however don't
-    // and take full semver compatible versions.
-    //
-    // What we need here is a kind of reverse semver Tilde comparator.
-    // Where Tilde allows patch updates, with greater than comparisons, we need 'allow patch updates'
-    // but with less than comparisons.
-    //
-    // For this work around, we let the comparison ignore patch versions for max,
-    // by setting the patch version equal to the current version, ensuring for every current version,
-    // the given patch version will be acceptable.
-    //
-    // Inadvertently however, we may also allow larger patch versions which are precisely specified
-    // as a full semver version, e.g. x.y.z now also matches x.y.f where f > z, since we'll
-    // set f = z in this workaround.
-    let max_version = max_version.map(|v| {
-        if current.patch > v.patch {
-            semver::Version::new(v.major, v.minor, current.patch)
-        } else {
-            v.clone()
-        }
-    });
-
     match (min_version, &max_version) {
-        (Some(min), Some(max)) => current >= min && current <= max,
-        (Some(min), None) => current >= min,
-        (None, Some(max)) => current <= max, // todo,
+        (Some(min), Some(max)) => min.is_at_least(current) && max.is_at_most(current),
+        (Some(min), None) => min.is_at_least(current),
+        (None, Some(max)) => max.is_at_most(current),
         (None, None) => true,
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::manifest::bare_version::BareVersion;
     use parameterized::{ide, parameterized};
     use rust_releases::semver::Version;
 
@@ -73,9 +49,17 @@ mod tests {
     #[test]
     fn max_should_ignore_patch() {
         let current = Version::new(1, 54, 1);
-        let max_version = Version::new(1, 54, 0);
+        let max_version = BareVersion::TwoComponents(1, 54);
 
         assert!(include_version(&current, None, Some(max_version).as_ref()));
+    }
+
+    #[test]
+    fn max_should_be_strict_about_patch() {
+        let current = Version::new(1, 54, 1);
+        let max_version = BareVersion::ThreeComponents(1, 54, 0);
+
+        assert!(!include_version(&current, None, Some(max_version).as_ref()));
     }
 
     #[parameterized(current = {
@@ -99,8 +83,8 @@ mod tests {
     })]
     fn test_included_versions(current: u64, min: Option<u64>, max: Option<u64>) {
         let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
+        let min_version = min.map(|m| BareVersion::ThreeComponents(1, m, 0));
+        let max_version = max.map(|m| BareVersion::ThreeComponents(1, m, 0));
 
         assert!(include_version(
             &current,
@@ -127,8 +111,8 @@ mod tests {
     })]
     fn test_excluded_versions(current: u64, min: Option<u64>, max: Option<u64>) {
         let current = Version::new(1, current, 0);
-        let min_version = min.map(|m| Version::new(1, m, 0));
-        let max_version = max.map(|m| Version::new(1, m, 0));
+        let min_version = min.map(|m| BareVersion::ThreeComponents(1, m, 0));
+        let max_version = max.map(|m| BareVersion::ThreeComponents(1, m, 0));
 
         assert!(!include_version(
             &current,

@@ -1,6 +1,6 @@
 use crate::manifest::bare_version;
 use crate::manifest::bare_version::BareVersion;
-use crate::{semver, ReleaseSource};
+use crate::ReleaseSource;
 use clap::AppSettings;
 use clap::Args;
 use std::str::FromStr;
@@ -20,7 +20,8 @@ pub struct RustReleasesOpts {
 
     /// Most recent version to take into account
     ///
-    /// Given version must match a valid Rust toolchain, and be semver compatible.
+    /// Given version must match a valid Rust toolchain, and be semver compatible, or
+    /// be a two component `major.minor` version.
     #[clap(long, value_name = "VERSION_SPEC", alias = "maximum")]
     pub max: Option<BareVersion>,
 
@@ -39,10 +40,10 @@ pub enum EditionOrVersion {
 }
 
 impl EditionOrVersion {
-    pub fn as_version(&self) -> semver::Version {
+    pub fn as_bare_version(&self) -> bare_version::BareVersion {
         match self {
-            Self::Edition(edition) => edition.as_version(),
-            Self::Version(version) => version.to_semver_version(),
+            Self::Edition(edition) => edition.as_bare_version(),
+            Self::Version(version) => version.clone(),
         }
     }
 }
@@ -68,11 +69,11 @@ impl FromStr for Edition {
 }
 
 impl Edition {
-    pub fn as_version(&self) -> semver::Version {
+    pub fn as_bare_version(&self) -> bare_version::BareVersion {
         match self {
-            Self::Edition2015 => semver::Version::new(1, 0, 0),
-            Self::Edition2018 => semver::Version::new(1, 31, 0),
-            Self::Edition2021 => semver::Version::new(1, 56, 0),
+            Self::Edition2015 => BareVersion::ThreeComponents(1, 0, 0),
+            Self::Edition2018 => BareVersion::ThreeComponents(1, 31, 0),
+            Self::Edition2021 => BareVersion::ThreeComponents(1, 56, 0),
         }
     }
 }

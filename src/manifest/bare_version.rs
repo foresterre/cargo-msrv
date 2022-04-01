@@ -1,3 +1,5 @@
+use crate::semver;
+
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -88,6 +90,108 @@ impl Display for BareVersion {
                 f.write_fmt(format_args!("{}.{}.{}", major, minor, patch))
             }
         }
+    }
+}
+
+impl BareVersion {
+    /// Compares whether the `given` version matches at least `self`.
+    pub fn is_at_least(&self, given: &semver::Version) -> bool {
+        match (self, given) {
+            (BareVersion::ThreeComponents(min_major, min_minor, min_patch), v) => {
+                Self::at_least_3_component((*min_major, *min_minor, *min_patch), v)
+            }
+            (BareVersion::TwoComponents(min_major, min_minor), v) => {
+                Self::at_least_2_component((*min_major, *min_minor), v)
+            }
+        }
+    }
+
+    /// Compares whether the `given` version matches at most `self`.
+    pub fn is_at_most(&self, given: &semver::Version) -> bool {
+        match (self, given) {
+            (BareVersion::ThreeComponents(max_major, max_minor, max_patch), v) => {
+                Self::at_most_3_component((*max_major, *max_minor, *max_patch), v)
+            }
+            (BareVersion::TwoComponents(max_major, max_minor), v) => {
+                Self::at_most_2_component((*max_major, *max_minor), v)
+            }
+        }
+    }
+
+    fn at_least_2_component(
+        min_version: (BareVersionUsize, BareVersionUsize),
+        version: &semver::Version,
+    ) -> bool {
+        let (min_major, min_minor) = min_version;
+
+        if version.major != min_major {
+            return version.major >= min_major;
+        }
+
+        if version.minor != min_minor {
+            return version.minor >= min_minor;
+        }
+
+        true
+    }
+
+    fn at_least_3_component(
+        min_version: (BareVersionUsize, BareVersionUsize, BareVersionUsize),
+        version: &semver::Version,
+    ) -> bool {
+        let (min_major, min_minor, min_patch) = min_version;
+
+        if version.major != min_major {
+            return version.major >= min_major;
+        }
+
+        if version.minor != min_minor {
+            return version.minor >= min_minor;
+        }
+
+        if version.patch != min_patch {
+            return version.patch >= min_patch;
+        }
+
+        true
+    }
+
+    fn at_most_2_component(
+        max_version: (BareVersionUsize, BareVersionUsize),
+        version: &semver::Version,
+    ) -> bool {
+        let (max_major, max_minor) = max_version;
+
+        if version.major != max_major {
+            return version.major <= max_major;
+        }
+
+        if version.minor != max_minor {
+            return version.minor <= max_minor;
+        }
+
+        true
+    }
+
+    fn at_most_3_component(
+        max_version: (BareVersionUsize, BareVersionUsize, BareVersionUsize),
+        version: &semver::Version,
+    ) -> bool {
+        let (max_major, max_minor, max_patch) = max_version;
+
+        if version.major != max_major {
+            return version.major <= max_major;
+        }
+
+        if version.minor != max_minor {
+            return version.minor <= max_minor;
+        }
+
+        if version.patch != max_patch {
+            return version.patch <= max_patch;
+        }
+
+        true
     }
 }
 
@@ -347,5 +451,52 @@ mod bare_version_tests {
         let v = version.try_to_semver(available).unwrap();
 
         assert_eq!(v, &expected);
+    }
+
+    #[parameterized(
+        accept_min_three_component_eq = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 0), true },
+        accept_min_three_component_gt_patch = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 1), true },
+        accept_min_three_component_gt_minor = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 57, 0), true },
+        accept_min_three_component_gt_major = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(2, 0, 0), true },
+        reject_min_three_component_gt_patch = { BareVersion::ThreeComponents(1, 56, 1), semver::Version::new(1, 56, 0), false },
+        reject_min_three_component_gt_minor = { BareVersion::ThreeComponents(1, 56, 1), semver::Version::new(1, 56, 0), false },
+        reject_min_three_component_gt_minor_2 = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 55, 0), false },
+        reject_min_three_component_gt_major = { BareVersion::ThreeComponents(2, 0, 1), semver::Version::new(2, 0, 0), false },
+        reject_min_three_component_gt_major_2 = { BareVersion::ThreeComponents(3, 0, 0), semver::Version::new(2, 0, 0), false },
+        accept_min_two_component_eq = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 56, 0), true },
+        accept_min_two_component_gt_patch = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 56, 1), true },
+        accept_min_two_component_gt_minor = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 57, 0), true },
+        accept_min_two_component_gt_major = { BareVersion::TwoComponents(1, 56), semver::Version::new(2, 0, 0), true },
+        reject_min_two_component_gt_minor = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 55, 0), false },
+        reject_min_two_component_gt_major = { BareVersion::TwoComponents(3, 0), semver::Version::new(2, 0, 0), false },
+        reject_min_two_component_gt_major_2 = { BareVersion::TwoComponents(3, 5), semver::Version::new(2, 4, 0), false },
+    )]
+    fn is_at_least(accepting_min: BareVersion, given: semver::Version, accept: bool) {
+        assert_eq!(accepting_min.is_at_least(&given), accept);
+    }
+
+    #[parameterized(
+        accept_max_three_component_eq_patch = { BareVersion::ThreeComponents(1, 56, 1), semver::Version::new(1, 56, 1), true },
+        accept_max_three_component_eq_minor = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 0), true },
+        accept_max_three_component_eq_major = { BareVersion::ThreeComponents(2, 0, 0), semver::Version::new(2, 0, 0), true },
+        accept_max_three_component_lt_patch = { BareVersion::ThreeComponents(1, 56, 1), semver::Version::new(1, 56, 0), true },
+        accept_max_three_component_lt_minor = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 55, 0), true },
+        accept_max_three_component_lt_major = { BareVersion::ThreeComponents(3, 0, 0), semver::Version::new(2, 0, 0), true },
+        reject_max_three_component_lt_patch = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 1), false },
+        reject_max_three_component_lt_patch_2 = { BareVersion::ThreeComponents(2, 0, 0), semver::Version::new(2, 0, 1), false },
+        reject_max_three_component_lt_minor = { BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 57, 0), false },
+        reject_max_three_component_lt_major_2 = { BareVersion::ThreeComponents(3, 0, 0), semver::Version::new(4, 0, 0), false },
+        accept_max_two_component_eq_minor = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 56, 0), true },
+        accept_max_two_component_eq_major = { BareVersion::TwoComponents(2, 0), semver::Version::new(2, 0, 0), true },
+        accept_max_two_component_lt_patch = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 55, 99), true },
+        accept_max_two_component_lt_patch_2 = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 55, 1), true },
+        accept_max_two_component_lt_minor = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 55, 0), true },
+        accept_max_two_component_lt_minor_2 = { BareVersion::TwoComponents(2, 1), semver::Version::new(2, 0, 0), true },
+        reject_max_two_component_lt_minor = { BareVersion::TwoComponents(1, 56), semver::Version::new(1, 57, 0), false },
+        reject_max_two_component_lt_major = { BareVersion::TwoComponents(3, 0), semver::Version::new(4, 0, 0), false },
+        reject_max_two_component_lt_major_2 = { BareVersion::TwoComponents(3, 5), semver::Version::new(4, 6, 0), false },
+    )]
+    fn is_at_most(accepting_min: BareVersion, given: semver::Version, accept: bool) {
+        assert_eq!(accepting_min.is_at_most(&given), accept);
     }
 }

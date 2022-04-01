@@ -15,7 +15,7 @@ impl Configure for MinVersion {
         opts: &'c CargoMsrvOpts,
     ) -> TResult<ConfigBuilder<'c>> {
         if let Some(v) = &opts.find_opts.rust_releases_opts.min {
-            let version = v.as_version();
+            let version = v.as_bare_version();
             Ok(builder.minimum_version(version))
         } else {
             configure_min_version_not_as_opt(builder, opts)
@@ -78,7 +78,7 @@ fn set_min_version_from_manifest<'c>(
         .and_then(Item::as_str)
     {
         let edition = edition.parse::<Edition>()?;
-        Ok(builder.minimum_version(edition.as_version()))
+        Ok(builder.minimum_version(edition.as_bare_version()))
     } else {
         Ok(builder)
     }
