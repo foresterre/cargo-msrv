@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use rust_releases::semver::Version;
 use rust_releases::{semver, Release, ReleaseIndex};
 
-use cargo_msrv::cli_new::CargoCli;
+use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::{test_config_from_cli, Config, OutputFormat};
 use cargo_msrv::errors::TResult;
 use cargo_msrv::reporter::__private::SuccessOutput;

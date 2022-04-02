@@ -1,4 +1,4 @@
-use crate::cli_new::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
+use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use std::env;
 use std::ffi::OsString;
 use std::io;

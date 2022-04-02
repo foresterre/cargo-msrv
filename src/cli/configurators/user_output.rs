@@ -1,9 +1,9 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::CargoMsrvOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::CargoMsrvOpts;
 use crate::config::{ConfigBuilder, OutputFormat};
 use crate::TResult;
 
-pub(in crate::cli_new) struct UserOutput;
+pub(in crate::cli) struct UserOutput;
 
 impl Configure for UserOutput {
     fn configure<'c>(

@@ -21,7 +21,7 @@ pub use crate::{
 };
 
 pub mod check;
-pub mod cli_new;
+pub mod cli;
 pub(crate) mod command;
 pub mod config;
 pub(crate) mod dependencies;

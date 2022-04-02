@@ -1,9 +1,9 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::custom_check_opts::CustomCheckOpts;
-use crate::cli_new::find_opts::FindOpts;
-use crate::cli_new::rust_releases_opts::RustReleasesOpts;
-use crate::cli_new::shared_opts::SharedOpts;
-use crate::cli_new::toolchain_opts::ToolchainOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::custom_check_opts::CustomCheckOpts;
+use crate::cli::find_opts::FindOpts;
+use crate::cli::rust_releases_opts::RustReleasesOpts;
+use crate::cli::shared_opts::SharedOpts;
+use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::config::list::ListMsrvVariant;
 use crate::config::ConfigBuilder;
 use crate::fetch::default_target;
@@ -13,7 +13,7 @@ use clap::{AppSettings, Args, Parser, Subcommand};
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
 
-pub(in crate::cli_new) mod configurators;
+pub(in crate::cli) mod configurators;
 pub(crate) mod custom_check_opts;
 pub(crate) mod find_opts;
 pub(crate) mod rust_releases_opts;
@@ -66,7 +66,7 @@ fn modify_args<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
 }
 
 #[derive(Debug, Subcommand)]
-pub(in crate::cli_new) enum CargoMsrvCli {
+pub(in crate::cli) enum CargoMsrvCli {
     /// Find your Minimum Supported Rust Version!
     #[clap(
         author = "Martijn Gribnau <garm@ilumeo.com>",
@@ -88,24 +88,24 @@ pub(in crate::cli_new) enum CargoMsrvCli {
 
 #[derive(Debug, Args)]
 #[clap(version)]
-pub(in crate::cli_new) struct CargoMsrvOpts {
+pub(in crate::cli) struct CargoMsrvOpts {
     #[clap(flatten)]
-    pub(in crate::cli_new) find_opts: FindOpts,
+    pub(in crate::cli) find_opts: FindOpts,
 
     #[clap(flatten)]
-    pub(in crate::cli_new) shared_opts: SharedOpts,
+    pub(in crate::cli) shared_opts: SharedOpts,
 
     #[clap(subcommand)]
-    pub(in crate::cli_new) subcommand: Option<SubCommand>,
+    pub(in crate::cli) subcommand: Option<SubCommand>,
 
     /// DEPRECATED: Use the `cargo msrv verify` subcommand instead
     #[clap(long, global = false, hide = true)]
-    pub(in crate::cli_new) verify: bool,
+    pub(in crate::cli) verify: bool,
 }
 
 #[derive(Debug, Subcommand)]
 #[clap(propagate_version = true)]
-pub(in crate::cli_new) enum SubCommand {
+pub(in crate::cli) enum SubCommand {
     /// Display the MSRV's of dependencies
     List(ListOpts),
     /// Set the MSRV of the current crate to a given Rust version
@@ -119,7 +119,7 @@ pub(in crate::cli_new) enum SubCommand {
 
 #[derive(Debug, Args)]
 #[clap(next_help_heading = "LIST OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
-pub(in crate::cli_new) struct ListOpts {
+pub(in crate::cli) struct ListOpts {
     /// Display the MSRV's of crates that your crate depends on
     #[clap(long, possible_values = ListMsrvVariant::variants(), default_value_t)]
     variant: ListMsrvVariant,
@@ -127,7 +127,7 @@ pub(in crate::cli_new) struct ListOpts {
 
 #[derive(Debug, Args)]
 #[clap(next_help_heading = "SET OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
-pub(in crate::cli_new) struct SetOpts {
+pub(in crate::cli) struct SetOpts {
     /// The version to be set as MSRV
     ///
     /// The given version must be a two- or three component Rust version number.
@@ -143,15 +143,15 @@ pub(in crate::cli_new) struct SetOpts {
     next_help_heading = "VERIFY OPTIONS",
     setting = AppSettings::DeriveDisplayOrder,
 )]
-pub(in crate::cli_new) struct VerifyOpts {
+pub(in crate::cli) struct VerifyOpts {
     #[clap(flatten)]
-    pub(in crate::cli_new) rust_releases_opts: RustReleasesOpts,
+    pub(in crate::cli) rust_releases_opts: RustReleasesOpts,
 
     #[clap(flatten)]
-    pub(in crate::cli_new) toolchain_opts: ToolchainOpts,
+    pub(in crate::cli) toolchain_opts: ToolchainOpts,
 
     #[clap(flatten)]
-    pub(in crate::cli_new) custom_check: CustomCheckOpts,
+    pub(in crate::cli) custom_check: CustomCheckOpts,
 }
 
 // Interpret the CLI config frontend as general Config

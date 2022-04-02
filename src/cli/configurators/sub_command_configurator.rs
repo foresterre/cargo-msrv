@@ -1,11 +1,11 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::{CargoMsrvOpts, ListOpts, SetOpts, SubCommand};
+use crate::cli::configurators::Configure;
+use crate::cli::{CargoMsrvOpts, ListOpts, SetOpts, SubCommand};
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
 use crate::TResult;
 
-pub(in crate::cli_new) struct SubCommandConfigurator;
+pub(in crate::cli) struct SubCommandConfigurator;
 
 impl Configure for SubCommandConfigurator {
     fn configure<'c>(

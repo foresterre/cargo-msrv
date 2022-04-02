@@ -1,6 +1,6 @@
-use crate::cli_new::custom_check_opts::CustomCheckOpts;
-use crate::cli_new::rust_releases_opts::RustReleasesOpts;
-use crate::cli_new::toolchain_opts::ToolchainOpts;
+use crate::cli::custom_check_opts::CustomCheckOpts;
+use crate::cli::rust_releases_opts::RustReleasesOpts;
+use crate::cli::toolchain_opts::ToolchainOpts;
 use clap::AppSettings;
 use clap::Args;
 
