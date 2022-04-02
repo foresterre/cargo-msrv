@@ -9,6 +9,12 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ## [Unreleased]
 
+### Changed
+
+* CLI options are now grouped by option types
+* Option `--min <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
+* Option `--max <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions.
+
 ### Fixed
 
 * Subcommand `cargo msrv set` will now return an error when the Cargo manifest contains a virtual workspace.
