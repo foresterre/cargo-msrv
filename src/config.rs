@@ -5,7 +5,7 @@ use std::fmt::Formatter;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use crate::cli_new::CargoCli;
+use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
 use rust_releases::semver;

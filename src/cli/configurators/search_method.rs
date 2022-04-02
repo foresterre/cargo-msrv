@@ -1,9 +1,9 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::CargoMsrvOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::CargoMsrvOpts;
 use crate::config::{ConfigBuilder, SearchMethod};
 use crate::TResult;
 
-pub(in crate::cli_new) struct SearchMethodConfig;
+pub(in crate::cli) struct SearchMethodConfig;
 
 impl Configure for SearchMethodConfig {
     fn configure<'c>(

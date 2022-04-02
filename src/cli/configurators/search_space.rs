@@ -1,9 +1,9 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::CargoMsrvOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::CargoMsrvOpts;
 use crate::config::ConfigBuilder;
 use crate::TResult;
 
-pub(in crate::cli_new) struct IncludeAllPatchReleases;
+pub(in crate::cli) struct IncludeAllPatchReleases;
 
 impl Configure for IncludeAllPatchReleases {
     fn configure<'c>(

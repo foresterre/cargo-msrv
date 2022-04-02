@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
-use cargo_msrv::cli_new::CargoCli;
+use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;

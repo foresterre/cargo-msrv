@@ -1,9 +1,9 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::CargoMsrvOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::CargoMsrvOpts;
 use crate::config::{ConfigBuilder, TracingOptions};
 use crate::TResult;
 
-pub(in crate::cli_new) struct Tracing;
+pub(in crate::cli) struct Tracing;
 
 impl Configure for Tracing {
     fn configure<'c>(

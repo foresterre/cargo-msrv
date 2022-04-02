@@ -1,13 +1,13 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::CargoMsrvOpts;
+use crate::cli::configurators::Configure;
+use crate::cli::CargoMsrvOpts;
 use crate::config::ConfigBuilder;
 use std::path;
 use std::path::PathBuf;
 
-use crate::cli_new::rust_releases_opts::Edition;
+use crate::cli::rust_releases_opts::Edition;
 use crate::{CargoMSRVError, TResult};
 
-pub(in crate::cli_new) struct MinVersion;
+pub(in crate::cli) struct MinVersion;
 
 impl Configure for MinVersion {
     fn configure<'c>(

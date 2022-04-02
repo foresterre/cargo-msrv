@@ -1,10 +1,10 @@
-use crate::cli_new::configurators::Configure;
-use crate::cli_new::find_opts::FindOpts;
-use crate::cli_new::{CargoMsrvOpts, SubCommand, VerifyOpts};
+use crate::cli::configurators::Configure;
+use crate::cli::find_opts::FindOpts;
+use crate::cli::{CargoMsrvOpts, SubCommand, VerifyOpts};
 use crate::config::ConfigBuilder;
 use crate::TResult;
 
-pub(in crate::cli_new) struct CustomCheckCommand;
+pub(in crate::cli) struct CustomCheckCommand;
 
 impl Configure for CustomCheckCommand {
     fn configure<'c>(
