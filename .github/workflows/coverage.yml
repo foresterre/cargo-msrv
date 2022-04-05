@@ -24,4 +24,4 @@ jobs:
           args: "--all-features --ignore-tests --frozen --timeout 1500 -- --test-threads=1"
 
       - name: upload_code_coverage
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
