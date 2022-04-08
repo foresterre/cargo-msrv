@@ -1,6 +1,7 @@
-use crate::{Config, MinimalCompatibility, Output, TResult};
+use crate::{Config, Output, TResult};
 use rust_releases::Release;
 
+use crate::result::MinimalCompatibility;
 pub use {bisect::Bisect, linear::Linear};
 
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each

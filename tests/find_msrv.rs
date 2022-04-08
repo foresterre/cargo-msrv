@@ -1,12 +1,12 @@
 extern crate cargo_msrv;
 
+use cargo_msrv::errors::CargoMSRVError;
 use parameterized::parameterized;
 use rust_releases::{semver, Release};
 
 use crate::common::fixtures_path;
-use cargo_msrv::MinimalCompatibility;
-use common::{
-    run_cargo_version_which_doesnt_support_lockfile_v2, run_msrv, run_msrv_with_releases,
+use crate::common::sub_cmd_find::{
+    find_msrv, find_msrv_with_releases, run_cargo_version_which_doesnt_support_lockfile_v2,
 };
 
 mod common;
@@ -30,8 +30,8 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
 
     let with_args = vec!["cargo-msrv", "--linear", "--path", folder.to_str().unwrap()];
 
-    let result = run_msrv(with_args);
-    let actual_version = result.to_version();
+    let result = find_msrv(with_args).unwrap();
+    let actual_version = result.unwrap();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -55,8 +55,8 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
 
     let with_args = vec!["cargo-msrv", "--bisect", "--path", folder.to_str().unwrap()];
 
-    let result = run_msrv(with_args);
-    let actual_version = result.to_version();
+    let result = find_msrv(with_args).unwrap();
+    let actual_version = result.unwrap();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -67,8 +67,12 @@ fn msrv_unsupported() {
 
     let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
 
-    let result = run_msrv(with_args);
-    assert_eq!(result, MinimalCompatibility::NoCompatibleToolchains);
+    let result = find_msrv(with_args);
+
+    assert!(matches!(
+        result.unwrap_err(),
+        CargoMSRVError::UnableToFindAnyGoodVersion { .. }
+    ));
 }
 
 #[parameterized(
@@ -98,8 +102,8 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
         "check",
     ];
 
-    let result = run_msrv(with_args);
-    let actual_version = result.to_version();
+    let result = find_msrv(with_args).unwrap();
+    let actual_version = result.unwrap();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -133,9 +137,9 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
         "check",
     ];
 
-    let result = run_msrv(with_args);
+    let result = find_msrv(with_args).unwrap();
 
-    let actual_version = result.to_version();
+    let actual_version = result.unwrap();
 
     assert_eq!(actual_version, expected_version);
 }
@@ -151,12 +155,13 @@ fn msrv_with_old_lockfile() {
         "--ignore-lockfile",
     ];
 
-    let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args);
-    assert_eq!(result.to_version().minor, 29);
+    let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args).unwrap();
+    assert_eq!(result.unwrap().minor, 29);
 }
 
 mod minimum_from_edition {
-    use super::{run_msrv_with_releases, semver, Release};
+    use super::{semver, Release};
+    use crate::common::sub_cmd_find::find_msrv_with_releases;
     use crate::fixtures_path;
 
     #[test]
@@ -171,13 +176,15 @@ mod minimum_from_edition {
             Release::new_stable(semver::Version::new(1, 30, 0)),
             Release::new_stable(semver::Version::new(1, 29, 0)),
         ];
-        let (result, reporter) = run_msrv_with_releases(with_args, versions);
-        assert_eq!(result.to_version().minor, 31);
+
+        let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+
+        assert_eq!(test_result.msrv().unwrap().minor, 31);
         assert_eq!(
-            reporter.expose_successes(),
-            vec![
-                (true, semver::Version::new(1, 32, 0)),
-                (true, semver::Version::new(1, 31, 0)),
+            test_result.successful_checks(),
+            &[
+                semver::Version::new(1, 32, 0),
+                semver::Version::new(1, 31, 0)
             ]
         );
     }
@@ -200,19 +207,21 @@ mod minimum_from_edition {
             Release::new_stable(semver::Version::new(1, 30, 0)),
             Release::new_stable(semver::Version::new(1, 29, 0)),
         ];
-        let (result, reporter) = run_msrv_with_releases(with_args, versions);
-        assert_eq!(result.to_version().minor, 31);
+
+        let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+
+        assert_eq!(test_result.msrv().unwrap().minor, 31);
         assert_eq!(
-            reporter.expose_successes(),
-            vec![
-                (true, semver::Version::new(1, 32, 0)),
-                (true, semver::Version::new(1, 31, 0)),
-                (false, semver::Version::new(1, 30, 0)),
+            test_result.successful_checks(),
+            &[
+                semver::Version::new(1, 32, 0),
+                semver::Version::new(1, 31, 0),
+                semver::Version::new(1, 30, 0),
             ]
         );
     }
 }
-
+//
 #[parameterized(
     package = {
         "a",
@@ -236,10 +245,11 @@ fn msrv_in_a_virtual_workspace_default_check_command(
         Release::new_stable(semver::Version::new(1, 58, 1)),
         Release::new_stable(semver::Version::new(1, 56, 1)),
     ];
-    let (result, _) = run_msrv_with_releases(with_args, versions);
-    let actual_version = result.to_version();
 
-    assert_eq!(actual_version, expected_version);
+    let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+    let actual_version = test_result.msrv().unwrap();
+
+    assert_eq!(actual_version, &expected_version);
 }
 
 #[parameterized(
@@ -276,8 +286,9 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
         Release::new_stable(semver::Version::new(1, 58, 1)),
         Release::new_stable(semver::Version::new(1, 56, 1)),
     ];
-    let (result, _) = run_msrv_with_releases(with_args, versions);
-    let actual_version = result.to_version();
 
-    assert_eq!(actual_version, expected_version);
+    let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+    let actual_version = test_result.msrv().unwrap();
+
+    assert_eq!(actual_version, &expected_version);
 }

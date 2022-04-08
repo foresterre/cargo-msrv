@@ -1,10 +1,19 @@
 use crate::config::{Config, ModeIntent};
-use crate::dependencies;
 use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::errors::TResult;
 use crate::reporter::Output;
+use crate::{dependencies, SubCommand};
 
-pub fn run_list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
+#[derive(Default)]
+pub struct List;
+
+impl SubCommand for List {
+    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+        list_msrv(config, reporter)
+    }
+}
+
+fn list_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     output.mode(ModeIntent::List);
 
     let resolver = CargoMetadataResolver::try_from_config(config)?;

@@ -1,5 +1,4 @@
 use crate::toolchain::OwnedToolchainSpec;
-use rust_releases::semver;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -14,7 +13,8 @@ pub enum MinimalCompatibility {
 }
 
 impl MinimalCompatibility {
-    pub fn to_version(&self) -> semver::Version {
+    #[cfg(test)]
+    pub fn unwrap_version(&self) -> rust_releases::semver::Version {
         if let Self::CapableToolchain { toolchain, .. } = self {
             return toolchain.version().clone();
         }

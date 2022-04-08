@@ -14,11 +14,11 @@ pub trait Check {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;
 }
 
-pub struct RunCheck<'reporter, R: Output> {
+pub struct RustupToolchainCheck<'reporter, R: Output> {
     reporter: &'reporter R,
 }
 
-impl<'reporter, R: Output> Check for RunCheck<'reporter, R> {
+impl<'reporter, R: Output> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
@@ -49,7 +49,7 @@ impl<'reporter, R: Output> Check for RunCheck<'reporter, R> {
     }
 }
 
-impl<'reporter, R: Output> RunCheck<'reporter, R> {
+impl<'reporter, R: Output> RustupToolchainCheck<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
         Self { reporter }
     }
