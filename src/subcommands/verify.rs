@@ -4,20 +4,42 @@ use std::path::PathBuf;
 use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::Document;
 
-use crate::check::{Check, RunCheck};
+use crate::check::Check;
 use crate::config::{Config, ModeIntent};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
 use crate::reporter::Output;
+use crate::subcommands::SubCommand;
 use crate::toolchain::ToolchainSpec;
 
+pub struct Verify<'index, C: Check> {
+    release_index: &'index ReleaseIndex,
+    runner: C,
+}
+
+impl<'index, C: Check> Verify<'index, C> {
+    pub fn new(release_index: &'index ReleaseIndex, runner: C) -> Self {
+        Self {
+            release_index,
+            runner,
+        }
+    }
+}
+
+impl<'index, C: Check> SubCommand for Verify<'index, C> {
+    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+        verify_msrv(config, reporter, self.release_index, &self.runner)
+    }
+}
+
 // NB: only public for integration testing
-pub fn run_verify_msrv_action<R: Output>(
+fn verify_msrv<R: Output, C: Check>(
     config: &Config,
     reporter: &R,
     release_index: &ReleaseIndex,
+    runner: &C,
 ) -> TResult<()> {
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
@@ -38,10 +60,9 @@ pub fn run_verify_msrv_action<R: Output>(
     let cmd = config.check_command_string();
     reporter.mode(ModeIntent::Verify);
 
-    let runner = RunCheck::new(reporter);
     let toolchain = ToolchainSpec::new(version, config.target());
     let status = runner.check(config, &toolchain)?;
-    report_verify_completion(reporter, &status, &cmd);
+    report_status(reporter, &status, &cmd);
 
     if status.is_success() {
         Ok(())
@@ -53,7 +74,7 @@ pub fn run_verify_msrv_action<R: Output>(
     }
 }
 
-fn report_verify_completion(output: &impl Output, outcome: &Outcome, cmd: &str) {
+fn report_status(output: &impl Output, outcome: &Outcome, cmd: &str) {
     if outcome.is_success() {
         output.finish_success(ModeIntent::Verify, Some(outcome.version()));
     } else {

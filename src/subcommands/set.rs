@@ -2,14 +2,23 @@ use crate::errors::IoErrorSource;
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
-use crate::{CargoMSRVError, Config, ModeIntent, Output, TResult};
+use crate::{CargoMSRVError, Config, ModeIntent, Output, SubCommand, TResult};
 use rust_releases::semver;
 use std::io::Write;
 use toml_edit::{value, Document, Item};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
-pub fn run_set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
+#[derive(Default)]
+pub struct Set;
+
+impl SubCommand for Set {
+    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+        set_msrv(config, reporter)
+    }
+}
+
+fn set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     output.mode(ModeIntent::Show);
 
     let crate_folder = crate_root_folder(config)?;
@@ -24,7 +33,7 @@ pub fn run_set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     check_workspace(&manifest)?;
     let msrv = &config.sub_command_config().set().msrv;
 
-    set_msrv(&mut manifest, msrv);
+    set_or_override_msrv(&mut manifest, msrv);
 
     let mut file = std::fs::OpenOptions::new()
         .write(true)
@@ -55,7 +64,8 @@ fn check_workspace(manifest: &Document) -> TResult<()> {
     }
 }
 
-fn set_msrv(manifest: &mut Document, msrv: &BareVersion) {
+/// Override MSRV if it is already set, otherwise, simply set it
+fn set_or_override_msrv(manifest: &mut Document, msrv: &BareVersion) {
     discard_current_msrv(manifest);
     insert_new_msrv(manifest, msrv);
 }
@@ -117,10 +127,10 @@ fn discard_current_msrv(document: &mut Document) {
 }
 
 #[cfg(test)]
-mod set_msrv_tests {
+mod set_or_override_msrv_tests {
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
-    use crate::subcommands::set::set_msrv;
+    use crate::subcommands::set::set_or_override_msrv;
     use toml_edit::Document;
 
     #[test]
@@ -137,7 +147,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -159,7 +169,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10));
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -182,7 +192,7 @@ rust-version = "1.58.0"
             .parse::<Document>(input)
             .unwrap();
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -207,7 +217,7 @@ msrv = "1.58.0"
             .parse::<Document>(input)
             .unwrap();
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -238,7 +248,7 @@ other = 1
             .parse::<Document>(input)
             .unwrap();
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -278,7 +288,7 @@ msrv = "1.11.0"
             "1.11.0"
         );
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -306,7 +316,7 @@ rust-version = "1.58"
             "1.58"
         );
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -343,7 +353,7 @@ other = 1
             "1.58"
         );
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -378,7 +388,7 @@ metadata = { msrv = "1.15" }
             "1.15"
         );
 
-        set_msrv(&mut manifest, &BareVersion::TwoComponents(1, 57));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 57));
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),

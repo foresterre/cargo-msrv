@@ -77,11 +77,6 @@ fn init_and_run(config: &Config) -> TResult<()> {
 
             run_app(config, &reporter)
         }
-        config::OutputFormat::TestSuccesses => {
-            // for collecting success results during testing
-            let reporter = reporter::__private::SuccessOutput::default();
-            run_app(config, &reporter)
-        }
     }?;
 
     tracing::info!("finished");

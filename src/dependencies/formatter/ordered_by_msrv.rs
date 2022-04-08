@@ -18,7 +18,7 @@ pub(crate) fn format(graph: &DependencyGraph, format: OutputFormat) -> Option<St
             let values = dependencies(graph);
             Some(format_json(values))
         }
-        OutputFormat::None | OutputFormat::TestSuccesses => None,
+        OutputFormat::None => None,
     }
 }
 

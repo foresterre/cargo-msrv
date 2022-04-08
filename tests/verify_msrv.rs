@@ -3,8 +3,7 @@ use parameterized::parameterized;
 use rust_releases::{semver, Release};
 use std::process::Command;
 
-use crate::common::fixtures_path;
-use common::run_verify;
+use crate::common::{fixtures_path, sub_cmd_verify::run_verify};
 
 mod common;
 

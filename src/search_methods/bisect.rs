@@ -1,18 +1,20 @@
-use crate::check::Check;
-use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
-use crate::reporter::{write_failed_check, write_succeeded_check};
-use crate::search_methods::FindMinimalCapableToolchain;
-use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
 use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
 
-pub struct Bisect<R: Check> {
-    runner: R,
+use crate::check::Check;
+use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
+use crate::reporter::{write_failed_check, write_succeeded_check};
+use crate::result::MinimalCompatibility;
+use crate::search_methods::FindMinimalCapableToolchain;
+use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
+use crate::{Config, Output, ProgressAction, TResult};
+
+pub struct Bisect<'runner, R: Check> {
+    runner: &'runner R,
 }
 
-impl<R: Check> Bisect<R> {
-    pub fn new(runner: R) -> Self {
+impl<'runner, R: Check> Bisect<'runner, R> {
+    pub fn new(runner: &'runner R) -> Self {
         Self { runner }
     }
 
@@ -50,7 +52,7 @@ impl<R: Check> Bisect<R> {
     }
 }
 
-impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
+impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
     fn find_toolchain(
         &self,
         search_space: &[Release],
@@ -70,7 +72,7 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
             indices: next_indices,
             result: Some(step),
         } = searcher.try_bisect(
-            |release| Self::run_check(&self.runner, release, config, output),
+            |release| Self::run_check(self.runner, release, config, output),
             indices,
         )? {
             iteration += 1;
@@ -97,7 +99,7 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
         // Work-around for regression:
         // https://github.com/foresterre/cargo-msrv/issues/288
         let msrv = if indices.middle() == search_space.len() - 1 {
-            match Self::run_check(&self.runner, converged_to_release, config, output)? {
+            match Self::run_check(self.runner, converged_to_release, config, output)? {
                 ConvergeTo::Left(outcome) => {
                     write_failed_check(&outcome, config, output);
                     last_compatible_index.map(|i| &search_space[i.middle()])
@@ -117,45 +119,15 @@ impl<R: Check> FindMinimalCapableToolchain for Bisect<R> {
 
 #[cfg(test)]
 mod tests {
-    use super::Bisect;
-    use crate::check::Check;
-    use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
+    use rust_releases::Release;
+
     use crate::reporter::no_output::NoOutput;
     use crate::search_methods::FindMinimalCapableToolchain;
     use crate::semver::Version;
-    use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-    use crate::{semver, Config, ModeIntent, TResult};
-    use rust_releases::Release;
-    use std::collections::BTreeSet;
-    use std::iter::FromIterator;
+    use crate::testing::TestRunner;
+    use crate::{semver, Config, ModeIntent};
 
-    #[derive(Default)]
-    struct FakeRunner {
-        successes: BTreeSet<semver::Version>,
-    }
-
-    impl<'v> FromIterator<&'v semver::Version> for FakeRunner {
-        fn from_iter<T: IntoIterator<Item = &'v Version>>(iter: T) -> Self {
-            Self {
-                successes: iter.into_iter().map(ToOwned::to_owned).collect(),
-            }
-        }
-    }
-
-    impl Check for FakeRunner {
-        fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
-            if self.successes.contains(toolchain.version()) {
-                Ok(Outcome::Success(SuccessOutcome {
-                    toolchain_spec: OwnedToolchainSpec::new(toolchain.version(), config.target()),
-                }))
-            } else {
-                Ok(Outcome::Failure(FailureOutcome {
-                    toolchain_spec: OwnedToolchainSpec::new(toolchain.version(), config.target()),
-                    error_message: "".to_string(),
-                }))
-            }
-        }
-    }
+    use super::Bisect;
 
     fn fake_config() -> Config<'static> {
         Config::new(ModeIntent::Find, "".to_string())
@@ -352,12 +324,13 @@ mod tests {
         accept: &[semver::Version],
         expected_msrv: semver::Version,
     ) {
-        let bisect = Bisect::new(FakeRunner::from_iter(accept));
+        let runner = TestRunner::with_ok(accept);
+        let bisect = Bisect::new(&runner);
 
         let result = bisect
             .find_toolchain(search_space, &fake_config(), &NoOutput {})
             .unwrap();
 
-        assert_eq!(result.to_version(), expected_msrv);
+        assert_eq!(result.unwrap_version(), expected_msrv);
     }
 }

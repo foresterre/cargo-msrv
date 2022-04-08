@@ -25,8 +25,6 @@ pub enum OutputFormat {
     Json,
     /// No output -- meant to be used for debugging and testing
     None,
-    /// Save all versions tested and save success result for all runs -- meant to be used for testing
-    TestSuccesses,
 }
 
 impl Default for OutputFormat {
@@ -41,7 +39,6 @@ impl fmt::Display for OutputFormat {
             Self::Human => write!(f, "human"),
             Self::Json => write!(f, "json"),
             Self::None => write!(f, "none"),
-            Self::TestSuccesses => write!(f, "test-successes"),
         }
     }
 }

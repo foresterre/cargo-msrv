@@ -4,10 +4,20 @@ use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
 use crate::reporter::Output;
+use crate::SubCommand;
 use std::convert::TryFrom;
 use toml_edit::Document;
 
-pub fn run_show_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
+#[derive(Default)]
+pub struct Show;
+
+impl SubCommand for Show {
+    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+        show_msrv(config, reporter)
+    }
+}
+
+fn show_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     output.mode(ModeIntent::Show);
 
     let crate_folder = crate_root_folder(config)?;

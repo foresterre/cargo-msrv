@@ -1,17 +1,18 @@
 use crate::check::Check;
 use crate::outcome::Outcome;
 use crate::reporter::{write_failed_check, write_succeeded_check};
+use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, MinimalCompatibility, Output, ProgressAction, TResult};
+use crate::{Config, Output, ProgressAction, TResult};
 use rust_releases::Release;
 
-pub struct Linear<R: Check> {
-    runner: R,
+pub struct Linear<'runner, R: Check> {
+    runner: &'runner R,
 }
 
-impl<R: Check> Linear<R> {
-    pub fn new(runner: R) -> Self {
+impl<'runner, R: Check> Linear<'runner, R> {
+    pub fn new(runner: &'runner R) -> Self {
         Self { runner }
     }
 
@@ -42,7 +43,7 @@ impl<R: Check> Linear<R> {
     }
 }
 
-impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
+impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
     fn find_toolchain<'spec>(
         &self,
         search_space: &'spec [Release],
@@ -52,7 +53,7 @@ impl<R: Check> FindMinimalCapableToolchain for Linear<R> {
         let mut last_compatible_index = None;
 
         for (i, release) in search_space.iter().enumerate() {
-            let outcome = Self::run_check(&self.runner, release, config, output)?;
+            let outcome = Self::run_check(self.runner, release, config, output)?;
 
             match outcome {
                 Outcome::Failure(outcome) => {

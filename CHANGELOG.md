@@ -14,6 +14,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * CLI options are now grouped by option types
 * Option `--min <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
 * Option `--max <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions.
+* The rust-releases index is now only fetched when running subcommands require it.
 
 ### Fixed
 
