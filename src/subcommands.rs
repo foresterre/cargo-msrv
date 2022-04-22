@@ -1,5 +1,6 @@
 use crate::{Config, Output, TResult};
 
+pub(crate) mod doctor;
 pub(crate) mod find;
 pub(crate) mod list;
 pub(crate) mod set;
