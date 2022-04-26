@@ -4,7 +4,7 @@ use crate::Config;
 use rust_releases::semver;
 
 use crate::config::{ModeIntent, OutputFormat};
-use crate::formatter::{FormatUserOutput, Human, Json};
+use crate::formatter::FormatUserOutput;
 use crate::outcome::{FailureOutcome, SuccessOutcome};
 
 pub mod json;
@@ -39,33 +39,25 @@ pub fn write_succeeded_check(
     config: &Config,
     output: &impl Output,
 ) {
-    if config.no_check_feedback() {
-        return;
-    }
-
-    match config.output_format() {
-        OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome));
-        }
-        OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(success_outcome));
-        }
-        _ => {}
-    };
+    write(success_outcome, config, output);
 }
 
 pub fn write_failed_check(failure_outcome: &FailureOutcome, config: &Config, output: &impl Output) {
+    write(failure_outcome, config, output);
+}
+
+fn write(outcome: &impl FormatUserOutput, config: &Config, output: &impl Output) {
     if config.no_check_feedback() {
         return;
     }
 
     match config.output_format() {
         OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome));
+            output.write_line(&outcome.format_human());
         }
         OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome));
+            output.write_line(&outcome.format_json());
         }
-        _ => {}
+        OutputFormat::None => {}
     };
 }

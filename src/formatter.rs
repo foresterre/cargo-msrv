@@ -1,7 +1,7 @@
-pub trait FormatUserOutput<T> {
-    /// Format user output as output type `T`.
-    fn format_line(&self) -> String;
-}
+pub trait FormatUserOutput {
+    /// Format user output as human-readable string
+    fn format_human(&self) -> String;
 
-pub struct Json;
-pub struct Human;
+    /// Format user output as json string
+    fn format_json(&self) -> String;
+}

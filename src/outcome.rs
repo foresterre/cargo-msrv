@@ -1,4 +1,4 @@
-use crate::formatter::{FormatUserOutput, Human, Json};
+use crate::formatter::FormatUserOutput;
 use crate::toolchain::OwnedToolchainSpec;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{ContentArrangement, Table};
@@ -23,17 +23,11 @@ impl Outcome {
     }
 
     pub fn is_success(&self) -> bool {
-        match self {
-            Self::Success { .. } => true,
-            Self::Failure { .. } => false,
-        }
+        matches!(self, Self::Success(_))
     }
 
     pub fn version(&self) -> &semver::Version {
-        match self {
-            Self::Success(outcome) => outcome.toolchain_spec.version(),
-            Self::Failure(outcome) => outcome.toolchain_spec.version(),
-        }
+        self.toolchain_spec().version()
     }
 
     pub fn toolchain_spec(&self) -> &OwnedToolchainSpec {
@@ -49,17 +43,15 @@ pub struct SuccessOutcome {
     pub(crate) toolchain_spec: OwnedToolchainSpec,
 }
 
-impl FormatUserOutput<Human> for SuccessOutcome {
-    fn format_line(&self) -> String {
+impl FormatUserOutput for SuccessOutcome {
+    fn format_human(&self) -> String {
         format!(
             "Check for toolchain '{}' succeeded",
             self.toolchain_spec.spec(),
         )
     }
-}
 
-impl FormatUserOutput<Json> for SuccessOutcome {
-    fn format_line(&self) -> String {
+    fn format_json(&self) -> String {
         let version = self.toolchain_spec.version();
         let toolchain = self.toolchain_spec.spec();
 
@@ -81,8 +73,8 @@ pub struct FailureOutcome {
     pub(crate) error_message: String,
 }
 
-impl FormatUserOutput<Human> for FailureOutcome {
-    fn format_line(&self) -> String {
+impl FormatUserOutput for FailureOutcome {
+    fn format_human(&self) -> String {
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
@@ -95,10 +87,8 @@ impl FormatUserOutput<Human> for FailureOutcome {
             table
         )
     }
-}
 
-impl FormatUserOutput<Json> for FailureOutcome {
-    fn format_line(&self) -> String {
+    fn format_json(&self) -> String {
         let version = self.toolchain_spec.version();
         let toolchain = self.toolchain_spec.spec();
         let error_message = self.error_message.as_str();
