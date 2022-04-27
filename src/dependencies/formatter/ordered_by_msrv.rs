@@ -78,7 +78,7 @@ fn format_json(values: impl Iterator<Item = Values>) -> String {
 
     let json = json::object! {
         reason: "list",
-        variant: crate::config::list::ORDERED_BY_MSRV,
+        variant: "ordered-by-msrv",
         success: true,
         list: objects,
     };

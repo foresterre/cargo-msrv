@@ -84,7 +84,7 @@ fn format_json<'a>(values: impl Iterator<Item = Values<'a>>) -> String {
 
     let json = json::object! {
         reason: "list",
-        variant: crate::config::list::DIRECT_DEPS,
+        variant: "direct-deps",
         success: true,
         list: objects,
     };

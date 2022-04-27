@@ -121,7 +121,7 @@ pub(in crate::cli) enum SubCommand {
 #[clap(next_help_heading = "LIST OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
 pub(in crate::cli) struct ListOpts {
     /// Display the MSRV's of crates that your crate depends on
-    #[clap(long, possible_values = ListMsrvVariant::variants(), default_value_t)]
+    #[clap(long, arg_enum, default_value_t)]
     variant: ListMsrvVariant,
 }
 

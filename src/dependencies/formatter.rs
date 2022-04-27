@@ -19,7 +19,7 @@ pub(crate) fn format(
 ) -> Option<String> {
     match variant {
         ListMsrvVariant::DirectDeps => direct_deps::format(graph, format),
-        ListMsrvVariant::OrderedByMSRV => ordered_by_msrv::format(graph, format),
+        ListMsrvVariant::OrderedByMsrv => ordered_by_msrv::format(graph, format),
     }
 }
 
