@@ -103,6 +103,12 @@ pub(in crate::cli) struct CargoMsrvOpts {
     pub(in crate::cli) verify: bool,
 }
 
+impl CargoMsrvOpts {
+    fn no_check_feedback(&self) -> bool {
+        self.find_opts.no_check_feedback
+    }
+}
+
 #[derive(Debug, Subcommand)]
 #[clap(propagate_version = true)]
 pub(in crate::cli) enum SubCommand {
@@ -195,7 +201,7 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
         builder = configurators::UserOutput::configure(builder, opts)?;
         builder = configurators::ReleaseSource::configure(builder, opts)?;
         builder = configurators::Tracing::configure(builder, opts)?;
-        builder = configurators::CheckFeedback::configure(builder, opts)?;
+        builder = builder.no_check_feedback(opts.no_check_feedback());
         builder = configurators::SubCommandConfigurator::configure(builder, opts)?;
 
         Ok(builder.build())

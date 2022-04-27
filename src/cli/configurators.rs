@@ -2,7 +2,6 @@ use crate::cli::CargoMsrvOpts;
 use crate::config::ConfigBuilder;
 use crate::TResult;
 
-mod check_feedback;
 mod custom_check;
 mod ignore_lockfile;
 mod max_version;
@@ -17,7 +16,6 @@ mod target;
 mod tracing_configurator;
 mod user_output;
 
-pub(in crate::cli) use check_feedback::CheckFeedback;
 pub(in crate::cli) use custom_check::CustomCheckCommand;
 pub(in crate::cli) use ignore_lockfile::IgnoreLockfile;
 pub(in crate::cli) use max_version::MaxVersion;
