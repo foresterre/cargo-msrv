@@ -1,13 +1,14 @@
 use clap::ArgEnum;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
-use std::fmt::Formatter;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
+use crate::config::verify::VerifyCmdConfig;
+use crate::ctx::ComputedCtx;
 use rust_releases::semver;
 
 use crate::errors::{CargoMSRVError, TResult};
@@ -16,6 +17,7 @@ use crate::manifest::bare_version;
 
 pub(crate) mod list;
 pub(crate) mod set;
+pub(crate) mod verify;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -170,7 +172,7 @@ impl TryFrom<&str> for ReleaseSource {
 }
 
 impl fmt::Display for ReleaseSource {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::RustChangelog => write!(f, "rust-changelog"),
             #[cfg(feature = "rust-releases-dist-source")]
@@ -223,13 +225,14 @@ pub struct Config<'a> {
     no_check_feedback: bool,
 
     sub_command_config: SubCommandConfig,
+    ctx: ComputedCtx,
 }
 
 impl<'a> Config<'a> {
-    pub fn new(mode_intent: ModeIntent, target: String) -> Self {
+    pub fn new<T: Into<String>>(mode_intent: ModeIntent, target: T) -> Self {
         Self {
             mode_intent,
-            target,
+            target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
             include_all_patch_releases: false,
@@ -244,6 +247,7 @@ impl<'a> Config<'a> {
             no_read_min_edition: None,
             no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
+            ctx: ComputedCtx::default(),
         }
     }
 
@@ -314,6 +318,10 @@ impl<'a> Config<'a> {
 
     pub fn sub_command_config(&self) -> &SubCommandConfig {
         &self.sub_command_config
+    }
+
+    pub fn ctx(&self) -> &ComputedCtx {
+        &self.ctx
     }
 }
 
@@ -438,11 +446,13 @@ pub enum SubCommandConfig {
     ListConfig(ListCmdConfig),
     SetConfig(SetCmdConfig),
     ShowConfig,
+    VerifyConfig(VerifyCmdConfig),
 }
 
 impl SubCommandConfig {
     as_sub_command_config!(list, ListConfig, ListCmdConfig);
     as_sub_command_config!(set, SetConfig, SetCmdConfig);
+    as_sub_command_config!(verify, VerifyConfig, VerifyCmdConfig);
 }
 
 #[derive(Debug, Clone)]

@@ -152,6 +152,12 @@ pub(in crate::cli) struct VerifyOpts {
 
     #[clap(flatten)]
     pub(in crate::cli) custom_check: CustomCheckOpts,
+
+    /// The Rust version, to check against for toolchain compatibility
+    ///
+    /// If not set, the MSRV will be parsed from the Cargo manifest instead.
+    #[clap(long, value_name = "rust-version")]
+    rust_version: Option<BareVersion>,
 }
 
 // Interpret the CLI config frontend as general Config
