@@ -9,6 +9,11 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ## [Unreleased]
 
+### Added
+
+* Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument, 
+  which can be used to check for a crate's compatibility against a specific Rust version. 
+
 ### Changed
 
 * CLI options are now grouped by option types
@@ -19,6 +24,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 ### Fixed
 
 * Subcommand `cargo msrv set` will now return an error when the Cargo manifest contains a virtual workspace.
+* The program will no longer return an unformatted message when a command failed and the output format was set to json. 
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
