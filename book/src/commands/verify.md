@@ -16,6 +16,12 @@ If the check fails, the program returns with a non-zero exit code.
 
 <!-- # OPTIONS -->
 
+## OPTIONS
+
+**`--rust-version` version**
+
+Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility. 
+
 # EXAMPLES
 
 1. Verify whether the MSRV specified in the Cargo manifest is satisfiable (Good case).
@@ -85,3 +91,10 @@ cargo msrv --path path/to/my/crate verify
 
 This example shows how to use arguments (in this case `--path`) shared between the default cargo-msrv command and verify.
 Note that shared arguments must be specified before the subcommand (here `verify`).
+
+4. Run the 'verify' subcommand using a self-determined Rust version.
+
+```shell
+cargo msrv verify --rust-version 1.56
+```
+
