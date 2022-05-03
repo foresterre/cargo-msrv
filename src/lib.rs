@@ -10,7 +10,7 @@ use crate::check::RustupToolchainCheck;
 use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
-use crate::config::{Config, ModeIntent, ReleaseSource};
+use crate::config::{Config, ModeIntent, OutputFormat, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::reporter::{Output, ProgressAction};
 
@@ -26,6 +26,7 @@ pub mod reporter;
 pub mod toolchain;
 
 pub(crate) mod command;
+pub(crate) mod ctx;
 pub(crate) mod dependencies;
 pub(crate) mod download;
 pub(crate) mod fetch;
@@ -52,7 +53,7 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
         "running action"
     );
 
-    match action {
+    let result = match action {
         ModeIntent::Find => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
@@ -66,7 +67,20 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
         ModeIntent::List => List::default().run(config, reporter),
         ModeIntent::Set => Set::default().run(config, reporter),
         ModeIntent::Show => Show::default().run(config, reporter),
+    };
+
+    if let Err(ref err) = result {
+        if let OutputFormat::Human = config.output_format() {
+            // Can't use reporter here because the ProgressBar in HumanReporter is already set to
+            // finished. Adding a line on top, will redraw the bar, instead of updating it, producing
+            // two bars with the text in between.
+            eprintln!("{}", err);
+        }
+
+        // FIXME: re-enable reporting errors in json, but first format them as json!
     }
+
+    result
 }
 
 fn fetch_index<R: Output>(config: &Config, reporter: &R) -> TResult<ReleaseIndex> {

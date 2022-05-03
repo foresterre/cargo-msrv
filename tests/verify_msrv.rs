@@ -17,7 +17,13 @@ mod common;
 )]
 fn verify(folder: &str) {
     let folder = fixtures_path().join(folder);
-    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec![
+        "cargo-msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "--no-user-output",
+        "verify",
+    ];
 
     let result = run_verify(
         with_args,
@@ -41,7 +47,7 @@ fn verify(folder: &str) {
 )]
 fn verify_failed_no_msrv_specified(folder: &str) {
     let folder = fixtures_path().join(folder);
-    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap(), "verify"];
 
     let result = run_verify(
         with_args,
@@ -74,6 +80,7 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
             "--manifest-path",
             &cargo_msrv_manifest,
             "--",
+            "--no-user-output",
             "--path",
             &test_subject,
             verify_variant,
@@ -109,6 +116,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
             "--manifest-path",
             &cargo_msrv_manifest,
             "--",
+            "--no-user-output",
             "--path",
             &test_subject,
             verify_variant,
@@ -138,6 +146,7 @@ fn verify_subcommand_success_with_custom_check_cmd() {
             "--manifest-path",
             &cargo_msrv_manifest,
             "--",
+            "--no-user-output",
             "--path",
             &test_subject,
             "verify",
@@ -156,4 +165,25 @@ fn verify_subcommand_success_with_custom_check_cmd() {
     let expected = ExitCode::Success;
 
     assert_eq!(exit_code, Into::<i32>::into(expected));
+}
+
+#[test]
+fn verify_with_rust_version_opt() {
+    let version = "1.37.0";
+    let folder = fixtures_path().join(version);
+    let with_args = vec![
+        "cargo-msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "verify",
+        "--rust-version",
+        version,
+    ];
+
+    let result = run_verify(
+        with_args,
+        vec![Release::new_stable(semver::Version::new(1, 37, 0))],
+    );
+
+    assert!(result.is_ok());
 }

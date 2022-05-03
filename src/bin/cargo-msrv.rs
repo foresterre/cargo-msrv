@@ -16,7 +16,7 @@ fn main() {
         match _main(std::env::args_os) {
             Ok(_guard) => ExitCode::Success,
             Err(err) => {
-                eprintln!("{}", err);
+                tracing::error!("{}", err);
                 ExitCode::Failure
             }
         }
