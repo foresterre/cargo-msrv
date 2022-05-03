@@ -577,6 +577,9 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 or the <code>package.metadata.msrv</code> field.</p>
 <p>If the check fails, the program returns with a non-zero exit code.</p>
 <!-- # OPTIONS -->
+<h2 id="options-2"><a class="header" href="#options-2">OPTIONS</a></h2>
+<p><strong><code>--rust-version</code> version</strong></p>
+<p>Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility. </p>
 <h1 id="examples-4"><a class="header" href="#examples-4">EXAMPLES</a></h1>
 <ol>
 <li>Verify whether the MSRV specified in the Cargo manifest is satisfiable (Good case).</li>
@@ -628,6 +631,11 @@ and the program returns a with a non-zero exit code (failure).</p>
 </code></pre>
 <p>This example shows how to use arguments (in this case <code>--path</code>) shared between the default cargo-msrv command and verify.
 Note that shared arguments must be specified before the subcommand (here <code>verify</code>).</p>
+<ol start="4">
+<li>Run the 'verify' subcommand using a self-determined Rust version.</li>
+</ol>
+<pre><code class="language-shell">cargo msrv verify --rust-version 1.56
+</code></pre>
 
                     </main>
 
