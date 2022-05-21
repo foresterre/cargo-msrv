@@ -24,7 +24,8 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 ### Fixed
 
 * Subcommand `cargo msrv set` will now return an error when the Cargo manifest contains a virtual workspace.
-* The program will no longer return an unformatted message when a command failed and the output format was set to json. 
+* The program will no longer return an unformatted message when a command failed and the output format was set to json.
+* Fix issue where reading the fallback MSRV from a TOML inline table was not possible
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
