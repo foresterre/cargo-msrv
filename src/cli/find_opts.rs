@@ -22,12 +22,12 @@ pub struct FindOpts {
     #[clap(long, conflicts_with = "bisect")]
     pub linear: bool,
 
-    /// Output a rust-toolchain file with the MSRV as toolchain
+    /// Pin the MSRV by writing the version to a rust-toolchain file
     ///
     /// The toolchain file will pin the Rust version for this crate.
     /// See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
-    #[clap(long)]
-    pub toolchain_file: bool,
+    #[clap(long, alias = "toolchain-file")]
+    pub write_toolchain_file: bool,
 
     /// Temporarily remove the lockfile, so it will not interfere with the building process
     ///
