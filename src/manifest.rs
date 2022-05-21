@@ -95,7 +95,7 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
             .get("package")
             .and_then(Item::as_table)
             .and_then(|package| package.get("metadata"))
-            .and_then(Item::as_table)
+            .and_then(Item::as_table_like)
             .and_then(|metadata| metadata.get("msrv"))
             .and_then(Item::as_str)
     }
@@ -293,6 +293,34 @@ edition = "2018"
 
 [package.metadata]
 msrv = "1.51"
+
+[dependencies]
+"#;
+
+        let manifest = CargoManifestParser::default()
+            .parse::<Document>(contents)
+            .unwrap();
+
+        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let version = manifest.minimum_rust_version.unwrap();
+
+        assert_eq!(version, BareVersion::TwoComponents(1, 51));
+    }
+
+    // While uncommon, seems not to be against Cargo manifest spec; i.e. it just states Table,
+    // not specifying whether only the regular or also the inline variant. This is similar to
+    // [dependencies] which also accept 'Table' items for each dependency, and where inline tables
+    // are more regular (and clearly supported!)
+    //
+    // NB: when using an inline metadata table, you won't be able to add another [metadata] table,
+    //     you must use the same inline table
+    #[test]
+    fn parse_metadata_msrv_inline() {
+        let contents = r#"[package]
+name = "some"
+version = "0.1.0"
+edition = "2018"
+metadata = { msrv = "1.51" }
 
 [dependencies]
 "#;
