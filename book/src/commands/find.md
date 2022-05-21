@@ -149,7 +149,7 @@ is incorrect.
 
 Supply a custom target triplet to use as Rust distribution. If absent, the rustup default toolchain is used.
 
-**`--toolchain-file`**
+**`--write-toolchain-file`**
 
 Output a rust-toolchain file with the determined MSRV as toolchain. The toolchain file will pin the Rust version for this crate. 
 See [here](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file) for more about the toolchain-file.
