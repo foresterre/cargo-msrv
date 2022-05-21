@@ -10,6 +10,6 @@ impl Configure for OutputToolchainFile {
         builder: ConfigBuilder<'c>,
         opts: &'c CargoMsrvOpts,
     ) -> TResult<ConfigBuilder<'c>> {
-        Ok(builder.output_toolchain_file(opts.find_opts.toolchain_file))
+        Ok(builder.output_toolchain_file(opts.find_opts.write_toolchain_file))
     }
 }
