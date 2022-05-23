@@ -1,11 +1,11 @@
-use crate::errors::IoErrorSource;
+use crate::errors::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
 use crate::{CargoMSRVError, Config, ModeIntent, Output, SubCommand, TResult};
 use rust_releases::semver;
 use std::io::Write;
-use toml_edit::{value, Document, Item};
+use toml_edit::{table, value, Document, Item, Value};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -33,7 +33,7 @@ fn set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
     check_workspace(&manifest)?;
     let msrv = &config.sub_command_config().set().msrv;
 
-    set_or_override_msrv(&mut manifest, msrv);
+    set_or_override_msrv(&mut manifest, msrv)?;
 
     let mut file = std::fs::OpenOptions::new()
         .write(true)
@@ -65,16 +65,53 @@ fn check_workspace(manifest: &Document) -> TResult<()> {
 }
 
 /// Override MSRV if it is already set, otherwise, simply set it
-fn set_or_override_msrv(manifest: &mut Document, msrv: &BareVersion) {
+fn set_or_override_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+    // NB: As a consequence of scrubbing the current MSRV, if the MSRV is the only value in the
+    //     [package.metadata] table, and the table is an inline table, then the inline table will
+    //     be removed and replaced with a regular table (normally we try to keep the same table type
+    //     if a table already existed).
+    //
+    //     In a future refactor, we may want to handle all cases of modifying the manifest instead
+    //     of discarding the current MSRV, considering the following cases:
+    //     * MSRV is not set yet, or is
+    //     * if set: is set as package.rust-version, as package.metadata.msrv or both
+    //     * new MSRV is below package.rust-version Cargo support threshold, or above
     discard_current_msrv(manifest);
-    insert_new_msrv(manifest, msrv);
+    insert_new_msrv(manifest, msrv)
 }
 
-fn insert_new_msrv(manifest: &mut Document, msrv: &BareVersion) {
-    if msrv.to_semver_version() >= RUST_VERSION_SUPPORTED_SINCE {
+fn insert_new_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+    fn insert_rust_version(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
         manifest["package"]["rust-version"] = value(msrv.to_string());
+        Ok(())
+    }
+
+    fn insert_package_metadata_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+        let metadata_item = &mut manifest["package"]["metadata"];
+
+        match metadata_item {
+            Item::None => {
+                // Explicitly create the table, otherwise it would default to an inline table instead
+                *metadata_item = table();
+                metadata_item["msrv"] = value(msrv.to_string());
+            }
+            Item::Value(Value::InlineTable(table)) => {
+                // keep the inline table if it already exists
+                table.insert("msrv", msrv.to_string().into());
+            }
+            Item::Table(table) => {
+                table.insert("msrv", value(msrv.to_string()));
+            }
+            _ => return Err(CargoMSRVError::SetMsrv(SetMsrvError::NotATable)),
+        }
+
+        Ok(())
+    }
+
+    if msrv.to_semver_version() >= RUST_VERSION_SUPPORTED_SINCE {
+        insert_rust_version(manifest, msrv)
     } else {
-        manifest["package"]["metadata"]["msrv"] = value(msrv.to_string());
+        insert_package_metadata_msrv(manifest, msrv)
     }
 }
 
@@ -147,7 +184,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -169,7 +206,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -192,7 +229,7 @@ rust-version = "1.58.0"
             .parse::<Document>(input)
             .unwrap();
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -217,7 +254,7 @@ msrv = "1.58.0"
             .parse::<Document>(input)
             .unwrap();
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -248,7 +285,7 @@ other = 1
             .parse::<Document>(input)
             .unwrap();
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -288,7 +325,7 @@ msrv = "1.11.0"
             "1.11.0"
         );
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -316,7 +353,7 @@ rust-version = "1.58"
             "1.58"
         );
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -353,7 +390,7 @@ other = 1
             "1.58"
         );
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 17)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -388,7 +425,7 @@ metadata = { msrv = "1.15" }
             "1.15"
         );
 
-        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 57));
+        set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 57)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -606,8 +643,9 @@ metadata = { msrv = "1.15", other = 1 }
 #[cfg(test)]
 mod insert_new_msrv_tests {
     use crate::manifest::bare_version::BareVersion;
-    use crate::manifest::{CargoManifestParser, TomlParser};
+    use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
     use crate::subcommands::set::insert_new_msrv;
+    use std::convert::TryInto;
     use toml_edit::Document;
 
     #[test]
@@ -624,7 +662,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56));
+        insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -646,7 +684,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 56, 1));
+        insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 56, 1)).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -668,7 +706,7 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10));
+        insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -690,11 +728,175 @@ edition = "2021"
             .parse::<Document>(input)
             .unwrap();
 
-        insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 10, 1));
+        insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 10, 1)).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
             "1.10.1"
         );
+    }
+
+    // In this module we check whether the correct formatting is used, i.e. whether the correct
+    // TOML items are used, such as inline tables and regular tables.
+    // Only applicable to the [package.manifest] msrv = "..." fallback variant MSRV
+    mod insert_package_manifest_msrv_correct_table_type {
+        use crate::manifest::bare_version::BareVersion;
+        use crate::manifest::{CargoManifestParser, TomlParser};
+        use crate::subcommands::set::insert_new_msrv;
+        use toml_edit::{Document, Item, Value};
+
+        const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
+
+        #[test]
+        fn insert_without_preexisting_table() {
+            let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+"#;
+
+            let mut manifest = CargoManifestParser::default()
+                .parse::<Document>(input)
+                .unwrap();
+
+            insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+            let metadata = &manifest["package"]["metadata"];
+            assert!(matches!(metadata, Item::Table(_)));
+
+            let msrv = &metadata["msrv"];
+            assert!(matches!(msrv, Item::Value(Value::String(s)) if s.value() == "1.55"))
+        }
+
+        #[test]
+        fn insert_with_preexisting_rust_version() {
+            let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.56"
+
+[dependencies]
+"#;
+
+            let mut manifest = CargoManifestParser::default()
+                .parse::<Document>(input)
+                .unwrap();
+
+            insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+            let metadata = &manifest["package"]["metadata"];
+            assert!(matches!(metadata, Item::Table(_)));
+
+            let msrv = &metadata["msrv"];
+            assert!(matches!(msrv, Item::Value(Value::String(s)) if s.value() == "1.55"))
+        }
+
+        #[test]
+        fn insert_with_preexisting_package_metadata_msrv_regular_table() {
+            let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata]
+msrv = "1.54"
+
+[dependencies]
+"#;
+
+            let mut manifest = CargoManifestParser::default()
+                .parse::<Document>(input)
+                .unwrap();
+
+            insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+            let metadata = &manifest["package"]["metadata"];
+            assert!(matches!(metadata, Item::Table(_)));
+
+            let msrv = &metadata["msrv"];
+            assert!(matches!(msrv, Item::Value(Value::String(s)) if s.value() == "1.55"))
+        }
+
+        #[test]
+        fn insert_with_preexisting_package_metadata_msrv_inline_table() {
+            let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+metadata = { msrv = "1.54" }
+
+[dependencies]
+"#;
+
+            let mut manifest = CargoManifestParser::default()
+                .parse::<Document>(input)
+                .unwrap();
+
+            insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+            let metadata = &manifest["package"]["metadata"];
+            assert!(matches!(metadata, Item::Value(Value::InlineTable(_))));
+
+            let msrv = &metadata["msrv"];
+            assert!(matches!(msrv, Item::Value(Value::String(s)) if s.value() == "1.55"))
+        }
+
+        #[test]
+        fn insert_with_preexisting_package_metadata_but_no_msrv() {
+            let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+metadata = { k = "1.54" }
+
+[dependencies]
+"#;
+
+            let mut manifest = CargoManifestParser::default()
+                .parse::<Document>(input)
+                .unwrap();
+
+            insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+            let metadata = &manifest["package"]["metadata"];
+            assert!(matches!(metadata, Item::Value(Value::InlineTable(_))));
+
+            let msrv = &metadata["msrv"];
+            assert!(matches!(msrv, Item::Value(Value::String(s)) if s.value() == "1.55"));
+
+            let k = &metadata["k"];
+            assert!(matches!(k, Item::Value(Value::String(s)) if s.value() == "1.54"));
+        }
+    }
+
+    #[test]
+    fn set_and_reparse() {
+        const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
+
+        let input = r#"[package]
+name = "package_name"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+"#;
+
+        let mut manifest = CargoManifestParser::default()
+            .parse::<Document>(input)
+            .unwrap();
+
+        insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
+
+        let output = manifest.to_string();
+        let new_manifest: CargoManifest = CargoManifestParser::default()
+            .parse::<Document>(&output)
+            .unwrap()
+            .try_into()
+            .unwrap();
+
+        assert_eq!(new_manifest.minimum_rust_version().unwrap(), &METADATA_MSRV)
     }
 }

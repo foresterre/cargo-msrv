@@ -21,6 +21,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Option `--max <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions.
 * The rust-releases index is now only fetched when running subcommands require it.
 * Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise the toolchain being an output.
+* Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
 
 ### Fixed
 
