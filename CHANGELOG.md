@@ -16,18 +16,18 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ### Changed
 
-* CLI options are now grouped by option types.
-* Option `--min <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
-* Option `--max <version>` now also accepts two component semver major.minor versions, in addition to full three component (strict) SemVer versions.
-* The rust-releases index is now only fetched when running subcommands require it.
-* Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise the toolchain being an output.
+* CLI options are now grouped.
+* Option `--min <version>` now also accepts two component semver `major.minor` versions, in addition to full three component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
+* Option `--max <version>` now also accepts two component semver `major.minor` versions, in addition to full three component (strict) SemVer versions.
+* The rust-releases index is now only fetched for subcommands which depend on it.
+* Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise that the toolchain-file is an output.
 * Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
 
 ### Fixed
 
-* Subcommand `cargo msrv set` will now return an error when the Cargo manifest contains a virtual workspace.
+* Subcommand `cargo msrv set` will now return an error when the Cargo manifest solely consists of a virtual workspace.
 * The program will no longer return an unformatted message when a command failed and the output format was set to json.
-* Fix issue where reading the fallback MSRV from a TOML inline table was not possible
+* Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
