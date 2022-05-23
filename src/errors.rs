@@ -88,6 +88,9 @@ pub enum CargoMSRVError {
     SemverError(#[from] rust_releases::semver::Error),
 
     #[error(transparent)]
+    SetMsrv(#[from] SetMsrvError),
+
+    #[error(transparent)]
     SubCommandVerify(#[from] verify::Error),
 
     #[error(transparent)]
@@ -161,4 +164,12 @@ pub enum IoErrorSource {
 
     #[error("Unable to collect output from '{0:?}', or process did not terminate properly")]
     WaitForProcessAndCollectOutput(OsString),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum SetMsrvError {
+    #[error(
+        "Unable to set the MSRV in the 'package.metadata' table: 'package.metadata' is not a table"
+    )]
+    NotATable,
 }
