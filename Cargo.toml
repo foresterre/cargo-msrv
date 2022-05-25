@@ -46,7 +46,7 @@ comfy-table = "5.0.1"
 once_cell = "1.12.0"
 thiserror = "1.0.31"
 
-bisector = "0.3.0"
+bisector = "0.4.0"
 
 [dependencies.tracing-subscriber]
 version = "0.3"
