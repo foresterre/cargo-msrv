@@ -49,6 +49,14 @@ pub struct FindOpts {
     #[clap(long)]
     pub no_check_feedback: bool,
 
+    /// Write the MSRV to the Cargo manifest
+    ///
+    /// For toolchains which include a Cargo version which supports the rust-version field,
+    /// the `package.rust-version` field will be written. For older Rust toolchains,
+    /// the `package.metadata.msrv` field will be written instead.
+    #[clap(long)]
+    pub write_msrv: bool,
+
     #[clap(flatten)]
     pub rust_releases_opts: RustReleasesOpts,
 

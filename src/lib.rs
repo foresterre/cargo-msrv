@@ -41,6 +41,7 @@ pub(crate) mod result;
 pub(crate) mod search_methods;
 pub(crate) mod subcommands;
 pub(crate) mod toolchain_file;
+pub(crate) mod writers;
 
 #[cfg(test)]
 pub(crate) mod testing;

@@ -217,6 +217,7 @@ pub struct Config<'a> {
     maximum_version: Option<bare_version::BareVersion>,
     search_method: SearchMethod,
     output_toolchain_file: bool,
+    write_msrv: bool,
     ignore_lockfile: bool,
     output_format: OutputFormat,
     release_source: ReleaseSource,
@@ -240,6 +241,7 @@ impl<'a> Config<'a> {
             maximum_version: None,
             search_method: SearchMethod::default(),
             output_toolchain_file: false,
+            write_msrv: false,
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
@@ -291,6 +293,10 @@ impl<'a> Config<'a> {
         self.output_toolchain_file
     }
 
+    pub fn write_msrv(&self) -> bool {
+        self.write_msrv
+    }
+
     pub fn ignore_lockfile(&self) -> bool {
         self.ignore_lockfile
     }
@@ -335,6 +341,12 @@ impl<'a> ConfigBuilder<'a> {
     pub fn new(action_intent: ModeIntent, default_target: &str) -> Self {
         Self {
             inner: Config::new(action_intent, default_target.to_string()),
+        }
+    }
+
+    pub fn from_config(config: &'a Config) -> Self {
+        Self {
+            inner: config.clone(),
         }
     }
 
@@ -384,6 +396,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn output_toolchain_file(mut self, choice: bool) -> Self {
         self.inner.output_toolchain_file = choice;
+        self
+    }
+
+    pub fn write_msrv(mut self, choice: bool) -> Self {
+        self.inner.write_msrv = choice;
         self
     }
 

@@ -8,6 +8,7 @@ use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 use crate::toolchain_file::write_toolchain_file;
+use crate::writers::write_msrv::write_msrv;
 use crate::SubCommand;
 
 pub struct Find<'index, C: Check> {
@@ -52,6 +53,10 @@ fn find_msrv<R: Output, C: Check>(
 
             if config.output_toolchain_file() {
                 write_toolchain_file(config, toolchain.version())?;
+            }
+
+            if config.write_msrv() {
+                write_msrv(config, reporter, toolchain.version())?;
             }
 
             Ok(())

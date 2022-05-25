@@ -197,6 +197,7 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
         builder = configurators::SearchMethodConfig::configure(builder, opts)?;
         builder = configurators::IncludeAllPatchReleases::configure(builder, opts)?;
         builder = configurators::OutputToolchainFile::configure(builder, opts)?;
+        builder = configurators::WriteMsrv::configure(builder, opts)?;
         builder = configurators::IgnoreLockfile::configure(builder, opts)?;
         builder = configurators::UserOutput::configure(builder, opts)?;
         builder = configurators::ReleaseSource::configure(builder, opts)?;
