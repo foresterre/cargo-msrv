@@ -2,6 +2,7 @@ use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
 
 use crate::check::Check;
+use crate::errors::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::result::MinimalCompatibility;
@@ -62,7 +63,12 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         let searcher = Bisector::new(search_space);
 
         let mut iteration = 0_u64;
-        let mut indices = Indices::from_bisector(&searcher);
+        let mut indices =
+            Indices::try_from_bisector(&searcher).map_err(|_| NoToolchainsToTryError {
+                min: config.minimum_version().map(Clone::clone),
+                max: config.maximum_version().map(Clone::clone),
+                search_space: search_space.to_vec(),
+            })?;
 
         let mut last_compatible_index = None;
 

@@ -1,4 +1,5 @@
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
+use rust_releases::Release;
 use std::env;
 use std::ffi::OsString;
 use std::io;
@@ -7,7 +8,7 @@ use std::string::FromUtf8Error;
 
 use crate::fetch::ToolchainSpecifier;
 use crate::log_level::ParseLogLevelError;
-use crate::manifest::bare_version::NoVersionMatchesManifestMsrvError;
+use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 use crate::subcommands::verify;
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
@@ -46,6 +47,9 @@ pub enum CargoMSRVError {
 
     #[error("No crate root found for given crate")]
     NoCrateRootFound,
+
+    #[error(transparent)]
+    NoToolchainsToTry(#[from] NoToolchainsToTryError),
 
     #[error("Unable to set MSRV for workspace, try setting it for individual packages instead.")]
     WorkspaceFound,
@@ -172,4 +176,16 @@ pub enum SetMsrvError {
         "Unable to set the MSRV in the 'package.metadata' table: 'package.metadata' is not a table"
     )]
     NotATable,
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("No Rust releases to check {} {} (search space: [{}])",
+    min.as_ref().map(|s| format!("(min: {})", s)).unwrap_or_default(),
+    max.as_ref().map(|s| format!("(max: {})", s)).unwrap_or_default(),
+    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", ") )
+]
+pub struct NoToolchainsToTryError {
+    pub(crate) min: Option<BareVersion>,
+    pub(crate) max: Option<BareVersion>,
+    pub(crate) search_space: Vec<Release>,
 }
