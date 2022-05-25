@@ -363,9 +363,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "bisector"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2bbf0ee6b0721f6eafe0ca87f8d9113bb5854f418a07676be89146f2428843a"
+checksum = "dfeef1147df76ec07ed65ac0f7db05f4fa8617acde06dd8a4b3c703bf8f83d6f"
 
 [[package]]
 name = "bitflags"
