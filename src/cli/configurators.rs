@@ -16,6 +16,7 @@ mod sub_command_configurator;
 mod target;
 mod tracing_configurator;
 mod user_output;
+mod write_msrv;
 
 pub(in crate::cli) use check_feedback::CheckFeedback;
 pub(in crate::cli) use custom_check::CustomCheckCommand;
@@ -31,6 +32,7 @@ pub(in crate::cli) use sub_command_configurator::SubCommandConfigurator;
 pub(in crate::cli) use target::Target;
 pub(in crate::cli) use tracing_configurator::Tracing;
 pub(in crate::cli) use user_output::UserOutput;
+pub(in crate::cli) use write_msrv::WriteMsrv;
 
 /// Used to turn the CLI front-end into a flattened Config.
 ///

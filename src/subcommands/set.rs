@@ -19,7 +19,7 @@ impl SubCommand for Set {
 }
 
 fn set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
-    output.mode(ModeIntent::Show);
+    output.mode(ModeIntent::Set);
 
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");

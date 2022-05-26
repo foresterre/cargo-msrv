@@ -13,6 +13,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 * Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument, 
   which can be used to check for a crate's compatibility against a specific Rust version. 
+* Flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
 
 ### Changed
 

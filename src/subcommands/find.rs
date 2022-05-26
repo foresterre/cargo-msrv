@@ -7,7 +7,8 @@ use crate::releases::filter_releases;
 use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
-use crate::toolchain_file::write_toolchain_file;
+use crate::writers::toolchain_file::write_toolchain_file;
+use crate::writers::write_msrv::write_msrv;
 use crate::SubCommand;
 
 pub struct Find<'index, C: Check> {
@@ -54,6 +55,10 @@ fn find_msrv<R: Output, C: Check>(
                 write_toolchain_file(config, toolchain.version())?;
             }
 
+            if config.write_msrv() {
+                write_msrv(config, reporter, toolchain.version())?;
+            }
+
             Ok(())
         }
     }
@@ -62,7 +67,7 @@ fn find_msrv<R: Output, C: Check>(
 fn search<R: Output, C: Check>(
     config: &Config,
     reporter: &R,
-    index: &rust_releases::ReleaseIndex,
+    index: &ReleaseIndex,
     runner: &C,
 ) -> TResult<MinimalCompatibility> {
     let releases = index.releases();

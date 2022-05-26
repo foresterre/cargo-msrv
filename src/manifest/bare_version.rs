@@ -29,21 +29,21 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
-    pub fn to_comparator(&self) -> crate::semver::Comparator {
+    pub fn to_comparator(&self) -> semver::Comparator {
         match self {
             Self::TwoComponents(major, minor) => crate::semver::Comparator {
-                op: crate::semver::Op::Tilde,
+                op: semver::Op::Tilde,
                 major: *major,
                 minor: Some(*minor),
                 patch: None,
-                pre: crate::semver::Prerelease::EMPTY,
+                pre: semver::Prerelease::EMPTY,
             },
             Self::ThreeComponents(major, minor, patch) => crate::semver::Comparator {
-                op: crate::semver::Op::Tilde,
+                op: semver::Op::Tilde,
                 major: *major,
                 minor: Some(*minor),
                 patch: Some(*patch),
-                pre: crate::semver::Prerelease::EMPTY,
+                pre: semver::Prerelease::EMPTY,
             },
         }
     }
@@ -54,7 +54,7 @@ impl BareVersion {
     pub fn try_to_semver<'s, I>(
         &self,
         iter: I,
-    ) -> Result<&'s crate::semver::Version, NoVersionMatchesManifestMsrvError>
+    ) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError>
     where
         I: IntoIterator<Item = &'s crate::semver::Version>,
     {
@@ -76,7 +76,7 @@ impl BareVersion {
         match self {
             Self::TwoComponents(major, minor) => crate::semver::Version::new(*major, *minor, 0),
             Self::ThreeComponents(major, minor, patch) => {
-                crate::semver::Version::new(*major, *minor, *patch)
+                semver::Version::new(*major, *minor, *patch)
             }
         }
     }
@@ -192,6 +192,12 @@ impl BareVersion {
         }
 
         true
+    }
+}
+
+impl<'r> From<&'r semver::Version> for BareVersion {
+    fn from(version: &'r semver::Version) -> Self {
+        BareVersion::ThreeComponents(version.major, version.minor, version.patch)
     }
 }
 
@@ -313,7 +319,7 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
 
 #[derive(Debug)]
 pub struct NoVersionMatchesManifestMsrvError {
-    pub requested: crate::manifest::bare_version::BareVersion,
+    pub requested: BareVersion,
     pub available: Vec<crate::semver::Version>,
 }
 
