@@ -39,6 +39,7 @@ pub(crate) mod paths;
 pub(crate) mod releases;
 pub(crate) mod result;
 pub(crate) mod search_methods;
+pub(crate) mod storyteller;
 pub(crate) mod subcommands;
 pub(crate) mod writers;
 
