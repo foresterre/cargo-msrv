@@ -155,4 +155,4 @@ jobs:
       - name: version_of_cargo_msrv
         run: cargo msrv --version # as of writing: 0.14.0 (required for verify)
       - name: run_cargo_msrv
-        run: cargo msrv verify --output-format json | jsonlines-tail | jq --exit-status .success
+        run: cargo msrv --output-format json verify | jsonlines-tail | jq --exit-status .success
