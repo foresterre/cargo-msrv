@@ -2,14 +2,17 @@ use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
+use storyteller::{EventListener, Reporter};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;
-use cargo_msrv::reporter;
 use cargo_msrv::run_app;
+use cargo_msrv::storyteller::{
+    DiscardOutputHandler, Event, HumanProgressHandler, JsonHandler, StorytellerSetup,
+};
 
 fn main() {
     std::process::exit(
@@ -53,33 +56,49 @@ fn init_and_run(config: &Config) -> TResult<()> {
         "initializing"
     );
 
+    // todo!
+    let storyteller = StorytellerSetup::new();
+    let (reporter, listener) = storyteller.create_channels::<Event>();
+
     match config.output_format() {
         config::OutputFormat::Human => {
             let custom_cmd = config.check_command_string();
-            let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);
+            // todo!
+            // let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);
+            let handler = HumanProgressHandler::new();
+            listener.run_handler(handler);
+
             run_app(config, &reporter)
         }
         config::OutputFormat::Json => {
-            let custom_cmd = if let ModeIntent::List = config.action_intent() {
-                None
-            } else {
-                Some(config.check_command_string())
-            };
+            // todo!
+            // let custom_cmd = if let ModeIntent::List = config.action_intent() {
+            //     None
+            // } else {
+            //     Some(config.check_command_string())
+            // };
+            //
+            // let reporter =
+            //     reporter::json::JsonPrinter::new(1, config.target(), custom_cmd.as_deref());
+            let handler = JsonHandler::stderr();
+            listener.run_handler(handler);
 
-            let reporter =
-                reporter::json::JsonPrinter::new(1, config.target(), custom_cmd.as_deref());
             run_app(config, &reporter)
         }
         config::OutputFormat::None => {
             // To disable regular output. Useful when outputting logs to stdout, as the
             //   regular output and the log output may otherwise interfere with each other.
-            let reporter = reporter::no_output::NoOutput;
+            let handler = DiscardOutputHandler;
+            listener.run_handler(handler);
 
             run_app(config, &reporter)
         }
     }?;
 
     tracing::info!("finished");
+
+    // todo! handle error
+    let _ = reporter.disconnect();
 
     Ok(())
 }

@@ -1,7 +1,7 @@
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
-use crate::reporter::no_output::NoOutput;
-use crate::{semver, Config, ModeIntent, Output, OutputFormat, Set, SubCommand, TResult};
+use crate::{semver, Config, ModeIntent, OutputFormat, Set, SubCommand, TResult};
+use storyteller::Reporter;
 use thiserror::private::PathAsDisplay;
 
 /// Write the MSRV to the Cargo manifest
@@ -11,10 +11,11 @@ use thiserror::private::PathAsDisplay;
 //  integration it will be much easier to write appropriate output messages. In this case, we should
 //  not write the complete startup message and wind down message, just an update that the MSRV
 //  has been written.
-pub fn write_msrv<R>(config: &Config, reporter: &R, version: &semver::Version) -> TResult<()>
-where
-    R: Output,
-{
+pub fn write_msrv(
+    config: &Config,
+    reporter: &impl Reporter,
+    version: &semver::Version,
+) -> TResult<()> {
     let config = ConfigBuilder::from_config(config)
         .mode_intent(ModeIntent::Set)
         .sub_command_config(SubCommandConfig::SetConfig(SetCmdConfig {
@@ -22,7 +23,7 @@ where
         }))
         .build();
 
-    Set::default().run(&config, &NoOutput)?;
+    Set::default().run(&config, reporter)?;
 
     // FIXME: report for other output formats as well
     if let OutputFormat::Human = config.output_format() {
@@ -32,7 +33,9 @@ where
             version,
             manifest_path.as_display()
         );
-        reporter.write_line(&message);
+
+        // todo!
+        // reporter.write_line(&message);
     }
     Ok(())
 }

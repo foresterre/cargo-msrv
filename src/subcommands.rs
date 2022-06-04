@@ -1,4 +1,5 @@
-use crate::{Config, Output, TResult};
+use crate::{Config, TResult};
+use storyteller::Reporter;
 
 pub(crate) mod find;
 pub(crate) mod list;
@@ -18,5 +19,5 @@ pub use {find::Find, list::List, set::Set, show::Show, verify::Verify};
 /// It takes a set of inputs, from the `config`, and reports it's results via the `reporter`.
 pub trait SubCommand {
     /// Run the sub-command
-    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()>;
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()>;
 }

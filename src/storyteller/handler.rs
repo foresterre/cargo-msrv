@@ -3,7 +3,7 @@
 use std::io::Stderr;
 use std::sync::{Arc, Mutex, RwLock};
 use std::{io, marker};
-use storyteller::EventHandler;
+use storyteller::{EventHandler, Reporter};
 
 pub trait SendWriter: io::Write + Send + 'static {}
 
@@ -13,11 +13,11 @@ pub struct JsonHandler<W: SendWriter> {
 
 impl<W: SendWriter> JsonHandler<W> {
     const LOCK_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to lock writer for JsonHandle\" }";
+        "{ \"panic\": true, \"cause\": \"Unable to lock writer for JsonHandle\", \"experimental\": true }";
     const SERIALIZE_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to serialize event for JsonHandle\" }";
+        "{ \"panic\": true, \"cause\": \"Unable to serialize event for JsonHandle\", \"experimental\": true }";
     const WRITE_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\" }";
+        "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\", \"experimental\": true }";
 }
 
 impl SendWriter for Stderr {}
@@ -37,7 +37,7 @@ impl<W: SendWriter> EventHandler for JsonHandler<W> {
         let mut w = self.writer.lock().expect(Self::LOCK_FAILURE_MSG);
         let serialized_event = serde_json::to_string(&event).expect(Self::SERIALIZE_FAILURE_MSG);
 
-        writeln!(&mut w, "->. {}", &serialized_event).expect(Self::WRITE_FAILURE_MSG);
+        writeln!(&mut w, "{}", &serialized_event).expect(Self::WRITE_FAILURE_MSG);
     }
 }
 
@@ -60,10 +60,24 @@ impl EventHandler for HumanProgressHandler {
         if self.bar.is_hidden() {
             self.bar
                 .set_draw_target(indicatif::ProgressDrawTarget::stderr());
-            self.bar.set_length(9000);
+            self.bar.set_length(10);
         }
 
-        self.bar.inc(1);
+        if self.bar.position() < 10 {
+            self.bar.inc(1);
+        } else if self.bar.position() == 10 {
+            self.bar.finish();
+        }
+
         self.bar.println("event!");
+        std::thread::sleep_ms(1000);
     }
+}
+
+pub struct DiscardOutputHandler;
+
+impl EventHandler for DiscardOutputHandler {
+    type Event = super::Event;
+
+    fn handle(&self, _event: Self::Event) {}
 }

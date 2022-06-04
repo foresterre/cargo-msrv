@@ -2,9 +2,10 @@ use crate::errors::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
-use crate::{CargoMSRVError, Config, ModeIntent, Output, SubCommand, TResult};
+use crate::{CargoMSRVError, Config, ModeIntent, SubCommand, TResult};
 use rust_releases::semver;
 use std::io::Write;
+use storyteller::Reporter;
 use toml_edit::{table, value, Document, Item, Value};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
@@ -13,13 +14,14 @@ const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56
 pub struct Set;
 
 impl SubCommand for Set {
-    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
         set_msrv(config, reporter)
     }
 }
 
-fn set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
-    output.mode(ModeIntent::Set);
+fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    // todo!
+    //output.mode(ModeIntent::Set);
 
     let crate_folder = crate_root_folder(config)?;
     let cargo_toml = crate_folder.join("Cargo.toml");
@@ -49,7 +51,8 @@ fn set_msrv<R: Output>(config: &Config, output: &R) -> TResult<()> {
         source: IoErrorSource::WriteFile(cargo_toml.clone()),
     })?;
 
-    output.finish_success(ModeIntent::Set, None);
+    // todo!
+    // output.finish_success(ModeIntent::Set, None);
 
     Ok(())
 }

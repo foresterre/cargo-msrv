@@ -1,14 +1,15 @@
 use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
+use storyteller::Reporter;
 
 use crate::check::Check;
 use crate::errors::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
-use crate::reporter::{write_failed_check, write_succeeded_check};
+// use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, Output, ProgressAction, TResult};
+use crate::{Config, TResult};
 
 pub struct Bisect<'runner, R: Check> {
     runner: &'runner R,
@@ -23,9 +24,9 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        output: &impl Output,
+        reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
-        output.progress(ProgressAction::Checking(release.version()));
+        //todo! output.progress(ProgressAction::Checking(release.version()));
 
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         match runner.check(config, &toolchain) {
@@ -37,9 +38,10 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         }
     }
 
-    fn update_progress_bar(iteration: u64, indices: Indices, output: &impl Output) {
+    fn update_progress_bar(iteration: u64, indices: Indices, reporter: &impl Reporter) {
         let remainder = (indices.right - indices.left) as u64;
-        output.set_steps(remainder + iteration);
+        // todo!
+        // output.set_steps(remainder + iteration);
     }
 
     fn minimum_capable(msrv: Option<&Release>, config: &Config) -> MinimalCompatibility {
@@ -58,7 +60,7 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         &self,
         search_space: &[Release],
         config: &Config,
-        output: &impl Output,
+        reporter: &impl Reporter,
     ) -> TResult<MinimalCompatibility> {
         let searcher = Bisector::new(search_space);
 
@@ -78,22 +80,24 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
             indices: next_indices,
             result: Some(step),
         } = searcher.try_bisect(
-            |release| Self::run_check(self.runner, release, config, output),
+            |release| Self::run_check(self.runner, release, config, reporter),
             indices,
         )? {
             iteration += 1;
 
             info!(?indices, ?next_indices);
 
-            Self::update_progress_bar(iteration, next_indices, output);
+            Self::update_progress_bar(iteration, next_indices, reporter);
 
             match step {
                 ConvergeTo::Left(outcome) => {
-                    write_failed_check(&outcome, config, output);
+                    // todo!
+                    //write_failed_check(&outcome, config, output);
                 }
                 ConvergeTo::Right(outcome) => {
                     last_compatible_index = Some(indices);
-                    write_succeeded_check(&outcome, config, output);
+                    // todo!
+                    // write_succeeded_check(&outcome, config, output);
                 }
             }
 
@@ -105,13 +109,15 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         // Work-around for regression:
         // https://github.com/foresterre/cargo-msrv/issues/288
         let msrv = if indices.middle() == search_space.len() - 1 {
-            match Self::run_check(self.runner, converged_to_release, config, output)? {
+            match Self::run_check(self.runner, converged_to_release, config, reporter)? {
                 ConvergeTo::Left(outcome) => {
-                    write_failed_check(&outcome, config, output);
+                    // todo!
+                    //write_failed_check(&outcome, config, output);
                     last_compatible_index.map(|i| &search_space[i.middle()])
                 }
                 ConvergeTo::Right(outcome) => {
-                    write_succeeded_check(&outcome, config, output);
+                    // todo!
+                    // write_succeeded_check(&outcome, config, output);
                     Some(converged_to_release)
                 }
             }

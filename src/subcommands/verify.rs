@@ -2,6 +2,7 @@ use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
 use rust_releases::{semver, Release, ReleaseIndex};
+use storyteller::Reporter;
 use toml_edit::Document;
 
 use crate::check::Check;
@@ -10,7 +11,6 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
-use crate::reporter::Output;
 use crate::subcommands::SubCommand;
 use crate::toolchain::ToolchainSpec;
 
@@ -34,7 +34,7 @@ impl<'index, C: Check> Verify<'index, C> {
 
 impl<'index, C: Check> SubCommand for Verify<'index, C> {
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
         let rust_version = RustVersion::try_from_config(config)?;
 
         let result = verify_msrv(
@@ -53,18 +53,20 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 }
 
 /// Report the outcome to the user
-fn report_result<R: Output>(
+fn report_result(
     result: Result<&Outcome, &CargoMSRVError>,
     config: &Config,
-    reporter: &R,
+    reporter: &impl Reporter,
 ) {
     match result.as_ref() {
         Ok(outcome) => {
-            reporter.finish_success(ModeIntent::Verify, Some(outcome.version()));
+            // todo!
+            // reporter.finish_success(ModeIntent::Verify, Some(outcome.version()));
         }
         Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed { .. })) => {
             let cmd = config.check_command_string();
-            reporter.finish_failure(ModeIntent::Verify, Some(&cmd));
+            // todo!
+            // reporter.finish_failure(ModeIntent::Verify, Some(&cmd));
         }
         Err(_) => {}
     };
@@ -83,14 +85,15 @@ fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
 
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
 /// for the (given or specified) `rust_version`.
-fn verify_msrv<R: Output, C: Check>(
+fn verify_msrv(
     config: &Config,
-    reporter: &R,
+    reporter: &impl Reporter,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
-    runner: &C,
+    runner: &impl Check,
 ) -> TResult<Outcome> {
-    reporter.mode(ModeIntent::Verify);
+    // todo!
+    // reporter.mode(ModeIntent::Verify);
 
     let bare_version = rust_version.version();
     let version =

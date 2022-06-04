@@ -1,10 +1,10 @@
 use rust_releases::{Release, ReleaseIndex};
+use storyteller::Reporter;
 
 use crate::check::Check;
 use crate::config::{Config, ModeIntent, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::releases::filter_releases;
-use crate::reporter::Output;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 use crate::writers::toolchain_file::write_toolchain_file;
@@ -26,16 +26,16 @@ impl<'index, C: Check> Find<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Find<'index, C> {
-    fn run<R: Output>(&self, config: &Config, reporter: &R) -> TResult<()> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
         find_msrv(config, reporter, self.release_index, &self.runner)
     }
 }
 
-fn find_msrv<R: Output, C: Check>(
+fn find_msrv(
     config: &Config,
-    reporter: &R,
+    reporter: &impl Reporter,
     release_index: &ReleaseIndex,
-    runner: &C,
+    runner: &impl Check,
 ) -> TResult<()> {
     match search(config, reporter, release_index, runner)? {
         MinimalCompatibility::NoCompatibleToolchains => {
@@ -64,28 +64,30 @@ fn find_msrv<R: Output, C: Check>(
     }
 }
 
-fn search<R: Output, C: Check>(
+fn search(
     config: &Config,
-    reporter: &R,
+    reporter: &impl Reporter,
     index: &ReleaseIndex,
-    runner: &C,
+    runner: &impl Check,
 ) -> TResult<MinimalCompatibility> {
     let releases = index.releases();
     let included_releases = filter_releases(config, releases);
 
-    reporter.mode(ModeIntent::Find);
-    reporter.set_steps(included_releases.len() as u64);
+    // todo!
+    // reporter.mode(ModeIntent::Find);
+    // reporter.set_steps(included_releases.len() as u64);
 
     run_with_search_method(config, &included_releases, reporter, runner)
 }
 
-fn run_with_search_method<R: Output, C: Check>(
+fn run_with_search_method(
     config: &Config,
     included_releases: &[Release],
-    reporter: &R,
-    runner: &C,
+    reporter: &impl Reporter,
+    runner: &impl Check,
 ) -> TResult<MinimalCompatibility> {
-    reporter.set_steps(included_releases.len() as u64);
+    // todo!
+    // reporter.set_steps(included_releases.len() as u64);
 
     let search_method = config.search_method();
     info!(?search_method);
@@ -101,11 +103,11 @@ fn run_with_search_method<R: Output, C: Check>(
     }
 }
 
-fn run_searcher<R: Output>(
+fn run_searcher(
     method: &impl FindMinimalCapableToolchain,
     releases: &[Release],
     config: &Config,
-    reporter: &R,
+    reporter: &impl Reporter,
 ) -> TResult<MinimalCompatibility> {
     let minimum_capable = method.find_toolchain(releases, config, reporter)?;
 
@@ -114,13 +116,19 @@ fn run_searcher<R: Output>(
     Ok(minimum_capable)
 }
 
-fn report_outcome(minimum_capable: &MinimalCompatibility, config: &Config, output: &impl Output) {
+fn report_outcome(
+    minimum_capable: &MinimalCompatibility,
+    config: &Config,
+    reporter: &impl Reporter,
+) {
     match minimum_capable {
         MinimalCompatibility::CapableToolchain { toolchain } => {
-            output.finish_success(ModeIntent::Find, Some(toolchain.version()));
+            // todo!
+            // output.finish_success(ModeIntent::Find, Some(toolchain.version()));
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
+            // todo!
+            // output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
         }
     }
 }

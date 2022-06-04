@@ -1,5 +1,6 @@
-use crate::{Config, Output, TResult};
+use crate::{Config, TResult};
 use rust_releases::Release;
+use storyteller::Reporter;
 
 use crate::result::MinimalCompatibility;
 pub use {bisect::Bisect, linear::Linear};
@@ -22,6 +23,6 @@ pub trait FindMinimalCapableToolchain {
         &self,
         search_space: &[Release],
         config: &Config,
-        output: &impl Output,
+        reporter: &impl Reporter,
     ) -> TResult<MinimalCompatibility>;
 }

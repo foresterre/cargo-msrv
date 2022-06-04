@@ -1,4 +1,5 @@
 use std::path::Path;
+use storyteller::Reporter;
 
 use crate::command::RustupCommand;
 use crate::config::Config;
@@ -7,18 +8,17 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
-use crate::reporter::{Output, ProgressAction};
 use crate::toolchain::ToolchainSpec;
 
 pub trait Check {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;
 }
 
-pub struct RustupToolchainCheck<'reporter, R: Output> {
+pub struct RustupToolchainCheck<'reporter, R: Reporter> {
     reporter: &'reporter R,
 }
 
-impl<'reporter, R: Output> Check for RustupToolchainCheck<'reporter, R> {
+impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
@@ -49,7 +49,7 @@ impl<'reporter, R: Output> Check for RustupToolchainCheck<'reporter, R> {
     }
 }
 
-impl<'reporter, R: Output> RustupToolchainCheck<'reporter, R> {
+impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
         Self { reporter }
     }
@@ -74,8 +74,9 @@ impl<'reporter, R: Output> RustupToolchainCheck<'reporter, R> {
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
         cmd.extend_from_slice(check);
 
-        self.reporter
-            .progress(ProgressAction::Checking(toolchain.version()));
+        // todo!
+        // self.reporter
+        //     .progress(ProgressAction::Checking(toolchain.version()));
 
         let rustup_output = RustupCommand::new()
             .with_args(cmd.iter())
@@ -86,8 +87,9 @@ impl<'reporter, R: Output> RustupToolchainCheck<'reporter, R> {
 
         let status = rustup_output.exit_status();
 
-        self.reporter
-            .complete_step(toolchain.version(), status.success());
+        // todo!
+        // self.reporter
+        //     .complete_step(toolchain.version(), status.success());
 
         if status.success() {
             Ok(Outcome::new_success(toolchain.to_owned()))

@@ -6,13 +6,13 @@ extern crate tracing;
 extern crate core;
 
 use crate::check::RustupToolchainCheck;
+use ::storyteller::Reporter;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
 use crate::config::{Config, ModeIntent, OutputFormat, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
-use crate::reporter::{Output, ProgressAction};
 
 pub use crate::outcome::Outcome;
 pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
@@ -22,7 +22,7 @@ pub mod cli;
 pub mod config;
 pub mod errors;
 pub mod exit_code;
-pub mod reporter;
+// pub mod reporter;
 pub mod toolchain;
 
 pub(crate) mod command;
@@ -39,14 +39,14 @@ pub(crate) mod paths;
 pub(crate) mod releases;
 pub(crate) mod result;
 pub(crate) mod search_methods;
-pub(crate) mod storyteller;
+pub mod storyteller;
 pub(crate) mod subcommands;
 pub(crate) mod writers;
 
 #[cfg(test)]
 pub(crate) mod testing;
 
-pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
+pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     let action = config.action_intent();
 
     info!(
@@ -84,8 +84,8 @@ pub fn run_app<R: Output>(config: &Config, reporter: &R) -> TResult<()> {
     result
 }
 
-fn fetch_index<R: Output>(config: &Config, reporter: &R) -> TResult<ReleaseIndex> {
-    reporter.progress(ProgressAction::FetchingIndex);
+fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
+    //todo! reporter.progress(ProgressAction::FetchingIndex);
 
     let source = config.release_source();
 

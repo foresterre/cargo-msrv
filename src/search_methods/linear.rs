@@ -1,11 +1,12 @@
 use crate::check::Check;
 use crate::outcome::Outcome;
-use crate::reporter::{write_failed_check, write_succeeded_check};
+// use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, Output, ProgressAction, TResult};
+use crate::{Config, TResult};
 use rust_releases::Release;
+use storyteller::Reporter;
 
 pub struct Linear<'runner, R: Check> {
     runner: &'runner R,
@@ -20,9 +21,10 @@ impl<'runner, R: Check> Linear<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        output: &impl Output,
+        reporter: &impl Reporter,
     ) -> TResult<Outcome> {
-        output.progress(ProgressAction::Checking(release.version()));
+        // todo!
+        // output.progress(ProgressAction::Checking(release.version()));
 
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
@@ -48,20 +50,22 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
         &self,
         search_space: &'spec [Release],
         config: &'spec Config,
-        output: &impl Output,
+        reporter: &impl Reporter,
     ) -> TResult<MinimalCompatibility> {
         let mut last_compatible_index = None;
 
         for (i, release) in search_space.iter().enumerate() {
-            let outcome = Self::run_check(self.runner, release, config, output)?;
+            let outcome = Self::run_check(self.runner, release, config, reporter)?;
 
             match outcome {
                 Outcome::Failure(outcome) => {
-                    write_failed_check(&outcome, config, output);
+                    // todo!
+                    //write_failed_check(&outcome, config, output);
                     break;
                 }
                 Outcome::Success(outcome) => {
-                    write_succeeded_check(&outcome, config, output);
+                    // todo!
+                    //write_succeeded_check(&outcome, config, output);
                 }
             }
 
