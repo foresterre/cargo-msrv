@@ -6,12 +6,12 @@ use storyteller::{EventListener, Reporter as EventReporter};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::config::{self, Config, ModeIntent, TracingOptions, TracingTargetOption};
+use cargo_msrv::config::{self, Config, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::run_app;
 use cargo_msrv::storyteller::{
-    DiscardOutputHandler, Event, HumanProgressHandler, JsonHandler, Reporter, StorytellerSetup,
+    DiscardOutputHandler, HumanProgressHandler, JsonHandler, StorytellerSetup,
 };
 
 fn main() {
@@ -62,8 +62,8 @@ fn init_and_run(config: &Config) -> TResult<()> {
 
     match config.output_format() {
         config::OutputFormat::Human => {
-            let custom_cmd = config.check_command_string();
             // todo!
+            // let custom_cmd = config.check_command_string();
             // let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);
             let handler = HumanProgressHandler::new();
             listener.run_handler(handler);
