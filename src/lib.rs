@@ -15,6 +15,7 @@ use crate::errors::{CargoMSRVError, TResult};
 use crate::storyteller::{Event, Reporter};
 
 pub use crate::outcome::Outcome;
+use crate::storyteller::event::action::Action;
 pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
 
 pub mod check;
@@ -23,6 +24,7 @@ pub mod config;
 pub mod errors;
 pub mod exit_code;
 // pub mod reporter;
+pub mod storyteller;
 pub mod toolchain;
 
 pub(crate) mod command;
@@ -39,7 +41,6 @@ pub(crate) mod paths;
 pub(crate) mod releases;
 pub(crate) mod result;
 pub(crate) mod search_methods;
-pub mod storyteller;
 pub(crate) mod subcommands;
 pub(crate) mod writers;
 
@@ -84,8 +85,8 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     result
 }
 
-fn fetch_index(config: &Config, _reporter: &impl Reporter) -> TResult<ReleaseIndex> {
-    //todo! reporter.progress(ProgressAction::FetchingIndex);
+fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
+    reporter.report_event(Event::Action(Action::FetchingIndex))?;
 
     let source = config.release_source();
 

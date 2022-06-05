@@ -1,6 +1,7 @@
 #![allow(unused)]
 
-use crate::Event;
+use crate::{Action, Event};
+use owo_colors::OwoColorize;
 use std::io::Stderr;
 use std::sync::{Arc, Mutex, RwLock};
 use std::{io, marker};
@@ -49,7 +50,7 @@ pub struct HumanProgressHandler {
 impl HumanProgressHandler {
     pub fn new() -> Self {
         Self {
-            bar: indicatif::ProgressBar::hidden(),
+            bar: indicatif::ProgressBar::new(0),
         }
     }
 }
@@ -57,30 +58,18 @@ impl HumanProgressHandler {
 impl EventHandler for HumanProgressHandler {
     type Event = super::Event;
 
-    fn handle(&self, _event: Self::Event) {
-        // todo!
-
-        if self.bar.is_hidden() {
-            self.bar
-                .set_draw_target(indicatif::ProgressDrawTarget::stderr());
-            self.bar.set_length(10);
-        }
-
-        match _event {
+    fn handle(&self, event: Self::Event) {
+        match event {
             Event::Todo(msg) => self.bar.println(msg),
-            Event::Progress(progress) => {
-                if self.bar.position() < 10 {
-                    self.bar.inc(1);
-                } else if self.bar.position() == 10 {
-                    self.bar.finish();
-                }
-            }
-            Event::Message(msg) => {
-                self.bar.println("got a message!");
+            Event::Progress(progress) => {}
+            Event::Action(action) => {
+                self.bar.println(Into::<String>::into(action));
             }
         }
     }
 }
+
+// ---------------
 
 pub struct DiscardOutputHandler;
 

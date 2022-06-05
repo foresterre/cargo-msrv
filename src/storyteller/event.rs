@@ -3,9 +3,11 @@
 use std::fmt;
 use std::fmt::Formatter;
 
-use message::Message;
+// use message::Message;
+use action::Action;
 use progress::Progression;
 
+pub(crate) mod action;
 pub(crate) mod message;
 pub(crate) mod progress;
 
@@ -15,8 +17,9 @@ pub(crate) mod progress;
 #[serde(rename_all = "snake_case")]
 pub enum Event {
     Progress(Progression),
-    Message(Message),
+    // Message(Message),
     Todo(String), // todo! remove!
+    Action(Action),
 }
 
 // needed for derive thiserror::Error with #[error(transparent)]
