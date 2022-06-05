@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
 use rust_releases::{semver, Release, ReleaseIndex};
-use storyteller::Reporter;
+
 use toml_edit::Document;
 
 use crate::check::Check;
@@ -11,6 +11,7 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
+use crate::storyteller::Reporter;
 use crate::subcommands::SubCommand;
 use crate::toolchain::ToolchainSpec;
 

@@ -1,8 +1,8 @@
 use crate::config::{Config, ModeIntent};
 use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::errors::TResult;
+use crate::storyteller::Reporter;
 use crate::{dependencies, SubCommand};
-use storyteller::Reporter;
 
 #[derive(Default)]
 pub struct List;

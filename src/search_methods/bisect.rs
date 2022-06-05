@@ -1,15 +1,15 @@
 use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
-use storyteller::Reporter;
 
 use crate::check::Check;
 use crate::errors::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
+use crate::{Config, TResult};
 // use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
+use crate::storyteller::{Event, Reporter};
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, TResult};
 
 pub struct Bisect<'runner, R: Check> {
     runner: &'runner R,
@@ -93,11 +93,19 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
                 ConvergeTo::Left(outcome) => {
                     // todo!
                     //write_failed_check(&outcome, config, output);
+                    reporter.report_event(Event::Todo(format!(
+                        "Hello world - Failed noes :( - {}",
+                        &outcome.toolchain_spec
+                    )));
                 }
                 ConvergeTo::Right(outcome) => {
                     last_compatible_index = Some(indices);
                     // todo!
                     // write_succeeded_check(&outcome, config, output);
+                    reporter.report_event(Event::Todo(format!(
+                        "Hello world - Success ^^ - {}",
+                        &outcome.toolchain_spec
+                    )));
                 }
             }
 
@@ -113,11 +121,13 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
                 ConvergeTo::Left(outcome) => {
                     // todo!
                     //write_failed_check(&outcome, config, output);
+                    reporter.report_event(Event::Todo(format!("Hello world (Failed noes :( )!")));
                     last_compatible_index.map(|i| &search_space[i.middle()])
                 }
                 ConvergeTo::Right(outcome) => {
                     // todo!
                     // write_succeeded_check(&outcome, config, output);
+                    reporter.report_event(Event::Todo(format!("Hello world (Success ^^)!")));
                     Some(converged_to_release)
                 }
             }

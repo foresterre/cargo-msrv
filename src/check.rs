@@ -1,5 +1,4 @@
 use std::path::Path;
-use storyteller::Reporter;
 
 use crate::command::RustupCommand;
 use crate::config::Config;
@@ -9,6 +8,7 @@ use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
 use crate::toolchain::ToolchainSpec;
+use crate::Reporter;
 
 pub trait Check {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;

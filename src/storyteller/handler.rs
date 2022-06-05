@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use crate::Event;
 use std::io::Stderr;
 use std::sync::{Arc, Mutex, RwLock};
 use std::{io, marker};
@@ -57,20 +58,27 @@ impl EventHandler for HumanProgressHandler {
     type Event = super::Event;
 
     fn handle(&self, _event: Self::Event) {
+        // todo!
+
         if self.bar.is_hidden() {
             self.bar
                 .set_draw_target(indicatif::ProgressDrawTarget::stderr());
             self.bar.set_length(10);
         }
 
-        if self.bar.position() < 10 {
-            self.bar.inc(1);
-        } else if self.bar.position() == 10 {
-            self.bar.finish();
+        match _event {
+            Event::Todo(msg) => self.bar.println(msg),
+            Event::Progress(progress) => {
+                if self.bar.position() < 10 {
+                    self.bar.inc(1);
+                } else if self.bar.position() == 10 {
+                    self.bar.finish();
+                }
+            }
+            Event::Message(msg) => {
+                self.bar.println("got a message!");
+            }
         }
-
-        self.bar.println("event!");
-        std::thread::sleep_ms(1000);
     }
 }
 

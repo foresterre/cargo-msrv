@@ -1,12 +1,15 @@
+use std::io::Write;
+
+use rust_releases::semver;
+
+use toml_edit::{table, value, Document, Item, Value};
+
 use crate::errors::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
+use crate::storyteller::Reporter;
 use crate::{CargoMSRVError, Config, ModeIntent, SubCommand, TResult};
-use rust_releases::semver;
-use std::io::Write;
-use storyteller::Reporter;
-use toml_edit::{table, value, Document, Item, Value};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -168,10 +171,11 @@ fn discard_current_msrv(document: &mut Document) {
 
 #[cfg(test)]
 mod set_or_override_msrv_tests {
+    use toml_edit::Document;
+
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::subcommands::set::set_or_override_msrv;
-    use toml_edit::Document;
 
     #[test]
     fn set_rust_version_in_empty_two_component() {
@@ -444,9 +448,10 @@ metadata = { msrv = "1.15" }
 
 #[cfg(test)]
 mod discard_current_msrv_tests {
+    use toml_edit::Document;
+
     use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::subcommands::set::discard_current_msrv;
-    use toml_edit::Document;
 
     #[test]
     fn discard_none() {
@@ -645,11 +650,13 @@ metadata = { msrv = "1.15", other = 1 }
 
 #[cfg(test)]
 mod insert_new_msrv_tests {
+    use std::convert::TryInto;
+
+    use toml_edit::Document;
+
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
     use crate::subcommands::set::insert_new_msrv;
-    use std::convert::TryInto;
-    use toml_edit::Document;
 
     #[test]
     fn insert_rust_version_in_empty_two_component() {
@@ -743,10 +750,11 @@ edition = "2021"
     // TOML items are used, such as inline tables and regular tables.
     // Only applicable to the [package.manifest] msrv = "..." fallback variant MSRV
     mod insert_package_manifest_msrv_correct_table_type {
+        use toml_edit::{Document, Item, Value};
+
         use crate::manifest::bare_version::BareVersion;
         use crate::manifest::{CargoManifestParser, TomlParser};
         use crate::subcommands::set::insert_new_msrv;
-        use toml_edit::{Document, Item, Value};
 
         const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
 

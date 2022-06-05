@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-use storyteller::{EventListener, Reporter};
+use storyteller::{EventListener, Reporter as EventReporter};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
@@ -11,7 +11,7 @@ use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::run_app;
 use cargo_msrv::storyteller::{
-    DiscardOutputHandler, Event, HumanProgressHandler, JsonHandler, StorytellerSetup,
+    DiscardOutputHandler, Event, HumanProgressHandler, JsonHandler, Reporter, StorytellerSetup,
 };
 
 fn main() {
@@ -58,7 +58,7 @@ fn init_and_run(config: &Config) -> TResult<()> {
 
     // todo!
     let storyteller = StorytellerSetup::new();
-    let (reporter, listener) = storyteller.create_channels::<Event>();
+    let (reporter, listener) = storyteller.create_channels();
 
     match config.output_format() {
         config::OutputFormat::Human => {

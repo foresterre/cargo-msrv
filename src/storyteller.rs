@@ -1,17 +1,24 @@
-// todo: rename-to reporter.rs
+// todo! rename-to reporter.rs
 
 use storyteller::{
-    disconnect_channel, event_channel, ChannelEventListener, ChannelReporter, DisconnectReceiver,
-    DisconnectSender, EventListener, Reporter,
+    disconnect_channel, event_channel, ChannelEventListener, ChannelReporter, Disconnect,
+    DisconnectReceiver, DisconnectSender, EventListener, Reporter as EventReporter,
 };
-
-pub(crate) mod event;
-pub(crate) mod handler;
 
 pub use event::Event;
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
 pub use handler::JsonHandler;
+
+pub(crate) mod event;
+pub(crate) mod handler;
+
+// Alias trait
+// This way we don't have to specify the associated type Event
+// So instead of `fn hello(reporter: &impl Reporter<Event = Event>)`, we write:
+// `fn hello(reporter: &impl CargoMsrvReporter)`
+pub trait Reporter: EventReporter<Event = Event> {}
+impl<T> Reporter for T where T: EventReporter<Event = Event> {}
 
 pub struct StorytellerSetup {
     disconnect_sender: DisconnectSender,
@@ -28,12 +35,7 @@ impl StorytellerSetup {
         }
     }
 
-    pub fn create_channels<Event: Send + 'static>(
-        self,
-    ) -> (
-        impl Reporter<Event = Event>,
-        impl EventListener<Event = Event>,
-    ) {
+    pub fn create_channels(self) -> (impl Reporter, impl EventListener<Event = Event>) {
         let (sender, receiver) = event_channel::<Event>();
         let Self {
             disconnect_sender,
@@ -49,22 +51,25 @@ impl StorytellerSetup {
 
 #[cfg(test)]
 mod tests {
-    use super::handler::JsonHandler;
+    use storyteller::{EventListener, Reporter};
+
     use crate::storyteller::event::progress::Progression;
     use crate::storyteller::handler::HumanProgressHandler;
     use crate::storyteller::{Event, StorytellerSetup};
-    use storyteller::{EventListener, Reporter};
+    use crate::{Reporter, Reporter};
+
+    use super::handler::JsonHandler;
 
     #[test]
     fn setup() {
-        fn report(reporter: &impl Reporter<Event = Event>, event: Event) -> Result<(), String> {
+        fn report(reporter: &impl Reporter, event: Event) -> Result<(), String> {
             reporter
                 .report_event(event)
                 .map_err(|_| "Failed to report event".to_string())
         }
 
         let setup = StorytellerSetup::new();
-        let (reporter, listener) = setup.create_channels::<Event>();
+        let (reporter, listener): (impl Reporter, _) = setup.create_channels();
 
         let handler = HumanProgressHandler::new();
         // let handler = JsonHandler::stderr();

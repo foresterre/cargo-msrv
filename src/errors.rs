@@ -1,14 +1,17 @@
-use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
-use rust_releases::Release;
 use std::env;
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
+use rust_releases::Release;
+use storyteller::EventSendError;
+
+use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::fetch::ToolchainSpecifier;
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
+use crate::storyteller::Event;
 use crate::subcommands::verify;
 
 pub type TResult<T> = Result<T, CargoMSRVError>;
@@ -93,6 +96,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     SetMsrv(#[from] SetMsrvError),
+
+    #[error("Unable to print event output")]
+    Storyteller,
 
     #[error(transparent)]
     SubCommandVerify(#[from] verify::Error),
@@ -188,4 +194,10 @@ pub struct NoToolchainsToTryError {
     pub(crate) min: Option<BareVersion>,
     pub(crate) max: Option<BareVersion>,
     pub(crate) search_space: Vec<Release>,
+}
+
+impl<T> From<EventSendError<T>> for CargoMSRVError {
+    fn from(_: EventSendError<T>) -> Self {
+        CargoMSRVError::Storyteller
+    }
 }

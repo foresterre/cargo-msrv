@@ -1,7 +1,6 @@
 use crate::command::RustupCommand;
 use crate::toolchain::ToolchainSpec;
-use crate::{CargoMSRVError, TResult};
-use storyteller::Reporter;
+use crate::{CargoMSRVError, Reporter, TResult};
 
 pub trait DownloadToolchain {
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()>;

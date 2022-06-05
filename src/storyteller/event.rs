@@ -1,5 +1,8 @@
 #![allow(unused)]
 
+use std::fmt;
+use std::fmt::Formatter;
+
 use message::Message;
 use progress::Progression;
 
@@ -13,6 +16,14 @@ pub(crate) mod progress;
 pub enum Event {
     Progress(Progression),
     Message(Message),
+    Todo(String), // todo! remove!
+}
+
+// needed for derive thiserror::Error with #[error(transparent)]
+impl fmt::Display for Event {
+    fn fmt(&self, _f: &mut Formatter<'_>) -> fmt::Result {
+        Ok(())
+    }
 }
 
 #[test]

@@ -1,18 +1,18 @@
 #![deny(clippy::all)]
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
+extern crate core;
 #[macro_use]
 extern crate tracing;
-extern crate core;
 
-use crate::check::RustupToolchainCheck;
-use ::storyteller::Reporter;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
+use crate::check::RustupToolchainCheck;
 use crate::config::{Config, ModeIntent, OutputFormat, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::storyteller::{Event, Reporter};
 
 pub use crate::outcome::Outcome;
 pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
