@@ -22,7 +22,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        reporter: &impl Reporter,
+        _reporter: &impl Reporter,
     ) -> TResult<Outcome> {
         // todo!
         // output.progress(ProgressAction::Checking(release.version()));
@@ -59,12 +59,12 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
             let outcome = Self::run_check(self.runner, release, config, reporter)?;
 
             match outcome {
-                Outcome::Failure(outcome) => {
+                Outcome::Failure(_outcome) => {
                     // todo!
                     //write_failed_check(&outcome, config, output);
                     break;
                 }
-                Outcome::Success(outcome) => {
+                Outcome::Success(_outcome) => {
                     // todo!
                     //write_succeeded_check(&outcome, config, output);
                 }

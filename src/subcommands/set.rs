@@ -9,7 +9,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
 use crate::storyteller::Reporter;
-use crate::{CargoMSRVError, Config, ModeIntent, SubCommand, TResult};
+use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -22,7 +22,7 @@ impl SubCommand for Set {
     }
 }
 
-fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+fn set_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
     // todo!
     //output.mode(ModeIntent::Set);
 

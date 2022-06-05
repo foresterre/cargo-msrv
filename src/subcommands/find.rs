@@ -1,7 +1,7 @@
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
-use crate::config::{Config, ModeIntent, SearchMethod};
+use crate::config::{Config, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::releases::filter_releases;
 use crate::result::MinimalCompatibility;
@@ -111,28 +111,30 @@ fn run_searcher(
 ) -> TResult<MinimalCompatibility> {
     let minimum_capable = method.find_toolchain(releases, config, reporter)?;
 
-    report_outcome(&minimum_capable, config, reporter);
+    report_outcome(&minimum_capable, config, reporter)?;
 
     Ok(minimum_capable)
 }
 
 fn report_outcome(
     minimum_capable: &MinimalCompatibility,
-    config: &Config,
+    _config: &Config,
     reporter: &impl Reporter,
-) {
+) -> TResult<()> {
     match minimum_capable {
         MinimalCompatibility::CapableToolchain { toolchain } => {
             // todo!
             // output.finish_success(ModeIntent::Find, Some(toolchain.version()));
-            reporter.report_event(Event::Todo(format!("Found MSRV '{}'", toolchain.version())));
+            reporter.report_event(Event::Todo(format!("Found MSRV '{}'", toolchain.version())))?;
         }
         MinimalCompatibility::NoCompatibleToolchains => {
             // todo!
             // output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
-            reporter.report_event(Event::Todo(format!("Unable to find valid MSRV")));
+            reporter.report_event(Event::Todo(format!("Unable to find valid MSRV")))?;
         }
     }
+
+    Ok(())
 }
 
 #[cfg(test)]

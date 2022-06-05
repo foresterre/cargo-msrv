@@ -1,4 +1,4 @@
-use crate::config::{Config, ModeIntent};
+use crate::config::{Config};
 use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::errors::TResult;
 use crate::storyteller::Reporter;
@@ -13,7 +13,7 @@ impl SubCommand for List {
     }
 }
 
-fn list_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+fn list_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
     // todo!
     // output.mode(ModeIntent::List);
 
@@ -23,7 +23,7 @@ fn list_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     let format = config.output_format();
     let variant = config.sub_command_config().list().variant;
 
-    if let Some(s) = dependencies::format(&graph, variant, format) {
+    if let Some(_s) = dependencies::format(&graph, variant, format) {
         // todo!
         // output.write_line(&s);
     }

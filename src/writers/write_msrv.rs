@@ -29,7 +29,7 @@ pub fn write_msrv(
     // FIXME: report for other output formats as well
     if let OutputFormat::Human = config.output_format() {
         let manifest_path = config.ctx().manifest_path(&config)?;
-        let message = format!(
+        let _message = format!(
             "Written MSRV '{}' to '{}'",
             version,
             manifest_path.as_display()

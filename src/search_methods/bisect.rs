@@ -24,7 +24,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        reporter: &impl Reporter,
+        _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
         //todo! output.progress(ProgressAction::Checking(release.version()));
 
@@ -38,8 +38,8 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         }
     }
 
-    fn update_progress_bar(iteration: u64, indices: Indices, reporter: &impl Reporter) {
-        let remainder = (indices.right - indices.left) as u64;
+    fn update_progress_bar(_iteration: u64, indices: Indices, _reporter: &impl Reporter) {
+        let _remainder = (indices.right - indices.left) as u64;
         // todo!
         // output.set_steps(remainder + iteration);
     }
@@ -96,7 +96,7 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
                     reporter.report_event(Event::Todo(format!(
                         "Hello world - Failed noes :( - {}",
                         &outcome.toolchain_spec
-                    )));
+                    )))?;
                 }
                 ConvergeTo::Right(outcome) => {
                     last_compatible_index = Some(indices);
@@ -105,7 +105,7 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
                     reporter.report_event(Event::Todo(format!(
                         "Hello world - Success ^^ - {}",
                         &outcome.toolchain_spec
-                    )));
+                    )))?;
                 }
             }
 
@@ -118,16 +118,16 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         // https://github.com/foresterre/cargo-msrv/issues/288
         let msrv = if indices.middle() == search_space.len() - 1 {
             match Self::run_check(self.runner, converged_to_release, config, reporter)? {
-                ConvergeTo::Left(outcome) => {
+                ConvergeTo::Left(_outcome) => {
                     // todo!
                     //write_failed_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!("Hello world (Failed noes :( )!")));
+                    reporter.report_event(Event::Todo(format!("Hello world (Failed noes...)!")))?;
                     last_compatible_index.map(|i| &search_space[i.middle()])
                 }
-                ConvergeTo::Right(outcome) => {
+                ConvergeTo::Right(_outcome) => {
                     // todo!
                     // write_succeeded_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!("Hello world (Success ^^)!")));
+                    reporter.report_event(Event::Todo(format!("Hello world (Success ^^)!")))?;
                     Some(converged_to_release)
                 }
             }

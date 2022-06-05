@@ -6,7 +6,7 @@ use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::Document;
 
 use crate::check::Check;
-use crate::config::{Config, ModeIntent};
+use crate::config::{Config};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
@@ -57,15 +57,15 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 fn report_result(
     result: Result<&Outcome, &CargoMSRVError>,
     config: &Config,
-    reporter: &impl Reporter,
+    _reporter: &impl Reporter,
 ) {
     match result.as_ref() {
-        Ok(outcome) => {
+        Ok(_outcome) => {
             // todo!
             // reporter.finish_success(ModeIntent::Verify, Some(outcome.version()));
         }
         Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed { .. })) => {
-            let cmd = config.check_command_string();
+            let _cmd = config.check_command_string();
             // todo!
             // reporter.finish_failure(ModeIntent::Verify, Some(&cmd));
         }
@@ -88,7 +88,7 @@ fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
     config: &Config,
-    reporter: &impl Reporter,
+    _reporter: &impl Reporter,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
     runner: &impl Check,

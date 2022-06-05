@@ -84,7 +84,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     result
 }
 
-fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
+fn fetch_index(config: &Config, _reporter: &impl Reporter) -> TResult<ReleaseIndex> {
     //todo! reporter.progress(ProgressAction::FetchingIndex);
 
     let source = config.release_source();

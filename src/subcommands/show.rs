@@ -2,9 +2,9 @@ use std::convert::TryFrom;
 
 use toml_edit::Document;
 
-use crate::config::{Config, ModeIntent};
+use crate::config::{Config};
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
-use crate::manifest::bare_version::BareVersion;
+
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
 use crate::storyteller::Reporter;
@@ -19,7 +19,7 @@ impl SubCommand for Show {
     }
 }
 
-fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+fn show_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
     // todo!
     // output.mode(ModeIntent::Show);
 
