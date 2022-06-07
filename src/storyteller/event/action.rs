@@ -10,7 +10,7 @@ pub struct Action {
     status: ActionStatus,
     details: ActionDetails,
     #[serde(skip_serializing_if = "Option::is_none")]
-    scope_position: Option<ScopePosition>,
+    scope: Option<ScopePosition>,
 }
 
 impl Action {
@@ -19,7 +19,7 @@ impl Action {
             name: (&action).into(),
             status: (&action).into(),
             details: action,
-            scope_position: None,
+            scope: None,
         }
     }
 
@@ -28,7 +28,7 @@ impl Action {
         position: ScopePosition,
     ) -> Self {
         let mut cloned = self.clone();
-        cloned.scope_position = Some(position);
+        cloned.scope = Some(position);
         cloned
     }
 
@@ -41,7 +41,7 @@ impl Action {
     }
 
     pub fn must_report(&self) -> bool {
-        matches!(self.scope_position, Some(ScopePosition::Start) | None)
+        matches!(self.scope, Some(ScopePosition::Start) | None)
     }
 }
 
