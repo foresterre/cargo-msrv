@@ -8,7 +8,7 @@ use crate::{Config, TResult};
 // use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
-use crate::storyteller::{Event, Reporter};
+use crate::storyteller::Reporter;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 
 pub struct Bisect<'runner, R: Check> {
@@ -26,8 +26,6 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         config: &Config,
         _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
-        //todo! output.progress(ProgressAction::Checking(release.version()));
-
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         match runner.check(config, &toolchain) {
             Ok(outcome) => match outcome {

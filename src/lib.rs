@@ -15,8 +15,9 @@ use crate::errors::{CargoMSRVError, TResult};
 use crate::storyteller::{Event, Reporter};
 
 pub use crate::outcome::Outcome;
-use crate::storyteller::event::action::Action;
 pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
+use storyteller::event::action::Action;
+use storyteller::event::meta::Meta;
 
 pub mod check;
 pub mod cli;
@@ -48,6 +49,8 @@ pub(crate) mod writers;
 pub(crate) mod testing;
 
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    reporter.report_event(Event::Meta(Meta::default()))?;
+
     let action = config.action_intent();
 
     info!(

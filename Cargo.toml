@@ -11,6 +11,8 @@ rust-version = "1.59"
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
+build = "build.rs"
+
 [features]
 default = ["rust-releases-dist-source"]
 rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
@@ -68,3 +70,5 @@ features = ["rust-releases-rust-changelog"]
 parameterized = "0.3.1"
 yare = "1.0.1"
 
+[build-dependencies]
+vergen = { version = "7.2.0", default-features = false, features = ["build", "cargo", "git", "rustc"] }

@@ -3,12 +3,13 @@
 use std::fmt;
 use std::fmt::Formatter;
 
-// use message::Message;
 use action::Action;
+use meta::Meta;
 use progress::Progression;
 
 pub(crate) mod action;
 pub(crate) mod message;
+pub(crate) mod meta;
 pub(crate) mod progress;
 
 /// Messages are a kind of event which report the state of this program to the user
@@ -16,8 +17,8 @@ pub(crate) mod progress;
 #[derive(serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Event {
+    Meta(Meta),
     Progress(Progression),
-    // Message(Message),
     Todo(String), // todo! remove!
     Action(Action),
 }

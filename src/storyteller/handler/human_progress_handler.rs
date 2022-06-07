@@ -23,6 +23,7 @@ impl EventHandler for HumanProgressHandler {
 
     fn handle(&self, event: Self::Event) {
         match event {
+            Event::Meta(it) => self.bar.println(it.summary()),
             Event::Todo(msg) => self.bar.println(msg),
             Event::Progress(progress) => {}
             Event::Action(action) if action.must_report() => {
