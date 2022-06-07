@@ -1,8 +1,8 @@
 // todo! rename-to reporter.rs
 
 use storyteller::{
-    disconnect_channel, event_channel, ChannelEventListener, ChannelReporter,
-    DisconnectReceiver, DisconnectSender, EventListener, Reporter as EventReporter,
+    disconnect_channel, event_channel, ChannelEventListener, ChannelReporter, DisconnectReceiver,
+    DisconnectSender, EventListener,
 };
 
 pub use event::Event;
@@ -16,10 +16,15 @@ pub(crate) mod handler;
 // Alias trait
 // This way we don't have to specify the associated type Event
 // So instead of `fn hello(reporter: &impl Reporter<Event = Event>)`, we write:
-// `fn hello(reporter: &impl CargoMsrvReporter)`
-pub trait Reporter: EventReporter<Event = Event, Err = storyteller::ReporterError<Event>> {}
-impl<T> Reporter for T where T: EventReporter<Event = Event, Err = storyteller::ReporterError<Event>>
-{}
+// `fn hello(reporter: &impl Reporter)`
+pub trait Reporter:
+    storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
+{
+}
+impl<T> Reporter for T where
+    T: storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
+{
+}
 
 pub struct StorytellerSetup {
     disconnect_sender: DisconnectSender,
