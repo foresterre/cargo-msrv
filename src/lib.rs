@@ -86,22 +86,22 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
 }
 
 fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
-    reporter.report_event(Event::Action(Action::FetchingIndex))?;
+    reporter.perform_scoped_action(Action::fetching_index(config.release_source()), || {
+        let source = config.release_source();
 
-    let source = config.release_source();
+        info!(
+            source = Into::<&'static str>::into(source),
+            "fetching index"
+        );
 
-    info!(
-        source = Into::<&'static str>::into(source),
-        "fetching index"
-    );
+        let index = match config.release_source() {
+            ReleaseSource::RustChangelog => {
+                RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
+            }
+            #[cfg(feature = "rust-releases-dist-source")]
+            ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
+        };
 
-    let index = match config.release_source() {
-        ReleaseSource::RustChangelog => {
-            RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
-        }
-        #[cfg(feature = "rust-releases-dist-source")]
-        ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
-    };
-
-    Ok(index)
+        Ok(index)
+    })
 }

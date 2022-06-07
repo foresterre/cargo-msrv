@@ -117,7 +117,8 @@ impl From<ModeIntent> for &'static str {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
     RustChangelog,
     #[cfg(feature = "rust-releases-dist-source")]

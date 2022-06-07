@@ -5,6 +5,8 @@ use storyteller::{
     DisconnectSender, EventListener,
 };
 
+use crate::storyteller::event::action::ScopePosition;
+use crate::{Action, TResult};
 pub use event::Event;
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
@@ -20,6 +22,30 @@ pub(crate) mod handler;
 pub trait Reporter:
     storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
 {
+    /// Perform a (fallible) action within the scope of the `inner_scope` closure, and report the start and
+    /// end of this action.
+    ///
+    /// NB: returns a `crate::TResult` (unlike the regular `report_event` which returns
+    /// a `Result<(), storyteller::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
+    /// error data structure.
+    fn perform_scoped_action<T>(
+        &self,
+        reportable_action: Action,
+        inner_scope: impl Fn() -> TResult<T>,
+    ) -> TResult<T> {
+        // Report that the action is starting
+        let begin = reportable_action.clone_with_scope_position(ScopePosition::Begin);
+        self.report_event(Event::Action(begin))?;
+
+        // Perform the action
+        let result = inner_scope();
+
+        // Report that the action has finished
+        let end = reportable_action.clone_with_scope_position(ScopePosition::End);
+        self.report_event(Event::Action(end))?;
+
+        result
+    }
 }
 impl<T> Reporter for T where
     T: storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
