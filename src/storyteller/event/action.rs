@@ -34,6 +34,10 @@ impl Action {
     pub fn details(&self) -> &ActionDetails {
         &self.details
     }
+
+    pub fn must_report(&self) -> bool {
+        matches!(self.scope_position, Some(ScopePosition::Start) | None)
+    }
 }
 
 /// Specialized `new` methods which provide a shortcut to create actions.
@@ -84,6 +88,6 @@ impl ActionStatus {
 
 #[derive(Debug, Copy, Clone, serde::Serialize)]
 pub enum ScopePosition {
-    Begin,
+    Start,
     End,
 }

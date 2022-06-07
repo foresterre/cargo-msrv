@@ -34,7 +34,7 @@ pub trait Reporter:
         inner_scope: impl Fn() -> TResult<T>,
     ) -> TResult<T> {
         // Report that the action is starting
-        let begin = reportable_action.clone_with_scope_position(ScopePosition::Begin);
+        let begin = reportable_action.clone_with_scope_position(ScopePosition::Start);
         self.report_event(Event::Action(begin))?;
 
         // Perform the action

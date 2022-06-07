@@ -22,9 +22,10 @@ impl EventHandler for HumanProgressHandler {
         match event {
             Event::Todo(msg) => self.bar.println(msg),
             Event::Progress(progress) => {}
-            Event::Action(action) => {
+            Event::Action(action) if action.must_report() => {
                 self.bar.println(action.to_message());
             }
+            Event::Action(_) => {}
         }
     }
 }
