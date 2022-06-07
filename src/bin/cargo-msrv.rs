@@ -56,30 +56,17 @@ fn init_and_run(config: &Config) -> TResult<()> {
         "initializing"
     );
 
-    // todo!
     let storyteller = StorytellerSetup::new();
     let (reporter, listener) = storyteller.create_channels();
 
     match config.output_format() {
         config::OutputFormat::Human => {
-            // todo!
-            // let custom_cmd = config.check_command_string();
-            // let reporter = reporter::ui::HumanPrinter::new(1, config.target(), &custom_cmd);
             let handler = HumanProgressHandler::new();
             listener.run_handler(handler);
 
             run_app(config, &reporter)
         }
         config::OutputFormat::Json => {
-            // todo!
-            // let custom_cmd = if let ModeIntent::List = config.action_intent() {
-            //     None
-            // } else {
-            //     Some(config.check_command_string())
-            // };
-            //
-            // let reporter =
-            //     reporter::json::JsonPrinter::new(1, config.target(), custom_cmd.as_deref());
             let handler = JsonHandler::stderr();
             listener.run_handler(handler);
 
@@ -97,8 +84,7 @@ fn init_and_run(config: &Config) -> TResult<()> {
 
     tracing::info!("finished");
 
-    // todo! handle error
-    let _ = reporter.disconnect();
+    let _ = reporter.disconnect()?;
 
     Ok(())
 }

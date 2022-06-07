@@ -5,6 +5,9 @@ extern crate core;
 #[macro_use]
 extern crate tracing;
 
+pub use crate::outcome::Outcome;
+pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
+
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
@@ -12,19 +15,15 @@ use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog
 use crate::check::RustupToolchainCheck;
 use crate::config::{Config, ModeIntent, OutputFormat, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::storyteller::event::action::Action;
+use crate::storyteller::event::meta::Meta;
 use crate::storyteller::{Event, Reporter};
-
-pub use crate::outcome::Outcome;
-pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
-use storyteller::event::action::Action;
-use storyteller::event::meta::Meta;
 
 pub mod check;
 pub mod cli;
 pub mod config;
 pub mod errors;
 pub mod exit_code;
-// pub mod reporter;
 pub mod storyteller;
 pub mod toolchain;
 
