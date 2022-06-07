@@ -60,6 +60,10 @@ impl OwnedToolchainSpec {
     pub fn version(&self) -> &semver::Version {
         &self.version
     }
+
+    pub fn target(&self) -> &str {
+        &self.target
+    }
 }
 
 impl std::fmt::Display for OwnedToolchainSpec {

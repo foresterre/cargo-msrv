@@ -5,6 +5,7 @@ use comfy_table::{ContentArrangement, Table};
 use owo_colors::OwoColorize;
 use std::fmt;
 use storyteller::EventHandler;
+use thiserror::private::PathAsDisplay;
 
 pub struct HumanProgressHandler {
     bar: indicatif::ProgressBar,
@@ -24,6 +25,7 @@ impl EventHandler for HumanProgressHandler {
     fn handle(&self, event: Self::Event) {
         match event {
             Event::Meta(it) => self.bar.println(it.summary()),
+            // todo! add Event::Config(w@WithConfig) => self.bar.println(w.summary())
             Event::Todo(msg) => self.bar.println(msg),
             Event::Progress(progress) => {}
             Event::Action(action) if action.must_report() => {
@@ -42,21 +44,23 @@ impl Action {
             ActionDetails::FetchingIndex {
                 source: release_source,
             } => message.fmt("Obtaining rust-releases index"),
-            ActionDetails::SetupToolchain { toolchain } => message.fmt(format_args!(
-                "Installing Rust toolchain '{}' (if not present)",
-                toolchain.spec()
-            )),
-            ActionDetails::RunToolchainCheck { version } => {
-                message.fmt(format_args!("Rust {}", version))
+            ActionDetails::SetupToolchain { .. } => {
+                message.fmt("Installing toolchain (if not present)")
             }
+            ActionDetails::CheckToolchain { toolchain } => message.fmt(format_args!(
+                "Preparing to test Rust '{}' against target '{}'",
+                toolchain.version(),
+                toolchain.target(),
+            )),
+            ActionDetails::RunToolchainCheck { version } => message.fmt("Toolchain check"),
             ActionDetails::RunToolchainCheckPass { version } => {
-                message.fmt(format_args!("Rust {}", version))
+                message.fmt(format_args!("Rust '{}' check passed", version))
             }
             ActionDetails::RunToolchainCheckFail {
                 version,
                 error_message: error_msg,
             } => message.fmt(format_args!(
-                "{}\n{:>12}",
+                "Rust '{}' check failed with:\n{}",
                 version,
                 message_box(error_msg.as_str())
             )),
@@ -87,7 +91,7 @@ impl HumanStatusMessage {
     }
 }
 
-fn message_box(message: &str) -> Table {
+fn message_box(message: &str) -> String {
     let mut table = Table::new();
     table
         .load_preset(UTF8_FULL)
@@ -95,4 +99,8 @@ fn message_box(message: &str) -> Table {
         .add_row(vec![message.trim()]);
 
     table
+        .lines()
+        .map(|line| format!("            {}", line))
+        .collect::<Vec<_>>()
+        .join("\n")
 }

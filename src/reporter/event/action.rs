@@ -1,6 +1,7 @@
 use crate::toolchain::OwnedToolchainSpec;
 use crate::ReleaseSource;
 use rust_releases::semver;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -59,6 +60,10 @@ impl Action {
         Self::new(ActionDetails::SetupToolchain { toolchain })
     }
 
+    pub fn check_toolchain(toolchain: OwnedToolchainSpec) -> Self {
+        Self::new(ActionDetails::CheckToolchain { toolchain })
+    }
+
     pub fn run_toolchain_check(version: semver::Version) -> Self {
         Self::new(ActionDetails::RunToolchainCheck { version })
     }
@@ -84,6 +89,9 @@ pub enum ActionDetails {
     SetupToolchain {
         toolchain: OwnedToolchainSpec,
     },
+    CheckToolchain {
+        toolchain: OwnedToolchainSpec,
+    },
     RunToolchainCheck {
         version: semver::Version,
     },
@@ -101,7 +109,8 @@ impl<'reference> From<&'reference ActionDetails> for ActionStatus {
         match action_details {
             ActionDetails::FetchingIndex { .. } => Self::Fetching,
             ActionDetails::SetupToolchain { .. } => Self::Setup, // consider: split in check-if-present & install?
-            ActionDetails::RunToolchainCheck { .. } => Self::Checking,
+            ActionDetails::CheckToolchain { .. } => Self::Check,
+            ActionDetails::RunToolchainCheck { .. } => Self::Running,
             ActionDetails::RunToolchainCheckPass { .. } => Self::Passed,
             ActionDetails::RunToolchainCheckFail { .. } => Self::Failed,
         }
@@ -113,7 +122,8 @@ impl<'reference> From<&'reference ActionDetails> for &'static str {
         match action_details {
             ActionDetails::FetchingIndex { .. } => "fetching_index",
             ActionDetails::SetupToolchain { .. } => "setup_toolchain",
-            ActionDetails::RunToolchainCheck { .. } => "check",
+            ActionDetails::CheckToolchain { .. } => "check",
+            ActionDetails::RunToolchainCheck { .. } => "run_check",
             ActionDetails::RunToolchainCheckPass { .. } => "check_passed",
             ActionDetails::RunToolchainCheckFail { .. } => "check_failed",
         }
@@ -124,8 +134,9 @@ impl<'reference> From<&'reference ActionDetails> for &'static str {
 #[serde(rename_all = "snake_case")]
 pub enum ActionStatus {
     Fetching,
+    Check,
     Setup,
-    Checking,
+    Running,
 
     Passed,
     Failed,
@@ -135,8 +146,10 @@ impl ActionStatus {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Fetching => "Fetching",
+
+            Self::Check => "Check",
             Self::Setup => "Setup",
-            Self::Checking => "Checking",
+            Self::Running => "Running",
 
             Self::Passed => "[Pass]",
             Self::Failed => "[Fail]",

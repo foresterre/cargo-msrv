@@ -21,9 +21,8 @@ pub struct RustupToolchainCheck<'reporter, R: Reporter> {
 
 impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
-        self.reporter.perform_scoped_action(
-            Action::run_toolchain_check(toolchain.version().clone()),
-            || {
+        self.reporter
+            .perform_scoped_action(Action::check_toolchain(toolchain.to_owned()), || {
                 info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
@@ -67,8 +66,7 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
                 }
 
                 Ok(outcome)
-            },
-        )
+            })
     }
 }
 
@@ -97,9 +95,8 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
         cmd.extend_from_slice(check);
 
-        // todo!
-        // self.reporter
-        //     .progress(ProgressAction::Checking(toolchain.version()));
+        self.reporter
+            .report_action(Action::run_toolchain_check(toolchain.version().clone()))?;
 
         let rustup_output = RustupCommand::new()
             .with_args(cmd.iter())
