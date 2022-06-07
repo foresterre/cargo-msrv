@@ -55,6 +55,10 @@ impl Action {
         Self::new(ActionDetails::FetchingIndex { source })
     }
 
+    pub fn setup_toolchain(toolchain: OwnedToolchainSpec) -> Self {
+        Self::new(ActionDetails::SetupToolchain { toolchain })
+    }
+
     pub fn run_toolchain_check(version: semver::Version) -> Self {
         Self::new(ActionDetails::RunToolchainCheck { version })
     }
@@ -77,6 +81,9 @@ pub enum ActionDetails {
     FetchingIndex {
         source: ReleaseSource,
     },
+    SetupToolchain {
+        toolchain: OwnedToolchainSpec,
+    },
     RunToolchainCheck {
         version: semver::Version,
     },
@@ -93,6 +100,7 @@ impl<'reference> From<&'reference ActionDetails> for ActionStatus {
     fn from(action_details: &'reference ActionDetails) -> Self {
         match action_details {
             ActionDetails::FetchingIndex { .. } => Self::Fetching,
+            ActionDetails::SetupToolchain { .. } => Self::Setup, // consider: split in check-if-present & install?
             ActionDetails::RunToolchainCheck { .. } => Self::Checking,
             ActionDetails::RunToolchainCheckPass { .. } => Self::Passed,
             ActionDetails::RunToolchainCheckFail { .. } => Self::Failed,
@@ -104,6 +112,7 @@ impl<'reference> From<&'reference ActionDetails> for &'static str {
     fn from(action_details: &'reference ActionDetails) -> Self {
         match action_details {
             ActionDetails::FetchingIndex { .. } => "fetching_index",
+            ActionDetails::SetupToolchain { .. } => "setup_toolchain",
             ActionDetails::RunToolchainCheck { .. } => "check",
             ActionDetails::RunToolchainCheckPass { .. } => "check_passed",
             ActionDetails::RunToolchainCheckFail { .. } => "check_failed",
@@ -115,7 +124,7 @@ impl<'reference> From<&'reference ActionDetails> for &'static str {
 #[serde(rename_all = "snake_case")]
 pub enum ActionStatus {
     Fetching,
-    Downloading,
+    Setup,
     Checking,
 
     Passed,
@@ -126,7 +135,7 @@ impl ActionStatus {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Fetching => "Fetching",
-            Self::Downloading => "Downloading",
+            Self::Setup => "Setup",
             Self::Checking => "Checking",
 
             Self::Passed => "[Pass]",

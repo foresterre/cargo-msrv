@@ -42,8 +42,16 @@ impl Action {
             ActionDetails::FetchingIndex {
                 source: release_source,
             } => message.fmt("Obtaining rust-releases index"),
-            ActionDetails::RunToolchainCheck { version } => message.fmt(version),
-            ActionDetails::RunToolchainCheckPass { version } => message.fmt(version),
+            ActionDetails::SetupToolchain { toolchain } => message.fmt(format_args!(
+                "Installing Rust toolchain '{}' (if not present)",
+                toolchain.spec()
+            )),
+            ActionDetails::RunToolchainCheck { version } => {
+                message.fmt(format_args!("Rust {}", version))
+            }
+            ActionDetails::RunToolchainCheckPass { version } => {
+                message.fmt(format_args!("Rust {}", version))
+            }
             ActionDetails::RunToolchainCheckFail {
                 version,
                 error_message: error_msg,
