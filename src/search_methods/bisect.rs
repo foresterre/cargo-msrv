@@ -90,22 +90,9 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
             Self::update_progress_bar(iteration, next_indices, reporter);
 
             match step {
-                ConvergeTo::Left(outcome) => {
-                    // todo!
-                    //write_failed_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!(
-                        "Hello world - Failed noes :( - {}",
-                        &outcome.toolchain_spec
-                    )))?;
-                }
-                ConvergeTo::Right(outcome) => {
+                ConvergeTo::Left(_outcome) => {}
+                ConvergeTo::Right(_outcome) => {
                     last_compatible_index = Some(indices);
-                    // todo!
-                    // write_succeeded_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!(
-                        "Hello world - Success ^^ - {}",
-                        &outcome.toolchain_spec
-                    )))?;
                 }
             }
 
@@ -119,17 +106,9 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         let msrv = if indices.middle() == search_space.len() - 1 {
             match Self::run_check(self.runner, converged_to_release, config, reporter)? {
                 ConvergeTo::Left(_outcome) => {
-                    // todo!
-                    //write_failed_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!("Hello world (Failed noes...)!")))?;
                     last_compatible_index.map(|i| &search_space[i.middle()])
                 }
-                ConvergeTo::Right(_outcome) => {
-                    // todo!
-                    // write_succeeded_check(&outcome, config, output);
-                    reporter.report_event(Event::Todo(format!("Hello world (Success ^^)!")))?;
-                    Some(converged_to_release)
-                }
+                ConvergeTo::Right(_outcome) => Some(converged_to_release),
             }
         } else {
             last_compatible_index.map(|i| &search_space[i.middle()])

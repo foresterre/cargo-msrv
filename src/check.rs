@@ -7,8 +7,9 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
+use crate::storyteller::event::action::Action;
+use crate::storyteller::Reporter;
 use crate::toolchain::ToolchainSpec;
-use crate::Reporter;
 
 pub trait Check {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;
@@ -20,32 +21,54 @@ pub struct RustupToolchainCheck<'reporter, R: Reporter> {
 
 impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
-        info!(ignore_lockfile_enabled = config.ignore_lockfile());
+        self.reporter.perform_scoped_action(
+            Action::run_toolchain_check(toolchain.version().clone()),
+            || {
+                info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
-        // temporarily move the lockfile if the user opted to ignore it, and it exists
-        let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
-        let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
-            let handle = LockfileHandler::new(cargo_lock).move_lockfile()?;
+                // temporarily move the lockfile if the user opted to ignore it, and it exists
+                let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
+                let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
+                    let handle = LockfileHandler::new(cargo_lock).move_lockfile()?;
 
-            Some(handle)
-        } else {
-            None
-        };
+                    Some(handle)
+                } else {
+                    None
+                };
 
-        self.prepare(toolchain, config)?;
+                self.prepare(toolchain, config)?;
 
-        let outcome = self.run_check_command_via_rustup(
-            toolchain,
-            config.crate_path(),
-            config.check_command(),
-        )?;
+                let outcome = self.run_check_command_via_rustup(
+                    toolchain,
+                    config.crate_path(),
+                    config.check_command(),
+                )?;
 
-        // move the lockfile back
-        if let Some(handle) = handle_wrap {
-            handle.move_lockfile_back()?;
-        }
+                // report outcome to UI
+                match &outcome {
+                    Outcome::Success(outcome) => {
+                        self.reporter
+                            .report_action(Action::run_toolchain_check_pass(
+                                outcome.toolchain_spec.version().clone(),
+                            ))?
+                    }
+                    Outcome::Failure(outcome) => {
+                        self.reporter
+                            .report_action(Action::run_toolchain_check_fail(
+                                outcome.toolchain_spec.version().clone(),
+                                outcome.error_message.clone(),
+                            ))?
+                    }
+                }
 
-        Ok(outcome)
+                // move the lockfile back
+                if let Some(handle) = handle_wrap {
+                    handle.move_lockfile_back()?;
+                }
+
+                Ok(outcome)
+            },
+        )
     }
 }
 
@@ -86,10 +109,6 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
             .map_err(|_| CargoMSRVError::UnableToRunCheck)?;
 
         let status = rustup_output.exit_status();
-
-        // todo!
-        // self.reporter
-        //     .complete_step(toolchain.version(), status.success());
 
         if status.success() {
             Ok(Outcome::new_success(toolchain.to_owned()))

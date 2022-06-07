@@ -6,7 +6,7 @@ use storyteller::{
 };
 
 use crate::storyteller::event::action::ScopePosition;
-use crate::{Action, TResult};
+use crate::{Action, CargoMSRVError, TResult};
 pub use event::Event;
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
@@ -15,13 +15,19 @@ pub use handler::JsonHandler;
 pub(crate) mod event;
 pub(crate) mod handler;
 
-// Alias trait
+// Alias trait with convenience methods
 // This way we don't have to specify the associated type Event
 // So instead of `fn hello(reporter: &impl Reporter<Event = Event>)`, we write:
 // `fn hello(reporter: &impl Reporter)`
 pub trait Reporter:
     storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
 {
+    /// Convenience method to directly report an action
+    fn report_action(&self, reportable_action: Action) -> TResult<()> {
+        self.report_event(Event::Action(reportable_action))
+            .map_err(|_| CargoMSRVError::Storyteller)
+    }
+
     /// Perform a (fallible) action within the scope of the `inner_scope` closure, and report the start and
     /// end of this action.
     ///

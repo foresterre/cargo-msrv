@@ -1,8 +1,12 @@
+use crate::toolchain::OwnedToolchainSpec;
 use crate::ReleaseSource;
+use rust_releases::semver;
 
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Action {
+    name: &'static str,
+    #[serde(skip)]
     status: ActionStatus,
     details: ActionDetails,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -12,6 +16,7 @@ pub struct Action {
 impl Action {
     fn new(action: ActionDetails) -> Self {
         Self {
+            name: (&action).into(),
             status: (&action).into(),
             details: action,
             scope_position: None,
@@ -52,18 +57,59 @@ impl Action {
     pub fn fetching_index(source: ReleaseSource) -> Self {
         Self::new(ActionDetails::FetchingIndex { source })
     }
+
+    pub fn run_toolchain_check(version: semver::Version) -> Self {
+        Self::new(ActionDetails::RunToolchainCheck { version })
+    }
+
+    pub fn run_toolchain_check_pass(version: semver::Version) -> Self {
+        Self::new(ActionDetails::RunToolchainCheckPass { version })
+    }
+
+    pub fn run_toolchain_check_fail(version: semver::Version, error_msg: String) -> Self {
+        Self::new(ActionDetails::RunToolchainCheckFail {
+            version,
+            error_message: error_msg,
+        })
+    }
 }
 
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionDetails {
-    FetchingIndex { source: ReleaseSource },
+    FetchingIndex {
+        source: ReleaseSource,
+    },
+    RunToolchainCheck {
+        version: semver::Version,
+    },
+    RunToolchainCheckPass {
+        version: semver::Version,
+    },
+    RunToolchainCheckFail {
+        version: semver::Version,
+        error_message: String, // TODO: possibly we had a flag which disabled printing the error msg
+    },
 }
 
 impl<'reference> From<&'reference ActionDetails> for ActionStatus {
     fn from(action_details: &'reference ActionDetails) -> Self {
         match action_details {
             ActionDetails::FetchingIndex { .. } => Self::Fetching,
+            ActionDetails::RunToolchainCheck { .. } => Self::Checking,
+            ActionDetails::RunToolchainCheckPass { .. } => Self::Passed,
+            ActionDetails::RunToolchainCheckFail { .. } => Self::Failed,
+        }
+    }
+}
+
+impl<'reference> From<&'reference ActionDetails> for &'static str {
+    fn from(action_details: &'reference ActionDetails) -> Self {
+        match action_details {
+            ActionDetails::FetchingIndex { .. } => "fetching_index",
+            ActionDetails::RunToolchainCheck { .. } => "check",
+            ActionDetails::RunToolchainCheckPass { .. } => "check_passed",
+            ActionDetails::RunToolchainCheckFail { .. } => "check_failed",
         }
     }
 }
@@ -74,6 +120,9 @@ pub enum ActionStatus {
     Fetching,
     Downloading,
     Checking,
+
+    Passed,
+    Failed,
 }
 
 impl ActionStatus {
@@ -82,11 +131,15 @@ impl ActionStatus {
             Self::Fetching => "Fetching",
             Self::Downloading => "Downloading",
             Self::Checking => "Checking",
+
+            Self::Passed => "[Pass]",
+            Self::Failed => "[Fail]",
         }
     }
 }
 
 #[derive(Debug, Copy, Clone, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ScopePosition {
     Start,
     End,

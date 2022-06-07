@@ -35,10 +35,11 @@ impl<'spec> ToolchainSpec<'spec> {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 pub struct OwnedToolchainSpec {
     version: semver::Version,
     target: String,
+    #[serde(skip)]
     spec: once_cell::unsync::OnceCell<String>,
 }
 

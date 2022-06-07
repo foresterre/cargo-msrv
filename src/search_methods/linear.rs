@@ -60,14 +60,9 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
 
             match outcome {
                 Outcome::Failure(_outcome) => {
-                    // todo!
-                    //write_failed_check(&outcome, config, output);
                     break;
                 }
-                Outcome::Success(_outcome) => {
-                    // todo!
-                    //write_succeeded_check(&outcome, config, output);
-                }
+                Outcome::Success(_outcome) => {}
             }
 
             last_compatible_index = Some(i);
