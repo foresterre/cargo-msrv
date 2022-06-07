@@ -2,8 +2,8 @@ use rust_releases::Release;
 
 pub use {bisect::Bisect, linear::Linear};
 
+use crate::reporter::Reporter;
 use crate::result::MinimalCompatibility;
-use crate::storyteller::Reporter;
 use crate::{Config, TResult};
 
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each

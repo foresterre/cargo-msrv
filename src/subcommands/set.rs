@@ -8,7 +8,7 @@ use crate::errors::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
-use crate::storyteller::Reporter;
+use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);

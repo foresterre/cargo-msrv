@@ -9,10 +9,10 @@ use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::{self, Config, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::{CargoMSRVError, TResult};
 use cargo_msrv::exit_code::ExitCode;
-use cargo_msrv::run_app;
-use cargo_msrv::storyteller::{
+use cargo_msrv::reporter::{
     DiscardOutputHandler, HumanProgressHandler, JsonHandler, StorytellerSetup,
 };
+use cargo_msrv::run_app;
 
 fn main() {
     std::process::exit(

@@ -1,11 +1,9 @@
-// todo! rename-to reporter.rs
-
 use storyteller::{
     disconnect_channel, event_channel, ChannelEventListener, ChannelReporter, DisconnectReceiver,
     DisconnectSender, EventListener,
 };
 
-use crate::storyteller::event::action::ScopePosition;
+use crate::reporter::event::action::ScopePosition;
 use crate::{Action, CargoMSRVError, TResult};
 pub use event::Event;
 pub use handler::DiscardOutputHandler;
@@ -32,7 +30,7 @@ pub trait Reporter:
     /// end of this action.
     ///
     /// NB: returns a `crate::TResult` (unlike the regular `report_event` which returns
-    /// a `Result<(), storyteller::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
+    /// a `Result<(), reporter::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
     /// error data structure.
     fn perform_scoped_action<T>(
         &self,
@@ -91,9 +89,9 @@ impl StorytellerSetup {
 mod tests {
     use storyteller::{EventListener, Reporter};
 
-    use crate::storyteller::event::progress::Progression;
-    use crate::storyteller::handler::HumanProgressHandler;
-    use crate::storyteller::{Event, StorytellerSetup};
+    use crate::reporter::event::progress::Progression;
+    use crate::reporter::handler::HumanProgressHandler;
+    use crate::reporter::{Event, StorytellerSetup};
     use crate::{Reporter, Reporter};
 
     use super::handler::JsonHandler;

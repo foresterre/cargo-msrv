@@ -1,7 +1,7 @@
-use crate::config::{Config};
+use crate::config::Config;
 use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::errors::TResult;
-use crate::storyteller::Reporter;
+use crate::reporter::Reporter;
 use crate::{dependencies, SubCommand};
 
 #[derive(Default)]

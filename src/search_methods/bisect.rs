@@ -6,9 +6,9 @@ use crate::errors::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::{Config, TResult};
 // use crate::reporter::{write_failed_check, write_succeeded_check};
+use crate::reporter::Reporter;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
-use crate::storyteller::Reporter;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 
 pub struct Bisect<'runner, R: Check> {

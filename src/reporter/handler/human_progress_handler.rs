@@ -1,4 +1,4 @@
-use crate::storyteller::event::action::{ActionDetails, ActionStatus};
+use crate::reporter::event::action::{ActionDetails, ActionStatus};
 use crate::{Action, Event};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{ContentArrangement, Table};

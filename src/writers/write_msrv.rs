@@ -2,7 +2,7 @@ use thiserror::private::PathAsDisplay;
 
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
-use crate::storyteller::Reporter;
+use crate::reporter::Reporter;
 use crate::{semver, Config, ModeIntent, OutputFormat, Set, SubCommand, TResult};
 
 /// Write the MSRV to the Cargo manifest

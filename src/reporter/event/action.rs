@@ -23,10 +23,7 @@ impl Action {
         }
     }
 
-    pub(in crate::storyteller) fn clone_with_scope_position(
-        &self,
-        position: ScopePosition,
-    ) -> Self {
+    pub(in crate::reporter) fn clone_with_scope_position(&self, position: ScopePosition) -> Self {
         let mut cloned = self.clone();
         cloned.scope = Some(position);
         cloned

@@ -6,12 +6,12 @@ use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::Document;
 
 use crate::check::Check;
-use crate::config::{Config};
+use crate::config::Config;
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
-use crate::storyteller::Reporter;
+use crate::reporter::Reporter;
 use crate::subcommands::SubCommand;
 use crate::toolchain::ToolchainSpec;
 

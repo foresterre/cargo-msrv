@@ -2,12 +2,12 @@ use std::convert::TryFrom;
 
 use toml_edit::Document;
 
-use crate::config::{Config};
+use crate::config::Config;
 use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
-use crate::storyteller::Reporter;
+use crate::reporter::Reporter;
 use crate::SubCommand;
 
 #[derive(Default)]

@@ -7,8 +7,8 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
-use crate::storyteller::event::action::Action;
-use crate::storyteller::Reporter;
+use crate::reporter::event::action::Action;
+use crate::reporter::Reporter;
 use crate::toolchain::ToolchainSpec;
 
 pub trait Check {
