@@ -418,7 +418,6 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "comfy-table",
- "console",
  "dirs",
  "indicatif",
  "json",
@@ -1003,14 +1002,13 @@ dependencies = [
 
 [[package]]
 name = "indicatif"
-version = "0.16.2"
+version = "0.17.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d207dc617c7a380ab07ff572a6e52fa202a2a8f355860ac9c38e23f8196be1b"
+checksum = "4017d0ce94b8e91e29d2c78ed891e57e5ec3dc4371820a9d96abab4af09eb8ad"
 dependencies = [
  "console",
- "lazy_static",
  "number_prefix",
- "regex",
+ "unicode-width",
 ]
 
 [[package]]
@@ -1773,9 +1771,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "storyteller"
-version = "0.3.2"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6fb0e0ffa2b7808a0d1292b657e6bccdd6b54aaa097eaf074d3b7442a8d704c"
+checksum = "897f3b38e9cc2694c305bffefa8077d1237a723d4f0c99051b802e33f686da24"
 dependencies = [
  "crossbeam-channel",
 ]

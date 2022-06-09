@@ -3,8 +3,8 @@ use storyteller::{
     DisconnectSender, EventListener,
 };
 
-use crate::reporter::event::action::ScopePosition;
-use crate::{Action, CargoMSRVError, TResult};
+use crate::reporter::event::EventScope;
+use crate::TResult;
 pub use event::Event;
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
@@ -20,33 +20,35 @@ pub(crate) mod handler;
 pub trait Reporter:
     storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
 {
-    /// Convenience method to directly report an action
-    fn report_action(&self, reportable_action: Action) -> TResult<()> {
-        self.report_event(Event::Action(reportable_action))
-            .map_err(|_| CargoMSRVError::Storyteller)
-    }
-
-    /// Perform a (fallible) action within the scope of the `inner_scope` closure, and report the start and
+    // /// Convenience method to directly report an action
+    // fn report_action(&self, reportable_action: Action) -> TResult<()> {
+    //     self.report_event(Event::Action(reportable_action))
+    //         .map_err(|_| CargoMSRVError::Storyteller)
+    // }
+    //
+    /// Perform a (fallible) action within the scope of the `f` closure, and report the start and
     /// end of this action.
     ///
     /// NB: returns a `crate::TResult` (unlike the regular `report_event` which returns
     /// a `Result<(), reporter::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
     /// error data structure.
-    fn perform_scoped_action<T>(
+    fn run_scoped_event<T>(
         &self,
-        reportable_action: Action,
-        inner_scope: impl Fn() -> TResult<T>,
+        event: impl Into<Event>,
+        f: impl Fn() -> TResult<T>,
     ) -> TResult<T> {
+        let event = event.into();
+
         // Report that the action is starting
-        let begin = reportable_action.clone_with_scope_position(ScopePosition::Start);
-        self.report_event(Event::Action(begin))?;
+        let begin = event.with_scope(EventScope::Start);
+        self.report_event(begin)?;
 
         // Perform the action
-        let result = inner_scope();
+        let result = f();
 
         // Report that the action has finished
-        let end = reportable_action.clone_with_scope_position(ScopePosition::End);
-        self.report_event(Event::Action(end))?;
+        let end = event.with_scope(EventScope::End);
+        self.report_event(end)?;
 
         result
     }

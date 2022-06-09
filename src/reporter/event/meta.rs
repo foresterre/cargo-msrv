@@ -1,6 +1,8 @@
+use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::Event;
 use owo_colors::OwoColorize;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct Meta {
     instance: &'static str,
@@ -33,5 +35,17 @@ impl Meta {
             self.version,
             self.sha_short,
         )
+    }
+}
+
+impl IntoIdentifiableEvent for Meta {
+    fn identifier(&self) -> &'static str {
+        "meta"
+    }
+}
+
+impl From<Meta> for Event {
+    fn from(it: Meta) -> Self {
+        Message::Meta(it).into_event()
     }
 }

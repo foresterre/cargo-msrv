@@ -3,7 +3,7 @@
 // * Requires: traits for Check, Output etc. to be separated to a library crate as
 //      well.
 
-use cargo_msrv::config::ModeIntent;
+use cargo_msrv::config::Action;
 use cargo_msrv::reporter::{Output, ProgressAction};
 use rust_releases::semver;
 use rust_releases::semver::Version;
@@ -53,7 +53,7 @@ impl TestResultReporter {
 }
 
 impl Output for TestResultReporter {
-    fn mode(&self, _mode: ModeIntent) {}
+    fn mode(&self, _mode: Action) {}
 
     fn set_steps(&self, steps: u64) {
         self.steps_left.replace(steps);
@@ -76,7 +76,7 @@ impl Output for TestResultReporter {
         });
     }
 
-    fn finish_success(&self, _mode: ModeIntent, version: Option<&Version>) {
+    fn finish_success(&self, _mode: Action, version: Option<&Version>) {
         if let Some(v) = version {
             self.log
                 .borrow_mut()
@@ -86,7 +86,7 @@ impl Output for TestResultReporter {
         }
     }
 
-    fn finish_failure(&self, _mode: ModeIntent, _cmd: Option<&str>) {
+    fn finish_failure(&self, _mode: Action, _cmd: Option<&str>) {
         self.log.borrow_mut().push(Record::CmdWasFailure);
     }
 

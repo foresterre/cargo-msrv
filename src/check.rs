@@ -7,7 +7,9 @@ use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;
-use crate::reporter::event::action::Action;
+use crate::reporter::event::{
+    Compatibility, CompatibilityCheckMethod, Method, NewCompatibilityCheck,
+};
 use crate::reporter::Reporter;
 use crate::toolchain::ToolchainSpec;
 
@@ -22,7 +24,7 @@ pub struct RustupToolchainCheck<'reporter, R: Reporter> {
 impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         self.reporter
-            .perform_scoped_action(Action::check_toolchain(toolchain.to_owned()), || {
+            .run_scoped_event(NewCompatibilityCheck::new(toolchain.to_owned()), || {
                 info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
@@ -45,18 +47,14 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
 
                 // report outcome to UI
                 match &outcome {
-                    Outcome::Success(outcome) => {
-                        self.reporter
-                            .report_action(Action::run_toolchain_check_pass(
-                                outcome.toolchain_spec.version().clone(),
-                            ))?
-                    }
+                    Outcome::Success(outcome) => self.reporter.report_event(
+                        Compatibility::compatible(outcome.toolchain_spec.to_owned()),
+                    )?,
                     Outcome::Failure(outcome) => {
-                        self.reporter
-                            .report_action(Action::run_toolchain_check_fail(
-                                outcome.toolchain_spec.version().clone(),
-                                outcome.error_message.clone(),
-                            ))?
+                        self.reporter.report_event(Compatibility::incompatible(
+                            outcome.toolchain_spec.to_owned(),
+                            outcome.error_message.clone(),
+                        ))?
                     }
                 }
 
@@ -95,8 +93,10 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
         cmd.extend_from_slice(check);
 
-        self.reporter
-            .report_action(Action::run_toolchain_check(toolchain.version().clone()))?;
+        self.reporter.report_event(CompatibilityCheckMethod::new(
+            toolchain.to_owned(),
+            Method::rustup_run(&cmd, dir),
+        ))?;
 
         let rustup_output = RustupCommand::new()
             .with_args(cmd.iter())

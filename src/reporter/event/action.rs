@@ -83,9 +83,6 @@ impl Action {
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionDetails {
-    FetchingIndex {
-        source: ReleaseSource,
-    },
     SetupToolchain {
         toolchain: OwnedToolchainSpec,
     },

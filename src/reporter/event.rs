@@ -3,37 +3,111 @@
 use std::fmt;
 use std::fmt::Formatter;
 
-use action::Action;
-use meta::Meta;
-use progress::Progression;
+pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
+pub use fetch_index::FetchIndex;
+pub use is_compatible::{Compatibility, CompatibilityReport};
+pub use meta::Meta;
+pub use msrv_result::MsrvResult;
+pub use new_compatibility_check::NewCompatibilityCheck;
+pub use setup_toolchain::SetupToolchain;
 
-pub(crate) mod action;
-pub(crate) mod message;
-pub(crate) mod meta;
-pub(crate) mod progress;
+mod compatibility_check_method;
+mod fetch_index;
+mod is_compatible;
+mod meta;
+mod msrv_result;
+mod new_compatibility_check;
+mod setup_toolchain;
 
-/// Messages are a kind of event which report the state of this program to the user
-// TODO: fix capitalization of keys
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
-pub enum Event {
-    Meta(Meta),
-    Progress(Progression),
-    Todo(String), // todo! remove!
-    Action(Action),
+pub struct Event {
+    #[serde(flatten)]
+    message: Message,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    scope: Option<EventScope>,
 }
 
-// needed for derive thiserror::Error with #[error(transparent)]
+impl Event {
+    pub fn message(&self) -> &Message {
+        &self.message
+    }
+
+    pub(crate) fn with_scope(&self, scope: EventScope) -> Self {
+        let mut cloned = self.clone();
+        cloned.scope = Some(scope);
+        cloned
+    }
+}
+
+/// Messages are a kind of event which report the state of this program to the user
+#[derive(serde::Serialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Message {
+    // -- setup
+    Meta(Meta),
+    // Config, // todo!
+    // SubcommandInit, // todo!
+
+    // -- get rust-releases index
+    FetchIndex(FetchIndex), // todo!
+
+    // todo: SkippedRustVersions // +reason
+
+    // -- install toolchain
+    SetupToolchain(SetupToolchain),
+
+    // -- runner + pass/reject
+    NewCompatibilityCheck(NewCompatibilityCheck),
+    CompatibilityCheckMethod(CompatibilityCheckMethod),
+
+    Compatibility(Compatibility),
+
+    // -- command: find
+    MsrvResult(MsrvResult),
+    // todo: SearchMethod, // linear, bisect
+    // todo: SearchReport, // tried toolchains, which passed, which rejected, what order, which runner
+
+    // --- command: verify
+    // Verify
+
+    // --- command: list
+    // ListDepMSRV
+
+    // --- command: set
+    // SetMSRV
+
+    // --- command: show
+}
+
+impl Message {
+    fn into_event(self) -> Event {
+        Event {
+            message: self,
+            scope: None,
+        }
+    }
+}
+
 impl fmt::Display for Event {
     fn fmt(&self, _f: &mut Formatter<'_>) -> fmt::Result {
         Ok(())
     }
 }
 
-#[test]
-fn test() {
-    let message = Event::Progress(Progression::new(100));
+impl fmt::Display for Message {
+    fn fmt(&self, _f: &mut Formatter<'_>) -> fmt::Result {
+        Ok(())
+    }
+}
 
-    let serialized = serde_json::to_string(&message).unwrap();
-    println!("serialized = {}", serialized);
+#[derive(Debug, Copy, Clone, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EventScope {
+    Start,
+    End,
+}
+
+pub trait IntoIdentifiableEvent: Into<Event> {
+    fn identifier(&self) -> &'static str;
 }

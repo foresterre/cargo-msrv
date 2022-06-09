@@ -3,7 +3,7 @@ use thiserror::private::PathAsDisplay;
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
 use crate::reporter::Reporter;
-use crate::{semver, Config, ModeIntent, OutputFormat, Set, SubCommand, TResult};
+use crate::{semver, Action, Config, OutputFormat, Set, SubCommand, TResult};
 
 /// Write the MSRV to the Cargo manifest
 ///
@@ -18,7 +18,7 @@ pub fn write_msrv(
     version: &semver::Version,
 ) -> TResult<()> {
     let config = ConfigBuilder::from_config(config)
-        .mode_intent(ModeIntent::Set)
+        .mode_intent(Action::Set)
         .sub_command_config(SubCommandConfig::SetConfig(SetCmdConfig {
             msrv: version.into(),
         }))

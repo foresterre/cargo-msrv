@@ -92,7 +92,7 @@ pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum ModeIntent {
+pub enum Action {
     // Determines the MSRV for a project
     Find,
     // List the MSRV's as specified by package authors
@@ -105,14 +105,14 @@ pub enum ModeIntent {
     Show,
 }
 
-impl From<ModeIntent> for &'static str {
-    fn from(action: ModeIntent) -> Self {
+impl From<Action> for &'static str {
+    fn from(action: Action) -> Self {
         match action {
-            ModeIntent::Find => "determine-msrv",
-            ModeIntent::List => "list-msrv",
-            ModeIntent::Verify => "verify-msrv",
-            ModeIntent::Set => "set-msrv",
-            ModeIntent::Show => "show-msrv",
+            Action::Find => "determine-msrv",
+            Action::List => "list-msrv",
+            Action::Verify => "verify-msrv",
+            Action::Set => "set-msrv",
+            Action::Show => "show-msrv",
         }
     }
 }
@@ -209,7 +209,7 @@ impl Default for SearchMethod {
 //  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
-    mode_intent: ModeIntent,
+    mode_intent: Action,
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -231,7 +231,7 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    pub fn new<T: Into<String>>(mode_intent: ModeIntent, target: T) -> Self {
+    pub fn new<T: Into<String>>(mode_intent: Action, target: T) -> Self {
         Self {
             mode_intent,
             target: target.into(),
@@ -254,7 +254,7 @@ impl<'a> Config<'a> {
         }
     }
 
-    pub fn action_intent(&self) -> ModeIntent {
+    pub fn action_intent(&self) -> Action {
         self.mode_intent
     }
 
@@ -339,7 +339,7 @@ pub struct ConfigBuilder<'a> {
 }
 
 impl<'a> ConfigBuilder<'a> {
-    pub fn new(action_intent: ModeIntent, default_target: &str) -> Self {
+    pub fn new(action_intent: Action, default_target: &str) -> Self {
         Self {
             inner: Config::new(action_intent, default_target.to_string()),
         }
@@ -351,7 +351,7 @@ impl<'a> ConfigBuilder<'a> {
         }
     }
 
-    pub fn mode_intent(mut self, mode_intent: ModeIntent) -> Self {
+    pub fn mode_intent(mut self, mode_intent: Action) -> Self {
         self.inner.mode_intent = mode_intent;
         self
     }

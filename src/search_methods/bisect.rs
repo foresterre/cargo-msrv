@@ -124,12 +124,12 @@ mod tests {
     use crate::search_methods::FindMinimalCapableToolchain;
     use crate::semver::Version;
     use crate::testing::TestRunner;
-    use crate::{semver, Config, ModeIntent};
+    use crate::{semver, Action, Config};
 
     use super::Bisect;
 
     fn fake_config() -> Config<'static> {
-        Config::new(ModeIntent::Find, "".to_string())
+        Config::new(Action::Find, "".to_string())
     }
 
     #[yare::parameterized(

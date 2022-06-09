@@ -1,6 +1,7 @@
 use crate::command::RustupCommand;
+use crate::reporter::event::SetupToolchain;
 use crate::toolchain::ToolchainSpec;
-use crate::{Action, CargoMSRVError, Reporter, TResult};
+use crate::{CargoMSRVError, Reporter, TResult};
 
 pub trait DownloadToolchain {
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()>;
@@ -23,7 +24,7 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
         info!(toolchain = toolchain.spec(), "installing toolchain");
 
         self.reporter
-            .perform_scoped_action(Action::setup_toolchain(toolchain.to_owned()), || {
+            .run_scoped_event(SetupToolchain::new(toolchain.to_owned()), || {
                 let rustup = RustupCommand::new()
                     .with_stdout()
                     .with_stderr()

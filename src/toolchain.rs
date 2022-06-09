@@ -1,11 +1,11 @@
-use once_cell::unsync::OnceCell;
+use once_cell::sync::OnceCell;
 use rust_releases::semver;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ToolchainSpec<'spec> {
     version: &'spec semver::Version,
     target: &'spec str,
-    spec: once_cell::unsync::OnceCell<String>,
+    spec: OnceCell<String>,
 }
 
 impl<'spec> ToolchainSpec<'spec> {
@@ -13,7 +13,7 @@ impl<'spec> ToolchainSpec<'spec> {
         Self {
             version,
             target,
-            spec: once_cell::unsync::OnceCell::new(),
+            spec: OnceCell::new(),
         }
     }
 
@@ -40,7 +40,7 @@ pub struct OwnedToolchainSpec {
     version: semver::Version,
     target: String,
     #[serde(skip)]
-    spec: once_cell::unsync::OnceCell<String>,
+    spec: OnceCell<String>,
 }
 
 impl OwnedToolchainSpec {

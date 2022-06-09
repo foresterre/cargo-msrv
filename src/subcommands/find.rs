@@ -4,12 +4,13 @@ use crate::check::Check;
 use crate::config::{Config, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
 use crate::releases::filter_releases;
+use crate::reporter::event::MsrvResult;
 use crate::reporter::Reporter;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 use crate::writers::toolchain_file::write_toolchain_file;
 use crate::writers::write_msrv::write_msrv;
-use crate::{Event, SubCommand};
+use crate::SubCommand;
 
 pub struct Find<'index, C: Check> {
     release_index: &'index ReleaseIndex,
@@ -125,12 +126,14 @@ fn report_outcome(
         MinimalCompatibility::CapableToolchain { toolchain } => {
             // todo!
             // output.finish_success(ModeIntent::Find, Some(toolchain.version()));
-            reporter.report_event(Event::Todo(format!("Found MSRV '{}'", toolchain.version())))?;
+            // reporter.report_event(Event::Todo(format!("Found MSRV '{}'", toolchain.version())))?;
+            reporter.report_event(MsrvResult::new_msrv(toolchain.version().clone()))?;
         }
         MinimalCompatibility::NoCompatibleToolchains => {
             // todo!
             // output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
-            reporter.report_event(Event::Todo(format!("Unable to find valid MSRV")))?;
+            // reporter.report_event(Event::Todo(format!("Unable to find valid MSRV")))?;
+            reporter.report_event(MsrvResult::none())?;
         }
     }
 

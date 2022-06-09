@@ -13,10 +13,9 @@ use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
 use crate::check::RustupToolchainCheck;
-use crate::config::{Config, ModeIntent, OutputFormat, ReleaseSource};
+use crate::config::{Action, Config, OutputFormat, ReleaseSource};
 use crate::errors::{CargoMSRVError, TResult};
-use crate::reporter::event::action::Action;
-use crate::reporter::event::meta::Meta;
+use crate::reporter::event::{FetchIndex, Meta};
 use crate::reporter::{Event, Reporter};
 
 pub mod check;
@@ -42,13 +41,14 @@ pub(crate) mod releases;
 pub(crate) mod result;
 pub(crate) mod search_methods;
 pub(crate) mod subcommands;
+pub(crate) mod typed_bool;
 pub(crate) mod writers;
 
 #[cfg(test)]
 pub(crate) mod testing;
 
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    reporter.report_event(Event::Meta(Meta::default()))?;
+    reporter.report_event(Meta::default())?;
 
     let action = config.action_intent();
 
@@ -58,19 +58,19 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     );
 
     let result = match action {
-        ModeIntent::Find => {
+        Action::Find => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Find::new(&index, runner).run(config, reporter)
         }
-        ModeIntent::Verify => {
+        Action::Verify => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Verify::new(&index, runner).run(config, reporter)
         }
-        ModeIntent::List => List::default().run(config, reporter),
-        ModeIntent::Set => Set::default().run(config, reporter),
-        ModeIntent::Show => Show::default().run(config, reporter),
+        Action::List => List::default().run(config, reporter),
+        Action::Set => Set::default().run(config, reporter),
+        Action::Show => Show::default().run(config, reporter),
     };
 
     if let Err(ref err) = result {
@@ -88,7 +88,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
 }
 
 fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
-    reporter.perform_scoped_action(Action::fetching_index(config.release_source()), || {
+    reporter.run_scoped_event(FetchIndex::new(config.release_source()), || {
         let source = config.release_source();
 
         info!(

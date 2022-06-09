@@ -2,7 +2,7 @@ use crate::check::Check;
 use crate::outcome::Outcome;
 use crate::semver::Version;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, ModeIntent, Output, ProgressAction, TResult};
+use crate::{Action, Config, Output, ProgressAction, TResult};
 use rust_releases::semver;
 use std::cell::{Cell, Ref, RefCell};
 use std::collections::HashSet;

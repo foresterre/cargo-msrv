@@ -27,8 +27,7 @@ tag-name = "v{{version}}"
 clap = { version = "3.2.7", features = ["derive"] }
 
 # UI
-console = "0.15.0"
-indicatif = "0.16.2"
+indicatif = "0.17.0-rc.11"
 
 # json output
 json = "0.12.4" # todo: replace all with serde_json!
@@ -53,7 +52,7 @@ bisector = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.81"
 
-storyteller = "0.3.2"
+storyteller = "0.4.0"
 owo-colors = "3.4.0"
 
 [dependencies.tracing-subscriber]
