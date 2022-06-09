@@ -5,7 +5,7 @@ use crate::Event;
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct NewCompatibilityCheck {
-    toolchain: OwnedToolchainSpec,
+    pub toolchain: OwnedToolchainSpec,
 }
 
 impl NewCompatibilityCheck {

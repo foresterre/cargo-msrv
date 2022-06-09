@@ -93,9 +93,6 @@ fn verify_msrv(
     rust_version: RustVersion,
     runner: &impl Check,
 ) -> TResult<Outcome> {
-    // todo!
-    // reporter.mode(ModeIntent::Verify);
-
     let bare_version = rust_version.version();
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;

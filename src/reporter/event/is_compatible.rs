@@ -5,9 +5,9 @@ use crate::{semver, Event};
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct Compatibility {
-    toolchain: OwnedToolchainSpec,
+    pub toolchain: OwnedToolchainSpec,
     decision: bool,
-    compatibility_report: CompatibilityReport,
+    pub compatibility_report: CompatibilityReport,
 }
 
 impl Compatibility {

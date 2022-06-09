@@ -38,6 +38,11 @@ impl Event {
         cloned.scope = Some(scope);
         cloned
     }
+
+    /// Returns `true` if this is the start of the scope, _or_, if this event has no inner scope.
+    pub fn is_scope_start(&self) -> bool {
+        matches!(self.scope, None | Some(EventScope::Start))
+    }
 }
 
 /// Messages are a kind of event which report the state of this program to the user
@@ -60,7 +65,6 @@ pub enum Message {
     // -- runner + pass/reject
     NewCompatibilityCheck(NewCompatibilityCheck),
     CompatibilityCheckMethod(CompatibilityCheckMethod),
-
     Compatibility(Compatibility),
 
     // -- command: find
