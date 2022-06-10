@@ -3,6 +3,7 @@ use rust_releases::{Release, ReleaseIndex};
 use crate::check::Check;
 use crate::config::{Config, SearchMethod};
 use crate::errors::{CargoMSRVError, TResult};
+use crate::manifest::bare_version::BareVersion;
 use crate::releases::filter_releases;
 use crate::reporter::event::MsrvResult;
 use crate::reporter::Reporter;
@@ -112,32 +113,44 @@ fn run_searcher(
 ) -> TResult<MinimalCompatibility> {
     let minimum_capable = method.find_toolchain(releases, config, reporter)?;
 
-    report_outcome(&minimum_capable, config, reporter)?;
+    report_outcome(&minimum_capable, releases, config, reporter)?;
 
     Ok(minimum_capable)
 }
 
 fn report_outcome(
     minimum_capable: &MinimalCompatibility,
-    _config: &Config,
+    releases: &[Release],
+    config: &Config,
     reporter: &impl Reporter,
 ) -> TResult<()> {
+    let (min, max) = min_max_releases(releases)?;
+
     match minimum_capable {
         MinimalCompatibility::CapableToolchain { toolchain } => {
-            // todo!
-            // output.finish_success(ModeIntent::Find, Some(toolchain.version()));
-            // reporter.report_event(Event::Todo(format!("Found MSRV '{}'", toolchain.version())))?;
-            reporter.report_event(MsrvResult::new_msrv(toolchain.version().clone()))?;
+            let version = toolchain.version();
+
+            reporter.report_event(MsrvResult::new_msrv(version.clone(), config, min, max))?;
         }
         MinimalCompatibility::NoCompatibleToolchains => {
-            // todo!
-            // output.finish_failure(ModeIntent::Find, Some(&config.check_command_string()));
-            // reporter.report_event(Event::Todo(format!("Unable to find valid MSRV")))?;
-            reporter.report_event(MsrvResult::none())?;
+            reporter.report_event(MsrvResult::none(config, min, max))?;
         }
     }
 
     Ok(())
+}
+
+fn min_max_releases(rust_releases: &[Release]) -> TResult<(BareVersion, BareVersion)> {
+    let min = rust_releases
+        .last()
+        .map(|v| v.version())
+        .ok_or_else(|| CargoMSRVError::RustReleasesEmptyReleaseSet)?;
+    let max = rust_releases
+        .first()
+        .map(|v| v.version())
+        .ok_or_else(|| CargoMSRVError::RustReleasesEmptyReleaseSet)?;
+
+    Ok((min.into(), max.into()))
 }
 
 #[cfg(test)]

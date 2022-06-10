@@ -85,6 +85,9 @@ pub enum CargoMSRVError {
     #[error("Unable to parse rust-releases source from '{0}'")]
     RustReleasesSourceParseError(String),
 
+    #[error("There are no Rust releases in the rust-releases index")]
+    RustReleasesEmptyReleaseSet,
+
     #[error("Unable to install toolchain with `rustup install {0}`.")]
     RustupInstallFailed(ToolchainSpecifier),
 

@@ -25,6 +25,6 @@ impl IntoIdentifiableEvent for FetchIndex {
 
 impl From<FetchIndex> for Event {
     fn from(it: FetchIndex) -> Self {
-        Message::FetchIndex(it).into_event()
+        Message::FetchIndex(it).into()
     }
 }

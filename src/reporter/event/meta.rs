@@ -46,6 +46,6 @@ impl IntoIdentifiableEvent for Meta {
 
 impl From<Meta> for Event {
     fn from(it: Meta) -> Self {
-        Message::Meta(it).into_event()
+        Message::Meta(it).into()
     }
 }

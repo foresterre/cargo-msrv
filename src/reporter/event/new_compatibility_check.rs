@@ -24,6 +24,6 @@ impl IntoIdentifiableEvent for NewCompatibilityCheck {
 
 impl From<NewCompatibilityCheck> for Event {
     fn from(it: NewCompatibilityCheck) -> Self {
-        Message::NewCompatibilityCheck(it).into_event()
+        Message::NewCompatibilityCheck(it).into()
     }
 }

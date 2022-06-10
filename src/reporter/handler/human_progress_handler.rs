@@ -1,4 +1,6 @@
-use crate::reporter::event::{Compatibility, CompatibilityReport, Message, NewCompatibilityCheck};
+use crate::reporter::event::{
+    Compatibility, CompatibilityReport, Message, MsrvResult, NewCompatibilityCheck,
+};
 use crate::{semver, Event};
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{ContentArrangement, Table};
@@ -12,7 +14,7 @@ use storyteller::EventHandler;
 use thiserror::private::PathAsDisplay;
 
 pub struct HumanProgressHandler {
-    mp: indicatif::ProgressBar,
+    pb: indicatif::ProgressBar,
     sequence_number: AtomicU32,
 }
 
@@ -21,20 +23,20 @@ impl HumanProgressHandler {
         let mp = Self::styled_progress_bar();
 
         Self {
-            mp,
+            pb: mp,
             sequence_number: AtomicU32::new(1),
         }
     }
 
     fn init_progress(&self, version: &semver::Version) {
         self.sequence_number.fetch_add(1, Ordering::SeqCst);
-        self.mp.reset();
-        self.mp.set_message(format!("Rust {}", version));
+        self.pb.reset();
+        self.pb.set_message(format!("Rust {}", version));
     }
 
     fn finish_progress(&self) {
         // todo: finish_with_message!
-        self.mp.finish_and_clear();
+        self.pb.finish_and_clear();
     }
 
     fn styled_progress_bar() -> indicatif::ProgressBar {
@@ -42,7 +44,7 @@ impl HumanProgressHandler {
         pb.enable_steady_tick(Duration::from_millis(120));
         pb.set_style(
             indicatif::ProgressStyle::default_spinner()
-                .template("{spinner} {msg:<16} Elapsed {elapsed_precise}")
+                .template("{spinner} {msg:<16} Elapsed {elapsed}")
                 .unwrap()
                 .tick_chars("◐◓◑◒"),
         );
@@ -57,24 +59,30 @@ impl EventHandler for HumanProgressHandler {
         #[allow(unused_must_use)]
         match event.message() {
             Message::Meta(it) => {
-                self.mp.println(it.summary());
+                self.pb.println(it.summary());
             }
             Message::NewCompatibilityCheck(it) if event.is_scope_start() => {
-                self.mp.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
+                self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
                 self.init_progress(it.toolchain.version());
             }
             Message::NewCompatibilityCheck(it) /* is scope end */ => {
                 let version = it.toolchain.version();
                 self.finish_progress();
             }
+            Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
+                let version = toolchain.version();
+                self.pb.println(format!("  [{}] {:>16}", "OK".bright_green(), "Is compatible"));
+            }
             Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Incompatible { error }, toolchain, .. }) => {
                 let version = toolchain.version();
-                self.mp.println(message_box(error));
+                self.pb.println(format!("  [{}] {:>16}", "FAIL".bright_red(), "Is Incompatible"));
+                self.pb.println(message_box(error));
+            }
+            Message::MsrvResult(result) => {
+                self.pb.println(result.summary());
             }
 
-            _ => {
-                self.mp.println("Warning: not implemented!");
-            }
+            _ => {}
         };
     }
 }
@@ -82,13 +90,56 @@ impl EventHandler for HumanProgressHandler {
 impl NewCompatibilityCheck {
     fn header(&self, nth: u32) -> String {
         format!(
-            "{} #{}: {}",
+            "\n{} #{}: Rust {}",
             "Compatibility Check",
             nth,
             self.toolchain.version(),
         )
         .bold()
         .to_string()
+    }
+}
+
+impl MsrvResult {
+    fn summary(&self) -> String {
+        use std::fmt::Write;
+        let mut out = String::with_capacity(32);
+        let target = self.target.as_str();
+
+        writeln!(&mut out, "\n{}", "Result:".bold());
+        writeln!(
+            &mut out,
+            "  {:>16}:      (Rust {:>8} … Rust {:>8})",
+            format_args!("Considered ({} … {})", "min".cyan(), "max".yellow(),),
+            &self.minimum_version.cyan(),
+            &self.maximum_version.yellow(),
+        );
+
+        writeln!(
+            &mut out,
+            "  Search method: {:>7}",
+            Into::<&'static str>::into(self.search_method).bright_purple()
+        );
+
+        if let Some(version) = self.msrv() {
+            writeln!(
+                &mut out,
+                "  {} {:>16}       {}",
+                "MSRV:",
+                version.green().bold().underline(),
+                format_args!("(target: {})", target).dimmed(),
+            )
+        } else {
+            writeln!(
+                &mut out,
+                "  {}: {:>16}       {}",
+                "None".red(),
+                "No compatible Rust version found!",
+                format_args!("(target: {})", target).dimmed() // todo!: fix summary report when no available compatible versions
+            )
+        };
+
+        out
     }
 }
 

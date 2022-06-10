@@ -24,6 +24,6 @@ impl IntoIdentifiableEvent for SetupToolchain {
 
 impl From<SetupToolchain> for Event {
     fn from(it: SetupToolchain) -> Self {
-        Message::SetupToolchain(it).into_event()
+        Message::SetupToolchain(it).into()
     }
 }

@@ -28,7 +28,7 @@ impl IntoIdentifiableEvent for CompatibilityCheckMethod {
 
 impl From<CompatibilityCheckMethod> for Event {
     fn from(it: CompatibilityCheckMethod) -> Self {
-        Message::CompatibilityCheckMethod(it).into_event()
+        Message::CompatibilityCheckMethod(it).into()
     }
 }
 

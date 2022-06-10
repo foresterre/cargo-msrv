@@ -85,9 +85,23 @@ pub enum Message {
 }
 
 impl Message {
-    fn into_event(self) -> Event {
+    pub fn identifier(&self) -> &'static str {
+        match self {
+            Message::Meta(it) => it.identifier(),
+            Message::FetchIndex(it) => it.identifier(),
+            Message::SetupToolchain(it) => it.identifier(),
+            Message::NewCompatibilityCheck(it) => it.identifier(),
+            Message::CompatibilityCheckMethod(it) => it.identifier(),
+            Message::Compatibility(it) => it.identifier(),
+            Message::MsrvResult(it) => it.identifier(),
+        }
+    }
+}
+
+impl From<Message> for Event {
+    fn from(message: Message) -> Self {
         Event {
-            message: self,
+            message,
             scope: None,
         }
     }

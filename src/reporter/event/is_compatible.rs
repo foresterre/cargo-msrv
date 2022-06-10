@@ -41,7 +41,7 @@ impl IntoIdentifiableEvent for Compatibility {
 
 impl From<Compatibility> for Event {
     fn from(it: Compatibility) -> Self {
-        Message::Compatibility(it).into_event()
+        Message::Compatibility(it).into()
     }
 }
 
