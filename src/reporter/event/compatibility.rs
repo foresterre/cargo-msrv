@@ -1,6 +1,6 @@
 use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::toolchain::OwnedToolchainSpec;
-use crate::{semver, Event};
+use crate::Event;
 
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]

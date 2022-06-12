@@ -52,8 +52,10 @@ bisector = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.81"
 
-storyteller = "0.4.0"
 owo-colors = "3.4.0"
+
+[dependencies.storyteller]
+version = "0.4.2"
 
 [dependencies.tracing-subscriber]
 version = "0.3"

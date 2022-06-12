@@ -5,10 +5,15 @@ use storyteller::{
 
 use crate::reporter::event::EventScope;
 use crate::TResult;
-pub use event::Event;
+
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
 pub use handler::JsonHandler;
+
+pub use event::{
+    Event,
+    TerminateWithFailure, /* fixme: Needed by binary crate, how much do we want to expose here? */
+};
 
 pub(crate) mod event;
 pub(crate) mod handler;

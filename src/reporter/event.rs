@@ -1,23 +1,23 @@
-#![allow(unused)]
-
 use std::fmt;
 use std::fmt::Formatter;
 
+pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
-pub use is_compatible::{Compatibility, CompatibilityReport};
 pub use meta::Meta;
 pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::NewCompatibilityCheck;
 pub use setup_toolchain::SetupToolchain;
+pub use termination::TerminateWithFailure;
 
+mod compatibility;
 mod compatibility_check_method;
 mod fetch_index;
-mod is_compatible;
 mod meta;
 mod msrv_result;
 mod new_compatibility_check;
 mod setup_toolchain;
+mod termination;
 
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -82,6 +82,9 @@ pub enum Message {
     // SetMSRV
 
     // --- command: show
+
+    // --- Termination, for example when caused by an unrecoverable error
+    TerminateWithFailure(TerminateWithFailure),
 }
 
 impl Message {
@@ -94,6 +97,7 @@ impl Message {
             Message::CompatibilityCheckMethod(it) => it.identifier(),
             Message::Compatibility(it) => it.identifier(),
             Message::MsrvResult(it) => it.identifier(),
+            Message::TerminateWithFailure(it) => it.identifier(),
         }
     }
 }

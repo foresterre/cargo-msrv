@@ -14,7 +14,7 @@ use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvErr
 
 use crate::subcommands::verify;
 
-pub type TResult<T> = Result<T, CargoMSRVError>;
+pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum CargoMSRVError {
@@ -115,9 +115,6 @@ pub enum CargoMSRVError {
     #[error("The given target could not be found. Run `rustup target list` for an overview of available toolchains.")]
     UnknownTarget,
 
-    #[error("Unable to access log folder, run with --no-log to try again without logging.")]
-    UnableToAccessLogFolder,
-
     #[error("Unable to get or store the channel manifest on disk.")]
     UnableToCacheChannelManifest,
 
@@ -132,9 +129,6 @@ report the issue at: https://github.com/foresterre/cargo-msrv/issues
 Thank you in advance!"#
     )]
     UnableToFindAnyGoodVersion { command: String },
-
-    #[error("Unable to init logger, run with --no-log to try again without logging.")]
-    UnableToInitTracing,
 
     #[error("Unable to parse the CLI arguments. Use `cargo msrv help` for more info.")]
     UnableToParseCliArgs,

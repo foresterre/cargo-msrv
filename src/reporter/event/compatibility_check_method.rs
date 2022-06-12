@@ -1,7 +1,6 @@
 use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
-use std::fmt;
 use std::path::{Path, PathBuf};
 
 #[derive(serde::Serialize, Clone)]

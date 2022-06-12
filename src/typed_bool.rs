@@ -51,7 +51,7 @@ impl serde::Serialize for False {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_bool(true)
+        serializer.serialize_bool(false)
     }
 }
 

@@ -35,7 +35,6 @@ impl HumanProgressHandler {
     }
 
     fn finish_progress(&self) {
-        // todo: finish_with_message!
         self.pb.finish_and_clear();
     }
 
@@ -81,7 +80,12 @@ impl EventHandler for HumanProgressHandler {
             Message::MsrvResult(result) => {
                 self.pb.println(result.summary());
             }
-
+            Message::TerminateWithFailure(termination) if termination.is_error() => {
+                self.pb.println(format!("\n\n{}", termination.as_message().red()));
+            }
+            Message::TerminateWithFailure(termination) if !termination.is_error() => {
+                self.pb.println(format!("\n\n{}", termination.as_message().dimmed()));
+            }
             _ => {}
         };
     }
@@ -152,7 +156,7 @@ fn message_box(message: &str) -> String {
 
     table
         .lines()
-        .map(|line| format!("  {}", line))
+        .map(|line| format!("  {}", line.dimmed()))
         .collect::<Vec<_>>()
         .join("\n")
 }

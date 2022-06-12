@@ -1771,9 +1771,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "storyteller"
-version = "0.4.0"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "897f3b38e9cc2694c305bffefa8077d1237a723d4f0c99051b802e33f686da24"
+checksum = "23b40498aabed87e0eb4342c7e5a4b863e422ba2c3dc7c51c9b272d94de6ac14"
 dependencies = [
  "crossbeam-channel",
 ]

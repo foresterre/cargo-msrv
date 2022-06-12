@@ -1,6 +1,5 @@
 use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::{Event, ReleaseSource};
-use owo_colors::OwoColorize;
 
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]

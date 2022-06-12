@@ -1,10 +1,8 @@
 use crate::config::{Config, SearchMethod};
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::{IntoIdentifiableEvent, Message};
-use crate::toolchain::OwnedToolchainSpec;
 use crate::typed_bool::{False, True};
 use crate::{semver, Event};
-use std::path::PathBuf;
 
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -42,7 +40,7 @@ impl MsrvResult {
 
             search_method: config.search_method(),
 
-            result: ResultDetails::Msrv {
+            result: ResultDetails::Determined {
                 version,
                 success: True,
             },
@@ -63,13 +61,13 @@ impl MsrvResult {
 
             search_method: config.search_method(),
 
-            result: ResultDetails::None { success: False },
+            result: ResultDetails::Undetermined { success: False },
         }
     }
 
     pub fn msrv(&self) -> Option<&semver::Version> {
         if let Self {
-            result: ResultDetails::Msrv { version, .. },
+            result: ResultDetails::Determined { version, .. },
             ..
         } = self
         {
@@ -95,11 +93,11 @@ impl From<MsrvResult> for Event {
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 enum ResultDetails {
-    Msrv {
+    Determined {
         version: semver::Version,
         success: True,
     },
-    None {
+    Undetermined {
         success: False,
     },
 }
