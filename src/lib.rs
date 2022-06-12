@@ -57,7 +57,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         "running action"
     );
 
-    let result = match action {
+    match action {
         Action::Find => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
@@ -71,20 +71,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         Action::List => List::default().run(config, reporter),
         Action::Set => Set::default().run(config, reporter),
         Action::Show => Show::default().run(config, reporter),
-    };
-
-    if let Err(ref err) = result {
-        if let OutputFormat::Human = config.output_format() {
-            // Can't use reporter here because the ProgressBar in HumanReporter is already set to
-            // finished. Adding a line on top, will redraw the bar, instead of updating it, producing
-            // two bars with the text in between.
-            eprintln!("{}", err);
-        }
-
-        // FIXME: re-enable reporting errors in json, but first format them as json!
     }
-
-    result
 }
 
 fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
