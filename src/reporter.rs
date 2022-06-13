@@ -25,12 +25,6 @@ pub(crate) mod handler;
 pub trait Reporter:
     storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
 {
-    // /// Convenience method to directly report an action
-    // fn report_action(&self, reportable_action: Action) -> TResult<()> {
-    //     self.report_event(Event::Action(reportable_action))
-    //         .map_err(|_| CargoMSRVError::Storyteller)
-    // }
-    //
     /// Perform a (fallible) action within the scope of the `f` closure, and report the start and
     /// end of this action.
     ///
