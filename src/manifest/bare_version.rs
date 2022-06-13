@@ -53,21 +53,21 @@ impl BareVersion {
     // simply rewrites the versions components to their semver::Version counterpart.
     pub fn try_to_semver<'s, I>(
         &self,
-        iter: I,
+        available: I,
     ) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError>
     where
-        I: IntoIterator<Item = &'s crate::semver::Version>,
+        I: Iterator<Item = &'s semver::Version> + Clone,
     {
-        let mut iter = iter.into_iter();
         let requirements = self.to_comparator();
 
-        iter.find(|version| requirements.matches(version))
+        available
+            .clone()
+            .find(|version| requirements.matches(version))
             .ok_or_else(|| {
                 let requirement = self.clone();
-                let available = iter.cloned().collect();
                 NoVersionMatchesManifestMsrvError {
                     requested: requirement,
-                    available,
+                    available: available.cloned().collect(),
                 }
             })
     }
@@ -317,31 +317,12 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
     Err(Error::ExpectedEndOfInput)
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("The MSRV requirement ({requested}) did not match any available version, available: [{}]", .available.iter().map(|s| s.to_string()).collect::<Vec<_>>().join(", "))]
 pub struct NoVersionMatchesManifestMsrvError {
     pub requested: BareVersion,
-    pub available: Vec<crate::semver::Version>,
+    pub available: Vec<semver::Version>,
 }
-
-impl std::fmt::Display for NoVersionMatchesManifestMsrvError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let available = self
-            .available
-            .iter()
-            .map(|s| s.to_string())
-            .collect::<Vec<String>>()
-            .join(", ");
-
-        write!(
-            f,
-            "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}",
-            self.requested,
-            available,
-        )
-    }
-}
-
-impl std::error::Error for NoVersionMatchesManifestMsrvError {}
 
 #[cfg(test)]
 mod bare_version_tests {
