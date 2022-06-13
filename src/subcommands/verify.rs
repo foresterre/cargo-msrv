@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
-use rust_releases::{semver, Release, ReleaseIndex};
+use rust_releases::{Release, ReleaseIndex};
 
 use toml_edit::Document;
 
@@ -35,42 +35,13 @@ impl<'index, C: Check> Verify<'index, C> {
 
 impl<'index, C: Check> SubCommand for Verify<'index, C> {
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    fn run(&self, config: &Config, _reporter: &impl Reporter) -> TResult<()> {
         let rust_version = RustVersion::try_from_config(config)?;
 
-        let result = verify_msrv(
-            config,
-            reporter,
-            self.release_index,
-            rust_version,
-            &self.runner,
-        );
+        verify_msrv(config, self.release_index, rust_version, &self.runner)?;
 
-        // report outcome
-        report_result(result.as_ref(), config, reporter);
-
-        result.map(|_| ())
+        Ok(())
     }
-}
-
-/// Report the outcome to the user
-fn report_result(
-    result: Result<&Outcome, &CargoMSRVError>,
-    config: &Config,
-    _reporter: &impl Reporter,
-) {
-    match result.as_ref() {
-        Ok(_outcome) => {
-            // todo!
-            // reporter.finish_success(ModeIntent::Verify, Some(outcome.version()));
-        }
-        Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed { .. })) => {
-            let _cmd = config.check_command_string();
-            // todo!
-            // reporter.finish_failure(ModeIntent::Verify, Some(&cmd));
-        }
-        Err(_) => {}
-    };
 }
 
 /// Parse the cargo manifest from the given path.
@@ -88,27 +59,21 @@ fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
     config: &Config,
-    _reporter: &impl Reporter,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
     runner: &impl Check,
-) -> TResult<Outcome> {
+) -> TResult<()> {
     let bare_version = rust_version.version();
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let toolchain = ToolchainSpec::new(version, config.target());
-    let outcome = runner.check(config, &toolchain)?;
 
-    if outcome.is_success() {
-        Ok(outcome)
-    } else {
-        Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
-            VerifyFailed {
-                rust_version: version.clone(),
-                source: rust_version.into_source(),
-            },
-        )))
+    match runner.check(config, &toolchain)? {
+        Outcome::Success(_) => Ok(()),
+        Outcome::Failure(_) => Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
+            VerifyFailed::from(rust_version),
+        ))),
     }
 }
 
@@ -128,14 +93,24 @@ pub enum Error {
 /// used to find this tested Rust version.
 #[derive(Debug)]
 pub struct VerifyFailed {
-    rust_version: semver::Version,
+    rust_version: BareVersion,
     source: RustVersionSource,
+}
+
+impl From<RustVersion> for VerifyFailed {
+    fn from(value: RustVersion) -> Self {
+        VerifyFailed {
+            rust_version: value.rust_version,
+            source: value.source,
+        }
+    }
 }
 
 /// A combination of a bare (two- or three component) Rust version and the source which was used to
 /// locate this version.
+#[derive(Debug)]
 struct RustVersion {
-    version: BareVersion,
+    rust_version: BareVersion,
     source: RustVersionSource,
 }
 
@@ -146,7 +121,7 @@ impl RustVersion {
     fn try_from_config(config: &Config) -> TResult<Self> {
         let rust_version = config.sub_command_config().verify().rust_version.as_ref();
 
-        let (version, source) = match rust_version {
+        let (rust_version, source) = match rust_version {
             Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
             None => {
                 let path = config.ctx().manifest_path(config)?;
@@ -159,17 +134,15 @@ impl RustVersion {
             }
         }?;
 
-        Ok(Self { version, source })
+        Ok(Self {
+            rust_version,
+            source,
+        })
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
     fn version(&self) -> &BareVersion {
-        &self.version
-    }
-
-    /// Consume the [`RustVersion`] and return its [`RustVersionSource`].
-    fn into_source(self) -> RustVersionSource {
-        self.source
+        &self.rust_version
     }
 }
 
