@@ -31,15 +31,15 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 impl BareVersion {
     pub fn to_comparator(&self) -> semver::Comparator {
         match self {
-            Self::TwoComponents(major, minor) => crate::semver::Comparator {
+            Self::TwoComponents(major, minor) => semver::Comparator {
                 op: semver::Op::Tilde,
                 major: *major,
                 minor: Some(*minor),
                 patch: None,
                 pre: semver::Prerelease::EMPTY,
             },
-            Self::ThreeComponents(major, minor, patch) => crate::semver::Comparator {
-                op: semver::Op::Tilde,
+            Self::ThreeComponents(major, minor, patch) => semver::Comparator {
+                op: semver::Op::Exact,
                 major: *major,
                 minor: Some(*minor),
                 patch: Some(*patch),
@@ -48,9 +48,16 @@ impl BareVersion {
         }
     }
 
-    // Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
-    // version requirement against the given set of available version, while `BareVersion::to_semver_version`
-    // simply rewrites the versions components to their semver::Version counterpart.
+    /// Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
+    /// version requirement against the given set of available version, while `BareVersion::to_semver_version`
+    /// simply rewrites the versions components to their semver::Version counterpart.
+    ///
+    /// If `available` is ordered from most-recent to least-recent, it will return the highest matching
+    /// semver version for two-component versions, and the exact matching version for three-component versions.
+    ///
+    /// That is, when our list of available versions is `[0.14.1, 0.14.0, 0.13.0]`, if we supply
+    /// a two-component version `0.14`, we will get the result `0.14.1`, while if we supply
+    /// the three-component `0.14.0`, we would get the result `0.14.0`.
     pub fn try_to_semver<'s, I>(
         &self,
         available: I,
@@ -74,7 +81,7 @@ impl BareVersion {
 
     pub fn to_semver_version(&self) -> crate::semver::Version {
         match self {
-            Self::TwoComponents(major, minor) => crate::semver::Version::new(*major, *minor, 0),
+            Self::TwoComponents(major, minor) => semver::Version::new(*major, *minor, 0),
             Self::ThreeComponents(major, minor, patch) => {
                 semver::Version::new(*major, *minor, *patch)
             }
