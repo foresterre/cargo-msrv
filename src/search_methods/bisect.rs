@@ -119,12 +119,12 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
 #[cfg(test)]
 mod tests {
     use rust_releases::Release;
+    use storyteller::ChannelReporter;
 
-    use crate::reporter::no_output::NoOutput;
+    use crate::check::TestRunner;
     use crate::search_methods::FindMinimalCapableToolchain;
     use crate::semver::Version;
-    use crate::testing::TestRunner;
-    use crate::{semver, Action, Config};
+    use crate::{semver, Action, Config, Event};
 
     use super::Bisect;
 
@@ -320,14 +320,18 @@ mod tests {
     )]
     fn find_toolchain_with_bisect(
         search_space: &[Release],
-        accept: &[semver::Version],
-        expected_msrv: semver::Version,
+        accept: &[Version],
+        expected_msrv: Version,
     ) {
         let runner = TestRunner::with_ok(accept);
+
         let bisect = Bisect::new(&runner);
 
+        let (sender, _) = storyteller::event_channel::<Event>();
+        let reporter = ChannelReporter::new(sender);
+
         let result = bisect
-            .find_toolchain(search_space, &fake_config(), &NoOutput {})
+            .find_toolchain(search_space, &fake_config(), &reporter)
             .unwrap();
 
         assert_eq!(result.unwrap_version(), expected_msrv);

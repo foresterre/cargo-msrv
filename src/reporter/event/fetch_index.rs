@@ -1,7 +1,7 @@
 use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::{Event, ReleaseSource};
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct FetchIndex {
     #[serde(rename = "source")]

@@ -1,7 +1,4 @@
-use storyteller::{
-    disconnect_channel, event_channel, ChannelEventListener, ChannelReporter, DisconnectReceiver,
-    DisconnectSender, EventListener,
-};
+use storyteller::{event_channel, ChannelEventListener, ChannelReporter, EventListener};
 
 use crate::reporter::event::EventScope;
 use crate::TResult;
@@ -17,6 +14,12 @@ pub use event::{
 
 pub(crate) mod event;
 pub(crate) mod handler;
+
+#[cfg(test)]
+mod testing;
+
+#[cfg(test)]
+pub use testing::TestReporter;
 
 // Alias trait with convenience methods
 // This way we don't have to specify the associated type Event
@@ -57,82 +60,19 @@ impl<T> Reporter for T where
 {
 }
 
-pub struct StorytellerSetup {
-    disconnect_sender: DisconnectSender,
-    disconnect_receiver: DisconnectReceiver,
-}
+pub struct ReporterSetup;
 
-impl StorytellerSetup {
+impl ReporterSetup {
     pub fn new() -> Self {
-        let (disconnect_sender, disconnect_receiver) = disconnect_channel();
-
-        Self {
-            disconnect_sender,
-            disconnect_receiver,
-        }
+        Self {}
     }
 
-    pub fn create_channels(self) -> (impl Reporter, impl EventListener<Event = Event>) {
+    pub fn create(self) -> (impl Reporter, impl EventListener<Event = Event>) {
         let (sender, receiver) = event_channel::<Event>();
-        let Self {
-            disconnect_sender,
-            disconnect_receiver,
-        } = self;
 
-        let reporter = ChannelReporter::new(sender, disconnect_receiver);
-        let listener = ChannelEventListener::new(receiver, disconnect_sender);
+        let reporter = ChannelReporter::new(sender);
+        let listener = ChannelEventListener::new(receiver);
 
         (reporter, listener)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use storyteller::{EventListener, Reporter};
-
-    use crate::reporter::event::progress::Progression;
-    use crate::reporter::handler::HumanProgressHandler;
-    use crate::reporter::{Event, StorytellerSetup};
-    use crate::{Reporter, Reporter};
-
-    use super::handler::JsonHandler;
-
-    #[test]
-    fn setup() {
-        fn report(reporter: &impl Reporter, event: Event) -> Result<(), String> {
-            reporter
-                .report_event(event)
-                .map_err(|_| "Failed to report event".to_string())
-        }
-
-        let setup = StorytellerSetup::new();
-        let (reporter, listener): (impl Reporter, _) = setup.create_channels();
-
-        let handler = HumanProgressHandler::new();
-        // let handler = JsonHandler::stderr();
-        listener.run_handler(handler);
-
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-        report(&reporter, Event::Progress(Progression::new(100))).unwrap();
-
-        let d = reporter.disconnect();
-
-        assert!(d.is_ok());
     }
 }

@@ -3,7 +3,7 @@ use crate::{CargoMSRVError, Event};
 
 /// Represents a serializable reason why the program should terminate with a failure (a non-zero
 /// exit code).
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct TerminateWithFailure {
     // Not all failure terminations are errors, for example, if we fail to verify we want to exit
@@ -48,7 +48,7 @@ impl From<TerminateWithFailure> for Event {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 struct SerializableReason {
     description: String,

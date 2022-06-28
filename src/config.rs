@@ -117,7 +117,7 @@ impl From<Action> for &'static str {
     }
 }
 
-#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
     RustChangelog,

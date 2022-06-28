@@ -3,7 +3,7 @@ use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 use std::path::{Path, PathBuf};
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct CompatibilityCheckMethod {
     toolchain: OwnedToolchainSpec,
@@ -31,7 +31,7 @@ impl From<CompatibilityCheckMethod> for Event {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Method {
     RustupRun {

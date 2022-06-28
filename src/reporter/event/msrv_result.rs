@@ -4,7 +4,7 @@ use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::typed_bool::{False, True};
 use crate::{semver, Event};
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct MsrvResult {
     #[serde(skip)]
@@ -90,7 +90,7 @@ impl From<MsrvResult> for Event {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 enum ResultDetails {
     Determined {

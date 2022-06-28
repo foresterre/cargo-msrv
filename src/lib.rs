@@ -44,9 +44,6 @@ pub(crate) mod subcommands;
 pub(crate) mod typed_bool;
 pub(crate) mod writers;
 
-#[cfg(test)]
-pub(crate) mod testing;
-
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
 

@@ -2,7 +2,7 @@ use crate::reporter::event::{IntoIdentifiableEvent, Message};
 use crate::Event;
 use owo_colors::OwoColorize;
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Meta {
     instance: &'static str,

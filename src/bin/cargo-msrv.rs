@@ -1,18 +1,20 @@
 use std::convert::TryFrom;
 use std::ffi::OsString;
+use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
-use storyteller::{EventListener, Reporter as EventReporter};
+use storyteller::{EventHandler, EventListener, FinishProcessing};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::config::{self, Config, TracingOptions, TracingTargetOption};
+use cargo_msrv::config::{self, Config, OutputFormat, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
-use cargo_msrv::reporter::TerminateWithFailure;
 use cargo_msrv::reporter::{
-    DiscardOutputHandler, HumanProgressHandler, JsonHandler, StorytellerSetup,
+    DiscardOutputHandler, HumanProgressHandler, JsonHandler, ReporterSetup,
 };
+use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
 use cargo_msrv::run_app;
 
 fn main() {
@@ -54,37 +56,33 @@ fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
         "initializing"
     );
 
-    let storyteller = StorytellerSetup::new();
-    let (reporter, listener) = storyteller.create_channels();
+    let setup = ReporterSetup::new();
+    let (reporter, listener) = setup.create();
 
-    tracing::info!("storyteller channels created");
+    tracing::info!("storyteller channel created");
 
-    let res = match config.output_format() {
-        config::OutputFormat::Human => {
-            let handler = HumanProgressHandler::new();
-            listener.run_handler(handler);
+    let handler = WrappingHandler::from(config.output_format());
+    let finalizer = listener.run_handler(Arc::new(handler));
+    tracing::info!("storyteller started handler");
+    tracing::info!("start run_app");
 
-            run_app(config, &reporter)
-        }
-        config::OutputFormat::Json => {
-            let handler = JsonHandler::stderr();
-            listener.run_handler(handler);
-
-            run_app(config, &reporter)
-        }
-        config::OutputFormat::None => {
-            // To disable regular output. Useful when outputting logs to stdout, as the
-            //   regular output and the log output may otherwise interfere with each other.
-            let handler = DiscardOutputHandler;
-            listener.run_handler(handler);
-
-            run_app(config, &reporter)
-        }
-    };
+    let res = run_app(config, &reporter);
 
     tracing::info!("finished run_app");
 
-    let exit_code = match res {
+    let exit_code = get_exit_code(res, &reporter)?;
+    disconnect_reporter(reporter)?;
+    wait_for_user_output(finalizer)?;
+
+    Ok(exit_code)
+}
+
+/// Get the exit code from the result of the program's main work unit.
+fn get_exit_code(
+    result: Result<(), CargoMSRVError>,
+    reporter: &impl Reporter,
+) -> Result<ExitCode, InstanceError> {
+    Ok(match result {
         Ok(_) => ExitCode::Success,
         Err(err) => {
             reporter
@@ -93,17 +91,68 @@ fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
 
             ExitCode::Failure
         }
-    };
+    })
+}
 
-    tracing::info!("finished sending unrecoverable error report to event listener");
+/// Enumerates the in our program available output handlers, and implements EventHandler which
+/// directly delegates the implementation to the wrapped handlers.
+enum WrappingHandler {
+    HumanProgressHandler(HumanProgressHandler),
+    JsonHandler(JsonHandler<io::Stderr>),
+    DiscardOutputHandler(DiscardOutputHandler),
+}
 
-    let _disconnected = reporter
+impl EventHandler for WrappingHandler {
+    type Event = Event;
+
+    fn handle(&self, event: Self::Event) {
+        match self {
+            WrappingHandler::HumanProgressHandler(inner) => inner.handle(event),
+            WrappingHandler::JsonHandler(inner) => inner.handle(event),
+            WrappingHandler::DiscardOutputHandler(inner) => inner.handle(event),
+        }
+    }
+
+    fn finish(&self) {
+        todo!()
+    }
+}
+
+impl From<OutputFormat> for WrappingHandler {
+    fn from(output_format: OutputFormat) -> Self {
+        match output_format {
+            OutputFormat::Human => Self::HumanProgressHandler(HumanProgressHandler::new()),
+            OutputFormat::Json => Self::JsonHandler(JsonHandler::stderr()),
+            OutputFormat::None => {
+                // To disable regular output. Useful when outputting logs to stdout, as the
+                //   regular output and the log output may otherwise interfere with each other.
+                Self::DiscardOutputHandler(DiscardOutputHandler)
+            }
+        }
+    }
+}
+
+/// Disconnect the reporter, signalling that the program is finished, and we can now finish
+/// up processing the last user output events.
+fn disconnect_reporter(reporter: impl Reporter) -> Result<(), InstanceError> {
+    reporter
         .disconnect()
         .map_err(|_| InstanceError::StorytellerDisconnect)?;
 
     tracing::info!("disconnected reporter");
 
-    Ok(exit_code)
+    Ok(())
+}
+
+/// Wait for the user output processing to finish up it's queue of events by blocking.
+fn wait_for_user_output(finalizer: impl FinishProcessing) -> Result<(), InstanceError> {
+    finalizer
+        .finish_processing()
+        .map_err(|_| InstanceError::StorytellerFinishEventProcessing)?;
+
+    tracing::info!("finished processing unprocessed events");
+
+    Ok(())
 }
 
 fn init_tracing(tracing_config: &TracingConfig) -> Result<TracingGuard, InstanceError> {
@@ -216,4 +265,7 @@ enum InstanceError {
 
     #[error("Failed to send event to user output channel (storyteller)")]
     StorytellerSend,
+
+    #[error("Failure while waiting for unprocessed events to be processed")]
+    StorytellerFinishEventProcessing,
 }

@@ -2,14 +2,11 @@ use crate::check::Check;
 use crate::outcome::Outcome;
 use crate::semver::Version;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Action, Config, Output, ProgressAction, TResult};
-use rust_releases::semver;
-use std::cell::{Cell, Ref, RefCell};
+use crate::{Config, TResult};
 use std::collections::HashSet;
-use std::rc::Rc;
 
 pub struct TestRunner {
-    accept_versions: HashSet<semver::Version>,
+    accept_versions: HashSet<Version>,
 }
 
 impl TestRunner {

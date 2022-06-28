@@ -12,11 +12,11 @@ mod human_progress_handler;
 mod json_handler;
 
 #[cfg(test)]
-mod testing_handler;
+mod testing;
 
 pub use discard_output_handler::DiscardOutputHandler;
 pub use human_progress_handler::HumanProgressHandler;
 pub use json_handler::JsonHandler;
 
 #[cfg(test)]
-pub use testing_handler::TestingHandler;
+pub use testing::TestingHandler;

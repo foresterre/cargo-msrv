@@ -13,6 +13,12 @@ use crate::reporter::event::{
 use crate::reporter::Reporter;
 use crate::toolchain::ToolchainSpec;
 
+#[cfg(test)]
+mod testing;
+
+#[cfg(test)]
+pub use testing::TestRunner;
+
 pub trait Check {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;
 }

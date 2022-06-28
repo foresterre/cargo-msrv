@@ -19,7 +19,7 @@ mod new_compatibility_check;
 mod setup_toolchain;
 mod termination;
 
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Event {
     #[serde(flatten)]
@@ -46,7 +46,7 @@ impl Event {
 }
 
 /// Messages are a kind of event which report the state of this program to the user
-#[derive(serde::Serialize, Clone)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
     // -- setup
@@ -123,7 +123,7 @@ impl fmt::Display for Message {
     }
 }
 
-#[derive(Debug, Copy, Clone, serde::Serialize)]
+#[derive(Debug, Copy, Clone, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EventScope {
     Start,

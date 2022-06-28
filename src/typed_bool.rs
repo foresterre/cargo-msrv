@@ -1,7 +1,7 @@
 use serde::Deserializer;
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct True;
 
 impl serde::Serialize for True {
@@ -43,7 +43,7 @@ impl<'de> serde::de::Visitor<'de> for TrueVisitor {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct False;
 
 impl serde::Serialize for False {
