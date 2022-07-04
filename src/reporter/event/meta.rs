@@ -13,15 +13,17 @@ pub struct Meta {
     rustc: &'static str,
 }
 
+const UNDEFINED: &'static str = "undefined";
+
 impl Default for Meta {
     fn default() -> Self {
         Self {
-            instance: env!("CARGO_PKG_NAME"),
-            version: env!("CARGO_PKG_VERSION"),
-            sha_short: env!("VERGEN_GIT_SHA_SHORT"),
-            target_triple: env!("VERGEN_CARGO_TARGET_TRIPLE"),
-            cargo_features: env!("VERGEN_CARGO_FEATURES"),
-            rustc: env!("VERGEN_RUSTC_SEMVER"),
+            instance: option_env!("CARGO_PKG_NAME").unwrap_or("cargo-msrv"),
+            version: option_env!("CARGO_PKG_VERSION").unwrap_or(UNDEFINED),
+            sha_short: option_env!("VERGEN_GIT_SHA_SHORT").unwrap_or(UNDEFINED),
+            target_triple: option_env!("VERGEN_CARGO_TARGET_TRIPLE").unwrap_or(UNDEFINED),
+            cargo_features: option_env!("VERGEN_CARGO_FEATURES").unwrap_or(UNDEFINED),
+            rustc: option_env!("VERGEN_RUSTC_SEMVER").unwrap_or(UNDEFINED),
         }
     }
 }
