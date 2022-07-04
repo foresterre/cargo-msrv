@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::{Event, ReleaseSource};
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
@@ -13,12 +13,6 @@ impl FetchIndex {
         Self {
             from_source: source,
         }
-    }
-}
-
-impl IntoIdentifiableEvent for FetchIndex {
-    fn identifier(&self) -> &'static str {
-        "fetch_index"
     }
 }
 

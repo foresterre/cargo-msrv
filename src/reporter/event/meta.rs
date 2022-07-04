@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::Event;
 use owo_colors::OwoColorize;
 
@@ -35,12 +35,6 @@ impl Meta {
             self.version,
             self.sha_short,
         )
-    }
-}
-
-impl IntoIdentifiableEvent for Meta {
-    fn identifier(&self) -> &'static str {
-        "meta"
     }
 }
 

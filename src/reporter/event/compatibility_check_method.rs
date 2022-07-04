@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 use std::path::{Path, PathBuf};
@@ -19,12 +19,6 @@ impl CompatibilityCheckMethod {
     }
 }
 
-impl IntoIdentifiableEvent for CompatibilityCheckMethod {
-    fn identifier(&self) -> &'static str {
-        "compatibility_check_method"
-    }
-}
-
 impl From<CompatibilityCheckMethod> for Event {
     fn from(it: CompatibilityCheckMethod) -> Self {
         Message::CompatibilityCheckMethod(it).into()
@@ -38,6 +32,8 @@ pub enum Method {
         args: Vec<String>,
         path: Option<PathBuf>,
     },
+    #[cfg(test)]
+    TestRunner,
 }
 
 impl Method {

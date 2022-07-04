@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
@@ -30,12 +30,6 @@ impl Compatibility {
                 error: error.into(),
             },
         }
-    }
-}
-
-impl IntoIdentifiableEvent for Compatibility {
-    fn identifier(&self) -> &'static str {
-        "compatibility"
     }
 }
 

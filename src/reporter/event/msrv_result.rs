@@ -1,6 +1,6 @@
 use crate::config::{Config, SearchMethod};
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::typed_bool::{False, True};
 use crate::{semver, Event};
 
@@ -75,12 +75,6 @@ impl MsrvResult {
         } else {
             None
         }
-    }
-}
-
-impl IntoIdentifiableEvent for MsrvResult {
-    fn identifier(&self) -> &'static str {
-        "msrv_result"
     }
 }
 

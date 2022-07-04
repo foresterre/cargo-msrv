@@ -34,8 +34,10 @@ impl<'index, C: Check> Verify<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Verify<'index, C> {
+    type Output = ();
+
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, _reporter: &impl Reporter) -> TResult<()> {
+    fn run(&self, config: &Config, _reporter: &impl Reporter) -> TResult<Self::Output> {
         let rust_version = RustVersion::try_from_config(config)?;
 
         verify_msrv(config, self.release_index, rust_version, &self.runner)?;

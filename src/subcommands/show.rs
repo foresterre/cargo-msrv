@@ -14,7 +14,9 @@ use crate::SubCommand;
 pub struct Show;
 
 impl SubCommand for Show {
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    type Output = ();
+
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         show_msrv(config, reporter)
     }
 }
@@ -35,6 +37,7 @@ fn show_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
     let manifest = CargoManifest::try_from(manifest)?;
 
     let msrv = manifest.minimum_rust_version();
+    #[allow(clippy::if_same_then_else)]
     if msrv.is_some() {
         // todo!
         // output.finish_success(

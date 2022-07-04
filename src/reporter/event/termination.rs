@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::{CargoMSRVError, Event};
 
 /// Represents a serializable reason why the program should terminate with a failure (a non-zero
@@ -14,10 +14,7 @@ pub struct TerminateWithFailure {
 
 impl TerminateWithFailure {
     pub fn new(error: CargoMSRVError) -> Self {
-        let is_error = match error {
-            CargoMSRVError::UnableToFindAnyGoodVersion { .. } => false,
-            _ => true,
-        };
+        let is_error = matches!(error, CargoMSRVError::UnableToFindAnyGoodVersion { .. });
 
         Self {
             is_error,
@@ -33,12 +30,6 @@ impl TerminateWithFailure {
 
     pub fn as_message(&self) -> &str {
         &self.reason.description
-    }
-}
-
-impl IntoIdentifiableEvent for TerminateWithFailure {
-    fn identifier(&self) -> &'static str {
-        "terminate_with_failure"
     }
 }
 

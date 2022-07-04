@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
@@ -13,12 +13,6 @@ impl SetupToolchain {
         Self {
             toolchain: toolchain.into(),
         }
-    }
-}
-
-impl IntoIdentifiableEvent for SetupToolchain {
-    fn identifier(&self) -> &'static str {
-        "setup_toolchain"
     }
 }
 

@@ -8,7 +8,9 @@ use crate::{dependencies, SubCommand};
 pub struct List;
 
 impl SubCommand for List {
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    type Output = ();
+
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         list_msrv(config, reporter)
     }
 }

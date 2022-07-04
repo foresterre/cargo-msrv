@@ -1,4 +1,4 @@
-use crate::reporter::event::{IntoIdentifiableEvent, Message};
+use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
@@ -13,12 +13,6 @@ impl NewCompatibilityCheck {
         Self {
             toolchain: toolchain.into(),
         }
-    }
-}
-
-impl IntoIdentifiableEvent for NewCompatibilityCheck {
-    fn identifier(&self) -> &'static str {
-        "new_compatibility_check"
     }
 }
 

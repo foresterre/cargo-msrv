@@ -8,7 +8,7 @@ use storyteller::{EventHandler, EventListener, FinishProcessing};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::config::{self, Config, OutputFormat, TracingOptions, TracingTargetOption};
+use cargo_msrv::config::{Config, OutputFormat, TracingOptions, TracingTargetOption};
 use cargo_msrv::errors::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
@@ -56,7 +56,7 @@ fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
         "initializing"
     );
 
-    let setup = ReporterSetup::new();
+    let setup = ReporterSetup::default();
     let (reporter, listener) = setup.create();
 
     tracing::info!("storyteller channel created");
@@ -97,9 +97,9 @@ fn get_exit_code(
 /// Enumerates the in our program available output handlers, and implements EventHandler which
 /// directly delegates the implementation to the wrapped handlers.
 enum WrappingHandler {
-    HumanProgressHandler(HumanProgressHandler),
-    JsonHandler(JsonHandler<io::Stderr>),
-    DiscardOutputHandler(DiscardOutputHandler),
+    HumanProgress(HumanProgressHandler),
+    Json(JsonHandler<io::Stderr>),
+    DiscardOutput(DiscardOutputHandler),
 }
 
 impl EventHandler for WrappingHandler {
@@ -107,26 +107,30 @@ impl EventHandler for WrappingHandler {
 
     fn handle(&self, event: Self::Event) {
         match self {
-            WrappingHandler::HumanProgressHandler(inner) => inner.handle(event),
-            WrappingHandler::JsonHandler(inner) => inner.handle(event),
-            WrappingHandler::DiscardOutputHandler(inner) => inner.handle(event),
+            WrappingHandler::HumanProgress(inner) => inner.handle(event),
+            WrappingHandler::Json(inner) => inner.handle(event),
+            WrappingHandler::DiscardOutput(inner) => inner.handle(event),
         }
     }
 
     fn finish(&self) {
-        todo!()
+        match self {
+            WrappingHandler::HumanProgress(inner) => inner.finish(),
+            WrappingHandler::Json(inner) => inner.finish(),
+            WrappingHandler::DiscardOutput(inner) => inner.finish(),
+        }
     }
 }
 
 impl From<OutputFormat> for WrappingHandler {
     fn from(output_format: OutputFormat) -> Self {
         match output_format {
-            OutputFormat::Human => Self::HumanProgressHandler(HumanProgressHandler::new()),
-            OutputFormat::Json => Self::JsonHandler(JsonHandler::stderr()),
+            OutputFormat::Human => Self::HumanProgress(HumanProgressHandler::default()),
+            OutputFormat::Json => Self::Json(JsonHandler::stderr()),
             OutputFormat::None => {
                 // To disable regular output. Useful when outputting logs to stdout, as the
                 //   regular output and the log output may otherwise interfere with each other.
-                Self::DiscardOutputHandler(DiscardOutputHandler)
+                Self::DiscardOutput(DiscardOutputHandler)
             }
         }
     }

@@ -60,13 +60,10 @@ impl<T> Reporter for T where
 {
 }
 
+#[derive(Default)]
 pub struct ReporterSetup;
 
 impl ReporterSetup {
-    pub fn new() -> Self {
-        Self {}
-    }
-
     pub fn create(self) -> (impl Reporter, impl EventListener<Event = Event>) {
         let (sender, receiver) = event_channel::<Event>();
 

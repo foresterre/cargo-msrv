@@ -17,7 +17,9 @@ const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56
 pub struct Set;
 
 impl SubCommand for Set {
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    type Output = ();
+
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         set_msrv(config, reporter)
     }
 }

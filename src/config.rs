@@ -182,7 +182,7 @@ impl fmt::Display for ReleaseSource {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, serde::Serialize)]
 pub enum SearchMethod {
     Linear,
     Bisect,

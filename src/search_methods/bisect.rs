@@ -4,12 +4,12 @@ use rust_releases::Release;
 use crate::check::Check;
 use crate::errors::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
-use crate::{Config, TResult};
-// use crate::reporter::{write_failed_check, write_succeeded_check};
+use crate::reporter::event::{Progress, Search};
 use crate::reporter::Reporter;
 use crate::result::MinimalCompatibility;
 use crate::search_methods::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
+use crate::{Config, TResult};
 
 pub struct Bisect<'runner, R: Check> {
     runner: &'runner R,
@@ -36,10 +36,17 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         }
     }
 
-    fn update_progress_bar(_iteration: u64, indices: Indices, _reporter: &impl Reporter) {
-        let _remainder = (indices.right - indices.left) as u64;
-        // todo!
-        // output.set_steps(remainder + iteration);
+    fn show_progress(
+        iteration: u64,
+        total: u64,
+        indices: Indices,
+        reporter: &impl Reporter,
+    ) -> TResult<()> {
+        let current = indices.middle() as u64;
+
+        reporter.report_event(Progress::new(current, total, iteration))?;
+
+        Ok(())
     }
 
     fn minimum_capable(msrv: Option<&Release>, config: &Config) -> MinimalCompatibility {
@@ -60,71 +67,76 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         config: &Config,
         reporter: &impl Reporter,
     ) -> TResult<MinimalCompatibility> {
-        let searcher = Bisector::new(search_space);
+        reporter.run_scoped_event(Search::new(config.search_method()), || {
+            let searcher = Bisector::new(search_space);
 
-        let mut iteration = 0_u64;
-        let mut indices =
-            Indices::try_from_bisector(&searcher).map_err(|_| NoToolchainsToTryError {
-                min: config.minimum_version().map(Clone::clone),
-                max: config.maximum_version().map(Clone::clone),
-                search_space: search_space.to_vec(),
-            })?;
+            let total = search_space.len() as u64;
+            let mut iteration = 0_u64;
+            let mut indices =
+                Indices::try_from_bisector(&searcher).map_err(|_| NoToolchainsToTryError {
+                    min: config.minimum_version().map(Clone::clone),
+                    max: config.maximum_version().map(Clone::clone),
+                    search_space: search_space.to_vec(),
+                })?;
 
-        let mut last_compatible_index = None;
+            let mut last_compatible_index = None;
 
-        info!(?search_space);
+            info!(?search_space);
 
-        while let Step {
-            indices: next_indices,
-            result: Some(step),
-        } = searcher.try_bisect(
-            |release| Self::run_check(self.runner, release, config, reporter),
-            indices,
-        )? {
-            iteration += 1;
+            while let Step {
+                indices: next_indices,
+                result: Some(step),
+            } = searcher.try_bisect(
+                |release| Self::run_check(self.runner, release, config, reporter),
+                indices,
+            )? {
+                iteration += 1;
 
-            info!(?indices, ?next_indices);
+                info!(?indices, ?next_indices);
 
-            Self::update_progress_bar(iteration, next_indices, reporter);
+                Self::show_progress(iteration, total, indices, reporter)?;
 
-            match step {
-                ConvergeTo::Left(_outcome) => {}
-                ConvergeTo::Right(_outcome) => {
-                    last_compatible_index = Some(indices);
+                match step {
+                    ConvergeTo::Left(_outcome) => {}
+                    ConvergeTo::Right(_outcome) => {
+                        last_compatible_index = Some(indices);
+                    }
                 }
+
+                indices = next_indices;
             }
 
-            indices = next_indices;
-        }
+            let converged_to_release = &search_space[indices.middle()];
 
-        let converged_to_release = &search_space[indices.middle()];
+            // Work-around for regression:
+            // https://github.com/foresterre/cargo-msrv/issues/288
+            let msrv = if indices.middle() == search_space.len() - 1 {
+                Self::show_progress(iteration + 1, total, indices, reporter)?;
 
-        // Work-around for regression:
-        // https://github.com/foresterre/cargo-msrv/issues/288
-        let msrv = if indices.middle() == search_space.len() - 1 {
-            match Self::run_check(self.runner, converged_to_release, config, reporter)? {
-                ConvergeTo::Left(_outcome) => {
-                    last_compatible_index.map(|i| &search_space[i.middle()])
+                match Self::run_check(self.runner, converged_to_release, config, reporter)? {
+                    ConvergeTo::Left(_outcome) => {
+                        last_compatible_index.map(|i| &search_space[i.middle()])
+                    }
+                    ConvergeTo::Right(_outcome) => Some(converged_to_release),
                 }
-                ConvergeTo::Right(_outcome) => Some(converged_to_release),
-            }
-        } else {
-            last_compatible_index.map(|i| &search_space[i.middle()])
-        };
+            } else {
+                last_compatible_index.map(|i| &search_space[i.middle()])
+            };
 
-        Ok(Self::minimum_capable(msrv, config))
+            Ok(Self::minimum_capable(msrv, config))
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use rust_releases::Release;
-    use storyteller::ChannelReporter;
 
     use crate::check::TestRunner;
+    use crate::reporter::TestReporter;
     use crate::search_methods::FindMinimalCapableToolchain;
     use crate::semver::Version;
-    use crate::{semver, Action, Config, Event};
+    use crate::{semver, Action, Config};
 
     use super::Bisect;
 
@@ -324,14 +336,12 @@ mod tests {
         expected_msrv: Version,
     ) {
         let runner = TestRunner::with_ok(accept);
-
         let bisect = Bisect::new(&runner);
 
-        let (sender, _) = storyteller::event_channel::<Event>();
-        let reporter = ChannelReporter::new(sender);
+        let reporter = TestReporter::default();
 
         let result = bisect
-            .find_toolchain(search_space, &fake_config(), &reporter)
+            .find_toolchain(search_space, &fake_config(), reporter.reporter())
             .unwrap();
 
         assert_eq!(result.unwrap_version(), expected_msrv);

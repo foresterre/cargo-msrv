@@ -34,7 +34,7 @@ impl RustupCommand {
     }
 
     pub fn with_args<T: Into<OsString>>(mut self, args: impl IntoIterator<Item = T>) -> Self {
-        let _ = self.args.extend(args.into_iter().map(Into::into));
+        self.args.extend(args.into_iter().map(Into::into));
         self
     }
 

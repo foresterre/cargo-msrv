@@ -1,5 +1,5 @@
 use crate::reporter::handler::TestingHandler;
-use crate::{CargoMSRVError, Event};
+use crate::Event;
 use std::sync::Arc;
 use storyteller::{
     event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventListener,
@@ -8,13 +8,14 @@ use storyteller::{
 
 pub struct TestReporter {
     reporter: ChannelReporter<Event>,
+    #[allow(unused)]
     listener: ChannelEventListener<Event>,
     handler: Arc<TestingHandler>,
     finalizer: ChannelFinalizeHandler,
 }
 
-impl TestReporter {
-    pub fn new() -> Self {
+impl Default for TestReporter {
+    fn default() -> Self {
         let (sender, receiver) = event_channel::<Event>();
 
         let reporter = ChannelReporter::new(sender);
@@ -29,7 +30,9 @@ impl TestReporter {
             finalizer,
         }
     }
+}
 
+impl TestReporter {
     pub fn events(&self) -> Vec<Event> {
         self.handler
             .clone()

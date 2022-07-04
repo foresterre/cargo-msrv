@@ -34,6 +34,8 @@ fn expect_no_user_output() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
-    assert!(stdout.is_empty());
-    assert!(stderr.is_empty());
+    // The empty string, "", is preferred over is_empty() because if the assertion fails, we'll
+    // see the diff between the expected and actual strings.
+    assert_eq!(stdout.as_ref(), "");
+    assert_eq!(stderr.as_ref(), "");
 }

@@ -58,17 +58,25 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         Action::Find => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
-            Find::new(&index, runner).run(config, reporter)
+            Find::new(&index, runner).run(config, reporter)?;
         }
         Action::Verify => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
-            Verify::new(&index, runner).run(config, reporter)
+            Verify::new(&index, runner).run(config, reporter)?;
         }
-        Action::List => List::default().run(config, reporter),
-        Action::Set => Set::default().run(config, reporter),
-        Action::Show => Show::default().run(config, reporter),
+        Action::List => {
+            List::default().run(config, reporter)?;
+        }
+        Action::Set => {
+            Set::default().run(config, reporter)?;
+        }
+        Action::Show => {
+            Show::default().run(config, reporter)?;
+        }
     }
+
+    Ok(())
 }
 
 fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {

@@ -18,8 +18,8 @@ pub struct HumanProgressHandler {
     sequence_number: AtomicU32,
 }
 
-impl HumanProgressHandler {
-    pub fn new() -> Self {
+impl Default for HumanProgressHandler {
+    fn default() -> Self {
         let mp = Self::styled_progress_bar();
 
         Self {
@@ -27,7 +27,9 @@ impl HumanProgressHandler {
             sequence_number: AtomicU32::new(1),
         }
     }
+}
 
+impl HumanProgressHandler {
     fn init_progress(&self, version: &semver::Version) {
         self.sequence_number.fetch_add(1, Ordering::SeqCst);
         self.pb.reset();
@@ -128,8 +130,7 @@ impl MsrvResult {
         if let Some(version) = self.msrv() {
             writeln!(
                 &mut out,
-                "  {} {:>16}       {}",
-                "MSRV:",
+                "  MSRV: {:>16}       {}",
                 version.green().bold().underline(),
                 format_args!("(target: {})", target).dimmed(),
             )

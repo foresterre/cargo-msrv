@@ -11,7 +11,7 @@ use crate::result::MinimalCompatibility;
 use crate::search_methods::{Bisect, FindMinimalCapableToolchain, Linear};
 use crate::writers::toolchain_file::write_toolchain_file;
 use crate::writers::write_msrv::write_msrv;
-use crate::SubCommand;
+use crate::{semver, SubCommand};
 
 pub struct Find<'index, C: Check> {
     release_index: &'index ReleaseIndex,
@@ -28,7 +28,9 @@ impl<'index, C: Check> Find<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Find<'index, C> {
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    type Output = semver::Version;
+
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         find_msrv(config, reporter, self.release_index, &self.runner)
     }
 }
@@ -38,13 +40,15 @@ fn find_msrv(
     reporter: &impl Reporter,
     release_index: &ReleaseIndex,
     runner: &impl Check,
-) -> TResult<()> {
-    match search(config, reporter, release_index, runner)? {
+) -> TResult<semver::Version> {
+    let search_result = search(config, reporter, release_index, runner)?;
+
+    match &search_result {
         MinimalCompatibility::NoCompatibleToolchains => {
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: config.check_command().join(" "),
+                command: config.check_command_string(),
             })
         }
         MinimalCompatibility::CapableToolchain { toolchain } => {
@@ -61,7 +65,7 @@ fn find_msrv(
                 write_msrv(config, reporter, toolchain.version())?;
             }
 
-            Ok(())
+            Ok(toolchain.version().clone())
         }
     }
 }
@@ -144,11 +148,11 @@ fn min_max_releases(rust_releases: &[Release]) -> TResult<(BareVersion, BareVers
     let min = rust_releases
         .last()
         .map(|v| v.version())
-        .ok_or_else(|| CargoMSRVError::RustReleasesEmptyReleaseSet)?;
+        .ok_or(CargoMSRVError::RustReleasesEmptyReleaseSet)?;
     let max = rust_releases
         .first()
         .map(|v| v.version())
-        .ok_or_else(|| CargoMSRVError::RustReleasesEmptyReleaseSet)?;
+        .ok_or(CargoMSRVError::RustReleasesEmptyReleaseSet)?;
 
     Ok((min.into(), max.into()))
 }

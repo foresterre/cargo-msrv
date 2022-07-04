@@ -18,6 +18,8 @@ pub(crate) mod verify;
 ///
 /// It takes a set of inputs, from the `config`, and reports it's results via the `reporter`.
 pub trait SubCommand {
+    type Output;
+
     /// Run the sub-command
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<()>;
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output>;
 }

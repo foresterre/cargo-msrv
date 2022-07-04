@@ -7,6 +7,8 @@ pub use fetch_index::FetchIndex;
 pub use meta::Meta;
 pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::NewCompatibilityCheck;
+pub use progress::Progress;
+pub use search_method::Search;
 pub use setup_toolchain::SetupToolchain;
 pub use termination::TerminateWithFailure;
 
@@ -16,6 +18,8 @@ mod fetch_index;
 mod meta;
 mod msrv_result;
 mod new_compatibility_check;
+mod progress;
+mod search_method;
 mod setup_toolchain;
 mod termination;
 
@@ -49,57 +53,40 @@ impl Event {
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
-    // -- setup
+    // setup
     Meta(Meta),
-    // Config, // todo!
-    // SubcommandInit, // todo!
 
-    // -- get rust-releases index
+    // get rust-releases index
     FetchIndex(FetchIndex), // todo!
 
     // todo: SkippedRustVersions // +reason
 
-    // -- install toolchain
+    // install toolchain
     SetupToolchain(SetupToolchain),
 
-    // -- runner + pass/reject
+    // runner + pass/reject
     NewCompatibilityCheck(NewCompatibilityCheck),
     CompatibilityCheckMethod(CompatibilityCheckMethod),
     Compatibility(Compatibility),
 
-    // -- command: find
+    // command: find
     MsrvResult(MsrvResult),
-    // todo: SearchMethod, // linear, bisect
-    // todo: SearchReport, // tried toolchains, which passed, which rejected, what order, which runner
+    Search(Search),
+    Progress(Progress),
 
-    // --- command: verify
+    // command: verify
     // Verify
 
-    // --- command: list
+    // command: list
     // ListDepMSRV
 
-    // --- command: set
+    // command: set
     // SetMSRV
 
-    // --- command: show
+    // command: show
 
-    // --- Termination, for example when caused by an unrecoverable error
+    // Termination, for example when caused by an unrecoverable error
     TerminateWithFailure(TerminateWithFailure),
-}
-
-impl Message {
-    pub fn identifier(&self) -> &'static str {
-        match self {
-            Message::Meta(it) => it.identifier(),
-            Message::FetchIndex(it) => it.identifier(),
-            Message::SetupToolchain(it) => it.identifier(),
-            Message::NewCompatibilityCheck(it) => it.identifier(),
-            Message::CompatibilityCheckMethod(it) => it.identifier(),
-            Message::Compatibility(it) => it.identifier(),
-            Message::MsrvResult(it) => it.identifier(),
-            Message::TerminateWithFailure(it) => it.identifier(),
-        }
-    }
 }
 
 impl From<Message> for Event {
@@ -128,8 +115,4 @@ impl fmt::Display for Message {
 pub enum EventScope {
     Start,
     End,
-}
-
-pub trait IntoIdentifiableEvent: Into<Event> {
-    fn identifier(&self) -> &'static str;
 }
