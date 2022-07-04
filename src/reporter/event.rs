@@ -4,6 +4,7 @@ use std::fmt::Formatter;
 pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
+pub use list_dep::ListDep;
 pub use meta::Meta;
 pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::NewCompatibilityCheck;
@@ -15,6 +16,7 @@ pub use termination::TerminateWithFailure;
 mod compatibility;
 mod compatibility_check_method;
 mod fetch_index;
+mod list_dep;
 mod meta;
 mod msrv_result;
 mod new_compatibility_check;
@@ -79,6 +81,7 @@ pub enum Message {
 
     // command: list
     // ListDepMSRV
+    ListDep(ListDep),
 
     // command: set
     // SetMSRV

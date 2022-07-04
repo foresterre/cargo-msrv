@@ -32,7 +32,7 @@ pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 pub(crate) mod download;
 pub(crate) mod filter_releases;
-pub(crate) mod formatter;
+pub(crate) mod formatting;
 pub(crate) mod lockfile;
 pub(crate) mod log_level;
 pub(crate) mod manifest;

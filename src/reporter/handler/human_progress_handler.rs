@@ -2,8 +2,6 @@ use crate::reporter::event::{
     Compatibility, CompatibilityReport, Message, MsrvResult, NewCompatibilityCheck,
 };
 use crate::{semver, Event};
-use comfy_table::presets::UTF8_FULL;
-use comfy_table::{ContentArrangement, Table};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::fmt;
@@ -11,6 +9,8 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use storyteller::EventHandler;
+use tabled::object::Segment;
+use tabled::{Alignment, Disable, Header, Margin, Modify, Style, Table};
 use thiserror::private::PathAsDisplay;
 
 pub struct HumanProgressHandler {
@@ -80,7 +80,10 @@ impl EventHandler for HumanProgressHandler {
                 self.pb.println(message_box(error));
             }
             Message::MsrvResult(result) => {
-                self.pb.println(result.summary());
+                self.pb.println(format!("\n{}", result.summary()));
+            }
+            Message::ListDep(list) => {
+                self.pb.println(list.to_string());
             }
             Message::TerminateWithFailure(termination) if termination.is_error() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
@@ -108,56 +111,52 @@ impl NewCompatibilityCheck {
 
 impl MsrvResult {
     fn summary(&self) -> String {
-        use std::fmt::Write;
-        let mut out = String::with_capacity(32);
-        let target = self.target.as_str();
-
-        writeln!(&mut out, "\n{}", "Result:".bold());
-        writeln!(
-            &mut out,
-            "  {:>16}:      (Rust {:>8} … Rust {:>8})",
-            format_args!("Considered ({} … {})", "min".cyan(), "max".yellow(),),
-            &self.minimum_version.cyan(),
-            &self.maximum_version.yellow(),
-        );
-
-        writeln!(
-            &mut out,
-            "  Search method: {:>7}",
-            Into::<&'static str>::into(self.search_method).bright_purple()
-        );
-
-        if let Some(version) = self.msrv() {
-            writeln!(
-                &mut out,
-                "  MSRV: {:>16}       {}",
-                version.green().bold().underline(),
-                format_args!("(target: {})", target).dimmed(),
-            )
-        } else {
-            writeln!(
-                &mut out,
-                "  {}: {:>16}       {}",
-                "None".red(),
-                "No compatible Rust version found!",
-                format_args!("(target: {})", target).dimmed() // todo!: fix summary report when no available compatible versions
-            )
-        };
-
-        out
+        result_table(self)
     }
 }
 
 fn message_box(message: &str) -> String {
-    let mut table = Table::new();
-    table
-        .load_preset(UTF8_FULL)
-        .set_content_arrangement(ContentArrangement::Dynamic)
-        .add_row(vec![message.trim()]);
+    Table::new(&[format!("{}", message.dimmed())])
+        .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
+        .with(Style::rounded())
+        .to_string()
+}
 
-    table
-        .lines()
-        .map(|line| format!("  {}", line.dimmed()))
-        .collect::<Vec<_>>()
-        .join("\n")
+fn result_table(result: &MsrvResult) -> String {
+    fn msrv(result: &MsrvResult) -> String {
+        result
+            .msrv()
+            .map(|version| format!("{}", version.green().bold().underline()))
+            .unwrap_or_else(|| format!("{}", "N/A".red()))
+    }
+
+    let target = result.target.as_str();
+    let search_method: &str = result.search_method.into();
+
+    let content = &[
+        &[
+            format!("Considered ({} … {}):", "min".cyan(), "max".yellow()),
+            format!(
+                "Rust {} … Rust {}",
+                result.minimum_version.cyan(),
+                result.maximum_version.yellow()
+            ),
+        ],
+        &[
+            "Search method:".to_string(),
+            format!("{}", search_method.bright_purple()),
+        ],
+        &["MSRV:".to_string(), msrv(result)],
+        &[
+            format!("{}", "Target:".dimmed()),
+            format!("{}", target.dimmed()),
+        ],
+    ];
+
+    Table::new(content)
+        .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
+        .with(Header(format!("{}", "Result:".bold())))
+        .with(Modify::new(Segment::all()).with(Alignment::left()))
+        .with(Style::blank())
+        .to_string()
 }

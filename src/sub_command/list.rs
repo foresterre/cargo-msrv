@@ -1,8 +1,9 @@
 use crate::config::Config;
 use crate::dependency_graph::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::error::TResult;
+use crate::reporter::event::ListDep;
 use crate::reporter::Reporter;
-use crate::{dependency_graph, SubCommand};
+use crate::SubCommand;
 
 #[derive(Default)]
 pub struct List;
@@ -15,23 +16,12 @@ impl SubCommand for List {
     }
 }
 
-fn list_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
-    // todo!
-    // output.mode(ModeIntent::List);
-
+fn list_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     let resolver = CargoMetadataResolver::try_from_config(config)?;
     let graph = resolver.resolve()?;
-
-    let format = config.output_format();
     let variant = config.sub_command_config().list().variant;
 
-    if let Some(_s) = dependency_graph::format(&graph, variant, format) {
-        // todo!
-        // output.write_line(&s);
-    }
-
-    // todo!
-    // output.finish_success(ModeIntent::List, None);
+    reporter.report_event(ListDep::new(variant, graph))?;
 
     Ok(())
 }
