@@ -1,4 +1,4 @@
-use crate::errors::IoErrorSource;
+use crate::error::IoErrorSource;
 use crate::paths::crate_root_folder;
 use crate::{semver, CargoMSRVError, Config, TResult};
 

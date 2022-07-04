@@ -1,6 +1,6 @@
 use crate::config::OutputFormat;
-use crate::dependencies::formatter::format_version;
-use crate::dependencies::DependencyGraph;
+use crate::dependency_graph::formatter::format_version;
+use crate::dependency_graph::DependencyGraph;
 use crate::semver;
 use cargo_metadata::Package;
 use comfy_table::presets::UTF8_FULL;

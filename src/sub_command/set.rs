@@ -4,7 +4,7 @@ use rust_releases::semver;
 
 use toml_edit::{table, value, Document, Item, Value};
 
-use crate::errors::{IoErrorSource, SetMsrvError};
+use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;
@@ -177,7 +177,7 @@ mod set_or_override_msrv_tests {
 
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
-    use crate::subcommands::set::set_or_override_msrv;
+    use crate::sub_command::set::set_or_override_msrv;
 
     #[test]
     fn set_rust_version_in_empty_two_component() {
@@ -453,7 +453,7 @@ mod discard_current_msrv_tests {
     use toml_edit::Document;
 
     use crate::manifest::{CargoManifestParser, TomlParser};
-    use crate::subcommands::set::discard_current_msrv;
+    use crate::sub_command::set::discard_current_msrv;
 
     #[test]
     fn discard_none() {
@@ -658,7 +658,7 @@ mod insert_new_msrv_tests {
 
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
-    use crate::subcommands::set::insert_new_msrv;
+    use crate::sub_command::set::insert_new_msrv;
 
     #[test]
     fn insert_rust_version_in_empty_two_component() {
@@ -756,7 +756,7 @@ edition = "2021"
 
         use crate::manifest::bare_version::BareVersion;
         use crate::manifest::{CargoManifestParser, TomlParser};
-        use crate::subcommands::set::insert_new_msrv;
+        use crate::sub_command::set::insert_new_msrv;
 
         const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
 

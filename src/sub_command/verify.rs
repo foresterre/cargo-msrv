@@ -7,12 +7,12 @@ use toml_edit::Document;
 
 use crate::check::Check;
 use crate::config::Config;
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
 use crate::reporter::Reporter;
-use crate::subcommands::SubCommand;
+use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.

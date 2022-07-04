@@ -1,8 +1,8 @@
 use crate::config::Config;
-use crate::dependencies::resolver::{CargoMetadataResolver, DependencyResolver};
-use crate::errors::TResult;
+use crate::dependency_graph::resolver::{CargoMetadataResolver, DependencyResolver};
+use crate::error::TResult;
 use crate::reporter::Reporter;
-use crate::{dependencies, SubCommand};
+use crate::{dependency_graph, SubCommand};
 
 #[derive(Default)]
 pub struct List;
@@ -25,7 +25,7 @@ fn list_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
     let format = config.output_format();
     let variant = config.sub_command_config().list().variant;
 
-    if let Some(_s) = dependencies::format(&graph, variant, format) {
+    if let Some(_s) = dependency_graph::format(&graph, variant, format) {
         // todo!
         // output.write_line(&s);
     }

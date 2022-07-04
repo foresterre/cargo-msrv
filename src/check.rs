@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::command::RustupCommand;
 use crate::config::Config;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::outcome::Outcome;
 use crate::paths::crate_root_folder;

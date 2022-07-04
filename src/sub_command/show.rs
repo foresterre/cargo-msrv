@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 use toml_edit::Document;
 
 use crate::config::Config;
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::paths::crate_root_folder;

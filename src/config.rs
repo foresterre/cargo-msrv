@@ -11,7 +11,7 @@ use crate::config::verify::VerifyCmdConfig;
 use crate::ctx::ComputedCtx;
 use rust_releases::semver;
 
-use crate::errors::{CargoMSRVError, TResult};
+use crate::error::{CargoMSRVError, TResult};
 use crate::log_level::LogLevel;
 use crate::manifest::bare_version;
 

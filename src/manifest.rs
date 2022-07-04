@@ -107,7 +107,7 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::errors::CargoMSRVError;
+    use crate::error::CargoMSRVError;
     use crate::manifest::bare_version::Error;
     use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
     use std::convert::TryFrom;

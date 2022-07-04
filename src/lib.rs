@@ -6,7 +6,7 @@ extern crate core;
 extern crate tracing;
 
 pub use crate::outcome::Outcome;
-pub use crate::subcommands::{Find, List, Set, Show, SubCommand, Verify};
+pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
@@ -14,35 +14,35 @@ use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog
 
 use crate::check::RustupToolchainCheck;
 use crate::config::{Action, Config, OutputFormat, ReleaseSource};
-use crate::errors::{CargoMSRVError, TResult};
+use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{FetchIndex, Meta};
 use crate::reporter::{Event, Reporter};
 
 pub mod check;
 pub mod cli;
 pub mod config;
-pub mod errors;
+pub mod error;
 pub mod exit_code;
 pub mod reporter;
 pub mod toolchain;
 
 pub(crate) mod command;
 pub(crate) mod ctx;
-pub(crate) mod dependencies;
+pub(crate) mod default_target;
+pub(crate) mod dependency_graph;
 pub(crate) mod download;
-pub(crate) mod fetch;
+pub(crate) mod filter_releases;
 pub(crate) mod formatter;
 pub(crate) mod lockfile;
 pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod outcome;
 pub(crate) mod paths;
-pub(crate) mod releases;
 pub(crate) mod result;
-pub(crate) mod search_methods;
-pub(crate) mod subcommands;
+pub(crate) mod search_method;
+pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
-pub(crate) mod writers;
+pub(crate) mod writer;
 
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;

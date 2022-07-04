@@ -2,12 +2,12 @@ use bisector::{Bisector, ConvergeTo, Indices, Step};
 use rust_releases::Release;
 
 use crate::check::Check;
-use crate::errors::NoToolchainsToTryError;
+use crate::error::NoToolchainsToTryError;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{Progress, Search};
 use crate::reporter::Reporter;
 use crate::result::MinimalCompatibility;
-use crate::search_methods::FindMinimalCapableToolchain;
+use crate::search_method::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
 
@@ -134,7 +134,7 @@ mod tests {
 
     use crate::check::TestRunner;
     use crate::reporter::TestReporter;
-    use crate::search_methods::FindMinimalCapableToolchain;
+    use crate::search_method::FindMinimalCapableToolchain;
     use crate::semver::Version;
     use crate::{semver, Action, Config};
 

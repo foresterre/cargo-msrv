@@ -1,6 +1,6 @@
 use crate::config::OutputFormat;
-use crate::dependencies::formatter::format_version;
-use crate::dependencies::DependencyGraph;
+use crate::dependency_graph::formatter::format_version;
+use crate::dependency_graph::DependencyGraph;
 use comfy_table::presets::UTF8_FULL;
 use comfy_table::{Cell, ContentArrangement, Table};
 

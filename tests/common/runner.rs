@@ -7,7 +7,7 @@ use std::collections::HashSet;
 
 use cargo_msrv::check::Check;
 use cargo_msrv::config::Config;
-use cargo_msrv::errors::CargoMSRVError;
+use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use cargo_msrv::Outcome;
 use rust_releases::semver;

@@ -9,7 +9,7 @@ use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::{Config, OutputFormat, TracingOptions, TracingTargetOption};
-use cargo_msrv::errors::CargoMSRVError;
+use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
     DiscardOutputHandler, HumanProgressHandler, JsonHandler, ReporterSetup,

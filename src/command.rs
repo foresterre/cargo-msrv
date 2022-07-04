@@ -2,7 +2,7 @@ use std::ffi::{OsStr, OsString};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 pub struct RustupCommand {
     command: Command,

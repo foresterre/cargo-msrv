@@ -1,6 +1,6 @@
 use crate::config::Config;
-use crate::dependencies::DependencyGraph;
-use crate::errors::{CargoMSRVError, TResult};
+use crate::dependency_graph::DependencyGraph;
+use crate::error::{CargoMSRVError, TResult};
 use crate::paths::crate_root_folder;
 use cargo_metadata::MetadataCommand;
 

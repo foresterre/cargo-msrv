@@ -8,11 +8,10 @@ use rust_releases::Release;
 use storyteller::ReporterError;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
-use crate::fetch::ToolchainSpecifier;
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 
-use crate::subcommands::verify;
+use crate::sub_command::verify;
 
 pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 
@@ -89,7 +88,7 @@ pub enum CargoMSRVError {
     RustReleasesEmptyReleaseSet,
 
     #[error("Unable to install toolchain with `rustup install {0}`.")]
-    RustupInstallFailed(ToolchainSpecifier),
+    RustupInstallFailed(String),
 
     #[error("Check toolchain (with `rustup run <toolchain> <command>`) failed.")]
     RustupRunWithCommandFailed,

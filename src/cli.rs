@@ -6,7 +6,7 @@ use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::config::list::ListMsrvVariant;
 use crate::config::ConfigBuilder;
-use crate::fetch::default_target;
+use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
 use crate::{Action, CargoMSRVError, Config};
 use clap::{AppSettings, Args, Parser, Subcommand};
