@@ -56,6 +56,7 @@ impl Event {
 /// Messages are a kind of event which report the state of this program to the user
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
 pub enum Message {
     Action(ActionMessage),
 
