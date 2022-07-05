@@ -19,15 +19,12 @@ impl Compatibility {
         }
     }
 
-    pub fn incompatible(
-        toolchain: impl Into<OwnedToolchainSpec>,
-        error: impl Into<String>,
-    ) -> Self {
+    pub fn incompatible(toolchain: impl Into<OwnedToolchainSpec>, error: Option<String>) -> Self {
         Self {
             toolchain: toolchain.into(),
             decision: false,
             compatibility_report: CompatibilityReport::Incompatible {
-                error: error.into(),
+                error: error.map(Into::into),
             },
         }
     }
@@ -43,5 +40,5 @@ impl From<Compatibility> for Event {
 #[serde(rename_all = "snake_case")]
 pub enum CompatibilityReport {
     Compatible,
-    Incompatible { error: String },
+    Incompatible { error: Option<String> },
 }

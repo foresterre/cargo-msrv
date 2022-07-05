@@ -30,13 +30,13 @@ impl Default for HumanProgressHandler {
 }
 
 impl HumanProgressHandler {
-    fn init_progress(&self, version: &semver::Version) {
+    fn start_runner_progress(&self, version: &semver::Version) {
         self.sequence_number.fetch_add(1, Ordering::SeqCst);
         self.pb.reset();
         self.pb.set_message(format!("Rust {}", version));
     }
 
-    fn finish_progress(&self) {
+    fn finish_runner_progress(&self) {
         self.pb.finish_and_clear();
     }
 
@@ -64,20 +64,23 @@ impl EventHandler for HumanProgressHandler {
             }
             Message::NewCompatibilityCheck(it) if event.is_scope_start() => {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
-                self.init_progress(it.toolchain.version());
+                self.start_runner_progress(it.toolchain.version());
             }
             Message::NewCompatibilityCheck(it) /* is scope end */ => {
                 let version = it.toolchain.version();
-                self.finish_progress();
+                self.finish_runner_progress();
             }
             Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
                 let version = toolchain.version();
-                self.pb.println(format!("  [{}] {:>16}", "OK".bright_green(), "Is compatible"));
+                self.pb.println(format!("  [{}]   {}", "OK".bright_green(), "Is compatible"));
             }
             Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Incompatible { error }, toolchain, .. }) => {
                 let version = toolchain.version();
-                self.pb.println(format!("  [{}] {:>16}", "FAIL".bright_red(), "Is Incompatible"));
-                self.pb.println(message_box(error));
+                self.pb.println(format!("  [{}] {}", "FAIL".bright_red(), "Is Incompatible"));
+
+                if let Some(error_report) = error.as_deref() {
+                    self.pb.println(message_box(error_report));
+                }
             }
             Message::MsrvResult(result) => {
                 self.pb.println(format!("\n{}", result.summary()));

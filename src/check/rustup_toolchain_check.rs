@@ -40,7 +40,7 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
                 )?;
 
                 // report outcome to UI
-                self.report_outcome(&outcome)?;
+                self.report_outcome(&outcome, config.no_check_feedback())?;
 
                 // move the lockfile back
                 if let Some(handle) = handle_wrap {
@@ -111,18 +111,25 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         }
     }
 
-    fn report_outcome(&self, outcome: &Outcome) -> TResult<()> {
+    fn report_outcome(&self, outcome: &Outcome, no_error_report: bool) -> TResult<()> {
         match outcome {
             Outcome::Success(outcome) => {
                 // report compatibility with this toolchain
                 self.reporter
                     .report_event(Compatibility::compatible(outcome.toolchain_spec.to_owned()))?
             }
+            Outcome::Failure(outcome) if no_error_report => {
+                // report incompatibility with this toolchain
+                self.reporter.report_event(Compatibility::incompatible(
+                    outcome.toolchain_spec.to_owned(),
+                    None,
+                ))?
+            }
             Outcome::Failure(outcome) => {
                 // report incompatibility with this toolchain
                 self.reporter.report_event(Compatibility::incompatible(
                     outcome.toolchain_spec.to_owned(),
-                    outcome.error_message.clone(),
+                    Some(outcome.error_message.clone()),
                 ))?
             }
         };
