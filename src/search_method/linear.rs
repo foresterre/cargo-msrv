@@ -1,13 +1,12 @@
 use rust_releases::Release;
 
 use crate::check::Check;
-use crate::outcome::Outcome;
-use crate::{Config, TResult};
-// use crate::reporter::{write_failed_check, write_succeeded_check};
 use crate::msrv::MinimumSupportedRustVersion;
+use crate::outcome::Outcome;
 use crate::reporter::Reporter;
 use crate::search_method::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
+use crate::{Config, TResult};
 
 pub struct Linear<'runner, R: Check> {
     runner: &'runner R,
