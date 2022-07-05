@@ -4,11 +4,11 @@ use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct Search {
+pub struct FindMSRV {
     search_method: Method,
 }
 
-impl Search {
+impl FindMSRV {
     pub(crate) fn new(method: Method) -> Self {
         Self {
             search_method: method,
@@ -16,8 +16,8 @@ impl Search {
     }
 }
 
-impl From<Search> for Event {
-    fn from(it: Search) -> Self {
-        Message::Search(it).into()
+impl From<FindMSRV> for Event {
+    fn from(it: FindMSRV) -> Self {
+        Message::FindMSRV(it).into()
     }
 }

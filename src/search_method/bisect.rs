@@ -5,9 +5,9 @@ use crate::check::Check;
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
-use crate::reporter::event::{Progress, Search};
+use crate::reporter::event::{FindMSRV, Progress};
 use crate::reporter::Reporter;
-use crate::search_method::FindMinimalCapableToolchain;
+use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
 
@@ -63,14 +63,14 @@ impl<'runner, R: Check> Bisect<'runner, R> {
     }
 }
 
-impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
+impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
     fn find_toolchain(
         &self,
         search_space: &[Release],
         config: &Config,
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
-        reporter.run_scoped_event(Search::new(config.search_method()), || {
+        reporter.run_scoped_event(FindMSRV::new(config.search_method()), || {
             let searcher = Bisector::new(search_space);
 
             let total = search_space.len() as u64;
@@ -137,7 +137,7 @@ mod tests {
 
     use crate::check::TestRunner;
     use crate::reporter::TestReporter;
-    use crate::search_method::FindMinimalCapableToolchain;
+    use crate::search_method::FindMinimalSupportedRustVersion;
     use crate::semver::Version;
     use crate::{semver, Action, Config};
 

@@ -9,7 +9,7 @@ pub use meta::Meta;
 pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::NewCompatibilityCheck;
 pub use progress::Progress;
-pub use search_method::Search;
+pub use search_method::FindMSRV;
 pub use setup_toolchain::SetupToolchain;
 pub use termination::TerminateWithFailure;
 
@@ -73,7 +73,7 @@ pub enum Message {
 
     // command: find
     MsrvResult(MsrvResult),
-    Search(Search),
+    FindMSRV(FindMSRV),
     Progress(Progress),
 
     // command: verify

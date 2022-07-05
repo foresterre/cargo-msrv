@@ -4,7 +4,7 @@ use crate::check::Check;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
 use crate::reporter::Reporter;
-use crate::search_method::FindMinimalCapableToolchain;
+use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
 
@@ -31,7 +31,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
     }
 
     fn minimum_capable(
-        releases: &[rust_releases::Release],
+        releases: &[Release],
         index_of_msrv: Option<usize>,
         config: &Config,
     ) -> MinimumSupportedRustVersion {
@@ -45,7 +45,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
     }
 }
 
-impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
+impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
     fn find_toolchain<'spec>(
         &self,
         search_space: &'spec [Release],

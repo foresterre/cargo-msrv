@@ -8,7 +8,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::event::MsrvResult;
 use crate::reporter::Reporter;
-use crate::search_method::{Bisect, FindMinimalCapableToolchain, Linear};
+use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
 use crate::{semver, SubCommand};
@@ -110,7 +110,7 @@ fn run_with_search_method(
 }
 
 fn run_searcher(
-    method: &impl FindMinimalCapableToolchain,
+    method: &impl FindMinimalSupportedRustVersion,
     releases: &[Release],
     config: &Config,
     reporter: &impl Reporter,

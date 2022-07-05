@@ -14,7 +14,7 @@ pub(crate) mod bisect;
 /// the head.
 pub(crate) mod linear;
 
-pub trait FindMinimalCapableToolchain {
+pub trait FindMinimalSupportedRustVersion {
     /// Method to find the minimum capable toolchain.
     ///
     /// The search space must be ordered from most to least recent.
