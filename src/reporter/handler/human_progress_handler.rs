@@ -1,5 +1,5 @@
 use crate::reporter::event::{
-    Compatibility, CompatibilityReport, Message, MsrvResult, NewCompatibilityCheck,
+    CheckToolchain, Compatibility, CompatibilityReport, Message, MsrvResult,
 };
 use crate::{semver, Event};
 use owo_colors::OwoColorize;
@@ -99,7 +99,7 @@ impl EventHandler for HumanProgressHandler {
     }
 }
 
-impl NewCompatibilityCheck {
+impl CheckToolchain {
     fn header(&self, nth: u32) -> String {
         format!(
             "\n{} #{}: Rust {}",

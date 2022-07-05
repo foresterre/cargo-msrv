@@ -4,11 +4,11 @@ use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct NewCompatibilityCheck {
+pub struct CheckToolchain {
     pub toolchain: OwnedToolchainSpec,
 }
 
-impl NewCompatibilityCheck {
+impl CheckToolchain {
     pub fn new(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
             toolchain: toolchain.into(),
@@ -16,8 +16,8 @@ impl NewCompatibilityCheck {
     }
 }
 
-impl From<NewCompatibilityCheck> for Event {
-    fn from(it: NewCompatibilityCheck) -> Self {
+impl From<CheckToolchain> for Event {
+    fn from(it: CheckToolchain) -> Self {
         Message::NewCompatibilityCheck(it).into()
     }
 }

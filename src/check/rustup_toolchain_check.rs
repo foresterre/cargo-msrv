@@ -4,9 +4,7 @@ use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::paths::crate_root_folder;
-use crate::reporter::event::{
-    Compatibility, CompatibilityCheckMethod, Method, NewCompatibilityCheck,
-};
+use crate::reporter::event::{CheckToolchain, Compatibility, CompatibilityCheckMethod, Method};
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, Config, Outcome, Reporter, TResult};
 use std::path::Path;
@@ -18,7 +16,7 @@ pub struct RustupToolchainCheck<'reporter, R: Reporter> {
 impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         self.reporter
-            .run_scoped_event(NewCompatibilityCheck::new(toolchain.to_owned()), || {
+            .run_scoped_event(CheckToolchain::new(toolchain.to_owned()), || {
                 info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists

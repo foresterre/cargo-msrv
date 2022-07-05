@@ -7,7 +7,7 @@ pub use fetch_index::FetchIndex;
 pub use list_dep::ListDep;
 pub use meta::Meta;
 pub use msrv_result::MsrvResult;
-pub use new_compatibility_check::NewCompatibilityCheck;
+pub use new_compatibility_check::CheckToolchain;
 pub use progress::Progress;
 pub use search_method::FindMSRV;
 pub use setup_toolchain::SetupToolchain;
@@ -67,7 +67,7 @@ pub enum Message {
     SetupToolchain(SetupToolchain),
 
     // runner + pass/reject
-    NewCompatibilityCheck(NewCompatibilityCheck),
+    NewCompatibilityCheck(CheckToolchain),
     CompatibilityCheckMethod(CompatibilityCheckMethod),
     Compatibility(Compatibility),
 
