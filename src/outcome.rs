@@ -1,3 +1,7 @@
+//! The outcome of a single toolchain [`check`] run.
+//!
+//! [`check`]: crate::check::Check
+
 use crate::toolchain::OwnedToolchainSpec;
 use rust_releases::semver;
 
