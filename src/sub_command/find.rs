@@ -5,9 +5,9 @@ use crate::config::{Config, SearchMethod};
 use crate::error::{CargoMSRVError, TResult};
 use crate::filter_releases::filter_releases;
 use crate::manifest::bare_version::BareVersion;
+use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::event::MsrvResult;
 use crate::reporter::Reporter;
-use crate::result::MinimalCompatibility;
 use crate::search_method::{Bisect, FindMinimalCapableToolchain, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
@@ -44,14 +44,14 @@ fn find_msrv(
     let search_result = search(config, reporter, release_index, runner)?;
 
     match &search_result {
-        MinimalCompatibility::NoCompatibleToolchains => {
+        MinimumSupportedRustVersion::NoCompatibleToolchain => {
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
                 command: config.check_command_string(),
             })
         }
-        MinimalCompatibility::CapableToolchain { toolchain } => {
+        MinimumSupportedRustVersion::Toolchain { toolchain } => {
             info!(
                 %toolchain,
                 "found minimal-compatible toolchain"
@@ -75,7 +75,7 @@ fn search(
     reporter: &impl Reporter,
     index: &ReleaseIndex,
     runner: &impl Check,
-) -> TResult<MinimalCompatibility> {
+) -> TResult<MinimumSupportedRustVersion> {
     let releases = index.releases();
     let included_releases = filter_releases(config, releases);
 
@@ -91,7 +91,7 @@ fn run_with_search_method(
     included_releases: &[Release],
     reporter: &impl Reporter,
     runner: &impl Check,
-) -> TResult<MinimalCompatibility> {
+) -> TResult<MinimumSupportedRustVersion> {
     // todo!
     // reporter.set_steps(included_releases.len() as u64);
 
@@ -114,7 +114,7 @@ fn run_searcher(
     releases: &[Release],
     config: &Config,
     reporter: &impl Reporter,
-) -> TResult<MinimalCompatibility> {
+) -> TResult<MinimumSupportedRustVersion> {
     let minimum_capable = method.find_toolchain(releases, config, reporter)?;
 
     report_outcome(&minimum_capable, releases, config, reporter)?;
@@ -123,7 +123,7 @@ fn run_searcher(
 }
 
 fn report_outcome(
-    minimum_capable: &MinimalCompatibility,
+    minimum_capable: &MinimumSupportedRustVersion,
     releases: &[Release],
     config: &Config,
     reporter: &impl Reporter,
@@ -131,12 +131,12 @@ fn report_outcome(
     let (min, max) = min_max_releases(releases)?;
 
     match minimum_capable {
-        MinimalCompatibility::CapableToolchain { toolchain } => {
+        MinimumSupportedRustVersion::Toolchain { toolchain } => {
             let version = toolchain.version();
 
             reporter.report_event(MsrvResult::new_msrv(version.clone(), config, min, max))?;
         }
-        MinimalCompatibility::NoCompatibleToolchains => {
+        MinimumSupportedRustVersion::NoCompatibleToolchain => {
             reporter.report_event(MsrvResult::none(config, min, max))?;
         }
     }

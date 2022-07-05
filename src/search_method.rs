@@ -2,8 +2,8 @@ use rust_releases::Release;
 
 pub use {bisect::Bisect, linear::Linear};
 
+use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
-use crate::result::MinimalCompatibility;
 use crate::{Config, TResult};
 
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each
@@ -25,5 +25,5 @@ pub trait FindMinimalCapableToolchain {
         search_space: &[Release],
         config: &Config,
         reporter: &impl Reporter,
-    ) -> TResult<MinimalCompatibility>;
+    ) -> TResult<MinimumSupportedRustVersion>;
 }

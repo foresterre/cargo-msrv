@@ -2,20 +2,20 @@ use crate::toolchain::OwnedToolchainSpec;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum MinimalCompatibility {
+pub enum MinimumSupportedRustVersion {
     /// A toolchain is compatible, if the outcome of a toolchain check results in a success
-    CapableToolchain {
+    Toolchain {
         // toolchain
         toolchain: OwnedToolchainSpec,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
-    NoCompatibleToolchains,
+    NoCompatibleToolchain,
 }
 
-impl MinimalCompatibility {
+impl MinimumSupportedRustVersion {
     #[cfg(test)]
     pub fn unwrap_version(&self) -> rust_releases::semver::Version {
-        if let Self::CapableToolchain { toolchain, .. } = self {
+        if let Self::Toolchain { toolchain, .. } = self {
             return toolchain.version().clone();
         }
 

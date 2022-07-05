@@ -4,8 +4,8 @@ use crate::check::Check;
 use crate::outcome::Outcome;
 use crate::{Config, TResult};
 // use crate::reporter::{write_failed_check, write_succeeded_check};
+use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
-use crate::result::MinimalCompatibility;
 use crate::search_method::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 
@@ -35,11 +35,11 @@ impl<'runner, R: Check> Linear<'runner, R> {
         releases: &[rust_releases::Release],
         index_of_msrv: Option<usize>,
         config: &Config,
-    ) -> MinimalCompatibility {
-        index_of_msrv.map_or(MinimalCompatibility::NoCompatibleToolchains, |i| {
+    ) -> MinimumSupportedRustVersion {
+        index_of_msrv.map_or(MinimumSupportedRustVersion::NoCompatibleToolchain, |i| {
             let version = releases[i].version();
 
-            MinimalCompatibility::CapableToolchain {
+            MinimumSupportedRustVersion::Toolchain {
                 toolchain: OwnedToolchainSpec::new(version, config.target()),
             }
         })
@@ -52,7 +52,7 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Linear<'runner, R> {
         search_space: &'spec [Release],
         config: &'spec Config,
         reporter: &impl Reporter,
-    ) -> TResult<MinimalCompatibility> {
+    ) -> TResult<MinimumSupportedRustVersion> {
         let mut last_compatible_index = None;
 
         for (i, release) in search_space.iter().enumerate() {

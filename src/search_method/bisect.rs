@@ -3,10 +3,10 @@ use rust_releases::Release;
 
 use crate::check::Check;
 use crate::error::NoToolchainsToTryError;
+use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{Progress, Search};
 use crate::reporter::Reporter;
-use crate::result::MinimalCompatibility;
 use crate::search_method::FindMinimalCapableToolchain;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
@@ -49,14 +49,17 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         Ok(())
     }
 
-    fn minimum_capable(msrv: Option<&Release>, config: &Config) -> MinimalCompatibility {
-        msrv.map_or(MinimalCompatibility::NoCompatibleToolchains, |release| {
-            let version = release.version();
+    fn minimum_capable(msrv: Option<&Release>, config: &Config) -> MinimumSupportedRustVersion {
+        msrv.map_or(
+            MinimumSupportedRustVersion::NoCompatibleToolchain,
+            |release| {
+                let version = release.version();
 
-            MinimalCompatibility::CapableToolchain {
-                toolchain: OwnedToolchainSpec::new(version, config.target()),
-            }
-        })
+                MinimumSupportedRustVersion::Toolchain {
+                    toolchain: OwnedToolchainSpec::new(version, config.target()),
+                }
+            },
+        )
     }
 }
 
@@ -66,7 +69,7 @@ impl<'runner, R: Check> FindMinimalCapableToolchain for Bisect<'runner, R> {
         search_space: &[Release],
         config: &Config,
         reporter: &impl Reporter,
-    ) -> TResult<MinimalCompatibility> {
+    ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(Search::new(config.search_method()), || {
             let searcher = Bisector::new(search_space);
 
