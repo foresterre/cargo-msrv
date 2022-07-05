@@ -13,7 +13,7 @@ pub struct Meta {
     rustc: &'static str,
 }
 
-const UNDEFINED: &'static str = "undefined";
+const UNDEFINED: &str = "undefined";
 
 impl Default for Meta {
     fn default() -> Self {
