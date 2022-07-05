@@ -15,7 +15,7 @@ use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog
 use crate::check::RustupToolchainCheck;
 use crate::config::{Action, Config, OutputFormat, ReleaseSource};
 use crate::error::{CargoMSRVError, TResult};
-use crate::reporter::event::{FetchIndex, Meta};
+use crate::reporter::event::{ActionMessage, FetchIndex, Meta};
 use crate::reporter::{Event, Reporter};
 
 pub mod check;
@@ -47,12 +47,14 @@ pub(crate) mod writer;
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
 
-    let action = config.action_intent();
+    let action = config.action();
 
     info!(
         action = Into::<&'static str>::into(action),
         "running action"
     );
+
+    reporter.report_event(ActionMessage::new(action))?;
 
     match action {
         Action::Find => {

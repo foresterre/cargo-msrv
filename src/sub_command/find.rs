@@ -79,10 +79,6 @@ fn search(
     let releases = index.releases();
     let included_releases = filter_releases(config, releases);
 
-    // todo!
-    // reporter.mode(ModeIntent::Find);
-    // reporter.set_steps(included_releases.len() as u64);
-
     run_with_search_method(config, &included_releases, reporter, runner)
 }
 
@@ -92,9 +88,6 @@ fn run_with_search_method(
     reporter: &impl Reporter,
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
-    // todo!
-    // reporter.set_steps(included_releases.len() as u64);
-
     let search_method = config.search_method();
     info!(?search_method);
 

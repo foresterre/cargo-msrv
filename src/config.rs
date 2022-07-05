@@ -91,7 +91,8 @@ pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
     Ok(config)
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Action {
     // Determines the MSRV for a project
     Find,
@@ -108,11 +109,11 @@ pub enum Action {
 impl From<Action> for &'static str {
     fn from(action: Action) -> Self {
         match action {
-            Action::Find => "determine-msrv",
-            Action::List => "list-msrv",
-            Action::Verify => "verify-msrv",
-            Action::Set => "set-msrv",
-            Action::Show => "show-msrv",
+            Action::Find => "find",
+            Action::List => "list",
+            Action::Verify => "verify",
+            Action::Set => "set",
+            Action::Show => "show",
         }
     }
 }
@@ -210,7 +211,7 @@ impl Default for SearchMethod {
 //  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
-    mode_intent: Action,
+    action: Action,
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -232,9 +233,9 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    pub fn new<T: Into<String>>(mode_intent: Action, target: T) -> Self {
+    pub fn new<T: Into<String>>(action: Action, target: T) -> Self {
         Self {
-            mode_intent,
+            action,
             target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
@@ -255,8 +256,8 @@ impl<'a> Config<'a> {
         }
     }
 
-    pub fn action_intent(&self) -> Action {
-        self.mode_intent
+    pub fn action(&self) -> Action {
+        self.action
     }
 
     pub fn target(&self) -> &String {
@@ -353,7 +354,7 @@ impl<'a> ConfigBuilder<'a> {
     }
 
     pub fn mode_intent(mut self, mode_intent: Action) -> Self {
-        self.inner.mode_intent = mode_intent;
+        self.inner.action = mode_intent;
         self
     }
 

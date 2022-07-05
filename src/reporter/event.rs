@@ -1,6 +1,7 @@
 use std::fmt;
 use std::fmt::Formatter;
 
+pub use action::ActionMessage;
 pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
@@ -13,6 +14,7 @@ pub use search_method::FindMSRV;
 pub use setup_toolchain::SetupToolchain;
 pub use termination::TerminateWithFailure;
 
+mod action;
 mod compatibility;
 mod compatibility_check_method;
 mod fetch_index;
@@ -55,6 +57,8 @@ impl Event {
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
+    Action(ActionMessage),
+
     // setup
     Meta(Meta),
 
