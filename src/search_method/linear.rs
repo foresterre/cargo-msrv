@@ -3,6 +3,7 @@ use rust_releases::Release;
 use crate::check::Check;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
+use crate::reporter::event::FindMSRV;
 use crate::reporter::Reporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
@@ -52,25 +53,27 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
         config: &'spec Config,
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
-        let mut last_compatible_index = None;
+        reporter.run_scoped_event(FindMSRV::new(config.search_method()), || {
+            let mut last_compatible_index = None;
 
-        for (i, release) in search_space.iter().enumerate() {
-            let outcome = Self::run_check(self.runner, release, config, reporter)?;
+            for (i, release) in search_space.iter().enumerate() {
+                let outcome = Self::run_check(self.runner, release, config, reporter)?;
 
-            match outcome {
-                Outcome::Failure(_outcome) => {
-                    break;
+                match outcome {
+                    Outcome::Failure(_outcome) => {
+                        break;
+                    }
+                    Outcome::Success(_outcome) => {}
                 }
-                Outcome::Success(_outcome) => {}
+
+                last_compatible_index = Some(i);
             }
 
-            last_compatible_index = Some(i);
-        }
-
-        Ok(Self::minimum_capable(
-            search_space,
-            last_compatible_index,
-            config,
-        ))
+            Ok(Self::minimum_capable(
+                search_space,
+                last_compatible_index,
+                config,
+            ))
+        })
     }
 }
