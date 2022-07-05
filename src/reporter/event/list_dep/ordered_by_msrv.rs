@@ -65,6 +65,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
 }
 
 #[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 struct Values {
     msrv: String,
     dependencies: Vec<String>,
@@ -86,6 +87,7 @@ impl Tabled for Values {
 }
 
 #[derive(serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 struct SerializableValues {
     variant: &'static str,
     list: Vec<Values>,

@@ -3,6 +3,7 @@ use crate::Event;
 
 /// Progression indicates how far we are
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct Progress {
     current: u64,
     max: u64,

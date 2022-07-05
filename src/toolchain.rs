@@ -36,6 +36,7 @@ impl<'spec> ToolchainSpec<'spec> {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct OwnedToolchainSpec {
     version: semver::Version,
     target: String,

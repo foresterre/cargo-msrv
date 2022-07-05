@@ -183,6 +183,7 @@ impl fmt::Display for ReleaseSource {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SearchMethod {
     Linear,
     Bisect,
