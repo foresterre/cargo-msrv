@@ -31,8 +31,8 @@ impl Default for Meta {
 impl Meta {
     pub fn summary(&self) -> String {
         format!(
-            "{:>12} {} {} ({})",
-            "Meta".bright_green(),
+            "  [{}] {} {} ({})",
+            "Meta".bright_blue(),
             self.instance,
             self.version,
             self.sha_short,
