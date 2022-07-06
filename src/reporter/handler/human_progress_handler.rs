@@ -1,7 +1,7 @@
 use crate::reporter::event::{
     CheckToolchain, Compatibility, CompatibilityReport, Message, MsrvResult,
 };
-use crate::{semver, Event};
+use crate::{semver, Action, Event};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -42,13 +42,13 @@ impl HumanProgressHandler {
 
     fn styled_progress_bar() -> indicatif::ProgressBar {
         let pb = indicatif::ProgressBar::new_spinner();
-        pb.enable_steady_tick(Duration::from_millis(120));
         pb.set_style(
             indicatif::ProgressStyle::default_spinner()
                 .template("{spinner} {msg:<16} Elapsed {elapsed}")
                 .unwrap()
                 .tick_chars("◐◓◑◒"),
         );
+        pb.finish_and_clear(); // Hide the spinner on startup
         pb
     }
 }
@@ -67,6 +67,10 @@ impl EventHandler for HumanProgressHandler {
                     it.sha_short(),
                 ));
                 self.pb.println(message);
+            }
+            Message::Action(it) if it.action().should_enable_spinner() => {
+                self.pb.reset(); // We'll reset here to ensure the steady tick call below works
+                self.pb.enable_steady_tick(Duration::from_millis(150));
             }
             Message::NewCompatibilityCheck(it) if event.is_scope_start() => {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
@@ -108,6 +112,12 @@ impl EventHandler for HumanProgressHandler {
             }
             _ => {}
         };
+    }
+}
+
+impl Action {
+    pub fn should_enable_spinner(&self) -> bool {
+        matches!(self, Self::Find | Self::Verify)
     }
 }
 

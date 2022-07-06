@@ -11,6 +11,10 @@ impl ActionMessage {
     pub fn new(action: Action) -> Self {
         Self { action }
     }
+
+    pub fn action(&self) -> Action {
+        self.action
+    }
 }
 
 impl From<ActionMessage> for Event {
