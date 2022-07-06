@@ -13,6 +13,7 @@ pub use progress::Progress;
 pub use search_method::FindMSRV;
 pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
+pub use show_output::ShowOutputMessage;
 pub use termination::TerminateWithFailure;
 
 mod action;
@@ -27,6 +28,7 @@ mod progress;
 mod search_method;
 mod set_output;
 mod setup_toolchain;
+mod show_output;
 mod termination;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
@@ -87,13 +89,13 @@ pub enum Message {
     // Verify
 
     // command: list
-    // ListDepMSRV
     ListDep(ListDep),
 
     // command: set
     SetOutput(SetOutputMessage),
 
     // command: show
+    ShowOutput(ShowOutputMessage),
 
     // Termination, for example when caused by an unrecoverable error
     TerminateWithFailure(TerminateWithFailure),

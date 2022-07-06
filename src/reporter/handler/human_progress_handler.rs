@@ -104,6 +104,10 @@ impl EventHandler for HumanProgressHandler {
                 let message = Status::with_lead("Set".bright_green(), format_args!("Rust {}", output.version()));
                 self.pb.println(message);
             }
+            Message::ShowOutput(output) => {
+                let message = Status::with_lead("Show".bright_green(), format_args!("MSRV is Rust {}", output.version()));
+                self.pb.println(message);
+            }
             Message::TerminateWithFailure(termination) if termination.is_error() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
             }

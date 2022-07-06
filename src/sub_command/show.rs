@@ -1,4 +1,5 @@
 use std::convert::TryFrom;
+use std::path::PathBuf;
 
 use toml_edit::Document;
 
@@ -6,7 +7,7 @@ use crate::config::Config;
 use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
-use crate::paths::crate_root_folder;
+use crate::reporter::event::ShowOutputMessage;
 use crate::reporter::Reporter;
 use crate::SubCommand;
 
@@ -21,33 +22,31 @@ impl SubCommand for Show {
     }
 }
 
-fn show_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
-    // todo!
-    // output.mode(ModeIntent::Show);
+fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    let cargo_toml = config.ctx().manifest_path(config)?;
 
-    let crate_folder = crate_root_folder(config)?;
-    let cargo_toml = crate_folder.join("Cargo.toml");
-
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
+    let contents = std::fs::read_to_string(cargo_toml).map_err(|error| CargoMSRVError::Io {
         error,
-        source: IoErrorSource::ReadFile(cargo_toml),
+        source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;
 
     let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
     let manifest = CargoManifest::try_from(manifest)?;
 
-    let msrv = manifest.minimum_rust_version();
-    #[allow(clippy::if_same_then_else)]
-    if msrv.is_some() {
-        // todo!
-        // output.finish_success(
-        //     ModeIntent::Show,
-        //     msrv.map(BareVersion::to_semver_version).as_ref(),
-        // );
-    } else {
-        // todo!
-        // output.finish_failure(ModeIntent::Show, None);
-    }
+    let msrv = manifest
+        .minimum_rust_version()
+        .ok_or_else(|| Error::NoMSRVInCargoManifest(cargo_toml.to_path_buf()))?;
+
+    reporter.report_event(ShowOutputMessage::new(
+        msrv.clone(),
+        cargo_toml.to_path_buf(),
+    ))?;
 
     Ok(())
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("MSRV was not specified in Cargo manifest at '{}'", .0.display())]
+    NoMSRVInCargoManifest(PathBuf),
 }

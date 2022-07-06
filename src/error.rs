@@ -11,7 +11,7 @@ use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionErr
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 
-use crate::sub_command::verify;
+use crate::sub_command::{show, verify};
 
 pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 
@@ -104,6 +104,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     SubCommandVerify(#[from] verify::Error),
+
+    #[error(transparent)]
+    SubCommandShow(#[from] show::Error),
 
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),
