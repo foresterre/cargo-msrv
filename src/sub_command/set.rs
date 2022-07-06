@@ -7,7 +7,7 @@ use toml_edit::{table, value, Document, Item, Value};
 use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
-use crate::paths::crate_root_folder;
+use crate::reporter::event::SetOutputMessage;
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
@@ -24,40 +24,44 @@ impl SubCommand for Set {
     }
 }
 
-fn set_msrv(config: &Config, _reporter: &impl Reporter) -> TResult<()> {
-    // todo!
-    //output.mode(ModeIntent::Set);
+fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    let cargo_toml = config.ctx().manifest_path(config)?;
 
-    let crate_folder = crate_root_folder(config)?;
-    let cargo_toml = crate_folder.join("Cargo.toml");
-
+    // Read the Cargo manifest to a String
     let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
         error,
-        source: IoErrorSource::ReadFile(cargo_toml.clone()),
+        source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;
 
+    // Parse the Cargo manifest contents, in particular the MSRV value
     let mut manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
     check_workspace(&manifest)?;
     let msrv = &config.sub_command_config().set().msrv;
 
+    // Set the MSRV
     set_or_override_msrv(&mut manifest, msrv)?;
 
+    // Open the Cargo manifest file with write permissions and truncate the current its contents
     let mut file = std::fs::OpenOptions::new()
         .write(true)
         .truncate(true)
         .open(&cargo_toml)
         .map_err(|error| CargoMSRVError::Io {
             error,
-            source: IoErrorSource::OpenFile(cargo_toml.clone()),
+            source: IoErrorSource::OpenFile(cargo_toml.to_path_buf()),
         })?;
 
+    // Write the new manifest contents with the newly set MSRV value
     write!(&mut file, "{}", manifest).map_err(|error| CargoMSRVError::Io {
         error,
-        source: IoErrorSource::WriteFile(cargo_toml.clone()),
+        source: IoErrorSource::WriteFile(cargo_toml.to_path_buf()),
     })?;
 
-    // todo!
-    // output.finish_success(ModeIntent::Set, None);
+    // Report that the MSRV was set
+    reporter.report_event(SetOutputMessage::new(
+        msrv.clone(),
+        cargo_toml.to_path_buf(),
+    ))?;
 
     Ok(())
 }

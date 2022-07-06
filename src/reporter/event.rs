@@ -11,6 +11,7 @@ pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::CheckToolchain;
 pub use progress::Progress;
 pub use search_method::FindMSRV;
+pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
 pub use termination::TerminateWithFailure;
 
@@ -24,6 +25,7 @@ mod msrv_result;
 mod new_compatibility_check;
 mod progress;
 mod search_method;
+mod set_output;
 mod setup_toolchain;
 mod termination;
 
@@ -89,7 +91,7 @@ pub enum Message {
     ListDep(ListDep),
 
     // command: set
-    // SetMSRV
+    SetOutput(SetOutputMessage),
 
     // command: show
 

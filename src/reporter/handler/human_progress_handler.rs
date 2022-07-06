@@ -88,6 +88,11 @@ impl EventHandler for HumanProgressHandler {
             Message::ListDep(list) => {
                 self.pb.println(list.to_string());
             }
+            Message::SetOutput(output) => {
+                let lead = format!("[{}]", "Set".bright_green());
+                let message = format!("  {:>16}  {}", lead, format_args!("Rust {}", output.version()));
+                self.pb.println(message);
+            }
             Message::TerminateWithFailure(termination) if termination.is_error() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
             }

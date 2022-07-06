@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 type BareVersionUsize = u64;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 pub enum BareVersion {
     TwoComponents(BareVersionUsize, BareVersionUsize),
     ThreeComponents(BareVersionUsize, BareVersionUsize, BareVersionUsize),
