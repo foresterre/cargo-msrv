@@ -4,7 +4,7 @@ use crate::reporter::event::{
 use crate::{semver, Event};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
-use std::fmt;
+use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -60,7 +60,13 @@ impl EventHandler for HumanProgressHandler {
         #[allow(unused_must_use)]
         match event.message() {
             Message::Meta(it) => {
-                self.pb.println(it.summary());
+                let message = Status::meta(format_args!(
+                    "{} {} ({})",
+                    it.instance(),
+                    it.version(),
+                    it.sha_short(),
+                ));
+                self.pb.println(message);
             }
             Message::NewCompatibilityCheck(it) if event.is_scope_start() => {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
@@ -72,11 +78,13 @@ impl EventHandler for HumanProgressHandler {
             }
             Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
                 let version = toolchain.version();
-                self.pb.println(format!("  [{}]   {}", "OK".bright_green(), "Is compatible"));
+                let message = Status::ok("Is compatible");
+                self.pb.println(message);
             }
             Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Incompatible { error }, toolchain, .. }) => {
                 let version = toolchain.version();
-                self.pb.println(format!("  [{}] {}", "FAIL".bright_red(), "Is Incompatible"));
+                let message = Status::fail("Is Incompatible");
+                self.pb.println(message);
 
                 if let Some(error_report) = error.as_deref() {
                     self.pb.println(message_box(error_report));
@@ -89,15 +97,14 @@ impl EventHandler for HumanProgressHandler {
                 self.pb.println(list.to_string());
             }
             Message::SetOutput(output) => {
-                let lead = format!("[{}]", "Set".bright_green());
-                let message = format!("  {:>16}  {}", lead, format_args!("Rust {}", output.version()));
+                let message = Status::with_lead("Set".bright_green(), format_args!("Rust {}", output.version()));
                 self.pb.println(message);
             }
             Message::TerminateWithFailure(termination) if termination.is_error() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
             }
             Message::TerminateWithFailure(termination) if !termination.is_error() => {
-                self.pb.println(format!("\n\n{}", termination.as_message().dimmed()));
+                self.pb.println(format!("\n\n{}", termination.as_message().dimmed().bold()));
             }
             _ => {}
         };
@@ -120,6 +127,30 @@ impl CheckToolchain {
 impl MsrvResult {
     fn summary(&self) -> String {
         result_table(self)
+    }
+}
+
+struct Status;
+
+impl Status {
+    fn meta(message: impl Display) -> String {
+        let lead = format!("[{}]", "Meta".bright_blue());
+        format!("  {:>16}  {}", lead, message)
+    }
+
+    fn ok(message: impl Display) -> String {
+        let lead = format!("[{}]", "OK".bright_green());
+        format!("  {:>16}  {}", lead, message)
+    }
+
+    fn fail(message: impl Display) -> String {
+        let lead = format!("[{}]", "FAIL".bright_red());
+        format!("  {:>16}  {}", lead, message)
+    }
+
+    fn with_lead(lead: impl Display, message: impl Display) -> String {
+        let lead = format!("[{}]", lead);
+        format!("  {:>16}  {}", lead, message)
     }
 }
 

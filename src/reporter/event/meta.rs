@@ -1,6 +1,5 @@
 use crate::reporter::event::Message;
 use crate::Event;
-use owo_colors::OwoColorize;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -11,6 +10,27 @@ pub struct Meta {
     target_triple: &'static str,
     cargo_features: &'static str,
     rustc: &'static str,
+}
+
+impl Meta {
+    pub fn instance(&self) -> &'static str {
+        self.instance
+    }
+    pub fn version(&self) -> &'static str {
+        self.version
+    }
+    pub fn sha_short(&self) -> &'static str {
+        self.sha_short
+    }
+    pub fn target_triple(&self) -> &'static str {
+        self.target_triple
+    }
+    pub fn cargo_features(&self) -> &'static str {
+        self.cargo_features
+    }
+    pub fn rustc(&self) -> &'static str {
+        self.rustc
+    }
 }
 
 const UNDEFINED: &str = "undefined";
@@ -25,18 +45,6 @@ impl Default for Meta {
             cargo_features: option_env!("VERGEN_CARGO_FEATURES").unwrap_or(UNDEFINED),
             rustc: option_env!("VERGEN_RUSTC_SEMVER").unwrap_or(UNDEFINED),
         }
-    }
-}
-
-impl Meta {
-    pub fn summary(&self) -> String {
-        format!(
-            "  [{}] {} {} ({})",
-            "Meta".bright_blue(),
-            self.instance,
-            self.version,
-            self.sha_short,
-        )
     }
 }
 
