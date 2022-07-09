@@ -13,12 +13,9 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 
 build = "build.rs"
 
-
 [features]
 default = ["rust-releases-dist-source"]
 rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
-
-
 
 [package.metadata.release]
 tag-name = "v{{version}}"
@@ -73,6 +70,12 @@ version = "0.22.0"
 default-features = false
 features = ["rust-releases-rust-changelog"]
 
+[dependencies.cargo-msrv-events]
+path = "crates/events"
+
+[dependencies.cargo-msrv-types]
+path = "crates/types"
+
 [dev-dependencies]
 parameterized = "0.3.1"
 yare = "1.0.1"
@@ -80,3 +83,6 @@ phenomenon = "~1.0.0"
 
 [build-dependencies]
 vergen = { version = "7.2.0", default-features = false, features = ["build", "cargo", "git", "rustc"] }
+
+[workspace]
+members = ["crates/events", "crates/types"]

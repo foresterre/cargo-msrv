@@ -7,7 +7,9 @@ use toml_edit::{table, value, Document, Item, Value};
 use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
-use crate::reporter::event::SetOutputMessage;
+use crate::reporter::event::{
+    AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, SetOutputMessage,
+};
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
@@ -56,6 +58,11 @@ fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         error,
         source: IoErrorSource::WriteFile(cargo_toml.to_path_buf()),
     })?;
+
+    reporter.report_event(AuxiliaryOutput::new(
+        Destination::File(cargo_toml.to_path_buf()),
+        AuxiliaryOutputItem::msrv(),
+    ))?;
 
     // Report that the MSRV was set
     reporter.report_event(SetOutputMessage::new(

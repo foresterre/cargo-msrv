@@ -1,37 +1,26 @@
+use crate::{
+    ActionMessage, AuxiliaryOutput, CheckToolchain, Compatibility, CompatibilityCheckMethod,
+    FetchIndex, FindMSRV, ListDep, Meta, MsrvResult, Progress, SetOutputMessage, SetupToolchain,
+    ShowOutputMessage, TerminateWithFailure,
+};
 use std::fmt;
 use std::fmt::Formatter;
 
-pub use action::ActionMessage;
-pub use auxiliary_output::{AuxiliaryOutput, Destination, Item, MSRVKind, ToolchainFileKind};
-pub use compatibility::{Compatibility, CompatibilityReport};
-pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
-pub use fetch_index::FetchIndex;
-pub use list_dep::ListDep;
-pub use meta::Meta;
-pub use msrv_result::MsrvResult;
-pub use new_compatibility_check::CheckToolchain;
-pub use progress::Progress;
-pub use search_method::FindMSRV;
-pub use set_output::SetOutputMessage;
-pub use setup_toolchain::SetupToolchain;
-pub use show_output::ShowOutputMessage;
-pub use termination::TerminateWithFailure;
-
-mod action;
-mod auxiliary_output;
-mod compatibility;
-mod compatibility_check_method;
-mod fetch_index;
-mod list_dep;
-mod meta;
-mod msrv_result;
-mod new_compatibility_check;
-mod progress;
-mod search_method;
-mod set_output;
-mod setup_toolchain;
-mod show_output;
-mod termination;
+pub mod action;
+pub mod auxiliary_output;
+pub mod compatibility;
+pub mod compatibility_check_method;
+pub mod fetch_index;
+pub mod list_dep;
+pub mod meta;
+pub mod msrv_result;
+pub mod new_compatibility_check;
+pub mod progress;
+pub mod search_method;
+pub mod set_output;
+pub mod setup_toolchain;
+pub mod show_output;
+pub mod termination;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]

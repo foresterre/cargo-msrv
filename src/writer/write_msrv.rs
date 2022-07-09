@@ -2,6 +2,7 @@ use thiserror::private::PathAsDisplay;
 
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
+use crate::reporter::event::{AuxiliaryOutput, Destination, Item};
 use crate::reporter::Reporter;
 use crate::{semver, Action, Config, OutputFormat, Set, SubCommand, TResult};
 
@@ -26,17 +27,5 @@ pub fn write_msrv(
 
     Set::default().run(&config, reporter)?;
 
-    // FIXME: report for other output formats as well
-    if let OutputFormat::Human = config.output_format() {
-        let manifest_path = config.ctx().manifest_path(&config)?;
-        let _message = format!(
-            "Written MSRV '{}' to '{}'",
-            version,
-            manifest_path.as_display()
-        );
-
-        // todo!
-        // reporter.write_line(&message);
-    }
     Ok(())
 }

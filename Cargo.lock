@@ -458,6 +458,8 @@ name = "cargo-msrv"
 version = "0.15.1"
 dependencies = [
  "bisector",
+ "cargo-msrv-events",
+ "cargo-msrv-types",
  "cargo_metadata",
  "clap",
  "dirs",
@@ -481,6 +483,25 @@ dependencies = [
  "tracing-subscriber",
  "vergen",
  "yare",
+]
+
+[[package]]
+name = "cargo-msrv-events"
+version = "0.1.0"
+dependencies = [
+ "cargo-msrv-types",
+ "serde",
+]
+
+[[package]]
+name = "cargo-msrv-types"
+version = "0.1.0"
+dependencies = [
+ "once_cell",
+ "semver",
+ "serde",
+ "thiserror",
+ "version-number",
 ]
 
 [[package]]
@@ -2280,6 +2301,15 @@ dependencies = [
  "rustversion",
  "thiserror",
  "time",
+]
+
+[[package]]
+name = "version-number"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdcdf687445516fe9e1935b09749dad6c1238f3a29a24821da7e71c30fc07800"
+dependencies = [
+ "thiserror",
 ]
 
 [[package]]

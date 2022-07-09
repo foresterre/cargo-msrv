@@ -7,12 +7,10 @@ pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
 pub use handler::JsonHandler;
 
-pub use event::{
-    Event,
-    TerminateWithFailure, /* fixme: Needed by binary crate, how much do we want to expose here? */
-};
+use cargo_msrv_events::
 
-pub(crate) mod event;
+
+// pub(crate) mod event; // todo! moved to crates/events (cargo-msrv-events) sub-crate
 pub(crate) mod handler;
 
 #[cfg(test)]
