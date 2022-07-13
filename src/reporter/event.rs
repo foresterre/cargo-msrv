@@ -2,6 +2,7 @@ use std::fmt;
 use std::fmt::Formatter;
 
 pub use action::ActionMessage;
+pub use auxiliary_output::{AuxiliaryOutput, Destination, Item, MsrvKind, ToolchainFileKind};
 pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
@@ -17,6 +18,7 @@ pub use show_output::ShowOutputMessage;
 pub use termination::TerminateWithFailure;
 
 mod action;
+mod auxiliary_output;
 mod compatibility;
 mod compatibility_check_method;
 mod fetch_index;
@@ -79,6 +81,9 @@ pub enum Message {
     NewCompatibilityCheck(CheckToolchain),
     CompatibilityCheckMethod(CompatibilityCheckMethod),
     Compatibility(Compatibility),
+
+    // output written by the program
+    AuxiliaryOutput(AuxiliaryOutput),
 
     // command: find
     MsrvResult(MsrvResult),

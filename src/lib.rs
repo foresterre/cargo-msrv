@@ -13,7 +13,7 @@ use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
 use crate::check::RustupToolchainCheck;
-use crate::config::{Action, Config, OutputFormat, ReleaseSource};
+use crate::config::{Action, Config, ReleaseSource};
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{ActionMessage, FetchIndex, Meta};
 use crate::reporter::{Event, Reporter};

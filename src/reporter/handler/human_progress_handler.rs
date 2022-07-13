@@ -95,7 +95,7 @@ impl EventHandler for HumanProgressHandler {
                 }
             }
             Message::MsrvResult(result) => {
-                self.pb.println(format!("\n{}", result.summary()));
+                self.pb.println(format!("\n{}\n", result.summary()));
             }
             Message::ListDep(list) => {
                 self.pb.println(list.to_string());

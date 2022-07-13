@@ -58,7 +58,7 @@ fn find_msrv(
             );
 
             if config.output_toolchain_file() {
-                write_toolchain_file(config, toolchain.version())?;
+                write_toolchain_file(config, reporter, toolchain.version())?;
             }
 
             if config.write_msrv() {
