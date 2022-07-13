@@ -4,6 +4,7 @@
 .idea/
 .vscode/
 *.iml
+.fleet
 
 licenses.html
 third-party-licenses.html
