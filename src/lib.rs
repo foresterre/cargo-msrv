@@ -38,7 +38,6 @@ pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod msrv;
 pub(crate) mod outcome;
-pub(crate) mod paths;
 pub(crate) mod search_method;
 pub(crate) mod sub_command;
 pub(crate) mod typed_bool;

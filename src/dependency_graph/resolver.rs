@@ -1,7 +1,6 @@
 use crate::config::Config;
 use crate::dependency_graph::DependencyGraph;
 use crate::error::{CargoMSRVError, TResult};
-use crate::paths::crate_root_folder;
 use cargo_metadata::MetadataCommand;
 
 pub(crate) trait DependencyResolver {
@@ -14,10 +13,10 @@ pub(crate) struct CargoMetadataResolver {
 
 impl CargoMetadataResolver {
     pub fn try_from_config(config: &Config) -> TResult<Self> {
-        let crate_root = crate_root_folder(config)?;
+        let manifest_path = config.context().manifest_path()?;
 
         let mut metadata_command = MetadataCommand::new();
-        metadata_command.manifest_path(crate_root.join("Cargo.toml"));
+        metadata_command.manifest_path(manifest_path);
 
         Ok(Self { metadata_command })
     }

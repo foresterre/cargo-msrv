@@ -3,14 +3,15 @@ use crate::command::RustupCommand;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::paths::crate_root_folder;
 use crate::reporter::event::{CheckToolchain, Compatibility, CompatibilityCheckMethod, Method};
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, Config, Outcome, Reporter, TResult};
-use std::path::Path;
+use once_cell::unsync::OnceCell;
+use std::path::{Path, PathBuf};
 
 pub struct RustupToolchainCheck<'reporter, R: Reporter> {
     reporter: &'reporter R,
+    lockfile_path: OnceCell<PathBuf>,
 }
 
 impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
@@ -20,7 +21,8 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
                 info!(ignore_lockfile_enabled = config.ignore_lockfile());
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
-                let cargo_lock = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
+                let cargo_lock = self.lockfile_path(config)?;
+
                 let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
                     let handle = LockfileHandler::new(cargo_lock).move_lockfile()?;
 
@@ -52,7 +54,10 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
 
 impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
-        Self { reporter }
+        Self {
+            reporter,
+            lockfile_path: OnceCell::new(),
+        }
     }
 
     fn prepare(&self, toolchain: &ToolchainSpec, config: &Config) -> TResult<()> {
@@ -60,7 +65,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         downloader.download(toolchain)?;
 
         if config.ignore_lockfile() {
-            remove_lockfile(config)?;
+            self.remove_lockfile(config)?;
         }
 
         Ok(())
@@ -134,17 +139,28 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
 
         Ok(())
     }
-}
 
-fn remove_lockfile(config: &Config) -> TResult<()> {
-    let lock_file = crate_root_folder(config).map(|p| p.join(CARGO_LOCK))?;
-
-    if lock_file.is_file() {
-        std::fs::remove_file(&lock_file).map_err(|error| CargoMSRVError::Io {
-            error,
-            source: IoErrorSource::RemoveFile(lock_file.clone()),
+    fn lockfile_path(&self, config: &Config) -> TResult<&Path> {
+        let path = self.lockfile_path.get_or_try_init(|| {
+            config
+                .context()
+                .crate_root_path()
+                .map(|path| path.join(CARGO_LOCK))
         })?;
+
+        Ok(path)
     }
 
-    Ok(())
+    fn remove_lockfile(&self, config: &Config) -> TResult<()> {
+        let lock_file = self.lockfile_path(config)?;
+
+        if lock_file.is_file() {
+            std::fs::remove_file(&lock_file).map_err(|error| CargoMSRVError::Io {
+                error,
+                source: IoErrorSource::RemoveFile(lock_file.to_path_buf()),
+            })?;
+        }
+
+        Ok(())
+    }
 }

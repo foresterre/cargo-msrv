@@ -1,5 +1,4 @@
 use crate::error::IoErrorSource;
-use crate::paths::crate_root_folder;
 use crate::reporter::event::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, ToolchainFileKind,
 };
@@ -14,7 +13,7 @@ pub fn write_toolchain_file(
     reporter: &impl Reporter,
     stable_version: &semver::Version,
 ) -> TResult<()> {
-    let path_prefix = crate_root_folder(config)?;
+    let path_prefix = config.context().crate_root_path()?;
 
     // todo refactor to be more complete
     // - consider: replace toolchain file type with same type

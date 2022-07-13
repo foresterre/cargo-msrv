@@ -126,7 +126,7 @@ impl RustVersion {
         let (rust_version, source) = match rust_version {
             Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
             None => {
-                let path = config.ctx().manifest_path(config)?;
+                let path = config.context().manifest_path()?;
                 let manifest = parse_manifest(path)?;
 
                 manifest

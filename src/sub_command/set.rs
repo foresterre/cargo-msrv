@@ -27,7 +27,7 @@ impl SubCommand for Set {
 }
 
 fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    let cargo_toml = config.ctx().manifest_path(config)?;
+    let cargo_toml = config.context().manifest_path()?;
 
     // Read the Cargo manifest to a String
     let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {

@@ -8,7 +8,7 @@ use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
 use crate::config::verify::VerifyCmdConfig;
-use crate::ctx::ComputedCtx;
+use crate::ctx::{ContextValues, LazyContext};
 use rust_releases::semver;
 
 use crate::error::{CargoMSRVError, TResult};
@@ -229,7 +229,7 @@ pub struct Config<'a> {
     no_check_feedback: bool,
 
     sub_command_config: SubCommandConfig,
-    ctx: ComputedCtx,
+    ctx: LazyContext,
 }
 
 impl<'a> Config<'a> {
@@ -252,7 +252,7 @@ impl<'a> Config<'a> {
             no_read_min_edition: None,
             no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
-            ctx: ComputedCtx::default(),
+            ctx: LazyContext::default(),
         }
     }
 
@@ -329,8 +329,14 @@ impl<'a> Config<'a> {
         &self.sub_command_config
     }
 
-    pub fn ctx(&self) -> &ComputedCtx {
+    pub fn context(&self) -> &LazyContext {
         &self.ctx
+    }
+
+    fn init_context(mut self) -> Self {
+        let values = ContextValues::from_config(&self);
+        self.ctx.init(values);
+        self
     }
 }
 
@@ -443,7 +449,7 @@ impl<'a> ConfigBuilder<'a> {
     }
 
     pub fn build(self) -> Config<'a> {
-        self.inner
+        self.inner.init_context()
     }
 }
 

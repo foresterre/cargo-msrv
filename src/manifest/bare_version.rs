@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 type BareVersionUsize = u64;
 
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum BareVersion {
     TwoComponents(BareVersionUsize, BareVersionUsize),
     ThreeComponents(BareVersionUsize, BareVersionUsize, BareVersionUsize),
@@ -329,6 +329,15 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
 pub struct NoVersionMatchesManifestMsrvError {
     pub requested: BareVersion,
     pub available: Vec<semver::Version>,
+}
+
+impl serde::Serialize for BareVersion {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_str(self)
+    }
 }
 
 #[cfg(test)]
