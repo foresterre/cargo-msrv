@@ -11,7 +11,7 @@ pub use meta::Meta;
 pub use msrv_result::MsrvResult;
 pub use new_compatibility_check::CheckToolchain;
 pub use progress::Progress;
-pub use search_method::FindMSRV;
+pub use search_method::FindMsrv;
 pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
 pub use show_output::ShowOutputMessage;
@@ -87,7 +87,7 @@ pub enum Message {
 
     // command: find
     MsrvResult(MsrvResult),
-    FindMSRV(FindMSRV),
+    FindMsrv(FindMsrv),
     Progress(Progress),
 
     // command: verify

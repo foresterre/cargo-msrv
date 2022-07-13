@@ -83,7 +83,7 @@ pub(in crate::cli) enum CargoMsrvCli {
             By default, the custom check command is `cargo check`.
         "#
     )]
-    MSRV(CargoMsrvOpts),
+    Msrv(CargoMsrvOpts),
 }
 
 #[derive(Debug, Args)]
@@ -175,7 +175,7 @@ impl<'opts> TryFrom<&'opts CargoMsrvCli> for Config<'opts> {
 
     fn try_from(cli: &'opts CargoMsrvCli) -> Result<Self, Self::Error> {
         match cli {
-            CargoMsrvCli::MSRV(opts) => opts.try_into(),
+            CargoMsrvCli::Msrv(opts) => opts.try_into(),
         }
     }
 }
