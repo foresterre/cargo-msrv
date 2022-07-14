@@ -19,7 +19,7 @@ pub(crate) mod handler;
 mod testing;
 
 #[cfg(test)]
-pub use testing::TestReporter;
+pub use testing::{FakeTestReporter, TestReporter};
 
 // Alias trait with convenience methods
 // This way we don't have to specify the associated type Event

@@ -55,3 +55,20 @@ impl TestReporter {
         &self.reporter
     }
 }
+
+///  A test reporter which does absolutely nothing.
+#[derive(Default)]
+pub struct FakeTestReporter;
+
+impl Reporter for FakeTestReporter {
+    type Event = Event;
+    type Err = ReporterError<Event>;
+
+    fn report_event(&self, _event: impl Into<Self::Event>) -> Result<(), Self::Err> {
+        Ok(())
+    }
+
+    fn disconnect(self) -> Result<(), Self::Err> {
+        Ok(())
+    }
+}
