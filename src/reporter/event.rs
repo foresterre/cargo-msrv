@@ -2,7 +2,9 @@ use std::fmt;
 use std::fmt::Formatter;
 
 pub use action::ActionMessage;
-pub use auxiliary_output::{AuxiliaryOutput, Destination, Item, MsrvKind, ToolchainFileKind};
+pub use auxiliary_output::{
+    AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
+};
 pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;

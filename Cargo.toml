@@ -77,6 +77,7 @@ features = ["rust-releases-rust-changelog"]
 parameterized = "0.3.1"
 yare = "1.0.1"
 phenomenon = "~1.0.0"
+test_dir = "0.2.0"
 
 [build-dependencies]
 vergen = { version = "7.2.0", default-features = false, features = ["build", "cargo", "git", "rustc"] }

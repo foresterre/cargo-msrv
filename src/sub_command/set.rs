@@ -8,7 +8,7 @@ use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
-    AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, SetOutputMessage,
+    AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetOutputMessage,
 };
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
