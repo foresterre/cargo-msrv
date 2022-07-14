@@ -26,6 +26,7 @@ pub mod exit_code;
 pub mod reporter;
 pub mod toolchain;
 
+pub(crate) mod combinators;
 pub(crate) mod command;
 pub(crate) mod ctx;
 pub(crate) mod default_target;

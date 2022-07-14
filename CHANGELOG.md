@@ -23,6 +23,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * The rust-releases index is now only fetched for subcommands which depend on it.
 * Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise that the toolchain-file is an output.
 * Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
+* The rust-toolchain file will now be overwritten if a rust-toolchain file was already present
 
 ### Fixed
 

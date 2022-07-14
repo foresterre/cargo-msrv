@@ -1,51 +1,28 @@
+use crate::combinators::ThenSome;
 use crate::error::IoErrorSource;
 use crate::reporter::event::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, ToolchainFileKind,
 };
 use crate::reporter::Reporter;
 use crate::{semver, CargoMSRVError, Config, TResult};
+use std::fmt;
+use std::path::{Path, PathBuf};
 
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 
+// - consider: replace toolchain file with 'best' rust-toolchain(.toml) format variant available
+// - consider: support old toolchain-file format
+// - consider: do not simply override, also support components, targets, profile
+//     - in reverse: use the values from rust-toolchain file to auto configure config
 pub fn write_toolchain_file(
     config: &Config,
     reporter: &impl Reporter,
     stable_version: &semver::Version,
 ) -> TResult<()> {
     let path_prefix = config.context().crate_root_path()?;
-
-    // todo refactor to be more complete
-    // - consider: replace toolchain file type with same type
-    // - consider: replace toolchain file with 'best' rust-toolchain(.toml) format variant available
-    // - consider: do overwrite the rust-toolchain file, since it was requested by the user by providing
-    //             the flag
-    //
-    // check if the rust-toolchain(.toml) file already exists
-    #[allow(clippy::if_same_then_else)]
-    if path_prefix.join(TOOLCHAIN_FILE).exists() {
-        // todo!: replace with events
-        // eprintln!(
-        //     "Not writing toolchain file, '{}' already exists",
-        //     TOOLCHAIN_FILE
-        // );
-        return Ok(());
-    } else if path_prefix.join(TOOLCHAIN_FILE_TOML).exists() {
-        // todo!: replace with events
-        // eprintln!(
-        //     "Not writing toolchain file, '{}' already exists",
-        //     TOOLCHAIN_FILE_TOML
-        // );
-        return Ok(());
-    }
-
-    let path = path_prefix.join(TOOLCHAIN_FILE);
-    let content = format!(
-        r#"[toolchain]
-channel = "{}"
-"#,
-        stable_version
-    );
+    let path = toolchain_file(path_prefix);
+    let content = format_toolchain_file(stable_version);
 
     std::fs::write(&path, content).map_err(|error| CargoMSRVError::Io {
         error,
@@ -58,4 +35,35 @@ channel = "{}"
     ))?;
 
     Ok(())
+}
+
+/// Determine whether we should use a .toml extension or no extension for the rust-toolchain file.
+fn toolchain_file(path: &Path) -> PathBuf {
+    fn without_extension(path: &Path) -> Option<PathBuf> {
+        let file = path.join(TOOLCHAIN_FILE);
+        ThenSome::then_some(file.exists(), file)
+    }
+
+    fn with_extension(path: &Path) -> Option<PathBuf> {
+        let file = path.join(TOOLCHAIN_FILE_TOML);
+        ThenSome::then_some(file.exists(), file)
+    }
+
+    // Without extension variant has precedence over with extension variant
+    // https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+    without_extension(path)
+        .or_else(|| with_extension(path))
+        .unwrap_or_else(|| path.join(TOOLCHAIN_FILE))
+}
+
+fn format_toolchain_file<D>(channel: &D) -> String
+where
+    D: fmt::Display,
+{
+    format!(
+        r#"[toolchain]
+channel = "{}"
+"#,
+        channel
+    )
 }
