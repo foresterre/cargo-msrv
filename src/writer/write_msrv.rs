@@ -23,3 +23,33 @@ pub fn write_msrv(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::write_msrv;
+    use crate::config::ConfigBuilder;
+    use crate::reporter::FakeTestReporter;
+    use crate::{semver, Action};
+    use test_dir::{DirBuilder, FileType, TestDir};
+
+    #[test]
+    fn sample() {
+        let tmp = TestDir::temp().create("Cargo.toml", FileType::EmptyFile);
+        let manifest = tmp.path("Cargo.toml");
+
+        std::fs::write(&manifest, "[package]").unwrap();
+
+        let crate_path = tmp.root();
+        let config = ConfigBuilder::new(Action::Find, "")
+            .crate_path(Some(crate_path))
+            .build();
+
+        let fake_reporter = FakeTestReporter::default();
+        let version = semver::Version::new(2, 0, 5);
+
+        write_msrv(&config, &fake_reporter, &version).unwrap();
+
+        let content = std::fs::read_to_string(&manifest).unwrap();
+        assert_eq!(content, "[package]\nrust-version = \"2.0.5\"\n");
+    }
+}
