@@ -32,3 +32,31 @@ impl From<ShowOutputMessage> for Event {
         Message::ShowOutput(it).into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_event() {
+        let reporter = TestReporter::default();
+
+        let version = BareVersion::ThreeComponents(1, 2, 3);
+        let path = Path::new("lv").to_path_buf();
+        let event = ShowOutputMessage::new(version, path);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        let events = reporter.wait_for_events();
+
+        assert_eq!(&events, &[Event::new(Message::ShowOutput(event))]);
+
+        if let Message::ShowOutput(msg) = &events[0].message {
+            assert_eq!(msg.version(), &BareVersion::ThreeComponents(1, 2, 3));
+            assert_eq!(&msg.manifest_path(), &Path::new("lv"));
+        }
+    }
+}

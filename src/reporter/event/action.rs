@@ -22,3 +22,24 @@ impl From<ActionMessage> for Event {
         Message::Action(it).into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::{Action, ActionMessage, Event};
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_action() {
+        let reporter = TestReporter::default();
+        let event = ActionMessage::new(Action::Find);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::Action(event)),]
+        );
+    }
+}

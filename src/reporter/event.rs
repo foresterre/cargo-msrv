@@ -5,13 +5,13 @@ pub use action::ActionMessage;
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
+pub use check_toolchain::CheckToolchain;
 pub use compatibility::{Compatibility, CompatibilityReport};
 pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
 pub use list_dep::ListDep;
 pub use meta::Meta;
 pub use msrv_result::MsrvResult;
-pub use new_compatibility_check::CheckToolchain;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
 pub use set_output::SetOutputMessage;
@@ -21,13 +21,13 @@ pub use termination::TerminateWithFailure;
 
 mod action;
 mod auxiliary_output;
+mod check_toolchain;
 mod compatibility;
 mod compatibility_check_method;
 mod fetch_index;
 mod list_dep;
 mod meta;
 mod msrv_result;
-mod new_compatibility_check;
 mod progress;
 mod search_method;
 mod set_output;
@@ -45,6 +45,14 @@ pub struct Event {
 }
 
 impl Event {
+    #[cfg(test)]
+    pub(crate) fn new(message: Message) -> Self {
+        Self {
+            message,
+            scope: None,
+        }
+    }
+
     pub fn message(&self) -> &Message {
         &self.message
     }
@@ -80,7 +88,7 @@ pub enum Message {
     SetupToolchain(SetupToolchain),
 
     // runner + pass/reject
-    NewCompatibilityCheck(CheckToolchain),
+    CheckToolchain(CheckToolchain),
     CompatibilityCheckMethod(CompatibilityCheckMethod),
     Compatibility(Compatibility),
 

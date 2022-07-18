@@ -60,3 +60,30 @@ pub enum ToolchainFileKind {
     /* Legacy, : Unsupported right now */
     Toml,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::Event;
+    use std::path::Path;
+    use storyteller::Reporter;
+
+    #[yare::parameterized(
+        rust_version_msrv = { Item::msrv(MsrvKind::RustVersion) },
+        metadata_fallback_msrv = { Item::msrv(MsrvKind::MetadataFallback) },
+        toolchain_file_toml = { Item::toolchain_file(ToolchainFileKind::Toml) },
+    )]
+    fn reported_action(item: Item) {
+        let reporter = TestReporter::default();
+        let event = AuxiliaryOutput::new(Destination::File(Path::new("hello").to_path_buf()), item);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::AuxiliaryOutput(event)),]
+        );
+    }
+}

@@ -72,11 +72,11 @@ impl EventHandler for HumanProgressHandler {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
                 self.pb.enable_steady_tick(Duration::from_millis(150));
             }
-            Message::NewCompatibilityCheck(it) if event.is_scope_start() => {
+            Message::CheckToolchain(it) if event.is_scope_start() => {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
                 self.start_runner_progress(it.toolchain.version());
             }
-            Message::NewCompatibilityCheck(it) /* is scope end */ => {
+            Message::CheckToolchain(it) /* is scope end */ => {
                 let version = it.toolchain.version();
                 self.finish_runner_progress();
             }

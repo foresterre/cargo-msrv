@@ -21,3 +21,38 @@ impl From<FetchIndex> for Event {
         Message::FetchIndex(it).into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_rust_changelog_source() {
+        let reporter = TestReporter::default();
+        let event = FetchIndex::new(ReleaseSource::RustChangelog);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::FetchIndex(event)),]
+        );
+    }
+
+    #[cfg(feature = "rust-releases-dist-source")]
+    #[test]
+    fn reported_rust_dist_source() {
+        let reporter = TestReporter::default();
+        let event = FetchIndex::new(ReleaseSource::RustDist);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::FetchIndex(event)),]
+        );
+    }
+}

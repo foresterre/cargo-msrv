@@ -4,11 +4,11 @@ use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct SetupToolchain {
-    toolchain: OwnedToolchainSpec,
+pub struct CheckToolchain {
+    pub toolchain: OwnedToolchainSpec,
 }
 
-impl SetupToolchain {
+impl CheckToolchain {
     pub fn new(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
             toolchain: toolchain.into(),
@@ -16,9 +16,9 @@ impl SetupToolchain {
     }
 }
 
-impl From<SetupToolchain> for Event {
-    fn from(it: SetupToolchain) -> Self {
-        Message::SetupToolchain(it).into()
+impl From<CheckToolchain> for Event {
+    fn from(it: CheckToolchain) -> Self {
+        Message::CheckToolchain(it).into()
     }
 }
 
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn reported_event() {
         let reporter = TestReporter::default();
-        let event = SetupToolchain::new(OwnedToolchainSpec::new(
+        let event = CheckToolchain::new(OwnedToolchainSpec::new(
             &semver::Version::new(1, 2, 3),
             "test_target",
         ));
@@ -42,7 +42,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::SetupToolchain(event)),]
+            vec![Event::new(Message::CheckToolchain(event)),]
         );
     }
 }

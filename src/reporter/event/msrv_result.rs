@@ -95,3 +95,53 @@ enum ResultDetails {
         success: False,
     },
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::Action;
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_msrv_determined_event() {
+        let reporter = TestReporter::default();
+        let config = Config::new(Action::Find, "".to_string());
+        let version = semver::Version::new(1, 3, 0);
+        let min = BareVersion::TwoComponents(1, 0);
+        let max = BareVersion::ThreeComponents(1, 4, 0);
+
+        let event = MsrvResult::new_msrv(version, &config, min, max);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        let events = reporter.wait_for_events();
+        assert_eq!(&events, &[Event::new(Message::MsrvResult(event))]);
+
+        let inner = &events[0].message;
+        if let Message::MsrvResult(res) = inner {
+            assert_eq!(res.msrv(), Some(&semver::Version::new(1, 3, 0)));
+        }
+    }
+
+    #[test]
+    fn reported_msrv_undetermined_event() {
+        let reporter = TestReporter::default();
+        let config = Config::new(Action::Find, "".to_string());
+        let min = BareVersion::TwoComponents(1, 0);
+        let max = BareVersion::ThreeComponents(1, 4, 0);
+
+        let event = MsrvResult::none(&config, min, max);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        let events = reporter.wait_for_events();
+        assert_eq!(&events, &[Event::new(Message::MsrvResult(event))]);
+
+        let inner = &events[0].message;
+        if let Message::MsrvResult(res) = inner {
+            assert_eq!(res.msrv(), None);
+        }
+    }
+}

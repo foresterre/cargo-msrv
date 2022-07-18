@@ -44,3 +44,49 @@ impl From<TerminateWithFailure> for Event {
 struct SerializableReason {
     description: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_non_is_not_error_event() {
+        let reporter = TestReporter::default();
+
+        let event = TerminateWithFailure::new(CargoMSRVError::Storyteller);
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+        let events = reporter.wait_for_events();
+
+        assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
+
+        if let Message::TerminateWithFailure(msg) = &events[0].message {
+            assert!(!msg.is_error());
+            assert_eq!(msg.as_message(), "Unable to print event output");
+        }
+    }
+
+    #[test]
+    fn reported_non_is_error_event() {
+        let reporter = TestReporter::default();
+
+        let event = TerminateWithFailure::new(CargoMSRVError::UnableToFindAnyGoodVersion {
+            command: "cargo build --all".to_string(),
+        });
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+        let events = reporter.wait_for_events();
+
+        assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
+
+        if let Message::TerminateWithFailure(msg) = &events[0].message {
+            assert!(msg.is_error());
+            assert!(msg
+                .as_message()
+                .starts_with("Unable to find a Minimum Supported Rust Version (MSRV)"));
+        }
+    }
+}

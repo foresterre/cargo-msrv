@@ -42,3 +42,47 @@ pub enum CompatibilityReport {
     Compatible,
     Incompatible { error: Option<String> },
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::{semver, Event};
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_compatible_toolchain() {
+        let reporter = TestReporter::default();
+        let event = Compatibility::compatible(OwnedToolchainSpec::new(
+            &semver::Version::new(1, 2, 3),
+            "test_target",
+        ));
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::Compatibility(event)),]
+        );
+    }
+
+    #[yare::parameterized(
+        none = { None },
+        some = {Some("whoo!".to_string()) },
+    )]
+    fn reported_incompatible_toolchain(error_message: Option<String>) {
+        let reporter = TestReporter::default();
+        let event = Compatibility::incompatible(
+            OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
+            error_message,
+        );
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::Compatibility(event)),]
+        );
+    }
+}

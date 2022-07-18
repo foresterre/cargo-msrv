@@ -53,3 +53,24 @@ impl From<Meta> for Event {
         Message::Meta(it).into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use storyteller::Reporter;
+
+    #[test]
+    fn reported_event() {
+        let reporter = TestReporter::default();
+        let event = Meta::default();
+
+        reporter.reporter().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::new(Message::Meta(event)),]
+        );
+    }
+}
