@@ -73,3 +73,59 @@ impl ReporterSetup {
         (reporter, listener)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::{Action, ActionMessage, CargoMSRVError, Reporter};
+
+    #[test]
+    fn report_successful_scoped_event() {
+        let reporter = TestReporter::default();
+        let event = ActionMessage::new(Action::Find);
+
+        let out = reporter
+            .reporter()
+            .run_scoped_event(event.clone(), || TResult::<bool>::Ok(true))
+            .unwrap();
+
+        let events = reporter.wait_for_events();
+
+        assert_eq!(
+            &events,
+            &[
+                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::Action(event)).with_scope(EventScope::End)
+            ]
+        );
+
+        assert!(out);
+    }
+
+    #[test]
+    fn report_failed_scoped_event() {
+        let reporter = TestReporter::default();
+        let event = ActionMessage::new(Action::Find);
+
+        let out = reporter
+            .reporter()
+            .run_scoped_event(event.clone(), || {
+                TResult::<bool>::Err(CargoMSRVError::Storyteller)
+            })
+            .unwrap_err();
+
+        let events = reporter.wait_for_events();
+
+        assert_eq!(
+            &events,
+            &[
+                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::Action(event)).with_scope(EventScope::End)
+            ]
+        );
+
+        assert!(matches!(out, CargoMSRVError::Storyteller));
+    }
+}
