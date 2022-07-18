@@ -24,9 +24,6 @@ impl<'runner, R: Check> Linear<'runner, R> {
         config: &Config,
         _reporter: &impl Reporter,
     ) -> TResult<Outcome> {
-        // todo!
-        // output.progress(ProgressAction::Checking(release.version()));
-
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
     }
@@ -75,5 +72,144 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
                 config,
             ))
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::check::TestRunner;
+    use crate::reporter::TestReporter;
+    use crate::{semver, Action, Config, ReleaseIndex};
+    use rust_releases::Release;
+    use std::iter::FromIterator;
+
+    #[test]
+    fn none_supported() {
+        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let reporter = TestReporter::default();
+
+        let releases = vec![];
+
+        let runner = TestRunner::with_ok(releases.iter().map(Release::version));
+        let index = ReleaseIndex::from_iter(releases);
+
+        let linear_search = Linear::new(&runner);
+        let actual = linear_search
+            .find_toolchain(index.releases(), &config, reporter.reporter())
+            .unwrap();
+
+        let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn all_supported() {
+        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let reporter = TestReporter::default();
+
+        let releases = vec![
+            Release::new_stable(semver::Version::new(1, 56, 0)),
+            Release::new_stable(semver::Version::new(1, 55, 0)),
+            Release::new_stable(semver::Version::new(1, 54, 0)),
+        ];
+
+        let runner = TestRunner::with_ok(releases.iter().map(Release::version));
+        let index = ReleaseIndex::from_iter(releases);
+
+        let linear_search = Linear::new(&runner);
+        let actual = linear_search
+            .find_toolchain(index.releases(), &config, reporter.reporter())
+            .unwrap();
+
+        let expected = MinimumSupportedRustVersion::Toolchain {
+            toolchain: OwnedToolchainSpec::new(&semver::Version::new(1, 54, 0), "my-test-target"),
+        };
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn most_recent_only() {
+        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let reporter = TestReporter::default();
+
+        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 56, 0))];
+
+        let index_of_releases = vec![
+            Release::new_stable(semver::Version::new(1, 56, 0)),
+            Release::new_stable(semver::Version::new(1, 55, 0)),
+            Release::new_stable(semver::Version::new(1, 54, 0)),
+        ];
+
+        let runner = TestRunner::with_ok(supported_releases.iter().map(Release::version));
+        let index = ReleaseIndex::from_iter(index_of_releases);
+
+        let linear_search = Linear::new(&runner);
+        let actual = linear_search
+            .find_toolchain(index.releases(), &config, reporter.reporter())
+            .unwrap();
+
+        let expected = MinimumSupportedRustVersion::Toolchain {
+            toolchain: OwnedToolchainSpec::new(&semver::Version::new(1, 56, 0), "my-test-target"),
+        };
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn least_recent_only_expects_rust_backwards_compat() {
+        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let reporter = TestReporter::default();
+
+        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 54, 0))];
+
+        let index_of_releases = vec![
+            Release::new_stable(semver::Version::new(1, 56, 0)),
+            Release::new_stable(semver::Version::new(1, 55, 0)),
+            Release::new_stable(semver::Version::new(1, 54, 0)),
+        ];
+
+        let runner = TestRunner::with_ok(supported_releases.iter().map(Release::version));
+        let index = ReleaseIndex::from_iter(index_of_releases);
+
+        let linear_search = Linear::new(&runner);
+        let actual = linear_search
+            .find_toolchain(index.releases(), &config, reporter.reporter())
+            .unwrap();
+
+        // Not 1.54, since we expect that the Rust 1.56 must be able to compile everything that 1.54
+        // can.
+        let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn middle_one_only_expects_rust_backwards_compat() {
+        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let reporter = TestReporter::default();
+
+        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 55, 0))];
+
+        let index_of_releases = vec![
+            Release::new_stable(semver::Version::new(1, 56, 0)),
+            Release::new_stable(semver::Version::new(1, 55, 0)),
+            Release::new_stable(semver::Version::new(1, 54, 0)),
+        ];
+
+        let runner = TestRunner::with_ok(supported_releases.iter().map(Release::version));
+        let index = ReleaseIndex::from_iter(index_of_releases);
+
+        let linear_search = Linear::new(&runner);
+        let actual = linear_search
+            .find_toolchain(index.releases(), &config, reporter.reporter())
+            .unwrap();
+
+        // Not 1.55, since we expect that the Rust 1.56 must be able to compile everything that 1.54
+        // can.
+        let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
+        assert_eq!(actual, expected);
     }
 }
