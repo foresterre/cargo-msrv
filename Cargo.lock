@@ -1638,9 +1638,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.22.1"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9e0ea7389a0f37d1dadb2f20356c6b6b8b7346c433da5fff8f57662a368f562"
+checksum = "a538ac2a985798cd7de29b357d6dae99cbea07f64dc85d70f539718e0dfef816"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
