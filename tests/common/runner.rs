@@ -10,11 +10,10 @@ use cargo_msrv::config::Config;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use cargo_msrv::Outcome;
-use rust_releases::semver;
 use rust_releases::semver::Version;
 
 pub struct TestRunner {
-    accept_versions: HashSet<semver::Version>,
+    accept_versions: HashSet<Version>,
 }
 
 impl TestRunner {

@@ -41,6 +41,14 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
                         "rustup failed to install toolchain"
                     );
 
+                    eprintln!(
+                        "Toolchain Download Failed -> \n\n{:?}\n{:?}\n{:?}\n{:?}\n<-\n\n",
+                        toolchain.spec(),
+                        rustup.stdout(),
+                        rustup.stderr(),
+                        "rustup failed to install toolchain"
+                    );
+
                     return Err(CargoMSRVError::RustupInstallFailed(
                         toolchain.spec().to_string(),
                     ));

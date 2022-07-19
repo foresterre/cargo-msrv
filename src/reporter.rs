@@ -8,7 +8,7 @@ pub use handler::HumanProgressHandler;
 pub use handler::JsonHandler;
 
 pub use event::{
-    Event,
+    Event, Message,
     TerminateWithFailure, /* fixme: Needed by binary crate, how much do we want to expose here? */
 };
 

@@ -28,6 +28,14 @@ impl Compatibility {
             },
         }
     }
+
+    pub fn toolchain(&self) -> &OwnedToolchainSpec {
+        &self.toolchain
+    }
+
+    pub fn is_compatible(&self) -> bool {
+        self.decision
+    }
 }
 
 impl From<Compatibility> for Event {
