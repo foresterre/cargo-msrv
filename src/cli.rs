@@ -6,9 +6,9 @@ use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::config::list::ListMsrvVariant;
 use crate::config::ConfigBuilder;
-use crate::fetch::default_target;
+use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
-use crate::{CargoMSRVError, Config, ModeIntent};
+use crate::{Action, CargoMSRVError, Config};
 use clap::{AppSettings, Args, Parser, Subcommand};
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
@@ -83,7 +83,7 @@ pub(in crate::cli) enum CargoMsrvCli {
             By default, the custom check command is `cargo check`.
         "#
     )]
-    MSRV(CargoMsrvOpts),
+    Msrv(CargoMsrvOpts),
 }
 
 #[derive(Debug, Args)]
@@ -175,7 +175,7 @@ impl<'opts> TryFrom<&'opts CargoMsrvCli> for Config<'opts> {
 
     fn try_from(cli: &'opts CargoMsrvCli) -> Result<Self, Self::Error> {
         match cli {
-            CargoMsrvCli::MSRV(opts) => opts.try_into(),
+            CargoMsrvCli::Msrv(opts) => opts.try_into(),
         }
     }
 }
@@ -209,20 +209,20 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
     }
 }
 
-fn make_mode(opts: &CargoMsrvOpts) -> ModeIntent {
+fn make_mode(opts: &CargoMsrvOpts) -> Action {
     opts.subcommand
         .as_ref()
         .map(|subcommand| match subcommand {
-            SubCommand::List(_) => ModeIntent::List,
-            SubCommand::Show => ModeIntent::Show,
-            SubCommand::Set(_) => ModeIntent::Set,
-            SubCommand::Verify(_) => ModeIntent::Verify,
+            SubCommand::List(_) => Action::List,
+            SubCommand::Show => Action::Show,
+            SubCommand::Set(_) => Action::Set,
+            SubCommand::Verify(_) => Action::Verify,
         })
         .unwrap_or_else(|| {
             if opts.verify {
-                ModeIntent::Verify
+                Action::Verify
             } else {
-                ModeIntent::Find
+                Action::Find
             }
         })
 }

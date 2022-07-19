@@ -7,14 +7,13 @@ use std::collections::HashSet;
 
 use cargo_msrv::check::Check;
 use cargo_msrv::config::Config;
-use cargo_msrv::errors::TResult;
+use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use cargo_msrv::Outcome;
-use rust_releases::semver;
 use rust_releases::semver::Version;
 
 pub struct TestRunner {
-    accept_versions: HashSet<semver::Version>,
+    accept_versions: HashSet<Version>,
 }
 
 impl TestRunner {
@@ -26,7 +25,7 @@ impl TestRunner {
 }
 
 impl Check for TestRunner {
-    fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
+    fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> Result<Outcome, CargoMSRVError> {
         let v = toolchain.version();
 
         if self.accept_versions.contains(toolchain.version()) {

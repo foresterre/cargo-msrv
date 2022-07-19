@@ -6,7 +6,7 @@ pub struct ListCmdConfig {
     pub variant: ListMsrvVariant,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ListMsrvVariant {
     DirectDeps,
     OrderedByMSRV,

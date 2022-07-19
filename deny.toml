@@ -10,6 +10,7 @@ allow = [
     "MPL-2.0",
     "OpenSSL",
     "Zlib",
+    "0BSD"
 ]
 
 [[licenses.clarify]]

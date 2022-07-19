@@ -1,8 +1,9 @@
-use crate::common::reporter::{Record, TestResultReporter};
+use crate::common::reporter::EventTestDevice;
 use cargo_msrv::check::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::test_config_from_cli;
-use cargo_msrv::errors::TResult;
+use cargo_msrv::error::CargoMSRVError;
+use cargo_msrv::reporter::Message;
 use cargo_msrv::{Find, SubCommand};
 use rust_releases::{semver, Release, ReleaseIndex};
 use std::ffi::OsString;
@@ -10,7 +11,7 @@ use std::iter::FromIterator;
 
 pub fn find_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
-) -> TResult<Option<semver::Version>> {
+) -> Result<Option<semver::Version>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_thirty_four_to_one_thirty_eight())
         .map(|res| res.msrv().map(Clone::clone))
 }
@@ -20,7 +21,7 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
     T: Into<OsString> + Clone,
 >(
     with_args: I,
-) -> TResult<Option<semver::Version>> {
+) -> Result<Option<semver::Version>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_twenty_eight_to_one_thirty_nine())
         .map(|res| res.msrv().map(Clone::clone))
 }
@@ -53,7 +54,7 @@ pub fn find_msrv_with_releases<
 >(
     with_args: I,
     included_releases: V,
-) -> TResult<TestResult> {
+) -> Result<TestResult, CargoMSRVError> {
     let matches = CargoCli::parse_args(with_args);
     let config = test_config_from_cli(&matches).expect("Unable to parse cli arguments");
 
@@ -61,25 +62,27 @@ pub fn find_msrv_with_releases<
     //  as more Rust toolchains become available.
     let available_versions = ReleaseIndex::from_iter(included_releases);
 
-    let reporter = TestResultReporter::default();
-    let runner = RustupToolchainCheck::new(&reporter);
+    let device = EventTestDevice::default();
+    let runner = RustupToolchainCheck::new(device.reporter());
 
     // Determine the MSRV from the index of available releases.
     let cmd = Find::new(&available_versions, runner);
 
-    cmd.run(&config, &reporter)?;
+    cmd.run(&config, device.reporter())?;
+
+    let events = device.wait_for_events();
 
     let mut test_result = TestResult::default();
 
-    for item in reporter.log().iter() {
-        match item {
-            Record::StepComplete { version, success } if *success => {
-                test_result.add_success(version.clone())
+    for item in events {
+        match item.message() {
+            Message::Compatibility(res) if res.is_compatible() => {
+                test_result.add_success(res.toolchain().version().clone());
             }
-            Record::StepComplete { version, success } if !(*success) => {
-                test_result.add_failure(version.clone())
+            Message::Compatibility(res) if !res.is_compatible() => {
+                test_result.add_failure(res.toolchain().version().clone());
             }
-            Record::CmdWasSuccessWithVersion(version) => test_result.set_msrv(version.clone()),
+            Message::MsrvResult(res) => test_result.set_msrv(res.msrv().map(Clone::clone)),
             _ => {}
         }
     }
@@ -103,8 +106,8 @@ impl TestResult {
         self.successful_checks.push(version);
     }
 
-    pub fn set_msrv(&mut self, version: semver::Version) {
-        self.msrv = Some(version);
+    pub fn set_msrv(&mut self, version: Option<semver::Version>) {
+        self.msrv = version;
     }
 
     pub fn successful_checks(&self) -> &[semver::Version] {

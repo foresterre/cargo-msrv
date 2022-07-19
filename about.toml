@@ -6,6 +6,7 @@ accepted = [
     "MPL-2.0",
     "OpenSSL",
     "Zlib",
+    "0BSD",
 ]
 workarounds = ["ring"]
 

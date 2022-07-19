@@ -1,71 +1,131 @@
-use std::fmt::Debug;
+use storyteller::{event_channel, ChannelEventListener, ChannelReporter, EventListener};
 
-use crate::Config;
-use rust_releases::semver;
+use crate::reporter::event::EventScope;
+use crate::TResult;
 
-use crate::config::{ModeIntent, OutputFormat};
-use crate::formatter::{FormatUserOutput, Human, Json};
-use crate::outcome::{FailureOutcome, SuccessOutcome};
+pub use handler::DiscardOutputHandler;
+pub use handler::HumanProgressHandler;
+pub use handler::JsonHandler;
 
-pub mod json;
-pub mod no_output;
-pub mod ui;
+pub use event::{
+    Event, Message,
+    TerminateWithFailure, /* fixme: Needed by binary crate, how much do we want to expose here? */
+};
 
-#[derive(Debug, Clone, Copy)]
-pub enum ProgressAction<'a> {
-    Installing(&'a semver::Version),
-    Checking(&'a semver::Version),
-    FetchingIndex,
+pub(crate) mod event;
+pub(crate) mod handler;
+
+#[cfg(test)]
+mod testing;
+
+#[cfg(test)]
+pub use testing::{FakeTestReporter, TestReporter};
+
+// Alias trait with convenience methods
+// This way we don't have to specify the associated type Event
+// So instead of `fn hello(reporter: &impl Reporter<Event = Event>)`, we write:
+// `fn hello(reporter: &impl Reporter)`
+pub trait Reporter:
+    storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
+{
+    /// Perform a (fallible) action within the scope of the `f` closure, and report the start and
+    /// end of this action.
+    ///
+    /// NB: returns a `crate::TResult` (unlike the regular `report_event` which returns
+    /// a `Result<(), reporter::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
+    /// error data structure.
+    fn run_scoped_event<T>(
+        &self,
+        event: impl Into<Event>,
+        f: impl Fn() -> TResult<T>,
+    ) -> TResult<T> {
+        let event = event.into();
+
+        // Report that the action is starting
+        let begin = event.with_scope(EventScope::Start);
+        self.report_event(begin)?;
+
+        // Perform the action
+        let result = f();
+
+        // Report that the action has finished
+        let end = event.with_scope(EventScope::End);
+        self.report_event(end)?;
+
+        result
+    }
+}
+impl<T> Reporter for T where
+    T: storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
+{
 }
 
-pub trait Output: Debug {
-    // Shows the mode in which cargo-msrv will operate
-    fn mode(&self, mode: ModeIntent);
+#[derive(Default)]
+pub struct ReporterSetup;
 
-    // Sets the remaining amount of steps for the mode
-    fn set_steps(&self, steps: u64);
+impl ReporterSetup {
+    pub fn create(self) -> (impl Reporter, impl EventListener<Event = Event>) {
+        let (sender, receiver) = event_channel::<Event>();
 
-    // Reports the currently running
-    fn progress(&self, action: ProgressAction);
-    fn complete_step(&self, version: &semver::Version, success: bool);
-    fn finish_success(&self, mode: ModeIntent, version: Option<&semver::Version>);
-    fn finish_failure(&self, mode: ModeIntent, cmd: Option<&str>);
+        let reporter = ChannelReporter::new(sender);
+        let listener = ChannelEventListener::new(receiver);
 
-    fn write_line(&self, content: &str);
+        (reporter, listener)
+    }
 }
 
-pub fn write_succeeded_check(
-    success_outcome: &SuccessOutcome,
-    config: &Config,
-    output: &impl Output,
-) {
-    if config.no_check_feedback() {
-        return;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::reporter::event::Message;
+    use crate::reporter::TestReporter;
+    use crate::{Action, ActionMessage, CargoMSRVError, Reporter};
+
+    #[test]
+    fn report_successful_scoped_event() {
+        let reporter = TestReporter::default();
+        let event = ActionMessage::new(Action::Find);
+
+        let out = reporter
+            .reporter()
+            .run_scoped_event(event.clone(), || TResult::<bool>::Ok(true))
+            .unwrap();
+
+        let events = reporter.wait_for_events();
+
+        assert_eq!(
+            &events,
+            &[
+                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::Action(event)).with_scope(EventScope::End)
+            ]
+        );
+
+        assert!(out);
     }
 
-    match config.output_format() {
-        OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(success_outcome));
-        }
-        OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(success_outcome));
-        }
-        _ => {}
-    };
-}
+    #[test]
+    fn report_failed_scoped_event() {
+        let reporter = TestReporter::default();
+        let event = ActionMessage::new(Action::Find);
 
-pub fn write_failed_check(failure_outcome: &FailureOutcome, config: &Config, output: &impl Output) {
-    if config.no_check_feedback() {
-        return;
+        let out = reporter
+            .reporter()
+            .run_scoped_event(event.clone(), || {
+                TResult::<bool>::Err(CargoMSRVError::Storyteller)
+            })
+            .unwrap_err();
+
+        let events = reporter.wait_for_events();
+
+        assert_eq!(
+            &events,
+            &[
+                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::Action(event)).with_scope(EventScope::End)
+            ]
+        );
+
+        assert!(matches!(out, CargoMSRVError::Storyteller));
     }
-
-    match config.output_format() {
-        OutputFormat::Human => {
-            output.write_line(&FormatUserOutput::<Human>::format_line(failure_outcome));
-        }
-        OutputFormat::Json => {
-            output.write_line(&FormatUserOutput::<Json>::format_line(failure_outcome));
-        }
-        _ => {}
-    };
 }

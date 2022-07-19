@@ -1,11 +1,11 @@
-use once_cell::unsync::OnceCell;
+use once_cell::sync::OnceCell;
 use rust_releases::semver;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ToolchainSpec<'spec> {
     version: &'spec semver::Version,
     target: &'spec str,
-    spec: once_cell::unsync::OnceCell<String>,
+    spec: OnceCell<String>,
 }
 
 impl<'spec> ToolchainSpec<'spec> {
@@ -13,7 +13,7 @@ impl<'spec> ToolchainSpec<'spec> {
         Self {
             version,
             target,
-            spec: once_cell::unsync::OnceCell::new(),
+            spec: OnceCell::new(),
         }
     }
 
@@ -35,11 +35,13 @@ impl<'spec> ToolchainSpec<'spec> {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct OwnedToolchainSpec {
     version: semver::Version,
     target: String,
-    spec: once_cell::unsync::OnceCell<String>,
+    #[serde(skip)]
+    spec: OnceCell<String>,
 }
 
 impl OwnedToolchainSpec {
@@ -58,6 +60,10 @@ impl OwnedToolchainSpec {
 
     pub fn version(&self) -> &semver::Version {
         &self.version
+    }
+
+    pub fn target(&self) -> &str {
+        &self.target
     }
 }
 

@@ -1,14 +1,14 @@
-use crate::common::reporter::TestResultReporter;
+use crate::common::reporter::EventTestDevice;
 use cargo_msrv::check::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::test_config_from_cli;
-use cargo_msrv::errors::TResult;
+use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::{SubCommand, Verify};
 use rust_releases::{Release, ReleaseIndex};
 use std::ffi::OsString;
 use std::iter::FromIterator;
 
-pub fn run_verify<I, T, S>(with_args: I, releases: S) -> TResult<()>
+pub fn run_verify<I, T, S>(with_args: I, releases: S) -> Result<(), CargoMSRVError>
 where
     T: Into<OsString> + Clone,
     I: IntoIterator<Item = T>,
@@ -21,11 +21,11 @@ where
     //  as more Rust toolchains become available.
     let available_versions = ReleaseIndex::from_iter(releases);
 
-    let reporter = TestResultReporter::default();
-    let runner = RustupToolchainCheck::new(&reporter);
+    let device = EventTestDevice::default();
+    let runner = RustupToolchainCheck::new(device.reporter());
 
     // Determine the MSRV from the index of available releases.
     let cmd = Verify::new(&available_versions, runner);
 
-    cmd.run(&config, &reporter)
+    cmd.run(&config, device.reporter())
 }

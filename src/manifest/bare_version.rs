@@ -31,15 +31,15 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 impl BareVersion {
     pub fn to_comparator(&self) -> semver::Comparator {
         match self {
-            Self::TwoComponents(major, minor) => crate::semver::Comparator {
+            Self::TwoComponents(major, minor) => semver::Comparator {
                 op: semver::Op::Tilde,
                 major: *major,
                 minor: Some(*minor),
                 patch: None,
                 pre: semver::Prerelease::EMPTY,
             },
-            Self::ThreeComponents(major, minor, patch) => crate::semver::Comparator {
-                op: semver::Op::Tilde,
+            Self::ThreeComponents(major, minor, patch) => semver::Comparator {
+                op: semver::Op::Exact,
                 major: *major,
                 minor: Some(*minor),
                 patch: Some(*patch),
@@ -48,33 +48,40 @@ impl BareVersion {
         }
     }
 
-    // Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
-    // version requirement against the given set of available version, while `BareVersion::to_semver_version`
-    // simply rewrites the versions components to their semver::Version counterpart.
+    /// Compared to `BareVersion::to_semver_version`, this method tries to satisfy a specified semver
+    /// version requirement against the given set of available version, while `BareVersion::to_semver_version`
+    /// simply rewrites the versions components to their semver::Version counterpart.
+    ///
+    /// If `available` is ordered from most-recent to least-recent, it will return the highest matching
+    /// semver version for two-component versions, and the exact matching version for three-component versions.
+    ///
+    /// That is, when our list of available versions is `[0.14.1, 0.14.0, 0.13.0]`, if we supply
+    /// a two-component version `0.14`, we will get the result `0.14.1`, while if we supply
+    /// the three-component `0.14.0`, we would get the result `0.14.0`.
     pub fn try_to_semver<'s, I>(
         &self,
-        iter: I,
+        available: I,
     ) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError>
     where
-        I: IntoIterator<Item = &'s crate::semver::Version>,
+        I: Iterator<Item = &'s semver::Version> + Clone,
     {
-        let mut iter = iter.into_iter();
         let requirements = self.to_comparator();
 
-        iter.find(|version| requirements.matches(version))
+        available
+            .clone()
+            .find(|version| requirements.matches(version))
             .ok_or_else(|| {
                 let requirement = self.clone();
-                let available = iter.cloned().collect();
                 NoVersionMatchesManifestMsrvError {
                     requested: requirement,
-                    available,
+                    available: available.cloned().collect(),
                 }
             })
     }
 
     pub fn to_semver_version(&self) -> crate::semver::Version {
         match self {
-            Self::TwoComponents(major, minor) => crate::semver::Version::new(*major, *minor, 0),
+            Self::TwoComponents(major, minor) => semver::Version::new(*major, *minor, 0),
             Self::ThreeComponents(major, minor, patch) => {
                 semver::Version::new(*major, *minor, *patch)
             }
@@ -317,31 +324,21 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
     Err(Error::ExpectedEndOfInput)
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("The MSRV requirement ({requested}) did not match any available version, available: [{}]", .available.iter().map(|s| s.to_string()).collect::<Vec<_>>().join(", "))]
 pub struct NoVersionMatchesManifestMsrvError {
     pub requested: BareVersion,
-    pub available: Vec<crate::semver::Version>,
+    pub available: Vec<semver::Version>,
 }
 
-impl std::fmt::Display for NoVersionMatchesManifestMsrvError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let available = self
-            .available
-            .iter()
-            .map(|s| s.to_string())
-            .collect::<Vec<String>>()
-            .join(", ");
-
-        write!(
-            f,
-            "The MSRV requirement ({}) in the Cargo manifest did not match any available version, available: {}",
-            self.requested,
-            available,
-        )
+impl serde::Serialize for BareVersion {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_str(self)
     }
 }
-
-impl std::error::Error for NoVersionMatchesManifestMsrvError {}
 
 #[cfg(test)]
 mod bare_version_tests {
@@ -446,8 +443,7 @@ mod bare_version_tests {
         one_fifty_six = {  BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 0) },
         one_fifty_five = {  BareVersion::ThreeComponents(1, 55, 0), semver::Version::new(1, 55, 0) },
         one_fifty_four_p2 = {  BareVersion::ThreeComponents(1, 54, 2), semver::Version::new(1, 54, 2) },
-        one_fifty_four_p1 = {  BareVersion::ThreeComponents(1, 54, 1), semver::Version::new(1, 54, 2) },
-        one_fifty_four_p0 = {  BareVersion::ThreeComponents(1, 54, 0), semver::Version::new(1, 54, 2) },
+        one_fifty_four_p1 = {  BareVersion::ThreeComponents(1, 54, 1), semver::Version::new(1, 54, 1) },
         one = {  BareVersion::ThreeComponents(1, 0, 0), semver::Version::new(1, 0, 0) },
     )]
     fn three_components_to_semver(version: BareVersion, expected: semver::Version) {
@@ -457,6 +453,16 @@ mod bare_version_tests {
         let v = version.try_to_semver(available).unwrap();
 
         assert_eq!(v, &expected);
+    }
+
+    #[test]
+    fn not_in_index() {
+        let index = release_indices();
+        let available = index.releases().iter().map(Release::version);
+
+        let given = BareVersion::ThreeComponents(1, 54, 0);
+
+        assert!(given.try_to_semver(available).is_err())
     }
 
     #[parameterized(

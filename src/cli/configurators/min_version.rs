@@ -39,7 +39,7 @@ fn configure_min_version_not_as_opt<'c>(
 //  And probably, we'll want to read the manifest at most once, instead of here and elsewhere during
 //  the program execution.
 fn find_manifest(builder: &ConfigBuilder) -> TResult<PathBuf> {
-    use crate::errors::IoErrorSource;
+    use crate::error::IoErrorSource;
 
     let crate_folder = if let Some(path) = builder.get_crate_path() {
         Ok(path.to_path_buf())
@@ -58,7 +58,7 @@ fn set_min_version_from_manifest<'c>(
     builder: ConfigBuilder<'c>,
     cargo_toml: &path::Path,
 ) -> TResult<ConfigBuilder<'c>> {
-    use crate::errors::IoErrorSource;
+    use crate::error::IoErrorSource;
     use toml_edit::Document;
     use toml_edit::Item;
 

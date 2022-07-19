@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-use crate::errors::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 pub struct LockfileHandler<S: LockfileState> {
     state: PathBuf,

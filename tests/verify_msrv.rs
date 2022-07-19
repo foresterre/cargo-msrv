@@ -18,7 +18,8 @@ mod common;
 fn verify(folder: &str) {
     let folder = fixtures_path().join(folder);
     let with_args = vec![
-        "cargo-msrv",
+        "cargo",
+        "msrv",
         "--path",
         folder.to_str().unwrap(),
         "--no-user-output",
@@ -47,7 +48,13 @@ fn verify(folder: &str) {
 )]
 fn verify_failed_no_msrv_specified(folder: &str) {
     let folder = fixtures_path().join(folder);
-    let with_args = vec!["cargo-msrv", "--path", folder.to_str().unwrap(), "verify"];
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "verify",
+    ];
 
     let result = run_verify(
         with_args,
@@ -172,7 +179,8 @@ fn verify_with_rust_version_opt() {
     let version = "1.37.0";
     let folder = fixtures_path().join(version);
     let with_args = vec![
-        "cargo-msrv",
+        "cargo",
+        "msrv",
         "--path",
         folder.to_str().unwrap(),
         "verify",

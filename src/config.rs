@@ -8,10 +8,10 @@ use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
 use crate::config::verify::VerifyCmdConfig;
-use crate::ctx::ComputedCtx;
+use crate::ctx::{ContextValues, LazyContext};
 use rust_releases::semver;
 
-use crate::errors::{CargoMSRVError, TResult};
+use crate::error::{CargoMSRVError, TResult};
 use crate::log_level::LogLevel;
 use crate::manifest::bare_version;
 
@@ -91,8 +91,9 @@ pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
     Ok(config)
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum ModeIntent {
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Action {
     // Determines the MSRV for a project
     Find,
     // List the MSRV's as specified by package authors
@@ -105,19 +106,20 @@ pub enum ModeIntent {
     Show,
 }
 
-impl From<ModeIntent> for &'static str {
-    fn from(action: ModeIntent) -> Self {
+impl From<Action> for &'static str {
+    fn from(action: Action) -> Self {
         match action {
-            ModeIntent::Find => "determine-msrv",
-            ModeIntent::List => "list-msrv",
-            ModeIntent::Verify => "verify-msrv",
-            ModeIntent::Set => "set-msrv",
-            ModeIntent::Show => "show-msrv",
+            Action::Find => "find",
+            Action::List => "list",
+            Action::Verify => "verify",
+            Action::Set => "set",
+            Action::Show => "show",
         }
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
     RustChangelog,
     #[cfg(feature = "rust-releases-dist-source")]
@@ -181,7 +183,8 @@ impl fmt::Display for ReleaseSource {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SearchMethod {
     Linear,
     Bisect,
@@ -208,7 +211,7 @@ impl Default for SearchMethod {
 //  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
-    mode_intent: ModeIntent,
+    action: Action,
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -226,13 +229,13 @@ pub struct Config<'a> {
     no_check_feedback: bool,
 
     sub_command_config: SubCommandConfig,
-    ctx: ComputedCtx,
+    ctx: LazyContext,
 }
 
 impl<'a> Config<'a> {
-    pub fn new<T: Into<String>>(mode_intent: ModeIntent, target: T) -> Self {
+    pub fn new<T: Into<String>>(action: Action, target: T) -> Self {
         Self {
-            mode_intent,
+            action,
             target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
@@ -249,12 +252,12 @@ impl<'a> Config<'a> {
             no_read_min_edition: None,
             no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
-            ctx: ComputedCtx::default(),
+            ctx: LazyContext::default(),
         }
     }
 
-    pub fn action_intent(&self) -> ModeIntent {
-        self.mode_intent
+    pub fn action(&self) -> Action {
+        self.action
     }
 
     pub fn target(&self) -> &String {
@@ -326,8 +329,14 @@ impl<'a> Config<'a> {
         &self.sub_command_config
     }
 
-    pub fn ctx(&self) -> &ComputedCtx {
+    pub fn context(&self) -> &LazyContext {
         &self.ctx
+    }
+
+    fn init_context(mut self) -> Self {
+        let values = ContextValues::from_config(&self);
+        self.ctx.init(values);
+        self
     }
 }
 
@@ -338,7 +347,7 @@ pub struct ConfigBuilder<'a> {
 }
 
 impl<'a> ConfigBuilder<'a> {
-    pub fn new(action_intent: ModeIntent, default_target: &str) -> Self {
+    pub fn new(action_intent: Action, default_target: &str) -> Self {
         Self {
             inner: Config::new(action_intent, default_target.to_string()),
         }
@@ -350,8 +359,8 @@ impl<'a> ConfigBuilder<'a> {
         }
     }
 
-    pub fn mode_intent(mut self, mode_intent: ModeIntent) -> Self {
-        self.inner.mode_intent = mode_intent;
+    pub fn mode_intent(mut self, mode_intent: Action) -> Self {
+        self.inner.action = mode_intent;
         self
     }
 
@@ -440,7 +449,7 @@ impl<'a> ConfigBuilder<'a> {
     }
 
     pub fn build(self) -> Config<'a> {
-        self.inner
+        self.inner.init_context()
     }
 }
 
