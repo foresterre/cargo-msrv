@@ -190,7 +190,8 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
         let mut builder = ConfigBuilder::new(mode, &target);
 
         builder = configurators::CustomCheckCommand::configure(builder, opts)?;
-        builder = configurators::PathConfig::configure(builder, opts)?;
+        builder = configurators::CratePathConfig::configure(builder, opts)?;
+        builder = configurators::ManifestPathConfig::configure(builder, opts)?;
         builder = configurators::Target::configure(builder, opts)?;
         builder = configurators::MinVersion::configure(builder, opts)?;
         builder = configurators::MaxVersion::configure(builder, opts)?;

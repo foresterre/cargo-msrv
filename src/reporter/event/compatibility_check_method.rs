@@ -30,7 +30,7 @@ impl From<CompatibilityCheckMethod> for Event {
 pub enum Method {
     RustupRun {
         args: Vec<String>,
-        path: Option<PathBuf>,
+        crate_path: PathBuf,
     },
     #[cfg(test)]
     TestRunner,
@@ -39,11 +39,11 @@ pub enum Method {
 impl Method {
     pub fn rustup_run(
         args: impl IntoIterator<Item = impl AsRef<str>>,
-        path: Option<impl AsRef<Path>>,
+        path: impl AsRef<Path>,
     ) -> Self {
         Self::RustupRun {
             args: args.into_iter().map(|s| s.as_ref().to_string()).collect(),
-            path: path.as_ref().map(|path| path.as_ref().to_path_buf()),
+            crate_path: path.as_ref().to_path_buf(),
         }
     }
 }
@@ -57,8 +57,7 @@ mod tests {
     use storyteller::Reporter;
 
     #[yare::parameterized(
-        rustup_run_without_path = { Method::rustup_run(&["hello"], Option::<&Path>::None) },
-        rustup_run_with_path = { Method::rustup_run(&["hello"], Some(Path::new("haha"))) },
+        rustup_run = { Method::rustup_run(&["hello"], Path::new("haha")) },
         test_runner = { Method::TestRunner },
     )]
     fn reported_event(method: Method) {

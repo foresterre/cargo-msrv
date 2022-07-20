@@ -7,6 +7,7 @@ use toml_edit::Document;
 
 use crate::check::Check;
 use crate::config::Config;
+use crate::context::GlobalContext;
 use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
@@ -126,7 +127,8 @@ impl RustVersion {
         let (rust_version, source) = match rust_version {
             Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
             None => {
-                let path = config.context().manifest_path()?;
+                let context = GlobalContext::from_config(config)?;
+                let path = context.manifest_path();
                 let manifest = parse_manifest(path)?;
 
                 manifest

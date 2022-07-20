@@ -4,6 +4,7 @@ use rust_releases::semver;
 
 use toml_edit::{table, value, Document, Item, Value};
 
+use crate::context::GlobalContext;
 use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
@@ -27,7 +28,8 @@ impl SubCommand for Set {
 }
 
 fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    let cargo_toml = config.context().manifest_path()?;
+    let context = GlobalContext::from_config(config)?;
+    let cargo_toml = context.manifest_path();
 
     // Read the Cargo manifest to a String
     let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {

@@ -1,5 +1,6 @@
 use crate::check::Check;
 use crate::command::RustupCommand;
+use crate::context::GlobalContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
@@ -33,11 +34,11 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
 
                 self.prepare(toolchain, config)?;
 
-                let outcome = self.run_check_command_via_rustup(
-                    toolchain,
-                    config.crate_path(),
-                    config.check_command(),
-                )?;
+                let context = GlobalContext::from_config(config)?;
+                let path = context.crate_path();
+
+                let outcome =
+                    self.run_check_command_via_rustup(toolchain, path, config.check_command())?;
 
                 // report outcome to UI
                 self.report_outcome(&outcome, config.no_check_feedback())?;
@@ -74,7 +75,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
     fn run_check_command_via_rustup(
         &self,
         toolchain: &ToolchainSpec,
-        dir: Option<&Path>,
+        dir: &Path,
         check: &[&str],
     ) -> TResult<Outcome> {
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
@@ -87,7 +88,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
 
         let rustup_output = RustupCommand::new()
             .with_args(cmd.iter())
-            .with_optional_dir(dir)
+            .with_dir(dir)
             .with_stderr()
             .run()
             .map_err(|_| CargoMSRVError::UnableToRunCheck)?;
@@ -142,10 +143,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
 
     fn lockfile_path(&self, config: &Config) -> TResult<&Path> {
         let path = self.lockfile_path.get_or_try_init(|| {
-            config
-                .context()
-                .crate_root_path()
-                .map(|path| path.join(CARGO_LOCK))
+            GlobalContext::from_config(config).map(|ctx| ctx.crate_path().join(CARGO_LOCK))
         })?;
 
         Ok(path)

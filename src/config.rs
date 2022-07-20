@@ -8,7 +8,6 @@ use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
 use crate::config::verify::VerifyCmdConfig;
-use crate::ctx::{ContextValues, LazyContext};
 use rust_releases::semver;
 
 use crate::error::{CargoMSRVError, TResult};
@@ -215,6 +214,7 @@ pub struct Config<'a> {
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
+    manifest_path: Option<PathBuf>,
     include_all_patch_releases: bool,
     minimum_version: Option<bare_version::BareVersion>,
     maximum_version: Option<bare_version::BareVersion>,
@@ -229,7 +229,6 @@ pub struct Config<'a> {
     no_check_feedback: bool,
 
     sub_command_config: SubCommandConfig,
-    ctx: LazyContext,
 }
 
 impl<'a> Config<'a> {
@@ -239,6 +238,7 @@ impl<'a> Config<'a> {
             target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
+            manifest_path: None,
             include_all_patch_releases: false,
             minimum_version: None,
             maximum_version: None,
@@ -252,7 +252,6 @@ impl<'a> Config<'a> {
             no_read_min_edition: None,
             no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
-            ctx: LazyContext::default(),
         }
     }
 
@@ -272,8 +271,14 @@ impl<'a> Config<'a> {
         self.check_command.join(" ")
     }
 
-    pub fn crate_path(&self) -> Option<&Path> {
+    /// Please use `GlobalContext::crate_path()` instead.
+    pub fn _crate_path(&self) -> Option<&Path> {
         self.crate_path.as_deref()
+    }
+
+    /// Please use `GlobalContext::manifest_path()` instead.
+    pub fn _manifest_path(&self) -> Option<&Path> {
+        self.manifest_path.as_deref()
     }
 
     pub fn include_all_patch_releases(&self) -> bool {
@@ -328,16 +333,6 @@ impl<'a> Config<'a> {
     pub fn sub_command_config(&self) -> &SubCommandConfig {
         &self.sub_command_config
     }
-
-    pub fn context(&self) -> &LazyContext {
-        &self.ctx
-    }
-
-    fn init_context(mut self) -> Self {
-        let values = ContextValues::from_config(&self);
-        self.ctx.init(values);
-        self
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -376,6 +371,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn crate_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
         self.inner.crate_path = path.map(|p| PathBuf::from(p.as_ref()));
+        self
+    }
+
+    pub fn manifest_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
+        self.inner.manifest_path = path.map(|p| PathBuf::from(p.as_ref()));
         self
     }
 
@@ -449,7 +449,7 @@ impl<'a> ConfigBuilder<'a> {
     }
 
     pub fn build(self) -> Config<'a> {
-        self.inner.init_context()
+        self.inner
     }
 }
 

@@ -13,6 +13,15 @@ pub struct SharedOpts {
     #[clap(long, value_name = "DIR", global = true)]
     pub path: Option<PathBuf>,
 
+    /// Path to cargo project manifest file
+    #[clap(
+        long,
+        value_name = "Cargo Manifest",
+        global = true,
+        conflicts_with = "path"
+    )]
+    pub manifest_path: Option<PathBuf>,
+
     #[clap(flatten)]
     pub user_output_opts: UserOutputOpts,
 

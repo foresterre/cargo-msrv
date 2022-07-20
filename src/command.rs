@@ -26,13 +26,6 @@ impl RustupCommand {
         self
     }
 
-    pub fn with_optional_dir(self, path: Option<impl AsRef<Path>>) -> Self {
-        if let Some(dir) = path {
-            return self.with_dir(dir);
-        }
-        self
-    }
-
     pub fn with_args<T: Into<OsString>>(mut self, args: impl IntoIterator<Item = T>) -> Self {
         self.args.extend(args.into_iter().map(Into::into));
         self

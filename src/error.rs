@@ -23,6 +23,9 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     CargoMetadata(#[from] cargo_metadata::Error),
 
+    #[error("Unable to find crate root directory of '{0}'")]
+    CrateRootDir(PathBuf),
+
     #[error("The default host triple (target) could not be found.")]
     DefaultHostTripleNotFound,
 

@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::context::GlobalContext;
 use crate::dependency_graph::DependencyGraph;
 use crate::error::{CargoMSRVError, TResult};
 use cargo_metadata::MetadataCommand;
@@ -13,7 +14,8 @@ pub(crate) struct CargoMetadataResolver {
 
 impl CargoMetadataResolver {
     pub fn try_from_config(config: &Config) -> TResult<Self> {
-        let manifest_path = config.context().manifest_path()?;
+        let context = GlobalContext::from_config(config)?;
+        let manifest_path = context.manifest_path();
 
         let mut metadata_command = MetadataCommand::new();
         metadata_command.manifest_path(manifest_path);

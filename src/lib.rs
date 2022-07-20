@@ -28,7 +28,7 @@ pub mod toolchain;
 
 pub(crate) mod combinators;
 pub(crate) mod command;
-pub(crate) mod ctx;
+pub(crate) mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 pub(crate) mod download;

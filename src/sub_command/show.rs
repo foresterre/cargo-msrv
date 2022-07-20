@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use toml_edit::Document;
 
 use crate::config::Config;
+use crate::context::GlobalContext;
 use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
@@ -23,7 +24,8 @@ impl SubCommand for Show {
 }
 
 fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    let cargo_toml = config.context().manifest_path()?;
+    let context = GlobalContext::from_config(config)?;
+    let cargo_toml = context.manifest_path();
 
     let contents = std::fs::read_to_string(cargo_toml).map_err(|error| CargoMSRVError::Io {
         error,

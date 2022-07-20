@@ -1,4 +1,5 @@
 use crate::combinators::ThenSome;
+use crate::context::GlobalContext;
 use crate::error::IoErrorSource;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
@@ -20,7 +21,8 @@ pub fn write_toolchain_file(
     reporter: &impl Reporter,
     stable_version: &semver::Version,
 ) -> TResult<()> {
-    let path_prefix = config.context().crate_root_path()?;
+    let context = GlobalContext::from_config(config)?;
+    let path_prefix = context.crate_path();
     let path = toolchain_file(path_prefix);
     let content = format_toolchain_file(stable_version);
 
