@@ -33,11 +33,9 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
 
                 self.prepare(toolchain, config)?;
 
-                let outcome = self.run_check_command_via_rustup(
-                    toolchain,
-                    config.crate_path(),
-                    config.check_command(),
-                )?;
+                let path = current_dir_crate_path(config)?;
+                let outcome =
+                    self.run_check_command_via_rustup(toolchain, path, config.check_command())?;
 
                 // report outcome to UI
                 self.report_outcome(&outcome, config.no_check_feedback())?;
@@ -162,5 +160,15 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         }
 
         Ok(())
+    }
+}
+
+/// If we manually specify the path to a crate (e.g. with --manifest-path or --path),
+/// we must supply the custom directory to our Command runner.
+fn current_dir_crate_path<'c>(config: &'c Config<'c>) -> TResult<Option<&'c Path>> {
+    if config.crate_path().is_some() || config.manifest_path().is_some() {
+        config.context().crate_root_path().map(Some)
+    } else {
+        Ok(None)
     }
 }

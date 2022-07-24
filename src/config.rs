@@ -274,10 +274,12 @@ impl<'a> Config<'a> {
         self.check_command.join(" ")
     }
 
+    /// Should not be used directly. Use the context instead.
     pub fn crate_path(&self) -> Option<&Path> {
         self.crate_path.as_deref()
     }
 
+    /// Should not be used directly. Use the context instead.
     pub fn manifest_path(&self) -> Option<&Path> {
         self.manifest_path.as_deref()
     }
