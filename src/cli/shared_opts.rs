@@ -2,16 +2,22 @@ use crate::config::{OutputFormat, TracingTargetOption};
 
 use crate::log_level::LogLevel;
 use clap::AppSettings;
+use clap::ArgGroup;
 use clap::Args;
 use std::path::PathBuf;
 
 // Cli Options shared between subcommands
 #[derive(Debug, Args)]
 #[clap(setting = AppSettings::DeriveDisplayOrder)]
+#[clap(group(ArgGroup::new("paths").args(&["path", "manifest-path"])))]
 pub struct SharedOpts {
     /// Path to cargo project directory
-    #[clap(long, value_name = "DIR", global = true)]
+    #[clap(long, value_name = "Crate Directory", global = true)]
     pub path: Option<PathBuf>,
+
+    /// Path to cargo manifest file
+    #[clap(long, value_name = "Cargo Manifest", global = true)]
+    pub manifest_path: Option<PathBuf>,
 
     #[clap(flatten)]
     pub user_output_opts: UserOutputOpts,
