@@ -6,10 +6,7 @@ use crate::TResult;
 pub(in crate::cli) struct SearchMethodConfig;
 
 impl Configure for SearchMethodConfig {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         let method = match (opts.find_opts.linear, opts.find_opts.bisect) {
             (true, false) => builder.search_method(SearchMethod::Linear),
             (false, true) => builder.search_method(SearchMethod::Bisect),

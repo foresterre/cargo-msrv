@@ -4,6 +4,7 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use crate::check_cmd::{CheckCommand, Error, StaticCheckCommand};
 use crate::cli::CargoCli;
 use crate::config::list::ListCmdConfig;
 use crate::config::set::SetCmdConfig;
@@ -210,10 +211,10 @@ impl Default for SearchMethod {
 //  we now have. It also not allow us to easily merge several layers of option inputs,
 //  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
-pub struct Config<'a> {
+pub struct Config {
     action: Action,
     target: String,
-    check_command: Vec<&'a str>,
+    check_command: SelectedCheckCommand,
     crate_path: Option<PathBuf>,
     include_all_patch_releases: bool,
     minimum_version: Option<bare_version::BareVersion>,
@@ -232,12 +233,12 @@ pub struct Config<'a> {
     ctx: LazyContext,
 }
 
-impl<'a> Config<'a> {
+impl Config {
     pub fn new<T: Into<String>>(action: Action, target: T) -> Self {
         Self {
             action,
             target: target.into(),
-            check_command: vec!["cargo", "check"],
+            check_command: SelectedCheckCommand::Static(StaticCheckCommand::default()),
             crate_path: None,
             include_all_patch_releases: false,
             minimum_version: None,
@@ -264,12 +265,8 @@ impl<'a> Config<'a> {
         &self.target
     }
 
-    pub fn check_command(&self) -> &Vec<&'a str> {
+    pub fn check_command(&self) -> &SelectedCheckCommand {
         &self.check_command
-    }
-
-    pub fn check_command_string(&self) -> String {
-        self.check_command.join(" ")
     }
 
     pub fn crate_path(&self) -> Option<&Path> {
@@ -342,18 +339,18 @@ impl<'a> Config<'a> {
 
 #[derive(Debug, Clone)]
 #[must_use]
-pub struct ConfigBuilder<'a> {
-    inner: Config<'a>,
+pub struct ConfigBuilder {
+    inner: Config,
 }
 
-impl<'a> ConfigBuilder<'a> {
+impl ConfigBuilder {
     pub fn new(action_intent: Action, default_target: &str) -> Self {
         Self {
             inner: Config::new(action_intent, default_target.to_string()),
         }
     }
 
-    pub fn from_config(config: &'a Config) -> Self {
+    pub fn from_config(config: &Config) -> Self {
         Self {
             inner: config.clone(),
         }
@@ -369,7 +366,7 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn check_command(mut self, cmd: Vec<&'a str>) -> Self {
+    pub fn check_command(mut self, cmd: SelectedCheckCommand) -> Self {
         self.inner.check_command = cmd;
         self
     }
@@ -448,7 +445,7 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn build(self) -> Config<'a> {
+    pub fn build(self) -> Config {
         self.inner.init_context()
     }
 }
@@ -479,6 +476,27 @@ impl SubCommandConfig {
     as_sub_command_config!(list, ListConfig, ListCmdConfig);
     as_sub_command_config!(set, SetConfig, SetCmdConfig);
     as_sub_command_config!(verify, VerifyConfig, VerifyCmdConfig);
+}
+
+#[derive(Debug, Clone)]
+pub enum SelectedCheckCommand {
+    Static(StaticCheckCommand),
+}
+
+impl CheckCommand for SelectedCheckCommand {
+    fn for_version(&self, version: &semver::Version) -> Result<&str, Error> {
+        match self {
+            Self::Static(inner) => inner.for_version(version),
+        }
+    }
+}
+
+impl ToString for SelectedCheckCommand {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Static(inner) => inner.to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

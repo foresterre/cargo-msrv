@@ -1,5 +1,7 @@
 use crate::check::Check;
+use crate::check_cmd::CheckCommand;
 use crate::command::RustupCommand;
+use crate::config::SelectedCheckCommand;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
@@ -75,18 +77,18 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         &self,
         toolchain: &ToolchainSpec,
         dir: Option<&Path>,
-        check: &[&str],
+        check_cmd: &SelectedCheckCommand,
     ) -> TResult<Outcome> {
-        let mut cmd: Vec<&str> = vec![toolchain.spec()];
-        cmd.extend_from_slice(check);
-
         self.reporter.report_event(CompatibilityCheckMethod::new(
             toolchain.to_owned(),
-            Method::rustup_run(&cmd, dir),
+            Method::rustup_run(check_cmd.to_string(), dir),
         ))?;
 
+        let spec = toolchain.spec();
+        let cmd = check_cmd.for_version(toolchain.version())?;
+        let args = &[spec, cmd].join(" ");
         let rustup_output = RustupCommand::new()
-            .with_args(cmd.iter())
+            .with_args(args.split_ascii_whitespace())
             .with_optional_dir(dir)
             .with_stderr()
             .run()
@@ -98,7 +100,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
             Ok(Outcome::new_success(toolchain.to_owned()))
         } else {
             let stderr = rustup_output.stderr();
-            let command = cmd.join(" ");
+            let command = check_cmd.to_string();
 
             info!(
                 ?toolchain,

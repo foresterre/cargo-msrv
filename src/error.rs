@@ -4,6 +4,7 @@ use std::io;
 use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
+use crate::check_cmd;
 use rust_releases::Release;
 use storyteller::ReporterError;
 
@@ -22,6 +23,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     CargoMetadata(#[from] cargo_metadata::Error),
+
+    #[error(transparent)]
+    CheckCmd(#[from] check_cmd::Error),
 
     #[error("The default host triple (target) could not be found.")]
     DefaultHostTripleNotFound,

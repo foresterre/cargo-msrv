@@ -6,10 +6,7 @@ use crate::TResult;
 pub(in crate::cli) struct OutputToolchainFile;
 
 impl Configure for OutputToolchainFile {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         Ok(builder.output_toolchain_file(opts.find_opts.write_toolchain_file))
     }
 }

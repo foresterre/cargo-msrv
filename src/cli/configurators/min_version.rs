@@ -10,10 +10,7 @@ use crate::{CargoMSRVError, TResult};
 pub(in crate::cli) struct MinVersion;
 
 impl Configure for MinVersion {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         if let Some(v) = &opts.find_opts.rust_releases_opts.min {
             let version = v.as_bare_version();
             Ok(builder.minimum_version(version))
@@ -23,10 +20,10 @@ impl Configure for MinVersion {
     }
 }
 
-fn configure_min_version_not_as_opt<'c>(
-    builder: ConfigBuilder<'c>,
-    opts: &'c CargoMsrvOpts,
-) -> TResult<ConfigBuilder<'c>> {
+fn configure_min_version_not_as_opt(
+    builder: ConfigBuilder,
+    opts: &CargoMsrvOpts,
+) -> TResult<ConfigBuilder> {
     if opts.find_opts.no_read_min_edition {
         Ok(builder)
     } else {
@@ -54,10 +51,10 @@ fn find_manifest(builder: &ConfigBuilder) -> TResult<PathBuf> {
 }
 
 // TODO{foresterre}: reading and parsing of manifest should not be task of configurator fn
-fn set_min_version_from_manifest<'c>(
-    builder: ConfigBuilder<'c>,
+fn set_min_version_from_manifest(
+    builder: ConfigBuilder,
     cargo_toml: &path::Path,
-) -> TResult<ConfigBuilder<'c>> {
+) -> TResult<ConfigBuilder> {
     use crate::error::IoErrorSource;
     use toml_edit::Document;
     use toml_edit::Item;

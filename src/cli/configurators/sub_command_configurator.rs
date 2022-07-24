@@ -9,10 +9,7 @@ use crate::TResult;
 pub(in crate::cli) struct SubCommandConfigurator;
 
 impl Configure for SubCommandConfigurator {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         if let Some(cmd) = &opts.subcommand {
             match cmd {
                 SubCommand::List(opts) => {
@@ -36,10 +33,7 @@ impl Configure for SubCommandConfigurator {
     }
 }
 
-fn configure_list<'c>(
-    builder: ConfigBuilder<'c>,
-    opts: &'c ListOpts,
-) -> TResult<ConfigBuilder<'c>> {
+fn configure_list(builder: ConfigBuilder, opts: &ListOpts) -> TResult<ConfigBuilder> {
     let config = ListCmdConfig {
         variant: opts.variant,
     };
@@ -48,7 +42,7 @@ fn configure_list<'c>(
     Ok(builder.sub_command_config(config))
 }
 
-fn configure_set<'c>(builder: ConfigBuilder<'c>, opts: &'c SetOpts) -> TResult<ConfigBuilder<'c>> {
+fn configure_set<'c>(builder: ConfigBuilder, opts: &SetOpts) -> TResult<ConfigBuilder> {
     let config = SetCmdConfig {
         msrv: opts.msrv.clone(),
     };
@@ -57,10 +51,7 @@ fn configure_set<'c>(builder: ConfigBuilder<'c>, opts: &'c SetOpts) -> TResult<C
     Ok(builder.sub_command_config(config))
 }
 
-fn configure_verify<'c>(
-    builder: ConfigBuilder<'c>,
-    opts: &'c VerifyOpts,
-) -> TResult<ConfigBuilder<'c>> {
+fn configure_verify(builder: ConfigBuilder, opts: &VerifyOpts) -> TResult<ConfigBuilder> {
     let config = VerifyCmdConfig {
         rust_version: opts.rust_version.clone(),
     };

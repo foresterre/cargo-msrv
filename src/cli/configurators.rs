@@ -41,8 +41,5 @@ pub(in crate::cli) use write_msrv::WriteMsrv;
 ///
 /// Will probably be replaced as soon as we refactor Config into a layered config approach.
 pub(in crate::cli) trait Configure {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>>;
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder>;
 }

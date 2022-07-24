@@ -161,29 +161,29 @@ pub(in crate::cli) struct VerifyOpts {
 }
 
 // Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoCli> for Config<'opts> {
+impl TryFrom<&CargoCli> for Config {
     type Error = CargoMSRVError;
 
-    fn try_from(cli: &'opts CargoCli) -> Result<Self, Self::Error> {
+    fn try_from(cli: &CargoCli) -> Result<Self, Self::Error> {
         (&cli.subcommand).try_into()
     }
 }
 
 // Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoMsrvCli> for Config<'opts> {
+impl TryFrom<&CargoMsrvCli> for Config {
     type Error = CargoMSRVError;
 
-    fn try_from(cli: &'opts CargoMsrvCli) -> Result<Self, Self::Error> {
+    fn try_from(cli: &CargoMsrvCli) -> Result<Self, Self::Error> {
         match cli {
             CargoMsrvCli::Msrv(opts) => opts.try_into(),
         }
     }
 }
 
-impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
+impl TryFrom<&CargoMsrvOpts> for Config {
     type Error = CargoMSRVError;
 
-    fn try_from(opts: &'opts CargoMsrvOpts) -> Result<Self, Self::Error> {
+    fn try_from(opts: &CargoMsrvOpts) -> Result<Self, Self::Error> {
         let mode = make_mode(opts);
         let target = default_target()?;
 

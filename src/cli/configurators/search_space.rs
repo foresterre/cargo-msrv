@@ -6,10 +6,7 @@ use crate::TResult;
 pub(in crate::cli) struct IncludeAllPatchReleases;
 
 impl Configure for IncludeAllPatchReleases {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         Ok(builder.include_all_patch_releases(
             opts.find_opts.rust_releases_opts.include_all_patch_releases,
         ))

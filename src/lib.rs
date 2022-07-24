@@ -19,6 +19,7 @@ use crate::reporter::event::{ActionMessage, FetchIndex, Meta};
 use crate::reporter::{Event, Reporter};
 
 pub mod check;
+pub mod check_cmd;
 pub mod cli;
 pub mod config;
 pub mod error;

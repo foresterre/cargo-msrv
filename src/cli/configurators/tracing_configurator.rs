@@ -6,10 +6,7 @@ use crate::TResult;
 pub(in crate::cli) struct Tracing;
 
 impl Configure for Tracing {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         if opts.shared_opts.debug_output_opts.no_log {
             return Ok(builder);
         }

@@ -143,7 +143,7 @@ mod tests {
 
     use super::Bisect;
 
-    fn fake_config() -> Config<'static> {
+    fn fake_config() -> Config {
         Config::new(Action::Find, "".to_string())
     }
 

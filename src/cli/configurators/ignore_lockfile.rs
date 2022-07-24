@@ -6,10 +6,7 @@ use crate::TResult;
 pub(in crate::cli) struct IgnoreLockfile;
 
 impl Configure for IgnoreLockfile {
-    fn configure<'c>(
-        builder: ConfigBuilder<'c>,
-        opts: &'c CargoMsrvOpts,
-    ) -> TResult<ConfigBuilder<'c>> {
+    fn configure(builder: ConfigBuilder, opts: &CargoMsrvOpts) -> TResult<ConfigBuilder> {
         Ok(builder.ignore_lockfile(opts.find_opts.ignore_lockfile))
     }
 }
