@@ -1,3 +1,4 @@
+use crate::formatting::TermWidth;
 use crate::reporter::event::{
     CheckToolchain, Compatibility, CompatibilityReport, Message, MsrvResult,
 };
@@ -10,7 +11,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use storyteller::EventHandler;
 use tabled::object::Segment;
-use tabled::{Alignment, Disable, Header, Margin, Modify, Style, Table};
+use tabled::width::Percent;
+use tabled::{Alignment, Disable, Header, Margin, Modify, Style, Table, Width};
 use thiserror::private::PathAsDisplay;
 
 pub struct HumanProgressHandler {
@@ -172,6 +174,7 @@ fn message_box(message: &str) -> String {
     Table::new(&[format!("{}", message.dimmed())])
         .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
         .with(Style::rounded())
+        .with(Width::wrap(TermWidth::width()))
         .to_string()
 }
 
