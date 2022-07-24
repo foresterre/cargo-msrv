@@ -172,3 +172,38 @@ fn current_dir_crate_path<'c>(config: &'c Config<'c>) -> TResult<Option<&'c Path
         Ok(None)
     }
 }
+
+#[cfg(test)]
+mod current_dir_crate_path_tests {
+    use super::*;
+    use crate::config::ConfigBuilder;
+    use crate::Action;
+
+    #[test]
+    fn relative_manifest_path() {
+        let config = ConfigBuilder::new(Action::Verify, "")
+            .manifest_path(Some("Cargo.toml"))
+            .build();
+
+        let res = current_dir_crate_path(&config).unwrap().unwrap();
+        assert!(res.file_name().is_none())
+    }
+
+    #[test]
+    fn relative_crate_path() {
+        let config = ConfigBuilder::new(Action::Verify, "")
+            .crate_path(Some("home"))
+            .build();
+
+        let res = current_dir_crate_path(&config).unwrap().unwrap();
+        assert!(res.file_name().is_some())
+    }
+
+    #[test]
+    fn no_paths() {
+        let config = ConfigBuilder::new(Action::Verify, "").build();
+
+        let res = current_dir_crate_path(&config).unwrap();
+        assert!(res.is_none())
+    }
+}

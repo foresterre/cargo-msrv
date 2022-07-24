@@ -1,6 +1,7 @@
 use crate::error::IoErrorSource;
 use crate::{CargoMSRVError, Config, TResult};
 use once_cell::unsync::OnceCell;
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 /// Context which provides a way to lazily initialize values.
@@ -108,6 +109,11 @@ impl GivenPath {
     pub fn as_crate_root(&self) -> TResult<PathBuf> {
         match self {
             Self::CrateRoot(p) => Ok(p.clone()),
+            // When in a crate root, an argument "Cargo.toml" will fail, because it doesn't have a
+            // parent, when the path is relative.
+            Self::Manifest(p) if p.as_os_str() == OsStr::new("Cargo.toml") => {
+                Ok(Path::new(".").to_path_buf())
+            }
             Self::Manifest(p) => Ok(p.parent().unwrap().to_path_buf()),
             Self::None => std::env::current_dir().map_err(|error| CargoMSRVError::Io {
                 error,
