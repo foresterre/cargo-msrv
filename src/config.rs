@@ -215,6 +215,7 @@ pub struct Config<'a> {
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
+    manifest_path: Option<PathBuf>,
     include_all_patch_releases: bool,
     minimum_version: Option<bare_version::BareVersion>,
     maximum_version: Option<bare_version::BareVersion>,
@@ -239,6 +240,7 @@ impl<'a> Config<'a> {
             target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
+            manifest_path: None,
             include_all_patch_releases: false,
             minimum_version: None,
             maximum_version: None,
@@ -272,8 +274,14 @@ impl<'a> Config<'a> {
         self.check_command.join(" ")
     }
 
+    /// Should not be used directly. Use the context instead.
     pub fn crate_path(&self) -> Option<&Path> {
         self.crate_path.as_deref()
+    }
+
+    /// Should not be used directly. Use the context instead.
+    pub fn manifest_path(&self) -> Option<&Path> {
+        self.manifest_path.as_deref()
     }
 
     pub fn include_all_patch_releases(&self) -> bool {
@@ -376,6 +384,11 @@ impl<'a> ConfigBuilder<'a> {
 
     pub fn crate_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
         self.inner.crate_path = path.map(|p| PathBuf::from(p.as_ref()));
+        self
+    }
+
+    pub fn manifest_path<P: AsRef<Path>>(mut self, path: Option<P>) -> Self {
+        self.inner.manifest_path = path.map(|p| PathBuf::from(p.as_ref()));
         self
     }
 

@@ -195,3 +195,23 @@ fn verify_with_rust_version_opt() {
 
     assert!(result.is_ok());
 }
+
+#[test]
+fn manifest_path() {
+    let version = "1.36.0";
+    let folder = fixtures_path().join(version).join("Cargo.toml");
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--manifest-path",
+        folder.to_str().unwrap(),
+        "verify",
+    ];
+
+    let result = run_verify(
+        with_args,
+        vec![Release::new_stable(semver::Version::new(1, 36, 0))],
+    );
+
+    assert!(result.is_ok());
+}

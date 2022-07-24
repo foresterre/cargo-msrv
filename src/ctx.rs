@@ -1,6 +1,7 @@
 use crate::error::IoErrorSource;
 use crate::{CargoMSRVError, Config, TResult};
 use once_cell::unsync::OnceCell;
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 /// Context which provides a way to lazily initialize values.
@@ -60,11 +61,19 @@ impl LazyContext {
 
 #[derive(Debug, Clone)]
 pub struct ContextValues {
-    path: Option<PathBuf>,
+    path: GivenPath,
 }
 
 impl ContextValues {
     pub fn from_config(config: &Config) -> Self {
+        let path = if let Some(p) = config.crate_path() {
+            GivenPath::new_crate_root(p)
+        } else if let Some(p) = config.manifest_path() {
+            GivenPath::new_manifest(p)
+        } else {
+            GivenPath::new_none()
+        };
+
         Self {
             // Cloning the crate path here saves us a lot of trouble.
             // However, the real problem is that the Config is supplied through the whole program,
@@ -72,7 +81,44 @@ impl ContextValues {
             // config to determine its path.
             // Here we choose to be pragmatic, but hopefully one day we'll get to refactoring the
             // Config and LazyContext.
-            path: config.crate_path().map(|it| it.to_path_buf()),
+            path,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+enum GivenPath {
+    CrateRoot(PathBuf),
+    Manifest(PathBuf),
+    None,
+}
+
+impl GivenPath {
+    pub fn new_crate_root<P: AsRef<Path>>(path: P) -> Self {
+        Self::CrateRoot(path.as_ref().to_path_buf())
+    }
+
+    pub fn new_manifest<P: AsRef<Path>>(path: P) -> Self {
+        Self::Manifest(path.as_ref().to_path_buf())
+    }
+
+    pub fn new_none() -> Self {
+        Self::None
+    }
+
+    pub fn as_crate_root(&self) -> TResult<PathBuf> {
+        match self {
+            Self::CrateRoot(p) => Ok(p.clone()),
+            // When in a crate root, an argument "Cargo.toml" will fail, because it doesn't have a
+            // parent, when the path is relative.
+            Self::Manifest(p) if p.as_os_str() == OsStr::new("Cargo.toml") => {
+                Ok(Path::new(".").to_path_buf())
+            }
+            Self::Manifest(p) => Ok(p.parent().unwrap().to_path_buf()),
+            Self::None => std::env::current_dir().map_err(|error| CargoMSRVError::Io {
+                error,
+                source: IoErrorSource::CurrentDir,
+            }),
         }
     }
 }
@@ -86,18 +132,9 @@ struct GlobalContext {
 
 impl GlobalContext {
     pub fn crate_root_path(&self) -> TResult<&Path> {
-        fn crate_root(path: Option<&Path>) -> TResult<PathBuf> {
-            path.map(|p| Ok(p.to_path_buf())).unwrap_or_else(|| {
-                std::env::current_dir().map_err(|error| CargoMSRVError::Io {
-                    error,
-                    source: IoErrorSource::CurrentDir,
-                })
-            })
-        }
-
         let path = self
             .crate_root_path
-            .get_or_try_init(|| crate_root(self.values.path.as_deref()))?;
+            .get_or_try_init(|| self.values.path.as_crate_root())?;
 
         Ok(path)
     }
