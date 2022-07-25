@@ -1,3 +1,13 @@
+//! Documentation can be found on the project [README](https://github.com/foresterre/cargo-msrv/blob/main/README.md) page
+//! and in the cargo-msrv [book](https://foresterre.github.io/cargo-msrv/). If you can't find an answer on your question,
+//! feel free to open an [issue](https://github.com/foresterre/cargo-msrv/issues/new).
+//!
+//! Issues and ideas may be reported via the [issue tracker](https://github.com/foresterre/cargo-msrv/issues),
+//! and questions can be asked on the [discussion forum](https://github.com/foresterre/cargo-msrv/discussions).
+//!
+//! The docs focus on how to use `cargo-msrv` from the command line. If you want to also use it as a library,
+//! please feel free to open an [issue](https://github.com/foresterre/cargo-msrv/issues/new).
+
 #![deny(clippy::all)]
 #![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
 
