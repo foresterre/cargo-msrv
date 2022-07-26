@@ -34,7 +34,17 @@ toolchain helps us to be more precise<sup>1</sup>.
 ### Future work
 
 _1. Currently, the 'Find your MSRV' action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
-in the near future, e.g. `cargo-msrv find` (subcommand name subject to change)._
+at some point in the future, e.g. `cargo-msrv find` (subcommand name subject to change)._
+
+_2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
+to a possibly more precise definition._
+
+_3. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
+implementation. If you don't know where to start, create a new issue, we're happy to help!_ 
+### Future work
+
+_1. Currently, the 'Find your MSRV' action is defined at as the top-level `cargo-msrv` command. We hope to move it to its own subcommand
+at some point in the future, e.g. `cargo-msrv find` (subcommand name subject to change)._
 
 _2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition._

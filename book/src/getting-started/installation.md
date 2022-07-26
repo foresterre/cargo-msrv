@@ -66,7 +66,7 @@ and building a release from there.
 
 ```shell
 git clone git@github.com:foresterre/cargo-msrv.git
-git checkout v0.12.0 # NB: Find the latest release tag here: https://github.com/foresterre/cargo-msrv/tags
+git checkout v0.16.0 # NB: Find the latest release tag here: https://github.com/foresterre/cargo-msrv/tags
 cd cargo-msrv
 cargo install cargo-msrv --path . # OR cargo build --release && mv ./target/cargo-msrv ./my/install/directory
 ```

@@ -4,7 +4,7 @@
 
 ## Rust Releases Index
 
-### Source
+### Release Source
 
 * rust-changelog (default)
 * rust-dist
