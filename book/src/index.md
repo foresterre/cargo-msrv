@@ -1,8 +1,6 @@
-🚧 Section is work-in-progress.
-
 # ✨ Introduction
 
-`cargo-msrv` is a program which can help you find the MSRV for a Rust crate.
+`cargo-msrv` is a program which can help you find, set, show or verify the MSRV for a Rust crate. You can also list the MSRV's of dependencies.
 
 MSRV stands for 'Minimum Supported Rust Version', which is exactly what it says on the tin: the earliest
 Rust release which a given Rust crate promises to support. Most often support for earlier Rust versions is
@@ -18,8 +16,7 @@ Cargo build tool and package manager, as the `rust-version` in [Cargo 1.56](http
 which is part of the [Rust 1.56](https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html#cargo-rust-version) release
 distribution.
 
-Aside from the "determine MSRV" tool, cargo-msrv includes a few other helpful MSRV-related features. See
-the [commands](./commands/index.md) section for more.
+In the [commands](./commands/index.md) section for more.
 
 # 🔬 How it works
 
@@ -27,18 +24,15 @@ Cargo-msrv will test your project by running various Rust toolchains against you
 toolchains will be tested, and the amount of tests ran, depends on the search strategy, the set of available toolchains
 and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv _check_. By default, the check command, the command used to test whether toolchain passes or fails a check,
-is `cargo check --all`.
+is `cargo check`.
 
-There are currently two search strategies: _linear_ (default) and _bisect_. Linear tests projects against toolchains in a
-most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
-toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
-so it's usually advisable to enable it by default.
+There are currently two search strategies: _linear_ and _bisect_ (default). When using the linear strategy, your crate will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by default.
 
 In addition to these two strategies, you can inspect the MSRV's set by the crate authors on which your project depends.
 This is achieved by resolving the dependency graph of your crate, and querying each crate for its author specified MSRV.
 Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may give
 you an indication of what your MSRV will be like. You can supply the highest listed version
-as the `--min <version>` option: `cargo msrv --bisect --min <version>`, to reduce the possible search space, and thus speed
+as the `--min <version>` option: `cargo msrv --min <version>`. This will reduce the possible search space, and speed
 up the search for the MSRV of your crate.
 
 See [cargo-msrv (run)](./commands/find.md) and [cargo-msrv list](./commands/list.md) for more.
