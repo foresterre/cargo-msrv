@@ -25,6 +25,8 @@ pub enum OutputFormat {
     Human,
     /// Json status updates printed to stdout
     Json,
+    /// Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
+    Minimal,
     /// No output -- meant to be used for debugging and testing
     None,
 }
@@ -40,6 +42,7 @@ impl fmt::Display for OutputFormat {
         match self {
             Self::Human => write!(f, "human"),
             Self::Json => write!(f, "json"),
+            Self::Minimal => write!(f, "minimal"),
             Self::None => write!(f, "none"),
         }
     }
@@ -52,6 +55,7 @@ impl FromStr for OutputFormat {
         match s {
             "human" => Ok(Self::Human),
             "json" => Ok(Self::Json),
+            "minimal" => Ok(Self::Minimal),
             unknown => Err(CargoMSRVError::InvalidConfig(format!(
                 "Given output format '{}' is not valid",
                 unknown
@@ -61,24 +65,14 @@ impl FromStr for OutputFormat {
 }
 
 impl OutputFormat {
+    pub const HUMAN: &'static str = "human";
     pub const JSON: &'static str = "json";
+    pub const MINIMAL: &'static str = "minimal";
 
     /// A set of formats which may be given as a configuration option
     ///   through the CLI.
     pub fn custom_formats() -> &'static [&'static str] {
-        &["human", Self::JSON]
-    }
-
-    /// Parse the output format from the given `&str`.
-    ///
-    /// **Panics**
-    ///
-    /// Panics if the format is not known, or can not be set by a user.
-    pub fn from_custom_format_str(item: &str) -> Self {
-        match item {
-            Self::JSON => Self::Json,
-            _ => unreachable!(),
-        }
+        &[Self::HUMAN, Self::JSON, Self::MINIMAL]
     }
 }
 

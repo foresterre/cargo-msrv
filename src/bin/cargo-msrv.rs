@@ -12,7 +12,7 @@ use cargo_msrv::config::{Config, OutputFormat, TracingOptions, TracingTargetOpti
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
-    DiscardOutputHandler, HumanProgressHandler, JsonHandler, ReporterSetup,
+    DiscardOutputHandler, HumanProgressHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
 };
 use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
 use cargo_msrv::run_app;
@@ -99,6 +99,7 @@ fn get_exit_code(
 enum WrappingHandler {
     HumanProgress(HumanProgressHandler),
     Json(JsonHandler<io::Stderr>),
+    Minimal(MinimalOutputHandler<io::Stderr>),
     DiscardOutput(DiscardOutputHandler),
 }
 
@@ -109,6 +110,7 @@ impl EventHandler for WrappingHandler {
         match self {
             WrappingHandler::HumanProgress(inner) => inner.handle(event),
             WrappingHandler::Json(inner) => inner.handle(event),
+            WrappingHandler::Minimal(inner) => inner.handle(event),
             WrappingHandler::DiscardOutput(inner) => inner.handle(event),
         }
     }
@@ -117,6 +119,7 @@ impl EventHandler for WrappingHandler {
         match self {
             WrappingHandler::HumanProgress(inner) => inner.finish(),
             WrappingHandler::Json(inner) => inner.finish(),
+            WrappingHandler::Minimal(inner) => inner.finish(),
             WrappingHandler::DiscardOutput(inner) => inner.finish(),
         }
     }
@@ -127,6 +130,7 @@ impl From<OutputFormat> for WrappingHandler {
         match output_format {
             OutputFormat::Human => Self::HumanProgress(HumanProgressHandler::default()),
             OutputFormat::Json => Self::Json(JsonHandler::stderr()),
+            OutputFormat::Minimal => Self::Minimal(MinimalOutputHandler::stderr()),
             OutputFormat::None => {
                 // To disable regular output. Useful when outputting logs to stdout, as the
                 //   regular output and the log output may otherwise interfere with each other.

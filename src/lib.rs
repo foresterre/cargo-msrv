@@ -33,6 +33,7 @@ pub mod cli;
 pub mod config;
 pub mod error;
 pub mod exit_code;
+pub mod io;
 pub mod reporter;
 pub mod toolchain;
 

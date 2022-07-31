@@ -18,6 +18,7 @@ pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
 pub use show_output::ShowOutputMessage;
 pub use termination::TerminateWithFailure;
+pub use verify_output::VerifyOutput;
 
 mod action;
 mod auxiliary_output;
@@ -34,6 +35,7 @@ mod set_output;
 mod setup_toolchain;
 mod show_output;
 mod termination;
+mod verify_output;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -102,6 +104,7 @@ pub enum Message {
 
     // command: verify
     // Verify
+    Verify(VerifyOutput),
 
     // command: list
     ListDep(ListDep),

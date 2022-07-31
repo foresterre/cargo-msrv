@@ -6,6 +6,7 @@ use crate::TResult;
 pub use handler::DiscardOutputHandler;
 pub use handler::HumanProgressHandler;
 pub use handler::JsonHandler;
+pub use handler::MinimalOutputHandler;
 
 pub use event::{
     Event, Message,
