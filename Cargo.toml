@@ -28,7 +28,7 @@ tag-name = "v{{version}}"
 clap = { version = "3.2.15", features = ["derive"] }
 
 # UI
-indicatif = "0.17.0-rc.11"
+indicatif = "0.17.0"
 
 # json output
 json = "0.12.4" # todo: replace all with serde_json!
