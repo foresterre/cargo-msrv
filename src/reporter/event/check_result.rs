@@ -1,54 +1,41 @@
+use crate::reporter::event::shared::compatibility::Compatibility;
 use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct Compatibility {
-    pub toolchain: OwnedToolchainSpec,
-    decision: bool,
-    pub compatibility_report: CompatibilityReport,
+pub struct CheckResult {
+    #[serde(flatten)]
+    pub compatibility: Compatibility,
 }
 
-impl Compatibility {
+impl CheckResult {
     pub fn compatible(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
-            toolchain: toolchain.into(),
-            decision: true,
-            compatibility_report: CompatibilityReport::Compatible,
+            compatibility: Compatibility::compatible(toolchain),
         }
     }
 
     pub fn incompatible(toolchain: impl Into<OwnedToolchainSpec>, error: Option<String>) -> Self {
         Self {
-            toolchain: toolchain.into(),
-            decision: false,
-            compatibility_report: CompatibilityReport::Incompatible {
-                error: error.map(Into::into),
-            },
+            compatibility: Compatibility::incompatible(toolchain, error),
         }
     }
 
     pub fn toolchain(&self) -> &OwnedToolchainSpec {
-        &self.toolchain
+        self.compatibility.toolchain()
     }
 
     pub fn is_compatible(&self) -> bool {
-        self.decision
+        self.compatibility.is_compatible()
     }
 }
 
-impl From<Compatibility> for Event {
-    fn from(it: Compatibility) -> Self {
+impl From<CheckResult> for Event {
+    fn from(it: CheckResult) -> Self {
         Message::Compatibility(it).into()
     }
-}
-
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum CompatibilityReport {
-    Compatible,
-    Incompatible { error: Option<String> },
 }
 
 #[cfg(test)]
@@ -62,7 +49,7 @@ mod tests {
     #[test]
     fn reported_compatible_toolchain() {
         let reporter = TestReporter::default();
-        let event = Compatibility::compatible(OwnedToolchainSpec::new(
+        let event = CheckResult::compatible(OwnedToolchainSpec::new(
             &semver::Version::new(1, 2, 3),
             "test_target",
         ));
@@ -81,7 +68,7 @@ mod tests {
     )]
     fn reported_incompatible_toolchain(error_message: Option<String>) {
         let reporter = TestReporter::default();
-        let event = Compatibility::incompatible(
+        let event = CheckResult::incompatible(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             error_message,
         );

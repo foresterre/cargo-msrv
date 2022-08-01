@@ -1,6 +1,6 @@
 use crate::formatting::TermWidth;
 use crate::reporter::event::{
-    CheckToolchain, Compatibility, CompatibilityReport, Message, MsrvResult,
+    CheckResult, CheckToolchain, CompatibilityReport, Message, MsrvResult,
 };
 use crate::{semver, Action, Event};
 use owo_colors::OwoColorize;
@@ -82,17 +82,18 @@ impl EventHandler for HumanProgressHandler {
                 let version = it.toolchain.version();
                 self.finish_runner_progress();
             }
-            Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
-                let version = toolchain.version();
+            // Message::Compatibility(CheckResult {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
+            Message::Compatibility(CheckResult {  compatibility }) if compatibility.is_compatible() => {
+                let version = compatibility.toolchain().version();
                 let message = Status::ok("Is compatible");
                 self.pb.println(message);
             }
-            Message::Compatibility(Compatibility {  compatibility_report: CompatibilityReport::Incompatible { error }, toolchain, .. }) => {
-                let version = toolchain.version();
+            Message::Compatibility(CheckResult { compatibility }) if !compatibility.is_compatible() => {
+                let version = compatibility.toolchain().version();
                 let message = Status::fail("Is Incompatible");
                 self.pb.println(message);
 
-                if let Some(error_report) = error.as_deref() {
+                if let Some(error_report) = compatibility.compatibility_report().error() {
                     self.pb.println(message_box(error_report));
                 }
             }

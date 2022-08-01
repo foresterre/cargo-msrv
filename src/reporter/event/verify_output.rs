@@ -1,3 +1,4 @@
+use crate::reporter::event::shared::compatibility::Compatibility;
 use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
@@ -5,37 +6,29 @@ use crate::Event;
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VerifyOutput {
-    pub toolchain: OwnedToolchainSpec,
-    /// True if compatible, false if incompatible
-    decision: bool,
-    pub compatibility_report: CompatibilityReport,
+    #[serde(flatten)]
+    pub compatibility: Compatibility,
 }
 
 impl VerifyOutput {
     pub fn compatible(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
-            toolchain: toolchain.into(),
-            decision: true,
-            compatibility_report: CompatibilityReport::Compatible,
+            compatibility: Compatibility::compatible(toolchain),
         }
     }
 
     pub fn incompatible(toolchain: impl Into<OwnedToolchainSpec>, error: Option<String>) -> Self {
         Self {
-            toolchain: toolchain.into(),
-            decision: false,
-            compatibility_report: CompatibilityReport::Incompatible {
-                error: error.map(Into::into),
-            },
+            compatibility: Compatibility::incompatible(toolchain, error),
         }
     }
 
     pub fn toolchain(&self) -> &OwnedToolchainSpec {
-        &self.toolchain
+        self.compatibility.toolchain()
     }
 
     pub fn is_compatible(&self) -> bool {
-        self.decision
+        self.compatibility.is_compatible()
     }
 }
 
@@ -43,13 +36,6 @@ impl From<VerifyOutput> for Event {
     fn from(it: VerifyOutput) -> Self {
         Message::Verify(it).into()
     }
-}
-
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum CompatibilityReport {
-    Compatible,
-    Incompatible { error: Option<String> },
 }
 
 #[cfg(test)]

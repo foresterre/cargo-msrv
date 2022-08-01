@@ -3,7 +3,7 @@ use crate::command::RustupCommand;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
-use crate::reporter::event::{CheckToolchain, Compatibility, CompatibilityCheckMethod, Method};
+use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, Config, Outcome, Reporter, TResult};
 use once_cell::unsync::OnceCell;
@@ -78,7 +78,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
         cmd.extend_from_slice(check);
 
-        self.reporter.report_event(CompatibilityCheckMethod::new(
+        self.reporter.report_event(CheckMethod::new(
             toolchain.to_owned(),
             Method::rustup_run(&cmd, dir),
         ))?;
@@ -117,18 +117,18 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
             Outcome::Success(outcome) => {
                 // report compatibility with this toolchain
                 self.reporter
-                    .report_event(Compatibility::compatible(outcome.toolchain_spec.to_owned()))?
+                    .report_event(CheckResult::compatible(outcome.toolchain_spec.to_owned()))?
             }
             Outcome::Failure(outcome) if no_error_report => {
                 // report incompatibility with this toolchain
-                self.reporter.report_event(Compatibility::incompatible(
+                self.reporter.report_event(CheckResult::incompatible(
                     outcome.toolchain_spec.to_owned(),
                     None,
                 ))?
             }
             Outcome::Failure(outcome) => {
                 // report incompatibility with this toolchain
-                self.reporter.report_event(Compatibility::incompatible(
+                self.reporter.report_event(CheckResult::incompatible(
                     outcome.toolchain_spec.to_owned(),
                     Some(outcome.error_message.clone()),
                 ))?
