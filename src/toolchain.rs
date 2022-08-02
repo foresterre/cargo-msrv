@@ -35,6 +35,12 @@ impl<'spec> ToolchainSpec<'spec> {
     }
 }
 
+impl<'r> From<ToolchainSpec<'r>> for OwnedToolchainSpec {
+    fn from(spec: ToolchainSpec<'r>) -> Self {
+        spec.to_owned()
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct OwnedToolchainSpec {
