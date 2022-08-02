@@ -5,12 +5,12 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct CompatibilityCheckMethod {
+pub struct CheckMethod {
     toolchain: OwnedToolchainSpec,
     method: Method,
 }
 
-impl CompatibilityCheckMethod {
+impl CheckMethod {
     pub fn new(toolchain: impl Into<OwnedToolchainSpec>, method: Method) -> Self {
         Self {
             toolchain: toolchain.into(),
@@ -19,8 +19,8 @@ impl CompatibilityCheckMethod {
     }
 }
 
-impl From<CompatibilityCheckMethod> for Event {
-    fn from(it: CompatibilityCheckMethod) -> Self {
+impl From<CheckMethod> for Event {
+    fn from(it: CheckMethod) -> Self {
         Message::CompatibilityCheckMethod(it).into()
     }
 }
@@ -63,7 +63,7 @@ mod tests {
     )]
     fn reported_event(method: Method) {
         let reporter = TestReporter::default();
-        let event = CompatibilityCheckMethod::new(
+        let event = CheckMethod::new(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             method,
         );

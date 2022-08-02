@@ -11,6 +11,7 @@ use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
+use crate::reporter::event::VerifyOutput;
 use crate::reporter::Reporter;
 use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
@@ -37,10 +38,16 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
     type Output = ();
 
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, _reporter: &impl Reporter) -> TResult<Self::Output> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         let rust_version = RustVersion::try_from_config(config)?;
 
-        verify_msrv(config, self.release_index, rust_version, &self.runner)?;
+        verify_msrv(
+            reporter,
+            config,
+            self.release_index,
+            rust_version,
+            &self.runner,
+        )?;
 
         Ok(())
     }
@@ -60,6 +67,7 @@ fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
+    reporter: &impl Reporter,
     config: &Config,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
@@ -72,11 +80,32 @@ fn verify_msrv(
     let toolchain = ToolchainSpec::new(version, config.target());
 
     match runner.check(config, &toolchain)? {
-        Outcome::Success(_) => Ok(()),
-        Outcome::Failure(_) => Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
-            VerifyFailed::from(rust_version),
-        ))),
+        Outcome::Success(_) => success(reporter, toolchain),
+        Outcome::Failure(_) if config.no_check_feedback() => {
+            failure(reporter, toolchain, rust_version, None)
+        }
+        Outcome::Failure(f) => failure(reporter, toolchain, rust_version, Some(f.error_message)),
     }
+}
+
+// Report the successful verification to the user
+fn success(reporter: &impl Reporter, toolchain: ToolchainSpec) -> TResult<()> {
+    reporter.report_event(VerifyOutput::compatible(toolchain))?;
+    Ok(())
+}
+
+// Report the failed verification to the user, and return a VerifyFailed error
+fn failure(
+    reporter: &impl Reporter,
+    toolchain: ToolchainSpec,
+    rust_version: RustVersion,
+    error: Option<String>,
+) -> TResult<()> {
+    reporter.report_event(VerifyOutput::incompatible(toolchain, error))?;
+
+    Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
+        VerifyFailed::from(rust_version),
+    )))
 }
 
 /// Error which can be returned if the verifier deemed the tested Rust version incompatible.

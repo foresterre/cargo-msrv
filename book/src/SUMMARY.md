@@ -6,7 +6,12 @@
   - [Quick Start](./getting-started/quick-start.md)
 
 - [Concepts](./concepts/index.md)
-- [Cargo-msrv Commands](./commands/index.md)
+- [Output Formats](output-formats/index.md)
+  - [human](output-formats/human.md)
+  - [json](output-formats/json.md)
+  - [minimal](output-formats/minimal.md)
+  - [no-user-output](output-formats/no-user-output.md)
+- [Commands](./commands/index.md)
   - [cargo-msrv](./commands/find.md) 
   - [cargo-msrv help](./commands/help.md) 
   - [cargo-msrv list](./commands/list.md) 

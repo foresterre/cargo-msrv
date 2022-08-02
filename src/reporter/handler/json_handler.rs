@@ -1,9 +1,8 @@
+use crate::io::SendWriter;
 use std::io;
 use std::io::Stderr;
 use std::sync::{Arc, Mutex};
 use storyteller::EventHandler;
-
-pub trait SendWriter: io::Write + Send + 'static {}
 
 pub struct JsonHandler<W: SendWriter> {
     writer: Arc<Mutex<W>>,
@@ -17,8 +16,6 @@ impl<W: SendWriter> JsonHandler<W> {
     const WRITE_FAILURE_MSG: &'static str =
         "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\", \"experimental\": true }";
 }
-
-impl SendWriter for Stderr {}
 
 impl JsonHandler<Stderr> {
     pub fn stderr() -> Self {

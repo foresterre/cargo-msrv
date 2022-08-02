@@ -1,13 +1,17 @@
 use std::fmt;
 use std::fmt::Formatter;
 
+// shared
+pub use shared::compatibility::{Compatibility, CompatibilityReport};
+
+// events
 pub use action::ActionMessage;
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
+pub use check_method::{CheckMethod, Method};
+pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
-pub use compatibility::{Compatibility, CompatibilityReport};
-pub use compatibility_check_method::{CompatibilityCheckMethod, Method};
 pub use fetch_index::FetchIndex;
 pub use list_dep::ListDep;
 pub use meta::Meta;
@@ -18,12 +22,17 @@ pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
 pub use show_output::ShowOutputMessage;
 pub use termination::TerminateWithFailure;
+pub use verify_output::VerifyOutput;
 
+// shared
+mod shared;
+
+// specific events
 mod action;
 mod auxiliary_output;
+mod check_method;
+mod check_result;
 mod check_toolchain;
-mod compatibility;
-mod compatibility_check_method;
 mod fetch_index;
 mod list_dep;
 mod meta;
@@ -34,6 +43,7 @@ mod set_output;
 mod setup_toolchain;
 mod show_output;
 mod termination;
+mod verify_output;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -89,8 +99,8 @@ pub enum Message {
 
     // runner + pass/reject
     CheckToolchain(CheckToolchain),
-    CompatibilityCheckMethod(CompatibilityCheckMethod),
-    Compatibility(Compatibility),
+    CompatibilityCheckMethod(CheckMethod),
+    Compatibility(CheckResult),
 
     // output written by the program
     AuxiliaryOutput(AuxiliaryOutput),
@@ -102,6 +112,7 @@ pub enum Message {
 
     // command: verify
     // Verify
+    Verify(VerifyOutput),
 
     // command: list
     ListDep(ListDep),

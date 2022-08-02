@@ -15,6 +15,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
   which can be used to check for a crate's compatibility against a specific Rust version. 
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
 * Added option to refer to a specific crate using its Cargo manifest (with `--manifest-path`) instead of its path (with `--path`)
+* Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
 
 ### Changed
 
@@ -24,7 +25,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * The rust-releases index is now only fetched for subcommands which depend on it.
 * Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise that the toolchain-file is an output.
 * Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
-* The rust-toolchain file will now be overwritten if a rust-toolchain file was already present
+* The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
 
 ### Fixed
 
