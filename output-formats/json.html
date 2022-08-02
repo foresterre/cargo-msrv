@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Installation - The cargo-msrv Book 🦀</title>
+        <title>json - The cargo-msrv Book 🦀</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/installation.html" class="active"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="../concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="../output-formats/index.html"><strong aria-hidden="true">4.</strong> Output Formats</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../output-formats/human.html"><strong aria-hidden="true">4.1.</strong> human</a></li><li class="chapter-item expanded "><a href="../output-formats/json.html"><strong aria-hidden="true">4.2.</strong> json</a></li><li class="chapter-item expanded "><a href="../output-formats/minimal.html"><strong aria-hidden="true">4.3.</strong> minimal</a></li><li class="chapter-item expanded "><a href="../output-formats/no-user-output.html"><strong aria-hidden="true">4.4.</strong> no-user-output</a></li></ol></li><li class="chapter-item expanded "><a href="../commands/index.html"><strong aria-hidden="true">5.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../commands/find.html"><strong aria-hidden="true">5.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="../commands/help.html"><strong aria-hidden="true">5.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="../commands/list.html"><strong aria-hidden="true">5.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="../commands/show.html"><strong aria-hidden="true">5.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="../commands/verify.html"><strong aria-hidden="true">5.5.</strong> cargo-msrv verify</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="../concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="../output-formats/index.html"><strong aria-hidden="true">4.</strong> Output Formats</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../output-formats/human.html"><strong aria-hidden="true">4.1.</strong> human</a></li><li class="chapter-item expanded "><a href="../output-formats/json.html" class="active"><strong aria-hidden="true">4.2.</strong> json</a></li><li class="chapter-item expanded "><a href="../output-formats/minimal.html"><strong aria-hidden="true">4.3.</strong> minimal</a></li><li class="chapter-item expanded "><a href="../output-formats/no-user-output.html"><strong aria-hidden="true">4.4.</strong> no-user-output</a></li></ol></li><li class="chapter-item expanded "><a href="../commands/index.html"><strong aria-hidden="true">5.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../commands/find.html"><strong aria-hidden="true">5.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="../commands/help.html"><strong aria-hidden="true">5.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="../commands/list.html"><strong aria-hidden="true">5.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="../commands/show.html"><strong aria-hidden="true">5.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="../commands/verify.html"><strong aria-hidden="true">5.5.</strong> cargo-msrv verify</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,60 +137,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="-installation"><a class="header" href="#-installation">🌞 Installation</a></h2>
-<p>Packages marked with 🔸 are maintained by community members (i.e. not the cargo-msrv authors). A big thank you to them!</p>
-<h3 id="using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa"><a class="header" href="#using-a-hrefhttpsdocrust-langorgcargocommandscargo-installhtmlcargoa">Using <a href="https://doc.rust-lang.org/cargo/commands/cargo-install.html">Cargo</a>:</a></h3>
-<p>You can install cargo-msrv from source by using Cargo, the Rust package manager and build tool (<a href="https://crates.io/crates/cargo-msrv">package</a>).</p>
-<p><strong>How to install the latest stable release?</strong></p>
-<pre><code class="language-shell">cargo install cargo-msrv
-</code></pre>
-<p><strong>How to install the latest stable release more quickly?</strong></p>
-<p>Similar to the above, but allows for only the default channel to obtain a list of rustc releases.
-This compiles about 40% faster and produces binaries about half the size in the range of 4.5MB.</p>
-<pre><code class="language-shell">cargo install cargo-msrv --no-default-features
-</code></pre>
-<p><strong>How to install the latest development release?</strong></p>
-<p>You may install <em>cargo-msrv</em> from GitHub:</p>
-<pre><code class="language-shell">cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main
-</code></pre>
-<h3 id="arch-linux-"><a class="header" href="#arch-linux-">Arch Linux 🔸</a></h3>
-<p>cargo-msrv is available from the Arch Linux <a href="https://archlinux.org/packages/community/x86_64/cargo-msrv/">community repository</a>.</p>
-<p><strong>How to install?</strong></p>
-<pre><code class="language-shell">pacman -S cargo-msrv
-</code></pre>
-<h3 id="nix-"><a class="header" href="#nix-">Nix 🔸</a></h3>
-<p>cargo-msrv is available from the Nix package manager and in NixOS (<a href="https://search.nixos.org/packages?channel=21.05&amp;show=cargo-msrv&amp;from=0&amp;size=50&amp;sort=relevance&amp;type=packages&amp;query=cargo-msrv">package</a>):</p>
-<p><strong>How to install (nixpkgs)?</strong></p>
-<pre><code class="language-shell">nix-env -iA nixpkgs.cargo-msrv
-</code></pre>
-<p><strong>How to install (NixOS)?</strong></p>
-<pre><code class="language-shell">nix-env -iA nixos.cargo-msrv
-</code></pre>
-<p>NB: When installing with <code>nix-shell --pure</code>, ensure that <code>rustup</code> is available in the environment.</p>
-<h3 id="other-options"><a class="header" href="#other-options">Other options</a></h3>
-<p>You may also build the program from source by cloning the <a href="https://github.com/foresterre/cargo-msrv">repository</a>
-and building a release from there.</p>
-<p><strong>How to build a release?</strong></p>
-<pre><code class="language-shell">git clone git@github.com:foresterre/cargo-msrv.git
-git checkout v0.16.0 # NB: Find the latest release tag here: https://github.com/foresterre/cargo-msrv/tags
-cd cargo-msrv
-cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./target/cargo-msrv ./my/install/directory
-</code></pre>
-<p><strong>How to build the latest development version from source?</strong></p>
-<pre><code class="language-shell">git clone git@github.com:foresterre/cargo-msrv.git
-cd cargo-msrv
-cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./target/cargo-msrv ./my/install/directory
-</code></pre>
-<p>You may find additional installation options in the <a href="https://github.com/foresterre/cargo-msrv#install">README</a>.</p>
+                        <h1 id="output-format-json"><a class="header" href="#output-format-json">Output format: json</a></h1>
+<p>🚧 TODO 🚧</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../getting-started/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../output-formats/human.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="../getting-started/quick-start.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../output-formats/minimal.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -199,10 +156,10 @@ cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./tar
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../getting-started/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../output-formats/human.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="../getting-started/quick-start.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../output-formats/minimal.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

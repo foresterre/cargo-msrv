@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">4.</strong> Cargo-msrv Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/find.html"><strong aria-hidden="true">4.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">4.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">4.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">4.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="commands/verify.html"><strong aria-hidden="true">4.5.</strong> cargo-msrv verify</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">3.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="output-formats/index.html"><strong aria-hidden="true">4.</strong> Output Formats</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="output-formats/human.html"><strong aria-hidden="true">4.1.</strong> human</a></li><li class="chapter-item expanded "><a href="output-formats/json.html"><strong aria-hidden="true">4.2.</strong> json</a></li><li class="chapter-item expanded "><a href="output-formats/minimal.html"><strong aria-hidden="true">4.3.</strong> minimal</a></li><li class="chapter-item expanded "><a href="output-formats/no-user-output.html"><strong aria-hidden="true">4.4.</strong> no-user-output</a></li></ol></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">5.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/find.html"><strong aria-hidden="true">5.1.</strong> cargo-msrv</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">5.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">5.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">5.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="commands/verify.html"><strong aria-hidden="true">5.5.</strong> cargo-msrv verify</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -171,7 +171,7 @@ up the search for the MSRV of your crate.</p>
 an issue at our GitHub <a href="https://github.com/foresterre/cargo-msrv/issues">repository</a>.</p>
 <p>A special thanks goes to everyone who took the time to report an issue, discuss new features and contributed to the
 documentation or the code! Thank you!</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="getting-started-with-cargo-msrv"><a class="header" href="#getting-started-with-cargo-msrv">Getting started with cargo-msrv</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started-with-cargo-msrv"><a class="header" href="#getting-started-with-cargo-msrv">Getting started with cargo-msrv</a></h1>
 <ul>
 <li><a href="getting-started/installation.html">Installation</a></li>
 <li><a href="getting-started/quick-start.html">Quick Start</a></li>
@@ -242,6 +242,101 @@ output.</p>
 <li>run-toolchain resolver (default): resolver which runs actual toolchains against a crate</li>
 <li>rust-version resolver: author defined resolver, used by <code>cargo-msrv list</code></li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="output-formats"><a class="header" href="#output-formats">Output formats</a></h1>
+<p>In <code>cargo-msrv</code> we to status of the program is reported via events. These events are issued at several stages of the
+program execution. As a user of <code>cargo-msrv</code>, you may choose how these events are formatted into a human-readable
+or machine-readable representation. User output may also be disabled altogether.</p>
+<p>The next section gives an overview of the supported representations. Thereafter, you may find an index to
+the chapters which detail each representation.</p>
+<h2 id="choosing-an-output-format"><a class="header" href="#choosing-an-output-format">Choosing an output format</a></h2>
+<p>The first output format is the <code>human</code> output format. As the name suggests,
+its output is meant to be interpreted by humans, and consists of elaborate colouring and
+custom styling.</p>
+<p>The second output format is the <code>json</code> output format. This is a detailed machine-readable
+format and also the format which most closely mimics the events as they are reported internally.
+Events are printed in a <code>json-lines</code> (<code>jsonl</code>) format to <em>stderr</em>.</p>
+<p>The third output-format is the <code>minimal</code> output format. This format is intended to be used by shell scripts
+or programs which do not require detailed output. Its format does not require complex parsing, and only
+reports the final results of commands.</p>
+<p>The fourth option is to not print any user output. This is uncommon, but may be used in conjunction with
+printing debug (i.e. developer) output only, so the debug output is not overwritten by the user output.</p>
+<h2 id="the-output-formats"><a class="header" href="#the-output-formats">The output formats</a></h2>
+<ul>
+<li><a href="output-formats/human.html">human</a> (default)</li>
+<li><a href="output-formats/json.html">json</a></li>
+<li><a href="output-formats/minimal.html">minimal</a></li>
+<li><a href="output-formats/no-user-output.html">no-user-output</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-human"><a class="header" href="#output-format-human">Output format: human</a></h1>
+<p>🚧 TODO 🚧</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-json"><a class="header" href="#output-format-json">Output format: json</a></h1>
+<p>🚧 TODO 🚧</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-minimal"><a class="header" href="#output-format-minimal">Output format: minimal</a></h1>
+<p>The purpose of the <code>minimal</code> output format option is to provide just enough output for a machine (or shell script!)
+to be understandable, while not requiring elaborate parsers like the <code>json</code> output format. It may also be used as
+a minimal human-readable format.</p>
+<p>This output format can be summarized by the following two statements:</p>
+<ul>
+<li>If the command was successful, it prints the commands final result and exits with a zero exit code. Output is printed
+to <code>stdout</code>.</li>
+<li>If the command was unsuccessful, it prints an error message, and exits with a non-zero exit code. Output is printed<br />
+to <code>stderr</code>.</li>
+</ul>
+<p>You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
+exit code, and how different errors are categorised.</p>
+<h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
+<p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
+If it could not be found, we report <code>none</code> instead, and write this value to <code>stderr</code>.</p>
+<h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
+<p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>. </p>
+<pre><code class="language-shell">cargo msrv --output-format minimal
+#stdout: 1.60.0
+</code></pre>
+<h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
+<p>If the MSRV can't be found, for example if your project requires a nightly compiler feature
+or has incorrect syntax, the output will be <code>none</code>. </p>
+<pre><code class="language-shell">cargo msrv --output-format minimal
+#stderr: none
+</code></pre>
+<h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
+<p>The <code>list</code> subcommand is not supported by the <code>minimal</code> output format, and &quot;unsupported&quot; will be printed.
+Support may be added in the future.</p>
+<h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
+<p>The <code>set</code> subcommand prints the version set as MSRV.</p>
+<h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
+<p>If we set our MSRV to be <code>1.31</code>, the output will be <code>1.31</code>.</p>
+<pre><code class="language-shell">cargo msrv --output-format minimal set 1.31
+#stdout: 1.31
+</code></pre>
+<h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
+<p>The <code>show</code> subcommand prints the detected MSRV, if specified in the Cargo Manifest.</p>
+<h3 id="example-1-2"><a class="header" href="#example-1-2">Example 1</a></h3>
+<p>Assuming our Cargo manifest contains a <code>1.60</code> MSRV, <code>cargo-msrv</code> will print <code>1.60</code>.</p>
+<p><strong>Cargo.toml</strong></p>
+<pre><code class="language-toml">[package]
+rust-version = &quot;1.60&quot;
+</code></pre>
+<p><strong>Shell</strong></p>
+<pre><code class="language-shell">cargo msrv --output-format minimal show
+#stdout: 1.60
+</code></pre>
+<h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
+<p>Assuming our Cargo manifest lists the MSRV in the <code>package.metadata.msrv</code> field, <code>cargo-msrv</code> will print <code>1.21.0</code>.
+The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the <code>package.metadata.msrv</code>
+key for crates which use a Cargo version which does not yet support the <code>package.rust-version</code> field. <code>cargo-msrv</code>
+supports both fields.</p>
+<p><strong>Cargo.toml</strong></p>
+<pre><code class="language-toml">[package.metadata]
+msrv = &quot;1.21.0&quot;
+</code></pre>
+<p><strong>Shell</strong></p>
+<pre><code class="language-shell">cargo msrv --output-format minimal show
+#stdout: 1.21.0
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-no-user-output"><a class="header" href="#output-format-no-user-output">Output format: no-user-output</a></h1>
+<p>The 'no-user-output' is not really a &quot;user output&quot; variant. Choosing this option disables user output of events
+altogether. Disabling the user output may be achieved by providing the <code>--no-user-output</code> flag.</p>
 <div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
 <h1 id="-cargo-msrv-commands"><a class="header" href="#-cargo-msrv-commands">🕹️ cargo-msrv commands</a></h1>
 <ul>
@@ -415,7 +510,7 @@ to pass the cargo-msrv check command for a crate&quot; (in its broadest sense).<
 </ol>
 <pre><code class="language-shell">cargo msrv help list # OR cargo msrv list --help
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list">cargo-msrv list</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list-1"><a class="header" href="#cargo-msrv-list-1">cargo-msrv list</a></h1>
 <h1 id="command-2"><a class="header" href="#command-2">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv list [options]</code></li>
@@ -545,7 +640,7 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </code></pre>
 <p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show">cargo-msrv show</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-1"><a class="header" href="#cargo-msrv-show-1">cargo-msrv show</a></h1>
 <h1 id="command-3"><a class="header" href="#command-3">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv show</code></li>
