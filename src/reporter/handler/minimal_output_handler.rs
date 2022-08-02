@@ -2,48 +2,74 @@ use crate::io::SendWriter;
 use crate::reporter::Message;
 use crate::Action;
 use std::cell::Cell;
-use std::io;
 use std::io::{Stderr, Stdout};
 use std::sync::{Arc, Mutex, MutexGuard};
+use std::{fmt, io};
 use storyteller::EventHandler;
 
 /// An output handler which reports just some minimal results.
 ///
 /// It can be used when machine parsing is used, but parsing json would be too much work
 /// or there is no desire for the extended output which can be found in the json output.
-// Consider: lock stderr for the process, and use writeln!(self.stderr, "{}", ...);
+///
+/// Ensure the success and failure writer are not locked at the same time.
 #[derive(Debug)]
-pub struct MinimalOutputHandler<W: SendWriter> {
-    writer: Arc<Mutex<W>>,
+pub struct MinimalOutputHandler<S: SendWriter, F: SendWriter> {
+    success_writer: Arc<Mutex<S>>,
+    failure_writer: Arc<Mutex<F>>, // should we split the writer ??
 }
 
-impl<W: SendWriter> MinimalOutputHandler<W> {
-    fn new(writer: W) -> Self {
+impl<S: SendWriter, F: SendWriter> MinimalOutputHandler<S, F> {
+    fn new(success_writer: S, failure_writer: F) -> Self {
         Self {
-            writer: Arc::new(Mutex::new(writer)),
+            success_writer: Arc::new(Mutex::new(success_writer)),
+            failure_writer: Arc::new(Mutex::new(failure_writer)),
         }
     }
 }
 
-impl MinimalOutputHandler<Stderr> {
+impl MinimalOutputHandler<Stdout, Stderr> {
     pub fn stderr() -> Self {
         Self {
-            writer: Arc::new(Mutex::new(io::stderr())),
+            success_writer: Arc::new(Mutex::new(io::stdout())),
+            failure_writer: Arc::new(Mutex::new(io::stderr())),
         }
     }
 }
 
 #[cfg(test)]
-impl<W: SendWriter> MinimalOutputHandler<W> {
-    fn inner(&self) -> MutexGuard<'_, W> {
-        self.writer.lock().expect("Unable to lock writer")
+impl<S: SendWriter, F: SendWriter> MinimalOutputHandler<S, F> {
+    fn inner_success_writer(&self) -> MutexGuard<'_, S> {
+        self.success_writer
+            .lock()
+            .expect("Unable to lock success_writer")
+    }
+
+    fn inner_failure_writer(&self) -> MutexGuard<'_, F> {
+        self.failure_writer
+            .lock()
+            .expect("Unable to lock failure_writer")
     }
 }
 
-impl<W: SendWriter> EventHandler for MinimalOutputHandler<W> {
+impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
     type Event = super::Event;
 
     fn handle(&self, event: Self::Event) {
+        macro_rules! success_writeln {
+            ($($arg:tt)*) => {{
+                let mut writer = self.success_writer.lock().expect("Unable to lock success_writer");
+                writeln!(&mut writer, $($arg)*);
+            }};
+        }
+
+        macro_rules! failure_writeln {
+            ($($arg:tt)*) => {{
+                let mut writer = self.failure_writer.lock().expect("Unable to lock failure_writer");
+                writeln!(&mut writer, $($arg)*);
+            }};
+        }
+
         use std::io::Write;
 
         // Early return when message is not a final result message.
@@ -52,31 +78,34 @@ impl<W: SendWriter> EventHandler for MinimalOutputHandler<W> {
             return;
         }
 
-        let mut writer = self.writer.lock().expect("Unable to lock writer");
-
         match event.message() {
             // cargo msrv (find)
             Message::MsrvResult(find) => match find.msrv() {
-                Some(v) => writeln!(&mut writer, "{}", v),
-                None => writeln!(&mut writer, "none"),
+                Some(v) => {
+                    success_writeln!("{}", v)
+                }
+                None => failure_writeln!("{}", "none"),
             },
             // cargo msrv list
             // Consider: simplify output for this command, if you want the full output you can use
             //           the default human output mode
             //           for now: unsupported
             Message::ListDep(list) => {
-                writeln!(&mut writer, "unsupported")
+                failure_writeln!("unsupported")
             }
             // cargo msrv set output
             Message::SetOutput(set) => {
-                writeln!(&mut writer, "{}", set.version())
+                success_writeln!("{}", set.version())
             }
             // cargo msrv show
             Message::ShowOutput(show) => {
-                writeln!(&mut writer, "{}", show.version())
+                success_writeln!("{}", show.version())
             } // cargo msrv verify
-            Message::Verify(verify) => {
-                writeln!(&mut writer, "{}", verify.is_compatible())
+            Message::Verify(verify) if verify.is_compatible() => {
+                success_writeln!("{}", verify.is_compatible())
+            }
+            Message::Verify(verify) if !verify.is_compatible() => {
+                failure_writeln!("{}", verify.is_compatible())
             }
             // If not a final result, discard
             _ => {
@@ -132,13 +161,18 @@ mod tests {
             max_available,
         );
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "1.10.100\n");
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "1.10.100\n");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "");
     }
 
     #[test]
@@ -149,13 +183,18 @@ mod tests {
 
         let event = MsrvResult::none(&config, min_available, max_available);
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "none\n");
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "none\n");
     }
 
     #[test]
@@ -170,13 +209,18 @@ mod tests {
         let dep_graph = DependencyGraph::empty(package_id);
         let event = ListDep::new(ListMsrvVariant::DirectDeps, dep_graph);
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "unsupported\n");
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "unsupported\n");
     }
 
     #[test]
@@ -186,13 +230,18 @@ mod tests {
             Path::new("/my/path").to_path_buf(),
         );
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "1.20\n");
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "1.20\n");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "");
     }
 
     #[test]
@@ -202,13 +251,19 @@ mod tests {
             Path::new("/my/path").to_path_buf(),
         );
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "1.40.3\n");
+        let output = handler.inner_failure_writer().clone();
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "1.40.3\n");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "");
     }
 
     #[test]
@@ -218,13 +273,19 @@ mod tests {
             "test_target",
         ));
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "true\n");
+        let output = handler.inner_failure_writer().clone();
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "true\n");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "");
     }
 
     #[test]
@@ -234,13 +295,19 @@ mod tests {
             None,
         );
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "false\n");
+        let output = handler.inner_failure_writer().clone();
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "false\n");
     }
 
     #[test]
@@ -250,25 +317,37 @@ mod tests {
             Some("error message".to_string()),
         );
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert_eq!(content.as_ref(), "false\n");
+        let output = handler.inner_failure_writer().clone();
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "false\n");
     }
 
     #[test]
     fn unreported_event() {
         let event = Progress::new(1, 100, 50);
 
-        let buffer = Vec::new();
-        let handler = MinimalOutputHandler::new(buffer);
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner().clone();
-        let content = String::from_utf8_lossy(&output);
-        assert!(content.as_ref().is_empty());
+        let output = handler.inner_failure_writer().clone();
+        let s = handler.inner_success_writer().clone();
+        let s = String::from_utf8_lossy(&s);
+        assert_eq!(s.as_ref(), "");
+
+        let f = handler.inner_failure_writer().clone();
+        let f = String::from_utf8_lossy(&f);
+        assert_eq!(f.as_ref(), "");
     }
 }

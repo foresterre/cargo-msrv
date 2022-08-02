@@ -5,8 +5,10 @@ to be understandable, while not requiring elaborate parsers like the `json` outp
 a minimal human-readable format.
 
 This output format can be summarized by the following two statements:
-* If the command was successful, it prints the commands final result and exits with a zero exit code
-* If the command was unsuccessful, it prints an error message, and exits with a non-zero exit code
+* If the command was successful, it prints the commands final result and exits with a zero exit code. Output is printed
+  to `stdout`.
+* If the command was unsuccessful, it prints an error message, and exits with a non-zero exit code. Output is printed  
+  to `stderr`.
 
 You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.
@@ -15,8 +17,8 @@ exit code, and how different errors are categorised.
 
 ## \# cargo msrv (find)
 
-If the MSRV was found, we report this minimal supported Rust version.
-If it could not be found, we report `none` instead.
+If the MSRV was found, we report this minimal supported Rust version by writing it to `stdout`.
+If it could not be found, we report `none` instead, and write this value to `stderr`.
 
 ### Example 1
 
@@ -24,17 +26,17 @@ If the MSRV is `1.60.0`, the output will be just `1.60.0`.
 
 ```shell
 cargo msrv --output-format minimal
-# 1.60.0
+#stdout: 1.60.0
 ```
 
 ### Example 2
 
 If the MSRV can't be found, for example if your project requires a nightly compiler feature
-or has incorrect syntax, the output will be just `none`. 
+or has incorrect syntax, the output will be `none`. 
 
 ```shell
 cargo msrv --output-format minimal
-# none
+#stderr: none
 ```
 
 ## \# cargo msrv list
@@ -53,7 +55,7 @@ If we set our MSRV to be `1.31`, the output will be `1.31`.
 
 ```shell
 cargo msrv --output-format minimal set 1.31
-# 1.31
+#stdout: 1.31
 ```
 
 ## \# cargo msrv show
@@ -75,7 +77,7 @@ rust-version = "1.60"
 
 ```shell
 cargo msrv --output-format minimal show
-# 1.60
+#stdout: 1.60
 ```
 
 ### Example 2
@@ -96,5 +98,5 @@ msrv = "1.21.0"
 
 ```shell
 cargo msrv --output-format minimal show
-# 1.21.0
+#stdout: 1.21.0
 ```

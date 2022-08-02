@@ -1,6 +1,9 @@
 use std::io;
 
-pub trait SendWriter: io::Write + Send + 'static {}
+// Alias trait for Write + Send
+pub trait SendWriter: io::Write + Send {}
+
+impl SendWriter for io::Stdout {}
 
 impl SendWriter for io::Stderr {}
 

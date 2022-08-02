@@ -99,7 +99,7 @@ fn get_exit_code(
 enum WrappingHandler {
     HumanProgress(HumanProgressHandler),
     Json(JsonHandler<io::Stderr>),
-    Minimal(MinimalOutputHandler<io::Stderr>),
+    Minimal(MinimalOutputHandler<io::Stdout, io::Stderr>),
     DiscardOutput(DiscardOutputHandler),
 }
 
