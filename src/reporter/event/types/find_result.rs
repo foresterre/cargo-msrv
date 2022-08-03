@@ -127,7 +127,7 @@ mod tests {
         assert_eq!(
             &events,
             &[Event::new(Message::SubcommandResult(
-                SubcommandResult::Find(event.clone())
+                SubcommandResult::Find(event)
             ))]
         );
 
@@ -152,7 +152,7 @@ mod tests {
         assert_eq!(
             &events,
             &[Event::new(Message::SubcommandResult(
-                SubcommandResult::Find(event.clone())
+                SubcommandResult::Find(event)
             ))]
         );
 
