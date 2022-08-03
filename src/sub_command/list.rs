@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::dependency_graph::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::error::TResult;
-use crate::reporter::event::ListDep;
+use crate::reporter::event::ListResult;
 use crate::reporter::Reporter;
 use crate::SubCommand;
 
@@ -21,7 +21,7 @@ fn list_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     let graph = resolver.resolve()?;
     let variant = config.sub_command_config().list().variant;
 
-    reporter.report_event(ListDep::new(variant, graph))?;
+    reporter.report_event(ListResult::new(variant, graph))?;
 
     Ok(())
 }

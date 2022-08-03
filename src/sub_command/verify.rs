@@ -11,7 +11,7 @@ use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
-use crate::reporter::event::VerifyOutput;
+use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
 use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
@@ -90,7 +90,7 @@ fn verify_msrv(
 
 // Report the successful verification to the user
 fn success(reporter: &impl Reporter, toolchain: ToolchainSpec) -> TResult<()> {
-    reporter.report_event(VerifyOutput::compatible(toolchain))?;
+    reporter.report_event(VerifyResult::compatible(toolchain))?;
     Ok(())
 }
 
@@ -101,7 +101,7 @@ fn failure(
     rust_version: RustVersion,
     error: Option<String>,
 ) -> TResult<()> {
-    reporter.report_event(VerifyOutput::incompatible(toolchain, error))?;
+    reporter.report_event(VerifyResult::incompatible(toolchain, error))?;
 
     Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
         VerifyFailed::from(rust_version),

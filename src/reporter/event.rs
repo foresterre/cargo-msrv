@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Formatter;
 
 // shared
-pub use shared::compatibility::{Compatibility, CompatibilityReport};
+pub use shared::{compatibility::Compatibility, compatibility::CompatibilityReport};
 
 // events
 pub use action::ActionMessage;
@@ -13,19 +13,24 @@ pub use check_method::{CheckMethod, Method};
 pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
 pub use fetch_index::FetchIndex;
-pub use list_dep::ListDep;
 pub use meta::Meta;
-pub use msrv_result::MsrvResult;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
-pub use set_output::SetOutputMessage;
 pub use setup_toolchain::SetupToolchain;
-pub use show_output::ShowOutputMessage;
+pub use subcommand_result::SubcommandResult;
 pub use termination::TerminateWithFailure;
-pub use verify_output::VerifyOutput;
+
+// types
+pub use types::{
+    find_result::FindResult, list_result::ListResult, set_result::SetResult,
+    show_result::ShowResult, verify_result::VerifyResult,
+};
 
 // shared
 mod shared;
+
+// items which themselves aren't events, but can be used to compose an event
+mod types;
 
 // specific events
 mod action;
@@ -34,16 +39,12 @@ mod check_method;
 mod check_result;
 mod check_toolchain;
 mod fetch_index;
-mod list_dep;
 mod meta;
-mod msrv_result;
 mod progress;
 mod search_method;
-mod set_output;
 mod setup_toolchain;
-mod show_output;
+mod subcommand_result;
 mod termination;
-mod verify_output;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -105,23 +106,12 @@ pub enum Message {
     // output written by the program
     AuxiliaryOutput(AuxiliaryOutput),
 
-    // command: find
-    MsrvResult(MsrvResult),
+    // progression events for command: find
     FindMsrv(FindMsrv),
     Progress(Progress),
 
-    // command: verify
-    // Verify
-    Verify(VerifyOutput),
-
-    // command: list
-    ListDep(ListDep),
-
-    // command: set
-    SetOutput(SetOutputMessage),
-
-    // command: show
-    ShowOutput(ShowOutputMessage),
+    // command final result
+    SubcommandResult(SubcommandResult),
 
     // Termination, for example when caused by an unrecoverable error
     TerminateWithFailure(TerminateWithFailure),

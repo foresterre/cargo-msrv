@@ -1,7 +1,7 @@
 use crate::config::list::ORDERED_BY_MSRV;
 use crate::dependency_graph::DependencyGraph;
 use crate::formatting::table;
-use crate::reporter::event::list_dep::metadata::{format_version, package_msrv};
+use crate::reporter::event::types::list_result::metadata::{format_version, package_msrv};
 use crate::semver;
 use cargo_metadata::Package;
 use petgraph::visit::Bfs;

@@ -9,7 +9,7 @@ pub use handler::JsonHandler;
 pub use handler::MinimalOutputHandler;
 
 pub use event::{
-    Event, Message,
+    Event, Message, SubcommandResult,
     TerminateWithFailure, /* fixme: Needed by binary crate, how much do we want to expose here? */
 };
 

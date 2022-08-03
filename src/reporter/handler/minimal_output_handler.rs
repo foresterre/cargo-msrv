@@ -1,4 +1,5 @@
 use crate::io::SendWriter;
+use crate::reporter::event::SubcommandResult;
 use crate::reporter::Message;
 use crate::Action;
 use std::cell::Cell;
@@ -72,60 +73,31 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 
         use std::io::Write;
 
-        // Early return when message is not a final result message.
-        // Also ensures we don't unnecessarily lock the writer.
-        if !event.message().is_final_result() {
-            return;
-        }
-
-        match event.message() {
-            // cargo msrv (find)
-            Message::MsrvResult(find) => match find.msrv() {
-                Some(v) => {
-                    success_writeln!("{}", v)
+        if let Message::SubcommandResult(result) = event.message() {
+            match result {
+                SubcommandResult::Find(inner) => match inner.msrv() {
+                    Some(v) => {
+                        success_writeln!("{}", v)
+                    }
+                    None => failure_writeln!("{}", "none"),
+                },
+                SubcommandResult::List(inner) => {
+                    failure_writeln!("unsupported")
                 }
-                None => failure_writeln!("{}", "none"),
-            },
-            // cargo msrv list
-            // Consider: simplify output for this command, if you want the full output you can use
-            //           the default human output mode
-            //           for now: unsupported
-            Message::ListDep(list) => {
-                failure_writeln!("unsupported")
+                SubcommandResult::Set(inner) => {
+                    success_writeln!("{}", inner.version())
+                }
+                SubcommandResult::Show(inner) => {
+                    success_writeln!("{}", inner.version())
+                }
+                SubcommandResult::Verify(inner) if inner.is_compatible() => {
+                    success_writeln!("true")
+                }
+                SubcommandResult::Verify(_inner) /* if !inner.is_compatible() */ => {
+                    failure_writeln!("false")
+                }
             }
-            // cargo msrv set output
-            Message::SetOutput(set) => {
-                success_writeln!("{}", set.version())
-            }
-            // cargo msrv show
-            Message::ShowOutput(show) => {
-                success_writeln!("{}", show.version())
-            } // cargo msrv verify
-            Message::Verify(verify) if verify.is_compatible() => {
-                success_writeln!("{}", verify.is_compatible())
-            }
-            Message::Verify(verify) if !verify.is_compatible() => {
-                failure_writeln!("{}", verify.is_compatible())
-            }
-            // If not a final result, discard
-            _ => {
-                unreachable!("Early return missing, see `Message::is_final_result`.")
-            }
-        };
-    }
-}
-
-impl Message {
-    fn is_final_result(&self) -> bool {
-        matches!(
-            &self,
-            Message::MsrvResult(_)
-                | Message::ListDep(_)
-                | Message::SetOutput(_)
-                | Message::SetOutput(_)
-                | Message::ShowOutput(_)
-                | Message::Verify(_)
-        )
+        }
     }
 }
 
@@ -135,7 +107,7 @@ mod tests {
     use crate::dependency_graph::DependencyGraph;
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::event::{
-        ListDep, MsrvResult, Progress, SetOutputMessage, ShowOutputMessage, VerifyOutput,
+        FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
     use crate::reporter::{Message, ReporterSetup, TestReporter};
@@ -154,7 +126,7 @@ mod tests {
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
-        let event = MsrvResult::new_msrv(
+        let event = FindResult::new_msrv(
             semver::Version::new(1, 10, 100),
             &config,
             min_available,
@@ -181,7 +153,7 @@ mod tests {
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
-        let event = MsrvResult::none(&config, min_available, max_available);
+        let event = FindResult::none(&config, min_available, max_available);
 
         let s = Vec::new();
         let f = Vec::new();
@@ -207,7 +179,7 @@ mod tests {
             repr: "hello_world".to_string(),
         };
         let dep_graph = DependencyGraph::empty(package_id);
-        let event = ListDep::new(ListMsrvVariant::DirectDeps, dep_graph);
+        let event = ListResult::new(ListMsrvVariant::DirectDeps, dep_graph);
 
         let s = Vec::new();
         let f = Vec::new();
@@ -225,7 +197,7 @@ mod tests {
 
     #[test]
     fn set_output() {
-        let event = SetOutputMessage::new(
+        let event = SetResult::new(
             BareVersion::TwoComponents(1, 20),
             Path::new("/my/path").to_path_buf(),
         );
@@ -246,7 +218,7 @@ mod tests {
 
     #[test]
     fn show_output() {
-        let event = ShowOutputMessage::new(
+        let event = ShowResult::new(
             BareVersion::ThreeComponents(1, 40, 3),
             Path::new("/my/path").to_path_buf(),
         );
@@ -268,7 +240,7 @@ mod tests {
 
     #[test]
     fn verify_true() {
-        let event = VerifyOutput::compatible(OwnedToolchainSpec::new(
+        let event = VerifyResult::compatible(OwnedToolchainSpec::new(
             &semver::Version::new(1, 2, 3),
             "test_target",
         ));
@@ -290,7 +262,7 @@ mod tests {
 
     #[test]
     fn verify_false_no_error_message() {
-        let event = VerifyOutput::incompatible(
+        let event = VerifyResult::incompatible(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             None,
         );
@@ -312,7 +284,7 @@ mod tests {
 
     #[test]
     fn verify_false_with_error_message() {
-        let event = VerifyOutput::incompatible(
+        let event = VerifyResult::incompatible(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             Some("error message".to_string()),
         );
