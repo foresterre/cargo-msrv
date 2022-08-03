@@ -35,7 +35,7 @@ you an indication of what your MSRV will be like. You can supply the highest lis
 as the `--min <version>` option: `cargo msrv --min <version>`. This will reduce the possible search space, and speed
 up the search for the MSRV of your crate.
 
-See [cargo-msrv (run)](./commands/find.md) and [cargo-msrv list](./commands/list.md) for more.
+See [cargo-msrv (find)](./commands/find.md) and [cargo-msrv list](./commands/list.md) for more.
 
 # 🥰 Thanks
 
