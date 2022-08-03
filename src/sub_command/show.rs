@@ -7,7 +7,7 @@ use crate::config::Config;
 use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
-use crate::reporter::event::ShowOutputMessage;
+use crate::reporter::event::ShowResult;
 use crate::reporter::Reporter;
 use crate::SubCommand;
 
@@ -37,10 +37,7 @@ fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         .minimum_rust_version()
         .ok_or_else(|| Error::NoMSRVInCargoManifest(cargo_toml.to_path_buf()))?;
 
-    reporter.report_event(ShowOutputMessage::new(
-        msrv.clone(),
-        cargo_toml.to_path_buf(),
-    ))?;
+    reporter.report_event(ShowResult::new(msrv.clone(), cargo_toml.to_path_buf()))?;
 
     Ok(())
 }

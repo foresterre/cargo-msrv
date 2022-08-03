@@ -1,12 +1,13 @@
 use crate::config::{Config, SearchMethod};
 use crate::manifest::bare_version::BareVersion;
+use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
 use crate::typed_bool::{False, True};
 use crate::{semver, Event};
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct MsrvResult {
+pub struct FindResult {
     #[serde(skip)]
     pub target: String,
     #[serde(skip)]
@@ -20,7 +21,7 @@ pub struct MsrvResult {
     result: ResultDetails,
 }
 
-impl MsrvResult {
+impl FindResult {
     pub fn new_msrv(
         version: semver::Version,
         config: &Config,
@@ -78,9 +79,15 @@ impl MsrvResult {
     }
 }
 
-impl From<MsrvResult> for Event {
-    fn from(it: MsrvResult) -> Self {
-        Message::MsrvResult(it).into()
+impl From<FindResult> for SubcommandResult {
+    fn from(it: FindResult) -> Self {
+        SubcommandResult::Find(it)
+    }
+}
+
+impl From<FindResult> for Event {
+    fn from(it: FindResult) -> Self {
+        Message::SubcommandResult(it.into()).into()
     }
 }
 
@@ -112,15 +119,20 @@ mod tests {
         let min = BareVersion::TwoComponents(1, 0);
         let max = BareVersion::ThreeComponents(1, 4, 0);
 
-        let event = MsrvResult::new_msrv(version, &config, min, max);
+        let event = FindResult::new_msrv(version, &config, min, max);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         let events = reporter.wait_for_events();
-        assert_eq!(&events, &[Event::new(Message::MsrvResult(event))]);
+        assert_eq!(
+            &events,
+            &[Event::new(Message::SubcommandResult(
+                SubcommandResult::Find(event)
+            ))]
+        );
 
         let inner = &events[0].message;
-        if let Message::MsrvResult(res) = inner {
+        if let Message::SubcommandResult(SubcommandResult::Find(res)) = inner {
             assert_eq!(res.msrv(), Some(&semver::Version::new(1, 3, 0)));
         }
     }
@@ -132,15 +144,20 @@ mod tests {
         let min = BareVersion::TwoComponents(1, 0);
         let max = BareVersion::ThreeComponents(1, 4, 0);
 
-        let event = MsrvResult::none(&config, min, max);
+        let event = FindResult::none(&config, min, max);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         let events = reporter.wait_for_events();
-        assert_eq!(&events, &[Event::new(Message::MsrvResult(event))]);
+        assert_eq!(
+            &events,
+            &[Event::new(Message::SubcommandResult(
+                SubcommandResult::Find(event)
+            ))]
+        );
 
         let inner = &events[0].message;
-        if let Message::MsrvResult(res) = inner {
+        if let Message::SubcommandResult(SubcommandResult::Find(res)) = inner {
             assert_eq!(res.msrv(), None);
         }
     }

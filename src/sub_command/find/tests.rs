@@ -41,7 +41,7 @@ fn bisect_find_only_last() {
     assert_eq!(found, semver::Version::new(1, 56, 0));
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![MsrvResult::new_msrv(
+    let expected: Vec<Event> = vec![FindResult::new_msrv(
         semver::Version::new(1, 56, 0),
         &config,
         BareVersion::ThreeComponents(1, 37, 0),
@@ -77,7 +77,7 @@ fn bisect_find_all_compatible() {
     assert_eq!(found, semver::Version::new(1, 52, 0));
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![MsrvResult::new_msrv(
+    let expected: Vec<Event> = vec![FindResult::new_msrv(
         semver::Version::new(1, 52, 0),
         &config,
         BareVersion::ThreeComponents(1, 52, 0),
@@ -107,7 +107,7 @@ fn bisect_none_compatible() {
     assert!(result.is_err());
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![MsrvResult::none(
+    let expected: Vec<Event> = vec![FindResult::none(
         &config,
         BareVersion::ThreeComponents(1, 52, 0),
         BareVersion::ThreeComponents(1, 56, 0),
@@ -156,7 +156,7 @@ fn no_releases_available() {
 
     let events = reporter.wait_for_events();
 
-    let unexpected_event: Event = MsrvResult::none(
+    let unexpected_event: Event = FindResult::none(
         &config,
         BareVersion::TwoComponents(1, 56),
         BareVersion::ThreeComponents(1, 54, 0),

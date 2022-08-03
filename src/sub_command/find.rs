@@ -6,7 +6,7 @@ use crate::error::{CargoMSRVError, TResult};
 use crate::filter_releases::filter_releases;
 use crate::manifest::bare_version::BareVersion;
 use crate::msrv::MinimumSupportedRustVersion;
-use crate::reporter::event::MsrvResult;
+use crate::reporter::event::FindResult;
 use crate::reporter::Reporter;
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
@@ -127,10 +127,10 @@ fn report_outcome(
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
             let version = toolchain.version();
 
-            reporter.report_event(MsrvResult::new_msrv(version.clone(), config, min, max))?;
+            reporter.report_event(FindResult::new_msrv(version.clone(), config, min, max))?;
         }
         MinimumSupportedRustVersion::NoCompatibleToolchain => {
-            reporter.report_event(MsrvResult::none(config, min, max))?;
+            reporter.report_event(FindResult::none(config, min, max))?;
         }
     }
 

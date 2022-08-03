@@ -8,7 +8,7 @@ use crate::error::{IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
-    AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetOutputMessage,
+    AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
 };
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
@@ -65,10 +65,7 @@ fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     ))?;
 
     // Report that the MSRV was set
-    reporter.report_event(SetOutputMessage::new(
-        msrv.clone(),
-        cargo_toml.to_path_buf(),
-    ))?;
+    reporter.report_event(SetResult::new(msrv.clone(), cargo_toml.to_path_buf()))?;
 
     Ok(())
 }

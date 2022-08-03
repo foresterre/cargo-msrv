@@ -45,7 +45,9 @@ pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semve
     parse(path.as_ref())
 }
 
-pub(super) fn get_package_metadata_msrv(package: &Package) -> Option<crate::semver::Version> {
+pub(in crate::reporter::event) fn get_package_metadata_msrv(
+    package: &Package,
+) -> Option<crate::semver::Version> {
     package
         .metadata
         .get("msrv")

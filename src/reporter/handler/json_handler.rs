@@ -1,8 +1,12 @@
 use crate::io::SendWriter;
 use std::io;
 use std::io::Stderr;
-use std::sync::{Arc, Mutex};
+use std::ops::Deref;
+use std::sync::{Arc, Mutex, MutexGuard};
 use storyteller::EventHandler;
+
+#[cfg(test)]
+mod testing;
 
 pub struct JsonHandler<W: SendWriter> {
     writer: Arc<Mutex<W>>,
@@ -15,6 +19,19 @@ impl<W: SendWriter> JsonHandler<W> {
         "{ \"panic\": true, \"cause\": \"Unable to serialize event for JsonHandle\", \"experimental\": true }";
     const WRITE_FAILURE_MSG: &'static str =
         "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\", \"experimental\": true }";
+}
+
+#[cfg(test)]
+impl<W: SendWriter> JsonHandler<W> {
+    pub fn new(writer: W) -> Self {
+        Self {
+            writer: Arc::new(Mutex::new(writer)),
+        }
+    }
+
+    pub fn inner_writer(&self) -> MutexGuard<'_, W> {
+        self.writer.lock().expect("Unable to unlock writer")
+    }
 }
 
 impl JsonHandler<Stderr> {

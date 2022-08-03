@@ -1,6 +1,6 @@
 use crate::formatting::TermWidth;
 use crate::reporter::event::{
-    CheckResult, CheckToolchain, CompatibilityReport, Message, MsrvResult,
+    CheckResult, CheckToolchain, CompatibilityReport, FindResult, Message, SubcommandResult,
 };
 use crate::{semver, Action, Event};
 use owo_colors::OwoColorize;
@@ -97,20 +97,7 @@ impl EventHandler for HumanProgressHandler {
                     self.pb.println(message_box(error_report));
                 }
             }
-            Message::MsrvResult(result) => {
-                self.pb.println(format!("\n{}\n", result.summary()));
-            }
-            Message::ListDep(list) => {
-                self.pb.println(list.to_string());
-            }
-            Message::SetOutput(output) => {
-                let message = Status::with_lead("Set".bright_green(), format_args!("Rust {}", output.version()));
-                self.pb.println(message);
-            }
-            Message::ShowOutput(output) => {
-                let message = Status::with_lead("Show".bright_green(), format_args!("MSRV is Rust {}", output.version()));
-                self.pb.println(message);
-            }
+            Message::SubcommandResult(result) => self.handle_subcommand_result(result),
             Message::TerminateWithFailure(termination) if termination.is_error() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
             }
@@ -119,6 +106,36 @@ impl EventHandler for HumanProgressHandler {
             }
             _ => {}
         };
+    }
+}
+
+impl HumanProgressHandler {
+    fn handle_subcommand_result(&self, result: &SubcommandResult) {
+        match result {
+            SubcommandResult::Find(inner) => {
+                self.pb.println(format!("\n{}\n", inner.summary()));
+            }
+            SubcommandResult::List(inner) => {
+                self.pb.println(inner.to_string());
+            }
+            SubcommandResult::Set(inner) => {
+                let message = Status::with_lead(
+                    "Set".bright_green(),
+                    format_args!("Rust {}", inner.version()),
+                );
+                self.pb.println(message);
+            }
+            SubcommandResult::Show(inner) => {
+                let message = Status::with_lead(
+                    "Show".bright_green(),
+                    format_args!("MSRV is Rust {}", inner.version()),
+                );
+                self.pb.println(message);
+            }
+            SubcommandResult::Verify(inner) => {
+                // tbd.
+            }
+        }
     }
 }
 
@@ -141,7 +158,7 @@ impl CheckToolchain {
     }
 }
 
-impl MsrvResult {
+impl FindResult {
     fn summary(&self) -> String {
         result_table(self)
     }
@@ -179,8 +196,8 @@ fn message_box(message: &str) -> String {
         .to_string()
 }
 
-fn result_table(result: &MsrvResult) -> String {
-    fn msrv(result: &MsrvResult) -> String {
+fn result_table(result: &FindResult) -> String {
+    fn msrv(result: &FindResult) -> String {
         result
             .msrv()
             .map(|version| format!("{}", version.green().bold().underline()))

@@ -1,16 +1,17 @@
 use crate::reporter::event::shared::compatibility::Compatibility;
+use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct VerifyOutput {
+pub struct VerifyResult {
     #[serde(flatten)]
     pub compatibility: Compatibility,
 }
 
-impl VerifyOutput {
+impl VerifyResult {
     pub fn compatible(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
             compatibility: Compatibility::compatible(toolchain),
@@ -32,9 +33,15 @@ impl VerifyOutput {
     }
 }
 
-impl From<VerifyOutput> for Event {
-    fn from(it: VerifyOutput) -> Self {
-        Message::Verify(it).into()
+impl From<VerifyResult> for SubcommandResult {
+    fn from(it: VerifyResult) -> Self {
+        Self::Verify(it)
+    }
+}
+
+impl From<VerifyResult> for Event {
+    fn from(it: VerifyResult) -> Self {
+        Message::SubcommandResult(it.into()).into()
     }
 }
 
@@ -49,7 +56,7 @@ mod tests {
     #[test]
     fn reported_compatible_toolchain() {
         let reporter = TestReporter::default();
-        let event = VerifyOutput::compatible(OwnedToolchainSpec::new(
+        let event = VerifyResult::compatible(OwnedToolchainSpec::new(
             &semver::Version::new(1, 2, 3),
             "test_target",
         ));
@@ -58,7 +65,9 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::Verify(event)),]
+            vec![Event::new(Message::SubcommandResult(
+                SubcommandResult::Verify(event)
+            )),]
         );
     }
 
@@ -68,7 +77,7 @@ mod tests {
     )]
     fn reported_incompatible_toolchain(error_message: Option<String>) {
         let reporter = TestReporter::default();
-        let event = VerifyOutput::incompatible(
+        let event = VerifyResult::incompatible(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             error_message,
         );
@@ -77,7 +86,9 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::Verify(event)),]
+            vec![Event::new(Message::SubcommandResult(
+                SubcommandResult::Verify(event)
+            ))]
         );
     }
 }

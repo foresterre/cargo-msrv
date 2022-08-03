@@ -3,7 +3,7 @@ use cargo_msrv::check::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::config::test_config_from_cli;
 use cargo_msrv::error::CargoMSRVError;
-use cargo_msrv::reporter::Message;
+use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Find, SubCommand};
 use rust_releases::{semver, Release, ReleaseIndex};
 use std::ffi::OsString;
@@ -82,7 +82,9 @@ pub fn find_msrv_with_releases<
             Message::Compatibility(res) if !res.is_compatible() => {
                 test_result.add_failure(res.toolchain().version().clone());
             }
-            Message::MsrvResult(res) => test_result.set_msrv(res.msrv().map(Clone::clone)),
+            Message::SubcommandResult(SubcommandResult::Find(res)) => {
+                test_result.set_msrv(res.msrv().map(Clone::clone))
+            }
             _ => {}
         }
     }

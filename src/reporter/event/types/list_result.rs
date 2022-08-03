@@ -3,7 +3,8 @@ use crate::dependency_graph::DependencyGraph;
 use crate::reporter::event::Message;
 use crate::Event;
 
-use crate::reporter::event::list_dep::ordered_by_msrv::OrderedByMsrvFormatter;
+use crate::reporter::event::subcommand_result::SubcommandResult;
+use crate::reporter::event::types::list_result::ordered_by_msrv::OrderedByMsrvFormatter;
 use direct_deps::DirectDepsFormatter;
 
 mod direct_deps;
@@ -11,24 +12,30 @@ mod metadata;
 mod ordered_by_msrv;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ListDep {
+pub struct ListResult {
     variant: ListMsrvVariant,
     graph: DependencyGraph,
 }
 
-impl ListDep {
+impl ListResult {
     pub fn new(variant: ListMsrvVariant, graph: DependencyGraph) -> Self {
         Self { variant, graph }
     }
 }
 
-impl From<ListDep> for Event {
-    fn from(it: ListDep) -> Self {
-        Message::ListDep(it).into()
+impl From<ListResult> for SubcommandResult {
+    fn from(it: ListResult) -> Self {
+        SubcommandResult::List(it)
     }
 }
 
-impl ToString for ListDep {
+impl From<ListResult> for Event {
+    fn from(it: ListResult) -> Self {
+        Message::SubcommandResult(it.into()).into()
+    }
+}
+
+impl ToString for ListResult {
     fn to_string(&self) -> String {
         match self.variant {
             ListMsrvVariant::DirectDeps => DirectDepsFormatter::new(&self.graph).to_string(),
@@ -37,7 +44,7 @@ impl ToString for ListDep {
     }
 }
 
-impl serde::Serialize for ListDep {
+impl serde::Serialize for ListResult {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
