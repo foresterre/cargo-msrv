@@ -3,13 +3,13 @@ use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::FindResult;
 use crate::reporter::JsonHandler;
 use crate::semver;
-use crate::Action;
+use crate::SubcommandId;
 use storyteller::EventHandler;
 
 #[test]
 fn compatible_handler() {
     let version = semver::Version::new(1, 2, 3);
-    let config = Config::new(Action::Find, "my-target");
+    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::new_msrv(
         version,
         &config,
@@ -37,7 +37,7 @@ fn compatible_handler() {
 
 #[test]
 fn incompatible_handler() {
-    let config = Config::new(Action::Find, "my-target");
+    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::none(
         &config,
         BareVersion::TwoComponents(1, 0),
@@ -64,7 +64,7 @@ fn incompatible_handler() {
 #[test]
 fn compatible() {
     let version = semver::Version::new(1, 2, 3);
-    let config = Config::new(Action::Find, "my-target");
+    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::new_msrv(
         version,
         &config,
@@ -86,7 +86,7 @@ fn compatible() {
 #[test]
 fn incompatible() {
     let version = semver::Version::new(1, 2, 3);
-    let config = Config::new(Action::Find, "my-target");
+    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::none(
         &config,
         BareVersion::TwoComponents(1, 0),

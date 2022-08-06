@@ -4,7 +4,7 @@ use crate::reporter::event::{SetResult, ShowResult, VerifyResult};
 use crate::reporter::JsonHandler;
 use crate::semver;
 use crate::toolchain::OwnedToolchainSpec;
-use crate::Action;
+use crate::SubcommandId;
 use std::ops::Deref;
 use std::path::Path;
 use storyteller::EventHandler;

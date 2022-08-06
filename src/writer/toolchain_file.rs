@@ -77,14 +77,14 @@ mod write_toolchain_file_tests {
     };
     use crate::reporter::{FakeTestReporter, TestReporter};
     use crate::writer::toolchain_file::write_toolchain_file;
-    use crate::{semver, Action, CargoMSRVError, Event};
+    use crate::{semver, CargoMSRVError, Event, SubcommandId};
     use test_dir::{DirBuilder, FileType, TestDir};
 
     #[test]
     fn no_toolchain_file_yet() {
         let tmp = TestDir::temp();
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 
@@ -112,7 +112,7 @@ channel = "1.22.44"
         let tmp = TestDir::temp().create("rust-toolchain", FileType::EmptyFile);
 
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 
@@ -141,7 +141,7 @@ channel = "1.33.55"
         let tmp = TestDir::temp().create("rust-toolchain.toml", FileType::EmptyFile);
 
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 
@@ -172,7 +172,7 @@ channel = "1.44.66"
             .create("rust-toolchain.toml", FileType::EmptyFile);
 
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 
@@ -207,7 +207,7 @@ channel = "1.55.77"
     fn check_reporter_event() {
         let tmp = TestDir::temp();
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 
@@ -231,7 +231,7 @@ channel = "1.55.77"
         let tmp = TestDir::temp().create("rust-toolchain", FileType::Dir); // dir so write will fail
 
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 

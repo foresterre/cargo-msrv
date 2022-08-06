@@ -80,12 +80,12 @@ mod tests {
     use super::*;
     use crate::reporter::event::Message;
     use crate::reporter::TestReporter;
-    use crate::{Action, ActionMessage, CargoMSRVError, Reporter};
+    use crate::{CargoMSRVError, Reporter, SubcommandId, SubcommandInit};
 
     #[test]
     fn report_successful_scoped_event() {
         let reporter = TestReporter::default();
-        let event = ActionMessage::new(Action::Find);
+        let event = SubcommandInit::new(SubcommandId::Find);
 
         let out = reporter
             .reporter()
@@ -97,8 +97,8 @@ mod tests {
         assert_eq!(
             &events,
             &[
-                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
-                Event::new(Message::Action(event)).with_scope(EventScope::End)
+                Event::new(Message::SubcommandInit(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::SubcommandInit(event)).with_scope(EventScope::End)
             ]
         );
 
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn report_failed_scoped_event() {
         let reporter = TestReporter::default();
-        let event = ActionMessage::new(Action::Find);
+        let event = SubcommandInit::new(SubcommandId::Find);
 
         let out = reporter
             .reporter()
@@ -122,8 +122,8 @@ mod tests {
         assert_eq!(
             &events,
             &[
-                Event::new(Message::Action(event.clone())).with_scope(EventScope::Start),
-                Event::new(Message::Action(event)).with_scope(EventScope::End)
+                Event::new(Message::SubcommandInit(event.clone())).with_scope(EventScope::Start),
+                Event::new(Message::SubcommandInit(event)).with_scope(EventScope::End)
             ]
         );
 

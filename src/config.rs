@@ -87,7 +87,7 @@ pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
 
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub enum Action {
+pub enum SubcommandId {
     // Determines the MSRV for a project
     Find,
     // List the MSRV's as specified by package authors
@@ -100,14 +100,14 @@ pub enum Action {
     Show,
 }
 
-impl From<Action> for &'static str {
-    fn from(action: Action) -> Self {
-        match action {
-            Action::Find => "find",
-            Action::List => "list",
-            Action::Verify => "verify",
-            Action::Set => "set",
-            Action::Show => "show",
+impl From<SubcommandId> for &'static str {
+    fn from(id: SubcommandId) -> Self {
+        match id {
+            SubcommandId::Find => "find",
+            SubcommandId::List => "list",
+            SubcommandId::Verify => "verify",
+            SubcommandId::Set => "set",
+            SubcommandId::Show => "show",
         }
     }
 }
@@ -205,7 +205,7 @@ impl Default for SearchMethod {
 //  for example from the CLI, from env vars, or from a configuration file.
 #[derive(Debug, Clone)]
 pub struct Config<'a> {
-    action: Action,
+    subcommand_id: SubcommandId,
     target: String,
     check_command: Vec<&'a str>,
     crate_path: Option<PathBuf>,
@@ -228,9 +228,9 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    pub fn new<T: Into<String>>(action: Action, target: T) -> Self {
+    pub fn new<T: Into<String>>(subcommand_id: SubcommandId, target: T) -> Self {
         Self {
-            action,
+            subcommand_id,
             target: target.into(),
             check_command: vec!["cargo", "check"],
             crate_path: None,
@@ -252,8 +252,8 @@ impl<'a> Config<'a> {
         }
     }
 
-    pub fn action(&self) -> Action {
-        self.action
+    pub fn subcommand_id(&self) -> SubcommandId {
+        self.subcommand_id
     }
 
     pub fn target(&self) -> &String {
@@ -349,9 +349,9 @@ pub struct ConfigBuilder<'a> {
 }
 
 impl<'a> ConfigBuilder<'a> {
-    pub fn new(action_intent: Action, default_target: &str) -> Self {
+    pub fn new(subcommand_id: SubcommandId, default_target: &str) -> Self {
         Self {
-            inner: Config::new(action_intent, default_target.to_string()),
+            inner: Config::new(subcommand_id, default_target.to_string()),
         }
     }
 
@@ -361,8 +361,8 @@ impl<'a> ConfigBuilder<'a> {
         }
     }
 
-    pub fn mode_intent(mut self, mode_intent: Action) -> Self {
-        self.inner.action = mode_intent;
+    pub fn mode_intent(mut self, subcommand_id: SubcommandId) -> Self {
+        self.inner.subcommand_id = subcommand_id;
         self
     }
 

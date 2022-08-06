@@ -2,7 +2,7 @@ use crate::formatting::TermWidth;
 use crate::reporter::event::{
     CheckResult, CheckToolchain, CompatibilityReport, FindResult, Message, SubcommandResult,
 };
-use crate::{semver, Action, Event};
+use crate::{semver, Event, SubcommandId};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -70,7 +70,7 @@ impl EventHandler for HumanProgressHandler {
                 ));
                 self.pb.println(message);
             }
-            Message::Action(it) if it.action().should_enable_spinner() => {
+            Message::SubcommandInit(it) if it.subcommand_id().should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
                 self.pb.enable_steady_tick(Duration::from_millis(150));
             }
@@ -83,12 +83,12 @@ impl EventHandler for HumanProgressHandler {
                 self.finish_runner_progress();
             }
             // Message::Compatibility(CheckResult {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
-            Message::Compatibility(CheckResult {  compatibility }) if compatibility.is_compatible() => {
+            Message::CheckResult(CheckResult {  compatibility }) if compatibility.is_compatible() => {
                 let version = compatibility.toolchain().version();
                 let message = Status::ok("Is compatible");
                 self.pb.println(message);
             }
-            Message::Compatibility(CheckResult { compatibility }) if !compatibility.is_compatible() => {
+            Message::CheckResult(CheckResult { compatibility }) if !compatibility.is_compatible() => {
                 let version = compatibility.toolchain().version();
                 let message = Status::fail("Is Incompatible");
                 self.pb.println(message);
@@ -139,7 +139,7 @@ impl HumanProgressHandler {
     }
 }
 
-impl Action {
+impl SubcommandId {
     pub fn should_enable_spinner(&self) -> bool {
         matches!(self, Self::Find | Self::Verify)
     }

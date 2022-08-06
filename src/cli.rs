@@ -8,7 +8,7 @@ use crate::config::list::ListMsrvVariant;
 use crate::config::ConfigBuilder;
 use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
-use crate::{Action, CargoMSRVError, Config};
+use crate::{CargoMSRVError, Config, SubcommandId};
 use clap::{AppSettings, Args, Parser, Subcommand};
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
@@ -210,20 +210,20 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
     }
 }
 
-fn make_mode(opts: &CargoMsrvOpts) -> Action {
+fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
     opts.subcommand
         .as_ref()
         .map(|subcommand| match subcommand {
-            SubCommand::List(_) => Action::List,
-            SubCommand::Show => Action::Show,
-            SubCommand::Set(_) => Action::Set,
-            SubCommand::Verify(_) => Action::Verify,
+            SubCommand::List(_) => SubcommandId::List,
+            SubCommand::Show => SubcommandId::Show,
+            SubCommand::Set(_) => SubcommandId::Set,
+            SubCommand::Verify(_) => SubcommandId::Verify,
         })
         .unwrap_or_else(|| {
             if opts.verify {
-                Action::Verify
+                SubcommandId::Verify
             } else {
-                Action::Find
+                SubcommandId::Find
             }
         })
 }

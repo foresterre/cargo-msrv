@@ -76,10 +76,10 @@ pub fn find_msrv_with_releases<
 
     for item in events {
         match item.message() {
-            Message::Compatibility(res) if res.is_compatible() => {
+            Message::CheckResult(res) if res.is_compatible() => {
                 test_result.add_success(res.toolchain().version().clone());
             }
-            Message::Compatibility(res) if !res.is_compatible() => {
+            Message::CheckResult(res) if !res.is_compatible() => {
                 test_result.add_failure(res.toolchain().version().clone());
             }
             Message::SubcommandResult(SubcommandResult::Find(res)) => {

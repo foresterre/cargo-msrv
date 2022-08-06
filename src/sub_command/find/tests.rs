@@ -3,7 +3,7 @@ use crate::check::TestRunner;
 use crate::config::ConfigBuilder;
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::TestReporter;
-use crate::{Action, Event};
+use crate::{Event, SubcommandId};
 use rust_releases::semver;
 use std::iter::FromIterator;
 
@@ -32,7 +32,7 @@ fn bisect_find_only_last() {
         Release::new_stable(semver::Version::new(1, 37, 0)),
     ]);
 
-    let config = Config::new(Action::Find, "".to_string());
+    let config = Config::new(SubcommandId::Find, "".to_string());
     let reporter = TestReporter::default();
     let runner = TestRunner::with_ok(&[semver::Version::new(1, 56, 0)]);
 
@@ -62,7 +62,7 @@ fn bisect_find_all_compatible() {
         Release::new_stable(semver::Version::new(1, 52, 0)),
     ]);
 
-    let config = Config::new(Action::Find, "".to_string());
+    let config = Config::new(SubcommandId::Find, "".to_string());
     let reporter = TestReporter::default();
     let runner = TestRunner::with_ok(&[
         semver::Version::new(1, 56, 0),
@@ -98,7 +98,7 @@ fn bisect_none_compatible() {
         Release::new_stable(semver::Version::new(1, 52, 0)),
     ]);
 
-    let config = Config::new(Action::Find, "".to_string());
+    let config = Config::new(SubcommandId::Find, "".to_string());
     let reporter = TestReporter::default();
     let runner = TestRunner::with_ok(&[]);
 
@@ -135,7 +135,7 @@ fn no_releases_available() {
     let max = BareVersion::ThreeComponents(1, 54, 0);
 
     // Make sure we end up with an empty releases set
-    let config = ConfigBuilder::new(Action::Find, "")
+    let config = ConfigBuilder::new(SubcommandId::Find, "")
         .minimum_version(min.clone()) // i.e. Rust edition = 2021
         .maximum_version(max.clone())
         .build();

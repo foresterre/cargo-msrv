@@ -1,7 +1,7 @@
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
 use crate::reporter::Reporter;
-use crate::{semver, Action, Config, Set, SubCommand, TResult};
+use crate::{semver, Config, Set, SubCommand, SubcommandId, TResult};
 
 /// Write the MSRV to the Cargo manifest
 ///
@@ -12,7 +12,7 @@ pub fn write_msrv(
     version: &semver::Version,
 ) -> TResult<()> {
     let config = ConfigBuilder::from_config(config)
-        .mode_intent(Action::Set)
+        .mode_intent(SubcommandId::Set)
         .sub_command_config(SubCommandConfig::SetConfig(SetCmdConfig {
             msrv: version.into(),
         }))
@@ -29,7 +29,7 @@ mod tests {
     use super::write_msrv;
     use crate::config::ConfigBuilder;
     use crate::reporter::FakeTestReporter;
-    use crate::{semver, Action};
+    use crate::{semver, SubcommandId};
     use test_dir::{DirBuilder, FileType, TestDir};
 
     #[test]
@@ -40,7 +40,7 @@ mod tests {
         std::fs::write(&manifest, "[package]").unwrap();
 
         let crate_path = tmp.root();
-        let config = ConfigBuilder::new(Action::Find, "")
+        let config = ConfigBuilder::new(SubcommandId::Find, "")
             .crate_path(Some(crate_path))
             .build();
 

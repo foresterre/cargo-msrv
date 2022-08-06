@@ -1,7 +1,7 @@
 use crate::io::SendWriter;
 use crate::reporter::event::SubcommandResult;
 use crate::reporter::Message;
-use crate::Action;
+use crate::SubcommandId;
 use std::cell::Cell;
 use std::io::{Stderr, Stdout};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -112,7 +112,7 @@ mod tests {
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
     use crate::reporter::{Message, ReporterSetup, TestReporter};
     use crate::toolchain::OwnedToolchainSpec;
-    use crate::{semver, Action, Config, Event};
+    use crate::{semver, Config, Event, SubcommandId};
     use cargo_metadata::PackageId;
     use serde::Deserialize;
     use std::convert::TryInto;
@@ -122,7 +122,7 @@ mod tests {
 
     #[test]
     fn find_with_result() {
-        let config = Config::new(Action::Find, "my-target");
+        let config = Config::new(SubcommandId::Find, "my-target");
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn find_without_result() {
-        let config = Config::new(Action::Find, "my-target");
+        let config = Config::new(SubcommandId::Find, "my-target");
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
@@ -171,7 +171,7 @@ mod tests {
 
     #[test]
     fn list_direct_deps() {
-        let config = Config::new(Action::Find, "my-target");
+        let config = Config::new(SubcommandId::Find, "my-target");
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 

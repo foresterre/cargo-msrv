@@ -5,7 +5,6 @@ use std::fmt::Formatter;
 pub use shared::{compatibility::Compatibility, compatibility::CompatibilityReport};
 
 // events
-pub use action::ActionMessage;
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
@@ -17,6 +16,7 @@ pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
 pub use setup_toolchain::SetupToolchain;
+pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;
 pub use termination::TerminateWithFailure;
 
@@ -33,7 +33,6 @@ mod shared;
 mod types;
 
 // specific events
-mod action;
 mod auxiliary_output;
 mod check_method;
 mod check_result;
@@ -43,6 +42,7 @@ mod meta;
 mod progress;
 mod search_method;
 mod setup_toolchain;
+mod subcommand_init;
 mod subcommand_result;
 mod termination;
 
@@ -85,23 +85,22 @@ impl Event {
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Message {
-    Action(ActionMessage),
-
     // setup
     Meta(Meta),
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!
 
-    // todo: SkippedRustVersions // +reason
+    // todo: ReducedSearchSpace
+    //       with: reason, reduction
 
     // install toolchain
     SetupToolchain(SetupToolchain),
 
     // runner + pass/reject
     CheckToolchain(CheckToolchain),
-    CompatibilityCheckMethod(CheckMethod),
-    Compatibility(CheckResult),
+    CheckMethod(CheckMethod),
+    CheckResult(CheckResult),
 
     // output written by the program
     AuxiliaryOutput(AuxiliaryOutput),
@@ -110,7 +109,8 @@ pub enum Message {
     FindMsrv(FindMsrv),
     Progress(Progress),
 
-    // command final result
+    // command init and final result
+    SubcommandInit(SubcommandInit),
     SubcommandResult(SubcommandResult),
 
     // Termination, for example when caused by an unrecoverable error

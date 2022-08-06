@@ -80,13 +80,13 @@ mod tests {
     use super::*;
     use crate::check::TestRunner;
     use crate::reporter::TestReporter;
-    use crate::{semver, Action, Config, ReleaseIndex};
+    use crate::{semver, Config, ReleaseIndex, SubcommandId};
     use rust_releases::Release;
     use std::iter::FromIterator;
 
     #[test]
     fn none_supported() {
-        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
         let reporter = TestReporter::default();
 
         let releases = vec![];
@@ -106,7 +106,7 @@ mod tests {
 
     #[test]
     fn all_supported() {
-        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
         let reporter = TestReporter::default();
 
         let releases = vec![
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn most_recent_only() {
-        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
         let reporter = TestReporter::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 56, 0))];
@@ -160,7 +160,7 @@ mod tests {
 
     #[test]
     fn least_recent_only_expects_rust_backwards_compat() {
-        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
         let reporter = TestReporter::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 54, 0))];
@@ -188,7 +188,7 @@ mod tests {
 
     #[test]
     fn middle_one_only_expects_rust_backwards_compat() {
-        let config = Config::new(Action::Find, "my-test-target".to_string());
+        let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
         let reporter = TestReporter::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 55, 0))];
