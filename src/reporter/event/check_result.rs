@@ -34,7 +34,7 @@ impl CheckResult {
 
 impl From<CheckResult> for Event {
     fn from(it: CheckResult) -> Self {
-        Message::Compatibility(it).into()
+        Message::CheckResult(it).into()
     }
 }
 
@@ -58,7 +58,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::Compatibility(event)),]
+            vec![Event::new(Message::CheckResult(event)),]
         );
     }
 
@@ -77,7 +77,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::Compatibility(event)),]
+            vec![Event::new(Message::CheckResult(event)),]
         );
     }
 }

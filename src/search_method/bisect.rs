@@ -139,12 +139,12 @@ mod tests {
     use crate::reporter::TestReporter;
     use crate::search_method::FindMinimalSupportedRustVersion;
     use crate::semver::Version;
-    use crate::{semver, Action, Config};
+    use crate::{semver, Config, SubcommandId};
 
     use super::Bisect;
 
     fn fake_config() -> Config<'static> {
-        Config::new(Action::Find, "".to_string())
+        Config::new(SubcommandId::Find, "".to_string())
     }
 
     #[yare::parameterized(

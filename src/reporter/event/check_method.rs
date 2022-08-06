@@ -21,7 +21,7 @@ impl CheckMethod {
 
 impl From<CheckMethod> for Event {
     fn from(it: CheckMethod) -> Self {
-        Message::CompatibilityCheckMethod(it).into()
+        Message::CheckMethod(it).into()
     }
 }
 
@@ -72,7 +72,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::CompatibilityCheckMethod(event)),]
+            vec![Event::new(Message::CheckMethod(event)),]
         );
     }
 }

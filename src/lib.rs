@@ -23,9 +23,9 @@ use rust_releases::RustDist;
 use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
 use crate::check::RustupToolchainCheck;
-use crate::config::{Action, Config, ReleaseSource};
+use crate::config::{Config, ReleaseSource, SubcommandId};
 use crate::error::{CargoMSRVError, TResult};
-use crate::reporter::event::{ActionMessage, FetchIndex, Meta};
+use crate::reporter::event::{FetchIndex, Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
 
 pub mod check;
@@ -58,33 +58,33 @@ pub(crate) mod writer;
 pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
 
-    let action = config.action();
+    let subcommand_id = config.subcommand_id();
 
     info!(
-        action = Into::<&'static str>::into(action),
-        "running action"
+        subcommand_id = Into::<&'static str>::into(subcommand_id),
+        "running subcommand"
     );
 
-    reporter.report_event(ActionMessage::new(action))?;
+    reporter.report_event(SubcommandInit::new(subcommand_id))?;
 
-    match action {
-        Action::Find => {
+    match subcommand_id {
+        SubcommandId::Find => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Find::new(&index, runner).run(config, reporter)?;
         }
-        Action::Verify => {
+        SubcommandId::Verify => {
             let index = fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Verify::new(&index, runner).run(config, reporter)?;
         }
-        Action::List => {
+        SubcommandId::List => {
             List::default().run(config, reporter)?;
         }
-        Action::Set => {
+        SubcommandId::Set => {
             Set::default().run(config, reporter)?;
         }
-        Action::Show => {
+        SubcommandId::Show => {
             Show::default().run(config, reporter)?;
         }
     }

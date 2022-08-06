@@ -3,7 +3,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::SetResult;
 use crate::reporter::JsonHandler;
 use crate::semver;
-use crate::Action;
+use crate::SubcommandId;
 use std::ops::Deref;
 use std::path::Path;
 use storyteller::EventHandler;

@@ -177,11 +177,11 @@ fn current_dir_crate_path<'c>(config: &'c Config<'c>) -> TResult<Option<&'c Path
 mod current_dir_crate_path_tests {
     use super::*;
     use crate::config::ConfigBuilder;
-    use crate::Action;
+    use crate::SubcommandId;
 
     #[test]
     fn relative_manifest_path() {
-        let config = ConfigBuilder::new(Action::Verify, "")
+        let config = ConfigBuilder::new(SubcommandId::Verify, "")
             .manifest_path(Some("Cargo.toml"))
             .build();
 
@@ -191,7 +191,7 @@ mod current_dir_crate_path_tests {
 
     #[test]
     fn relative_crate_path() {
-        let config = ConfigBuilder::new(Action::Verify, "")
+        let config = ConfigBuilder::new(SubcommandId::Verify, "")
             .crate_path(Some("home"))
             .build();
 
@@ -201,7 +201,7 @@ mod current_dir_crate_path_tests {
 
     #[test]
     fn no_paths() {
-        let config = ConfigBuilder::new(Action::Verify, "").build();
+        let config = ConfigBuilder::new(SubcommandId::Verify, "").build();
 
         let res = current_dir_crate_path(&config).unwrap();
         assert!(res.is_none())
