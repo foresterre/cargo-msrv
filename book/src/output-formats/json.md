@@ -49,13 +49,53 @@ which an event took place.
 
 **example:**
 
-```json
+```json lines
 {"type":"meta","instance":"cargo-msrv","version":"0.15.1","sha_short":"79582b6","target_triple":"x86_64-pc-windows-msvc","cargo_features":"default,rust_releases_dist_source","rustc":"1.62.0"}
 ```
 
 ## Event: FetchIndex
 
+**type:** fetch_index
+
+**description:** Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
+We obtain those using the [rust-releases](https://crates.io/crates/rust-releases) library. The `FetchIndex` event
+reports that the index is being fetched, and details which source is used. 
+
+**fields:**
+
+| name           | description                                               |
+|----------------|-----------------------------------------------------------|
+| source         | Place from where the available Rust releases are obtained |
+
+**example:**
+
+```json lines
+{"type":"fetch_index","source":"rust_changelog","scope":"start"}
+{"type":"fetch_index","source":"rust_changelog","scope":"end"}
+```
+
 ## Event: SetupToolchain
+
+**type:** setup_toolchain
+
+**description:** The primary way for `cargo-msrv` to determine whether a given Rust toolchain is compatible with your
+crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
+`SetupToolchain` event reports about the process of locating or installing a given toolchain.
+
+**fields:**
+
+| name              | description                              |
+|-------------------|------------------------------------------|
+| toolchain         | The toolchain to be located or installed |
+| toolchain.version | The Rust version of the toolchain        |
+| toolchain.target  | The target-triple of the toolchain       |
+
+**example:**
+
+```json lines
+{"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"start"}
+{"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
+```
 
 ## Event: CheckToolchain
 
@@ -72,6 +112,7 @@ which an event took place.
 ## Event: SubcommandResult
 
 ## Event: TerminateWithFailure
+
 
 # Output by subcommand
 
