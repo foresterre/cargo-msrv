@@ -171,10 +171,36 @@ which an event took place.</p>
 <tr><td>rustc</td><td>Version of <code>rustc</code> used to compile <code>cargo-msrv</code>.</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
 </code></pre>
 <h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: FetchIndex</a></h2>
+<p><strong>type:</strong> fetch_index</p>
+<p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
+We obtain those using the <a href="https://crates.io/crates/rust-releases">rust-releases</a> library. The <code>FetchIndex</code> event
+reports that the index is being fetched, and details which source is used. </p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
+<tr><td>source</td><td>Place from where the available Rust releases are obtained</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;start&quot;}
+{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;end&quot;}
+</code></pre>
 <h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: SetupToolchain</a></h2>
+<p><strong>type:</strong> setup_toolchain</p>
+<p><strong>description:</strong> The primary way for <code>cargo-msrv</code> to determine whether a given Rust toolchain is compatible with your
+crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
+<code>SetupToolchain</code> event reports about the process of locating or installing a given toolchain.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
+<tr><td>toolchain</td><td>The toolchain to be located or installed</td></tr>
+<tr><td>toolchain.version</td><td>The Rust version of the toolchain</td></tr>
+<tr><td>toolchain.target</td><td>The target-triple of the toolchain</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
+{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
+</code></pre>
 <h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: CheckToolchain</a></h2>
 <h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: CheckMethod</a></h2>
 <h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: CheckResult</a></h2>
