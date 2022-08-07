@@ -219,6 +219,21 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
 </code></pre>
 <h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: CheckMethod</a></h2>
+<p><strong>type:</strong> check_method</p>
+<p><strong>description:</strong> Reports which method has been used to check whether a toolchain is compatible with a crate.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
+<tr><td>toolchain</td><td>no</td><td></td><td>The toolchain to be located or installed</td></tr>
+<tr><td>toolchain.version</td><td>no</td><td></td><td>The Rust version of the toolchain</td></tr>
+<tr><td>toolchain.target</td><td>no</td><td></td><td>The target-triple of the toolchain</td></tr>
+<tr><td>method</td><td>no</td><td></td><td>The method used to check for compatibility</td></tr>
+<tr><td>method.type</td><td>no</td><td></td><td>The type of method</td></tr>
+<tr><td>method.args</td><td>no</td><td>method.type = <code>rustup_run</code></td><td>The arguments provided to rustup</td></tr>
+<tr><td>method.path</td><td>yes</td><td>method.type = <code>rustup_run</code></td><td>The path provided to rustup, if any</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;rustup_run&quot;:{&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3\\&quot;}}}
+</code></pre>
 <h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: CheckResult</a></h2>
 <h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: AuxiliaryOutput</a></h2>
 <h2 id="event-progress"><a class="header" href="#event-progress">Event: Progress</a></h2>
