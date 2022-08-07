@@ -28,6 +28,7 @@ The **scope** field is only present for scoped events. The `start` value marks t
 marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
 which an event took place.
 
+
 # Events
 
 ## Event: Meta
@@ -122,9 +123,30 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
 ```
 
-
-
 ## Event: CheckMethod
+
+**type:** check_method
+
+**description:** Reports which method has been used to check whether a toolchain is compatible with a crate.
+
+**fields:**
+
+| name              | optional | condition                  | description                                |
+|-------------------|----------|----------------------------|--------------------------------------------|
+| toolchain         | no       |                            | The toolchain to be located or installed   |
+| toolchain.version | no       |                            | The Rust version of the toolchain          |
+| toolchain.target  | no       |                            | The target-triple of the toolchain         |
+| method            | no       |                            | The method used to check for compatibility |
+| method.type       | no       |                            | The type of method                         |
+| method.args       | no       | method.type = `rustup_run` | The arguments provided to rustup           |
+| method.path       | yes      | method.type = `rustup_run` | The path provided to rustup, if any        |
+
+
+**example:**
+
+```json lines
+{"type":"check_method","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"method":{"rustup_run":{"args":["1.37.0-x86_64-pc-windows-msvc","cargo","check"],"path":"..\\air3\\"}}}
+```
 
 ## Event: CheckResult
 

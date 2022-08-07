@@ -27,6 +27,7 @@ impl From<CheckMethod> for Event {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
 pub enum Method {
     RustupRun {
         args: Vec<String>,
