@@ -94,11 +94,9 @@ pub enum Message {
     // todo: ReducedSearchSpace
     //       with: reason, reduction
 
-    // install toolchain
-    SetupToolchain(SetupToolchain),
-
-    // runner + pass/reject
+    // runner, setup of toolchain, method, result
     CheckToolchain(CheckToolchain),
+    SetupToolchain(SetupToolchain),
     CheckMethod(CheckMethod),
     CheckResult(CheckResult),
 

@@ -74,6 +74,31 @@ reports that the index is being fetched, and details which source is used.
 {"type":"fetch_index","source":"rust_changelog","scope":"end"}
 ```
 
+## Event: CheckToolchain
+
+**type:** check_toolchain
+
+**description:** The primary way for `cargo-msrv` to determine whether a given Rust toolchain is compatible with your
+crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
+`CheckToolchain` event is wrapped around this process and notifies you about the start and end of this process.
+This event is called as a scoped event, and within it's scope, you'll find the following events: `setup_toolchain`,
+`check_method` and `check_result`, which are described in more detail below. 
+
+**fields:**
+
+| name              | description                              |
+|-------------------|------------------------------------------|
+| toolchain         | The toolchain to be located or installed |
+| toolchain.version | The Rust version of the toolchain        |
+| toolchain.target  | The target-triple of the toolchain       |
+
+**example:**
+
+```json lines
+{"type":"check_toolchain","toolchain":{"version":"1.35.0","target":"x86_64-pc-windows-msvc"},"scope":"start"}
+{"type":"check_toolchain","toolchain":{"version":"1.35.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
+```
+
 ## Event: SetupToolchain
 
 **type:** setup_toolchain
@@ -97,7 +122,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
 ```
 
-## Event: CheckToolchain
+
 
 ## Event: CheckMethod
 
