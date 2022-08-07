@@ -138,7 +138,57 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="output-format-json"><a class="header" href="#output-format-json">Output format: json</a></h1>
-<p>🚧 TODO 🚧</p>
+<p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, altough
+humans may also use it, as it provides the most detailed output of all supported output formats.</p>
+<p>As described on the <a href="index.html">output-formats</a> page, <code>cargo-msrv</code> reports the status of the program via
+events. A processor transforms these events into their output-format. In case of the <code>json</code> output format, 
+events are almost 1-on-1 serialized to json (there are a few exceptions), and then printed to <code>stderr</code>.
+Each json serialized event ends with a newline. Each line thus represents a single serialized event. </p>
+<p>To use the <code>json</code> output format, run <code>cargo-msrv</code> with the <code>--output-format json</code> option. 
+For example, if you want to find the MSRV, you could run <code>cargo msrv --output-format json</code>.</p>
+<p>In the next section, you can find a description of the common fields of events.
+The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.</p>
+<h1 id="common-fields-on-events"><a class="header" href="#common-fields-on-events">Common fields on events</a></h1>
+<table><thead><tr><th>name</th><th>optional</th><th>values</th><th>description</th></tr></thead><tbody>
+<tr><td>type</td><td>no</td><td></td><td>Identifies a specific event</td></tr>
+<tr><td>scope</td><td>yes</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Marks the begin or end of a scoped event</td></tr>
+</tbody></table>
+<p>The <strong>type</strong> field can be used to identify a specific event.</p>
+<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value marks the start of a scoped event, while <code>end</code>
+marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
+which an event took place.</p>
+<h1 id="events"><a class="header" href="#events">Events</a></h1>
+<h2 id="event-meta"><a class="header" href="#event-meta">Event: Meta</a></h2>
+<p><strong>type:</strong> meta</p>
+<p><strong>description:</strong> Reports metadata about the currently running <code>cargo-msrv</code> program instance.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
+<tr><td>instance</td><td>Name of the running <code>cargo-msrv</code> program as defined on compile time. This will usually be <code>cargo-msrv</code>.</td></tr>
+<tr><td>version</td><td>Version of the running <code>cargo-msrv</code> program as defined on compile time.</td></tr>
+<tr><td>sha_short</td><td>Short SHA hash of the git commit used to compile and build <code>cargo-msrv</code>.</td></tr>
+<tr><td>target_triple</td><td>Target triple of toolchain used to compile and build <code>cargo-msrv</code>.</td></tr>
+<tr><td>cargo_features</td><td>Features which were enabled during the compilation of <code>cargo-msrv</code>.</td></tr>
+<tr><td>rustc</td><td>Version of <code>rustc</code> used to compile <code>cargo-msrv</code>.</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
+</code></pre>
+<h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: FetchIndex</a></h2>
+<h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: SetupToolchain</a></h2>
+<h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: CheckToolchain</a></h2>
+<h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: CheckMethod</a></h2>
+<h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: CheckResult</a></h2>
+<h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: AuxiliaryOutput</a></h2>
+<h2 id="event-progress"><a class="header" href="#event-progress">Event: Progress</a></h2>
+<h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
+<h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: SubcommandResult</a></h2>
+<h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: TerminateWithFailure</a></h2>
+<h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
+<h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
+<h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
+<h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
+<h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
 
                     </main>
 
