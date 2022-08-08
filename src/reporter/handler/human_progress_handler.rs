@@ -93,7 +93,7 @@ impl EventHandler for HumanProgressHandler {
                 let message = Status::fail("Is Incompatible");
                 self.pb.println(message);
 
-                if let Some(error_report) = compatibility.compatibility_report().error() {
+                if let Some(error_report) = compatibility.report().error() {
                     self.pb.println(message_box(error_report));
                 }
             }

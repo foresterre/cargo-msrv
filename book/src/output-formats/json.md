@@ -150,6 +150,33 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 
 ## Event: CheckResult
 
+**type:** check_result
+
+**description:** Reports the result of a `cargo-msrv` compatibility check.
+
+**fields:**
+
+| name              | optional | condition                       | description                                        |
+|-------------------|----------|---------------------------------|----------------------------------------------------|
+| toolchain         | no       |                                 | The toolchain to be located or installed           |
+| toolchain.version | no       |                                 | The Rust version of the toolchain                  |
+| toolchain.target  | no       |                                 | The target-triple of the toolchain                 |
+| is_compatible     | no       |                                 | Boolean value stating compatibility                |
+| report            | no       |                                 | Report about the compatibility                     |
+| report.type       | no       |                                 | Type of the report, "compatible" or "incompatible" |
+| report.error      | yes      | if report.type = `incompatible` | Error message of the compatibility check           |
+
+**example:**
+
+```json lines
+{"type":"check_result","toolchain":{"version":"1.38.0","target":"x86_64-pc-windows-msvc"},"is_compatible":true,"report":{"type":"compatible"}}
+```
+
+```json lines
+{"type":"check_result","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"is_compatible":false,"report":{"type":"incompatible","error":"error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n"}}
+```
+
+
 ## Event: AuxiliaryOutput
 
 ## Event: Progress

@@ -29,8 +29,10 @@ fn handler_success() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": true,
-        "compatibility_report": "compatible",
+        "is_compatible": true,
+        "report": {
+            "type": "compatible",
+        },
     });
 
     assert_eq!(actual, expected);
@@ -48,8 +50,10 @@ fn event_success() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": true,
-        "compatibility_report": "compatible",
+        "is_compatible": true,
+        "report": {
+            "type": "compatible",
+        },
     });
 
     let actual = serde_json::to_value(event).unwrap();
@@ -76,11 +80,10 @@ fn handler_failure_with_message() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": false,
-        "compatibility_report": {
-            "incompatible" : {
-                "error": "Hello World",
-            }
+        "is_compatible": false,
+        "report": {
+            "type" : "incompatible",
+            "error": "Hello World",
         },
     });
 
@@ -99,11 +102,10 @@ fn event_failure_with_message() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": false,
-        "compatibility_report": {
-            "incompatible" : {
-                "error": "Hello World",
-            }
+        "is_compatible": false,
+        "report": {
+            "type" : "incompatible",
+            "error": "Hello World",
         },
     });
 
@@ -131,12 +133,12 @@ fn handler_failure_without_message() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": false,
-        "compatibility_report": {
-            "incompatible" : {
-                "error": null,
-            }
+        "is_compatible": false,
+        "report": {
+            "type" : "incompatible",
+            "error": null,
         },
+
     });
 
     assert_eq!(actual, expected);
@@ -154,11 +156,10 @@ fn event_failure_without_message() {
             "target": "my-target",
             "version": "1.2.3",
         },
-        "decision": false,
-        "compatibility_report": {
-            "incompatible" : {
-                "error" : null,
-            }
+        "is_compatible": false,
+        "report": {
+            "type" : "incompatible",
+            "error": null,
         },
     });
 
