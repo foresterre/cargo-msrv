@@ -176,8 +176,32 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"check_result","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"is_compatible":false,"report":{"type":"incompatible","error":"error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n"}}
 ```
 
-
 ## Event: AuxiliaryOutput
+
+**type:** auxiliary_output
+
+**description:** Reports about additional output written by `cargo-msrv` when applicable. For example, if the
+`--write-msrv` or `--write-toolchain-file` flag is provided, the MSRV will be written to the Cargo manifest or the
+Rust toolchain file respectively. The act of writing this (additional) output is reported by this event.
+
+**fields:**
+
+| name             | optional | condition                       | description                                                                                      |
+|------------------|----------|---------------------------------|--------------------------------------------------------------------------------------------------|
+| destination      | no       |                                 | The destination of the auxiliary output                                                          |
+| destination.type | no       |                                 | Type of destination, currently only "file"                                                       |
+| destination.path | no       | if destination.type = `file`    | Path of the written or amended file                                                              |
+| item             | no       |                                 | What kind of output is written                                                                   |
+| item.type        | no       |                                 | Type of output item                                                                              |
+| item.kind        | no       | if item.type = `msrv`           | To which field the MSRV was written in the Cargo manifest, "rust-version" or "metadata_fallback" |
+| item.kind        | no       | if item.type = `toolchain_file` | Which toolchain file kind was written, "legacy" or "toml"                                        |
+
+
+**example:**
+
+```json lines
+{"type":"auxiliary_output","destination":{"type":"file","path":"..\\air3\\Cargo.toml"},"item":{"type":"msrv","kind":"rust_version"}}
+```
 
 ## Event: Progress
 
