@@ -235,6 +235,23 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;rustup_run&quot;:{&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3\\&quot;}}}
 </code></pre>
 <h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: CheckResult</a></h2>
+<p><strong>type:</strong> check_result</p>
+<p><strong>description:</strong> Reports the result of a <code>cargo-msrv</code> compatibility check.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
+<tr><td>toolchain</td><td>no</td><td></td><td>The toolchain to be located or installed</td></tr>
+<tr><td>toolchain.version</td><td>no</td><td></td><td>The Rust version of the toolchain</td></tr>
+<tr><td>toolchain.target</td><td>no</td><td></td><td>The target-triple of the toolchain</td></tr>
+<tr><td>is_compatible</td><td>no</td><td></td><td>Boolean value stating compatibility</td></tr>
+<tr><td>report</td><td>no</td><td></td><td>Report about the compatibility</td></tr>
+<tr><td>report.type</td><td>no</td><td></td><td>Type of the report, &quot;compatible&quot; or &quot;incompatible&quot;</td></tr>
+<tr><td>report.error</td><td>yes</td><td>if report.type = <code>incompatible</code></td><td>Error message of the compatibility check</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true,&quot;report&quot;:{&quot;type&quot;:&quot;compatible&quot;}}
+</code></pre>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;report&quot;:{&quot;type&quot;:&quot;incompatible&quot;,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}}
+</code></pre>
 <h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: AuxiliaryOutput</a></h2>
 <h2 id="event-progress"><a class="header" href="#event-progress">Event: Progress</a></h2>
 <h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
