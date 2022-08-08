@@ -7,24 +7,24 @@ use crate::toolchain::OwnedToolchainSpec;
 #[serde(rename_all = "snake_case")]
 pub struct Compatibility {
     toolchain: OwnedToolchainSpec,
-    decision: bool,
-    compatibility_report: CompatibilityReport,
+    is_compatible: bool,
+    report: CompatibilityReport,
 }
 
 impl Compatibility {
     pub fn compatible(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
             toolchain: toolchain.into(),
-            decision: true,
-            compatibility_report: CompatibilityReport::Compatible,
+            is_compatible: true,
+            report: CompatibilityReport::Compatible,
         }
     }
 
     pub fn incompatible(toolchain: impl Into<OwnedToolchainSpec>, error: Option<String>) -> Self {
         Self {
             toolchain: toolchain.into(),
-            decision: false,
-            compatibility_report: CompatibilityReport::Incompatible {
+            is_compatible: false,
+            report: CompatibilityReport::Incompatible {
                 error: error.map(Into::into),
             },
         }
@@ -35,16 +35,17 @@ impl Compatibility {
     }
 
     pub fn is_compatible(&self) -> bool {
-        self.decision
+        self.is_compatible
     }
 
-    pub fn compatibility_report(&self) -> &CompatibilityReport {
-        &self.compatibility_report
+    pub fn report(&self) -> &CompatibilityReport {
+        &self.report
     }
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
 pub enum CompatibilityReport {
     Compatible,
     Incompatible { error: Option<String> },
