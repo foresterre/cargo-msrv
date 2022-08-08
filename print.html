@@ -268,7 +268,40 @@ printing debug (i.e. developer) output only, so the debug output is not overwrit
 <li><a href="output-formats/no-user-output.html">no-user-output</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-human"><a class="header" href="#output-format-human">Output format: human</a></h1>
-<p>🚧 TODO 🚧</p>
+<p>This is the default output format. It can also be specified using the <code>--output-format human</code> option.</p>
+<p>The output of the 'human' output format is intended to be interpreted by humans. It uses colour and custom printed
+layouts to convey its information to the user. </p>
+<h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
+<p>The output shows for each checked toolchain whether it is determined to be compatible or not.
+Upon completion, a summary is shown which contains information on the search space considered, the search method used,
+the compiler target and of course the MSRV.</p>
+<h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
+<p>In this example, we'll try to find the MSRV for an example project.</p>
+<p>TODO screencast</p>
+<p>From the above summary, we can determine that the MSRV is <code>1.42</code>.</p>
+<h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
+<p>This example showcases a case where there's no valid MSRV.</p>
+<p>TODO screencast</p>
+<p>From the error message we learn that this is because of a nightly compiler feature, which is not available on stable.</p>
+<h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
+<p>TODO</p>
+<h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
+<p>TODO</p>
+<h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
+<p>TODO example</p>
+<h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
+<p>TODO</p>
+<h3 id="example-1-2"><a class="header" href="#example-1-2">Example 1</a></h3>
+<p>TODO example</p>
+<h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
+<p>TODO example</p>
+<h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
+<p>TODO</p>
+<h3 id="example-1-3"><a class="header" href="#example-1-3">Example 1</a></h3>
+<p>TODO example</p>
+<h3 id="example-2-2"><a class="header" href="#example-2-2">Example 2</a></h3>
+<p>TODO example</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-json"><a class="header" href="#output-format-json">Output format: json</a></h1>
 <p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, altough
 humans may also use it, as it provides the most detailed output of all supported output formats.</p>
@@ -372,12 +405,12 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
 <h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: SubcommandResult</a></h2>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: TerminateWithFailure</a></h2>
-<h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
-<h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
-<h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
-<h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
-<h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
-<h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
+<h1 id="output-by-subcommand-1"><a class="header" href="#output-by-subcommand-1">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find-1"><a class="header" href="#cargo-msrv-find-1"># cargo msrv (find)</a></h2>
+<h2 id="cargo-msrv-list-1"><a class="header" href="#cargo-msrv-list-1"># cargo msrv list</a></h2>
+<h2 id="cargo-msrv-set-1"><a class="header" href="#cargo-msrv-set-1"># cargo msrv set</a></h2>
+<h2 id="cargo-msrv-show-1"><a class="header" href="#cargo-msrv-show-1"># cargo msrv show</a></h2>
+<h2 id="cargo-msrv-verify-1"><a class="header" href="#cargo-msrv-verify-1"># cargo msrv verify</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-minimal"><a class="header" href="#output-format-minimal">Output format: minimal</a></h1>
 <p>The purpose of the <code>minimal</code> output format option is to provide just enough output for a machine (or shell script!)
 to be understandable, while not requiring elaborate parsers like the <code>json</code> output format. It may also be used as
@@ -391,37 +424,37 @@ to <code>stderr</code>.</li>
 </ul>
 <p>You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.</p>
-<h1 id="output-by-subcommand-1"><a class="header" href="#output-by-subcommand-1">Output by subcommand</a></h1>
-<h2 id="cargo-msrv-find-1"><a class="header" href="#cargo-msrv-find-1"># cargo msrv (find)</a></h2>
+<h1 id="output-by-subcommand-2"><a class="header" href="#output-by-subcommand-2">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find-2"><a class="header" href="#cargo-msrv-find-2"># cargo msrv (find)</a></h2>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
 If it could not be found, we report <code>none</code> instead, and write this value to <code>stderr</code>.</p>
-<h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
+<h3 id="example-1-4"><a class="header" href="#example-1-4">Example 1</a></h3>
 <p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>. </p>
 <pre><code class="language-shell">$ cargo msrv --output-format minimal
 # stdout
 1.60.0
 </code></pre>
-<h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
+<h3 id="example-2-3"><a class="header" href="#example-2-3">Example 2</a></h3>
 <p>If the MSRV can't be found, for example if your project requires a nightly compiler feature
 or has incorrect syntax, the output will be <code>none</code>. </p>
 <pre><code class="language-shell">$ cargo msrv --output-format minimal
 # stderr
 none
 </code></pre>
-<h2 id="cargo-msrv-list-1"><a class="header" href="#cargo-msrv-list-1"># cargo msrv list</a></h2>
+<h2 id="cargo-msrv-list-2"><a class="header" href="#cargo-msrv-list-2"># cargo msrv list</a></h2>
 <p>The <code>list</code> subcommand is not supported by the <code>minimal</code> output format, and &quot;unsupported&quot; will be printed.
 Support may be added in the future.</p>
-<h2 id="cargo-msrv-set-1"><a class="header" href="#cargo-msrv-set-1"># cargo msrv set</a></h2>
+<h2 id="cargo-msrv-set-2"><a class="header" href="#cargo-msrv-set-2"># cargo msrv set</a></h2>
 <p>The <code>set</code> subcommand prints the version set as MSRV.</p>
-<h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
+<h3 id="example-1-5"><a class="header" href="#example-1-5">Example 1</a></h3>
 <p>If we set our MSRV to be <code>1.31</code>, the output will be <code>1.31</code>.</p>
 <pre><code class="language-shell">cargo msrv --output-format minimal set 1.31
 # stdout
 1.31
 </code></pre>
-<h2 id="cargo-msrv-show-1"><a class="header" href="#cargo-msrv-show-1"># cargo msrv show</a></h2>
+<h2 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2"># cargo msrv show</a></h2>
 <p>The <code>show</code> subcommand prints the detected MSRV, if specified in the Cargo Manifest.</p>
-<h3 id="example-1-2"><a class="header" href="#example-1-2">Example 1</a></h3>
+<h3 id="example-1-6"><a class="header" href="#example-1-6">Example 1</a></h3>
 <p>Assuming our Cargo manifest contains a <code>1.60</code> MSRV, <code>cargo-msrv</code> will print <code>1.60</code>.</p>
 <p><strong>Cargo.toml</strong></p>
 <pre><code class="language-toml">[package]
@@ -432,7 +465,7 @@ rust-version = &quot;1.60&quot;
 # stdout
 1.60
 </code></pre>
-<h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
+<h3 id="example-2-4"><a class="header" href="#example-2-4">Example 2</a></h3>
 <p>Assuming our Cargo manifest lists the MSRV in the <code>package.metadata.msrv</code> field, <code>cargo-msrv</code> will print <code>1.21.0</code>.
 The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the <code>package.metadata.msrv</code>
 key for crates which use a Cargo version which does not yet support the <code>package.rust-version</code> field. <code>cargo-msrv</code>
@@ -446,10 +479,10 @@ msrv = &quot;1.21.0&quot;
 # stdout
 1.21.0
 </code></pre>
-<h2 id="cargo-msrv-verify-1"><a class="header" href="#cargo-msrv-verify-1"># cargo msrv verify</a></h2>
+<h2 id="cargo-msrv-verify-2"><a class="header" href="#cargo-msrv-verify-2"># cargo msrv verify</a></h2>
 <p>The <code>verify</code> subcommand prints <code>true</code> (to stdout) with exit code zero if checking the toolchain for this platform which
 matches the MSRV succeeds. Else, it prints <code>false</code> (to stderr) with an exit code which is non-zero.</p>
-<h3 id="example-1-3"><a class="header" href="#example-1-3">Example 1</a></h3>
+<h3 id="example-1-7"><a class="header" href="#example-1-7">Example 1</a></h3>
 <p>Assuming our Cargo manifest contains an MSRV definition in the <code>package.rust-version</code> or <code>package.metadata.msrv</code> field,
 and the compatibility check succeeds:</p>
 <pre><code class="language-toml">[package.metadata]
@@ -460,7 +493,7 @@ msrv = &quot;1.31&quot;
 # stdout
 true
 </code></pre>
-<h3 id="example-2-2"><a class="header" href="#example-2-2">Example 2</a></h3>
+<h3 id="example-2-5"><a class="header" href="#example-2-5">Example 2</a></h3>
 <p>Assuming the given crate is incompatibility with the given MSRV:</p>
 <p><strong>Shell</strong></p>
 <pre><code class="language-shell">$ cargo msrv --output-format minimal verify --rust-version 1.31
@@ -643,7 +676,7 @@ to pass the cargo-msrv check command for a crate&quot; (in its broadest sense).<
 </ol>
 <pre><code class="language-shell">cargo msrv help list # OR cargo msrv list --help
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list-2"><a class="header" href="#cargo-msrv-list-2">cargo-msrv list</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list-3"><a class="header" href="#cargo-msrv-list-3">cargo-msrv list</a></h1>
 <h1 id="command-2"><a class="header" href="#command-2">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv list [options]</code></li>
@@ -773,7 +806,7 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </code></pre>
 <p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2">cargo-msrv show</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-3"><a class="header" href="#cargo-msrv-show-3">cargo-msrv show</a></h1>
 <h1 id="command-3"><a class="header" href="#command-3">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv show</code></li>
@@ -789,7 +822,7 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </ol>
 <pre><code class="language-shell">cargo msrv show
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify-2"><a class="header" href="#cargo-msrv-verify-2">cargo-msrv verify</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify-3"><a class="header" href="#cargo-msrv-verify-3">cargo-msrv verify</a></h1>
 <h1 id="command-4"><a class="header" href="#command-4">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv verify</code></li>
