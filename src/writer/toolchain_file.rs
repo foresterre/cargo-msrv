@@ -30,7 +30,7 @@ pub fn write_toolchain_file(
     })?;
 
     reporter.report_event(AuxiliaryOutput::new(
-        Destination::File(path),
+        Destination::file(path),
         AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
     ))?;
 
@@ -218,7 +218,7 @@ channel = "1.55.77"
 
         let events = test_reporter.wait_for_events();
         let expected: Vec<Event> = vec![AuxiliaryOutput::new(
-            Destination::File(tmp.path("rust-toolchain")),
+            Destination::file(tmp.path("rust-toolchain")),
             AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
         )
         .into()];

@@ -23,12 +23,20 @@ impl From<AuxiliaryOutput> for Event {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
 pub enum Destination {
-    File(PathBuf),
+    File { path: PathBuf },
+}
+
+impl Destination {
+    pub fn file(path: PathBuf) -> Self {
+        Self::File { path }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
 pub enum Item {
     Msrv { kind: MsrvKind },
     ToolchainFile { kind: ToolchainFileKind },
@@ -77,7 +85,7 @@ mod tests {
     )]
     fn reported_action(item: Item) {
         let reporter = TestReporter::default();
-        let event = AuxiliaryOutput::new(Destination::File(Path::new("hello").to_path_buf()), item);
+        let event = AuxiliaryOutput::new(Destination::file(Path::new("hello").to_path_buf()), item);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 

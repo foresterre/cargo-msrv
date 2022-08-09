@@ -60,7 +60,7 @@ fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     })?;
 
     reporter.report_event(AuxiliaryOutput::new(
-        Destination::File(cargo_toml.to_path_buf()),
+        Destination::file(cargo_toml.to_path_buf()),
         AuxiliaryOutputItem::msrv(MsrvKind::RustVersion),
     ))?;
 
