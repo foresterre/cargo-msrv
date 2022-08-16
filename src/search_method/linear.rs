@@ -3,7 +3,7 @@ use rust_releases::Release;
 use crate::check::Check;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
-use crate::reporter::event::FindMsrv;
+use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
@@ -52,8 +52,12 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
             let mut last_compatible_index = None;
+            let total = search_space.len() as u64;
 
             for (i, release) in search_space.iter().enumerate() {
+                let current = i as u64;
+                reporter.report_event(Progress::new(current, total, current + 1))?;
+
                 let outcome = Self::run_check(self.runner, release, config, reporter)?;
 
                 match outcome {

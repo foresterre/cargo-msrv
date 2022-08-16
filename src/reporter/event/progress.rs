@@ -2,11 +2,14 @@ use crate::reporter::event::Message;
 use crate::Event;
 
 /// Progression indicates how far we are
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Progress {
+    // index of the currently running check into the sorted search space
     current: u64,
-    max: u64,
+    // size of the search space
+    search_space_size: u64,
+    // how many iterations have been completed, including the currently running one
     iteration: u64,
 }
 
@@ -17,10 +20,10 @@ impl From<Progress> for Event {
 }
 
 impl Progress {
-    pub fn new(current: u64, max: u64, iteration: u64) -> Self {
+    pub fn new(current: u64, search_space_size: u64, iteration: u64) -> Self {
         Self {
             current,
-            max,
+            search_space_size,
             iteration,
         }
     }

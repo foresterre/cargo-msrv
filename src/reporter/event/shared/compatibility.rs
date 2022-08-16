@@ -3,7 +3,7 @@ use crate::toolchain::OwnedToolchainSpec;
 /// Reports whether a crate is compatible with a certain toolchain, or not.
 /// If it's not compatible, it may specify a reason why it is not compatible.
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Compatibility {
     toolchain: OwnedToolchainSpec,
@@ -43,7 +43,7 @@ impl Compatibility {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum CompatibilityReport {
