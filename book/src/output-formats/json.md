@@ -205,6 +205,21 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 
 ## Event: Progress
 
+**type:** progress
+
+**description:** Reports on the progress of an ongoing MSRV search. 
+
+**fields:**
+
+| name              | optional | condition | description                                                                                           |
+|-------------------|----------|-----------|-------------------------------------------------------------------------------------------------------|
+| current           | no       |           | Index of the currently running check into the sorted search space. Starts at `0`.                     |
+| search_space_size | no       |           | The size of the search space.                                                                         |
+| iteration         | no       |           | How many iterations have been completed, plus one for the currently running iteration. Starts at `1`. |
+
+<!-- Future: add length of reduced set size -->
+
+
 ## Event: SubcommandInit
 
 ## Event: SubcommandResult
