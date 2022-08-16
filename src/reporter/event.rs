@@ -136,7 +136,7 @@ impl fmt::Display for Message {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, serde::Serialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EventScope {
     Start,

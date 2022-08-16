@@ -2,7 +2,7 @@ use crate::config::SearchMethod as Method;
 use crate::reporter::event::Message;
 use crate::Event;
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct FindMsrv {
     search_method: Method,

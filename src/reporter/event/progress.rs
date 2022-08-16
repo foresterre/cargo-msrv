@@ -2,7 +2,7 @@ use crate::reporter::event::Message;
 use crate::Event;
 
 /// Progression indicates how far we are
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Progress {
     // index of the currently running check into the sorted search space

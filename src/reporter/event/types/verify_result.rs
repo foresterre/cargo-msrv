@@ -4,7 +4,7 @@ use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VerifyResult {
     #[serde(flatten)]

@@ -3,7 +3,7 @@ use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct CheckMethod {
     toolchain: OwnedToolchainSpec,
@@ -25,7 +25,7 @@ impl From<CheckMethod> for Event {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Method {

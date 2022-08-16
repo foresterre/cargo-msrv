@@ -2,7 +2,7 @@ use crate::reporter::event::Message;
 use crate::Event;
 use std::path::PathBuf;
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct AuxiliaryOutput {
     destination: Destination,
@@ -21,7 +21,7 @@ impl From<AuxiliaryOutput> for Event {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Destination {
@@ -34,7 +34,7 @@ impl Destination {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Item {
@@ -52,7 +52,7 @@ impl Item {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MsrvKind {
     // The package.rust-version as supported by the Cargo Manifest format.
@@ -62,7 +62,7 @@ pub enum MsrvKind {
     MetadataFallback,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ToolchainFileKind {
     /* Legacy, : Unsupported right now */

@@ -85,7 +85,7 @@ pub fn test_config_from_cli(cli: &CargoCli) -> TResult<Config> {
     Ok(config)
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SubcommandId {
     // Determines the MSRV for a project
@@ -112,7 +112,7 @@ impl From<SubcommandId> for &'static str {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
     RustChangelog,
