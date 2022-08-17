@@ -436,6 +436,15 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;auxiliary_output&quot;,&quot;destination&quot;:{&quot;type&quot;:&quot;file&quot;,&quot;path&quot;:&quot;..\\air3\\Cargo.toml&quot;},&quot;item&quot;:{&quot;type&quot;:&quot;msrv&quot;,&quot;kind&quot;:&quot;rust_version&quot;}}
 </code></pre>
 <h2 id="event-progress"><a class="header" href="#event-progress">Event: Progress</a></h2>
+<p><strong>type:</strong> progress</p>
+<p><strong>description:</strong> Reports on the progress of an ongoing MSRV search. </p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
+<tr><td>current</td><td>no</td><td></td><td>Index of the currently running check into the sorted search space. Starts at <code>0</code>.</td></tr>
+<tr><td>search_space_size</td><td>no</td><td></td><td>The size of the search space.</td></tr>
+<tr><td>iteration</td><td>no</td><td></td><td>How many iterations have been completed, plus one for the currently running iteration. Starts at <code>1</code>.</td></tr>
+</tbody></table>
+<!-- Future: add length of reduced set size -->
 <h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
 <h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: SubcommandResult</a></h2>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: TerminateWithFailure</a></h2>
