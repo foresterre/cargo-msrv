@@ -4,7 +4,7 @@ use crate::Event;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-#[serde(tag = "type")]
+#[serde(tag = "subcommand_id")]
 pub enum SubcommandResult {
     Find(FindResult),
     List(ListResult),
