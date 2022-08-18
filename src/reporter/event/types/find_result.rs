@@ -17,7 +17,6 @@ pub struct FindResult {
     #[serde(skip)]
     pub search_method: SearchMethod,
 
-    #[serde(flatten)]
     result: ResultDetails,
 }
 
@@ -93,6 +92,7 @@ impl From<FindResult> for Event {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(untagged)]
 enum ResultDetails {
     Determined {
         version: semver::Version,

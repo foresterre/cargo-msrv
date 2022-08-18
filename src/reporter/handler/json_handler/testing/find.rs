@@ -25,8 +25,9 @@ fn compatible_handler() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "find",
-        "determined": {
+        "type": "subcommand_result",
+        "subcommand_id": "find",
+        "result": {
             "success" : true,
             "version" : "1.2.3",
         },
@@ -52,8 +53,9 @@ fn incompatible_handler() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "find",
-        "undetermined": {
+        "type": "subcommand_result",
+        "subcommand_id": "find",
+        "result": {
             "success" : false,
         },
     });
@@ -73,7 +75,7 @@ fn compatible() {
     );
 
     let expected = serde_json::json!({
-        "determined": {
+        "result": {
             "success" : true,
             "version" : "1.2.3",
         },
@@ -94,7 +96,7 @@ fn incompatible() {
     );
 
     let expected = serde_json::json!({
-        "undetermined": {
+        "result": {
             "success" : false,
         },
     });

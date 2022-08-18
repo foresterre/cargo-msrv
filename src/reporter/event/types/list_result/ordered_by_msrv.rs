@@ -67,7 +67,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 struct Values {
-    msrv: String,
+    msrv: Option<String>,
     dependencies: Vec<String>,
 }
 
@@ -75,7 +75,11 @@ impl Tabled for Values {
     const LENGTH: usize = 2;
 
     fn fields(&self) -> Vec<String> {
-        let msrv = self.msrv.to_string();
+        let msrv = self
+            .msrv
+            .as_deref()
+            .map(|s| s.to_string())
+            .unwrap_or_default();
         let deps = self.dependencies.join(", ");
 
         vec![msrv, deps]

@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Formatter;
 
 // shared
-pub use shared::{compatibility::Compatibility, compatibility::CompatibilityReport};
+pub use shared::compatibility::Compatibility;
 
 // events
 pub use auxiliary_output::{

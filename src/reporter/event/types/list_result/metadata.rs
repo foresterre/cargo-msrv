@@ -22,8 +22,8 @@ pub fn package_msrv(package: &Package) -> Option<semver::Version> {
         .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())) // todo: add last one as option to config
 }
 
-pub fn format_version(version: Option<&semver::Version>) -> String {
-    version.map(ToString::to_string).unwrap_or_default()
+pub fn format_version(version: Option<&semver::Version>) -> Option<String> {
+    version.map(ToString::to_string)
 }
 
 // Workaround: manual parsing since current (1.56) version of cargo-metadata doesn't yet output the
