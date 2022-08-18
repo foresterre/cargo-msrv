@@ -65,7 +65,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
 struct Values<'a> {
     name: &'a str,
     version: &'a crate::semver::Version,
-    msrv: String,
+    msrv: Option<String>,
     dependencies: Vec<String>,
 }
 
@@ -76,7 +76,10 @@ impl Tabled for Values<'_> {
         vec![
             self.name.to_string(),
             self.version.to_string(),
-            self.msrv.to_string(),
+            self.msrv
+                .as_deref()
+                .map(|s| s.to_string())
+                .unwrap_or_default(),
             self.dependencies.join(", "),
         ]
     }

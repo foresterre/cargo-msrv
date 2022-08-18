@@ -11,15 +11,23 @@ mod direct_deps;
 mod metadata;
 mod ordered_by_msrv;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct ListResult {
-    variant: ListMsrvVariant,
-    graph: DependencyGraph,
+    result: ResultDetails,
 }
 
 impl ListResult {
     pub fn new(variant: ListMsrvVariant, graph: DependencyGraph) -> Self {
-        Self { variant, graph }
+        Self {
+            result: ResultDetails { variant, graph },
+        }
+    }
+}
+
+impl ToString for ListResult {
+    fn to_string(&self) -> String {
+        self.result.to_string()
     }
 }
 
@@ -35,7 +43,13 @@ impl From<ListResult> for Event {
     }
 }
 
-impl ToString for ListResult {
+#[derive(Clone, Debug, PartialEq)]
+struct ResultDetails {
+    variant: ListMsrvVariant,
+    graph: DependencyGraph,
+}
+
+impl ToString for ResultDetails {
     fn to_string(&self) -> String {
         match self.variant {
             ListMsrvVariant::DirectDeps => DirectDepsFormatter::new(&self.graph).to_string(),
@@ -44,7 +58,7 @@ impl ToString for ListResult {
     }
 }
 
-impl serde::Serialize for ListResult {
+impl serde::Serialize for ResultDetails {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

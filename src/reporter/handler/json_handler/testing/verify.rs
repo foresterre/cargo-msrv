@@ -24,15 +24,15 @@ fn handler_success() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "verify",
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": true,
-        "report": {
-            "type": "compatible",
-        },
+        "type": "subcommand_result",
+        "subcommand_id": "verify",
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": true,
+        }
     });
 
     assert_eq!(actual, expected);
@@ -46,14 +46,13 @@ fn event_success() {
     ));
 
     let expected = serde_json::json!({
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": true,
-        "report": {
-            "type": "compatible",
-        },
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": true,
+        }
     });
 
     let actual = serde_json::to_value(event).unwrap();
@@ -75,16 +74,16 @@ fn handler_failure_with_message() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "verify",
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": false,
-        "report": {
-            "type" : "incompatible",
+        "type": "subcommand_result",
+        "subcommand_id": "verify",
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": false,
             "error": "Hello World",
-        },
+        }
     });
 
     assert_eq!(actual, expected);
@@ -98,15 +97,14 @@ fn event_failure_with_message() {
     );
 
     let expected = serde_json::json!({
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": false,
-        "report": {
-            "type" : "incompatible",
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": false,
             "error": "Hello World",
-        },
+        }
     });
 
     let actual = serde_json::to_value(event).unwrap();
@@ -128,17 +126,15 @@ fn handler_failure_without_message() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "verify",
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": false,
-        "report": {
-            "type" : "incompatible",
-            "error": null,
-        },
-
+        "type": "subcommand_result",
+        "subcommand_id": "verify",
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": false,
+        }
     });
 
     assert_eq!(actual, expected);
@@ -152,15 +148,13 @@ fn event_failure_without_message() {
     );
 
     let expected = serde_json::json!({
-        "toolchain": {
-            "target": "my-target",
-            "version": "1.2.3",
-        },
-        "is_compatible": false,
-        "report": {
-            "type" : "incompatible",
-            "error": null,
-        },
+        "result": {
+            "toolchain": {
+                "target": "my-target",
+                "version": "1.2.3",
+            },
+            "is_compatible": false,
+        }
     });
 
     let actual = serde_json::to_value(event).unwrap();

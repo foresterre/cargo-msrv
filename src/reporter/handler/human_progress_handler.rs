@@ -1,7 +1,5 @@
 use crate::formatting::TermWidth;
-use crate::reporter::event::{
-    CheckResult, CheckToolchain, CompatibilityReport, FindResult, Message, SubcommandResult,
-};
+use crate::reporter::event::{CheckResult, CheckToolchain, FindResult, Message, SubcommandResult};
 use crate::{semver, Event, SubcommandId};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
@@ -93,7 +91,7 @@ impl EventHandler for HumanProgressHandler {
                 let message = Status::fail("Is Incompatible");
                 self.pb.println(message);
 
-                if let Some(error_report) = compatibility.report().error() {
+                if let Some(error_report) = compatibility.error() {
                     self.pb.println(message_box(error_report));
                 }
             }

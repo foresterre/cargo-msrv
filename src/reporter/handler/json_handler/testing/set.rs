@@ -24,9 +24,12 @@ fn handler() {
     let actual: serde_json::Value = serde_json::from_slice(buffer.as_slice()).unwrap();
 
     let expected = serde_json::json!({
-        "type": "set",
-        "version": "1.10",
-        "manifest_path": "/hello/world"
+        "type": "subcommand_result",
+        "subcommand_id": "set",
+        "result": {
+            "version": "1.10",
+            "manifest_path": "/hello/world"
+        }
     });
 
     assert_eq!(actual, expected);
@@ -40,8 +43,10 @@ fn event() {
     );
 
     let expected = serde_json::json!({
-        "version": "1.10",
-        "manifest_path": "/hello/world"
+        "result": {
+            "version": "1.10",
+            "manifest_path": "/hello/world"
+        }
     });
 
     let actual = serde_json::to_value(event).unwrap();

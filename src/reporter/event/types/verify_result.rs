@@ -7,29 +7,28 @@ use crate::Event;
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VerifyResult {
-    #[serde(flatten)]
-    pub compatibility: Compatibility,
+    pub result: Compatibility,
 }
 
 impl VerifyResult {
     pub fn compatible(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
         Self {
-            compatibility: Compatibility::compatible(toolchain),
+            result: Compatibility::compatible(toolchain),
         }
     }
 
     pub fn incompatible(toolchain: impl Into<OwnedToolchainSpec>, error: Option<String>) -> Self {
         Self {
-            compatibility: Compatibility::incompatible(toolchain, error),
+            result: Compatibility::incompatible(toolchain, error),
         }
     }
 
     pub fn toolchain(&self) -> &OwnedToolchainSpec {
-        self.compatibility.toolchain()
+        self.result.toolchain()
     }
 
     pub fn is_compatible(&self) -> bool {
-        self.compatibility.is_compatible()
+        self.result.is_compatible()
     }
 }
 

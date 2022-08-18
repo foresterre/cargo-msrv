@@ -8,7 +8,8 @@ use crate::toolchain::OwnedToolchainSpec;
 pub struct Compatibility {
     toolchain: OwnedToolchainSpec,
     is_compatible: bool,
-    report: CompatibilityReport,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
 }
 
 impl Compatibility {
@@ -16,7 +17,7 @@ impl Compatibility {
         Self {
             toolchain: toolchain.into(),
             is_compatible: true,
-            report: CompatibilityReport::Compatible,
+            error: None,
         }
     }
 
@@ -24,9 +25,7 @@ impl Compatibility {
         Self {
             toolchain: toolchain.into(),
             is_compatible: false,
-            report: CompatibilityReport::Incompatible {
-                error: error.map(Into::into),
-            },
+            error,
         }
     }
 
@@ -38,24 +37,7 @@ impl Compatibility {
         self.is_compatible
     }
 
-    pub fn report(&self) -> &CompatibilityReport {
-        &self.report
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-#[serde(tag = "type")]
-pub enum CompatibilityReport {
-    Compatible,
-    Incompatible { error: Option<String> },
-}
-
-impl CompatibilityReport {
     pub fn error(&self) -> Option<&str> {
-        match self {
-            Self::Compatible => None,
-            Self::Incompatible { error } => error.as_deref(),
-        }
+        self.error.as_deref()
     }
 }

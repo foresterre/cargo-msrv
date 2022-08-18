@@ -7,24 +7,25 @@ use std::path::{Path, PathBuf};
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ShowResult {
-    version: BareVersion,
-    manifest_path: PathBuf,
+    result: ResultDetails,
 }
 
 impl ShowResult {
     pub fn new(version: impl Into<BareVersion>, manifest_path: PathBuf) -> Self {
         Self {
-            version: version.into(),
-            manifest_path,
+            result: ResultDetails {
+                version: version.into(),
+                manifest_path,
+            },
         }
     }
 
     pub fn version(&self) -> &BareVersion {
-        &self.version
+        &self.result.version
     }
 
     pub fn manifest_path(&self) -> &Path {
-        &self.manifest_path
+        &self.result.manifest_path
     }
 }
 
@@ -38,6 +39,12 @@ impl From<ShowResult> for Event {
     fn from(it: ShowResult) -> Self {
         Message::SubcommandResult(it.into()).into()
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+struct ResultDetails {
+    version: BareVersion,
+    manifest_path: PathBuf,
 }
 
 #[cfg(test)]
