@@ -243,14 +243,12 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>toolchain.version</td><td>no</td><td></td><td>The Rust version of the toolchain</td></tr>
 <tr><td>toolchain.target</td><td>no</td><td></td><td>The target-triple of the toolchain</td></tr>
 <tr><td>is_compatible</td><td>no</td><td></td><td>Boolean value stating compatibility</td></tr>
-<tr><td>report</td><td>no</td><td></td><td>Report about the compatibility</td></tr>
-<tr><td>report.type</td><td>no</td><td></td><td>Type of the report, &quot;compatible&quot; or &quot;incompatible&quot;</td></tr>
-<tr><td>report.error</td><td>yes</td><td>if report.type = <code>incompatible</code></td><td>Error message of the compatibility check</td></tr>
+<tr><td>error</td><td>yes</td><td>is_compatible = <code>false</code></td><td>Error message of a failed compatibility check, if any</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true,&quot;report&quot;:{&quot;type&quot;:&quot;compatible&quot;}}
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
 </code></pre>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;report&quot;:{&quot;type&quot;:&quot;incompatible&quot;,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}}
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;}
 </code></pre>
 <h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: AuxiliaryOutput</a></h2>
 <p><strong>type:</strong> auxiliary_output</p>
@@ -281,7 +279,121 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 </tbody></table>
 <!-- Future: add length of reduced set size -->
 <h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
+<p><strong>type:</strong> subcommand_init</p>
+<p><strong>description:</strong> Reports the start of a subcommand flow.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
+<tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
+</tbody></table>
 <h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: SubcommandResult</a></h2>
+<p><strong>type:</strong> subcommand_result</p>
+<p><strong>description:</strong> Reports the outcome of a subcommand flow.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
+<tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td>result</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Result of find command</td></tr>
+<tr><td>result.success</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Whether the MSRV was found or not</td></tr>
+<tr><td>result.version</td><td>no</td><td>subcommand_id = <code>find</code> and result.success = <code>true</code></td><td>The Minimum Supported Rust Version (MSRV)</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td>result</td><td>no</td><td>subcommand_id = <code>list</code></td><td>Result of list command</td></tr>
+<tr><td>result.variant</td><td>no</td><td>subcommand_id = <code>list</code></td><td>Type of list output. Either <code>direct-deps</code> or <code>ordered-by-msrv</code>.</td></tr>
+<tr><td>result.list</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>List of direct dependencies of the selected crate</td></tr>
+<tr><td>result.list.name</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>Name of the crate</td></tr>
+<tr><td>result.list.version</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>Version of the crate</td></tr>
+<tr><td>result.list.msrv</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>MSRV of the crate if any, <code>null</code> if the MSRV is not set</td></tr>
+<tr><td>result.list.dependencies</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>Dependencies of the given crate, relevant for the MSRV</td></tr>
+<tr><td>result.list</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>ordered-by-msrv</code></td><td>List of all dependencies relevant for the MSRV, categorised by their MSRV</td></tr>
+<tr><td>result.list.msrv</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>ordered-by-msrv</code></td><td>A value for the MSRV specified by at least one crate</td></tr>
+<tr><td>result.list.dependencies</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>ordered-by-msrv</code></td><td>List of dependencies which specified the same value for the MSRV</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td>result</td><td>no</td><td>subcommand_id = <code>set</code></td><td>Result of set command</td></tr>
+<tr><td>result.version</td><td>no</td><td>subcommand_id = <code>set</code></td><td>Which version was set as MSRV</td></tr>
+<tr><td>result.manifest_path</td><td>no</td><td>subcommand_id = <code>set</code></td><td>Relative path of file where the MSRV was written to</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td>result</td><td>no</td><td>subcommand_id = <code>show</code></td><td>Result of show command</td></tr>
+<tr><td>result.version</td><td>no</td><td>subcommand_id = <code>show</code></td><td>MSRV as set for the given crate</td></tr>
+<tr><td>result.manifest_path</td><td>no</td><td>subcommand_id = <code>show</code></td><td>Relative path of file where the MSRV was read from</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td>result</td><td>no</td><td>subcommand_id = <code>verify</code></td><td>Result of verify command</td></tr>
+<tr><td>result.toolchain</td><td>no</td><td>subcommand_id = <code>verify</code></td><td>The toolchain to be located or installed</td></tr>
+<tr><td>result.toolchain.version</td><td>no</td><td>subcommand_id = <code>verify</code></td><td>The Rust version of the verified toolchain</td></tr>
+<tr><td>result.toolchain.target</td><td>no</td><td>subcommand_id = <code>verify</code></td><td>The target-triple of the verified toolchain</td></tr>
+<tr><td>result.is_compatible</td><td>no</td><td>subcommand_id = <code>verify</code></td><td>Boolean value stating compatibility</td></tr>
+<tr><td>result.error</td><td>yes</td><td>subcommand_id = <code>verify</code> and result.is_compatible = <code>false</code></td><td>Error message of a failed verify check, if any</td></tr>
+</tbody></table>
+<p><strong>example 1: find</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+</code></pre>
+<p><strong>example 2: list with direct-deps</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;: &quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
+</code></pre>
+<p>Formatted:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;direct-deps&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;crossbeam-channel&quot;,
+        &quot;version&quot;: &quot;0.5.4&quot;,
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;crossbeam-utils&quot;,
+          &quot;num_cpus&quot;,
+          &quot;rand&quot;,
+          &quot;signal-hook&quot;
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p><strong>example 3: list with ordered-by-msrv</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+</code></pre>
+<p>Formatted:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;msrv&quot;: &quot;1.38.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;storyteller&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;crossbeam-channel&quot;,
+          &quot;crossbeam-utils&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: null,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;lazy_static&quot;
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p><strong>example 5: set</strong>:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;set&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+</code></pre>
+<p><strong>example 6: show</strong>:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;show&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+</code></pre>
+<p><strong>example 7: verify</strong>:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
+</code></pre>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: TerminateWithFailure</a></h2>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
