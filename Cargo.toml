@@ -75,7 +75,7 @@ features = ["rust-releases-rust-changelog"]
 
 [dev-dependencies]
 parameterized = "0.3.1"
-yare = "1.0.1"
+yare = "1.0.2"
 phenomenon = "~1.0.0"
 test_dir = "0.2.0"
 
