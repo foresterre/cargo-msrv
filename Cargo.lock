@@ -2550,9 +2550,9 @@ checksum = "114ba2b24d2167ef6d67d7d04c8cc86522b87f490025f39f0303b7db5bf5e3d8"
 
 [[package]]
 name = "yare"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4ad6747d11cbf5d208e137fae3df5dddda24cb8ce8761f36b67503bb4f28ab7"
+checksum = "df119f412cd2150ab3e88ebee015a615b00140ff81acd07746262df4a4678c47"
 dependencies = [
  "yare-macro",
 ]
