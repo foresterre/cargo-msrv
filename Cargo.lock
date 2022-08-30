@@ -2330,9 +2330,9 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "vergen"
-version = "7.4.0"
+version = "7.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ffa80ed519f45995741e70664d4abcf147d2a47b8c7ea0a4aa495548ef9474f"
+checksum = "83d00118b08fb5c40b58177a494dfc8a34b43ba0757938e98e87ed11b9c58485"
 dependencies = [
  "anyhow",
  "cfg-if",
