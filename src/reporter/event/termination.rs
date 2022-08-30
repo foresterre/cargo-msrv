@@ -6,26 +6,26 @@ use crate::{CargoMSRVError, Event};
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct TerminateWithFailure {
-    // Not all failure terminations are errors, for example, if we fail to verify we want to exit
-    // with a non-zero exit code i.e. 'Terminate with failure',
-    is_error: bool,
+    // Whether the reason should be highlighted or not.
+    #[serde(skip)]
+    highlight: bool,
     reason: SerializableReason,
 }
 
 impl TerminateWithFailure {
     pub fn new(error: CargoMSRVError) -> Self {
-        let is_error = matches!(error, CargoMSRVError::UnableToFindAnyGoodVersion { .. });
+        let highlight = matches!(error, CargoMSRVError::UnableToFindAnyGoodVersion { .. });
 
         Self {
-            is_error,
+            highlight,
             reason: SerializableReason {
                 description: format!("{}", &error),
             },
         }
     }
 
-    pub fn is_error(&self) -> bool {
-        self.is_error
+    pub fn should_highlight(&self) -> bool {
+        self.highlight
     }
 
     pub fn as_message(&self) -> &str {
@@ -64,7 +64,7 @@ mod tests {
         assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
 
         if let Message::TerminateWithFailure(msg) = &events[0].message {
-            assert!(!msg.is_error());
+            assert!(!msg.should_highlight());
             assert_eq!(msg.as_message(), "Unable to print event output");
         }
     }
@@ -83,7 +83,7 @@ mod tests {
         assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
 
         if let Message::TerminateWithFailure(msg) = &events[0].message {
-            assert!(msg.is_error());
+            assert!(msg.should_highlight());
             assert!(msg
                 .as_message()
                 .starts_with("Unable to find a Minimum Supported Rust Version (MSRV)"));

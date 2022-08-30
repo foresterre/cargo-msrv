@@ -96,10 +96,10 @@ impl EventHandler for HumanProgressHandler {
                 }
             }
             Message::SubcommandResult(result) => self.handle_subcommand_result(result),
-            Message::TerminateWithFailure(termination) if termination.is_error() => {
+            Message::TerminateWithFailure(termination) if termination.should_highlight() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().red()));
             }
-            Message::TerminateWithFailure(termination) if !termination.is_error() => {
+            Message::TerminateWithFailure(termination) if !termination.should_highlight() => {
                 self.pb.println(format!("\n\n{}", termination.as_message().dimmed().bold()));
             }
             _ => {}
