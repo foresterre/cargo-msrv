@@ -11,7 +11,6 @@ use storyteller::EventHandler;
 use tabled::object::Segment;
 use tabled::width::Percent;
 use tabled::{Alignment, Disable, Header, Margin, Modify, Style, Table, Width};
-use thiserror::private::PathAsDisplay;
 
 pub struct HumanProgressHandler {
     pb: indicatif::ProgressBar,
