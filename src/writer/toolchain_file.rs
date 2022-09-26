@@ -3,7 +3,7 @@ use crate::error::IoErrorSource;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::{semver, CargoMSRVError, Config, TResult};
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -17,7 +17,7 @@ const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 //     - in reverse: use the values from rust-toolchain file to auto configure config
 pub fn write_toolchain_file(
     config: &Config,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
     stable_version: &semver::Version,
 ) -> TResult<()> {
     let path_prefix = config.context().crate_root_path()?;
@@ -75,7 +75,7 @@ mod write_toolchain_file_tests {
     use crate::reporter::event::{
         AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
     };
-    use crate::reporter::{FakeTestReporter, TestReporter};
+    use crate::reporter::{FakeTestReporter, TestReporterWrapper};
     use crate::writer::toolchain_file::write_toolchain_file;
     use crate::{semver, CargoMSRVError, Event, SubcommandId};
     use test_dir::{DirBuilder, FileType, TestDir};
@@ -211,7 +211,7 @@ channel = "1.55.77"
             .crate_path(Some(crate_path))
             .build();
 
-        let test_reporter = TestReporter::default();
+        let test_reporter = TestReporterWrapper::default();
         let version = semver::Version::new(2, 0, 5);
 
         write_toolchain_file(&config, test_reporter.reporter(), &version).unwrap();

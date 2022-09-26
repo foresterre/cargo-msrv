@@ -26,13 +26,13 @@ impl From<CheckToolchain> for Event {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::semver;
     use storyteller::Reporter;
 
     #[test]
     fn reported_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = CheckToolchain::new(OwnedToolchainSpec::new(
             &semver::Version::new(1, 2, 3),
             "test_target",
@@ -42,7 +42,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::CheckToolchain(event)),]
+            vec![Event::unscoped(Message::CheckToolchain(event)),]
         );
     }
 }

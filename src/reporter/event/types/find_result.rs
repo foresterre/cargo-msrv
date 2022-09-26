@@ -107,13 +107,13 @@ enum ResultDetails {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::SubcommandId;
     use storyteller::Reporter;
 
     #[test]
     fn reported_msrv_determined_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let config = Config::new(SubcommandId::Find, "".to_string());
         let version = semver::Version::new(1, 3, 0);
         let min = BareVersion::TwoComponents(1, 0);
@@ -126,7 +126,7 @@ mod tests {
         let events = reporter.wait_for_events();
         assert_eq!(
             &events,
-            &[Event::new(Message::SubcommandResult(
+            &[Event::unscoped(Message::SubcommandResult(
                 SubcommandResult::Find(event)
             ))]
         );
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn reported_msrv_undetermined_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let config = Config::new(SubcommandId::Find, "".to_string());
         let min = BareVersion::TwoComponents(1, 0);
         let max = BareVersion::ThreeComponents(1, 4, 0);
@@ -151,7 +151,7 @@ mod tests {
         let events = reporter.wait_for_events();
         assert_eq!(
             &events,
-            &[Event::new(Message::SubcommandResult(
+            &[Event::unscoped(Message::SubcommandResult(
                 SubcommandResult::Find(event)
             ))]
         );

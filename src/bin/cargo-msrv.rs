@@ -14,7 +14,7 @@ use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
     DiscardOutputHandler, HumanProgressHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
 };
-use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
+use cargo_msrv::reporter::{Event, EventReporter, TerminateWithFailure};
 use cargo_msrv::run_app;
 
 fn main() {
@@ -80,7 +80,7 @@ fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
 /// Get the exit code from the result of the program's main work unit.
 fn get_exit_code(
     result: Result<(), CargoMSRVError>,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
 ) -> Result<ExitCode, InstanceError> {
     Ok(match result {
         Ok(_) => ExitCode::Success,
@@ -142,7 +142,7 @@ impl From<OutputFormat> for WrappingHandler {
 
 /// Disconnect the reporter, signalling that the program is finished, and we can now finish
 /// up processing the last user output events.
-fn disconnect_reporter(reporter: impl Reporter) -> Result<(), InstanceError> {
+fn disconnect_reporter(reporter: impl EventReporter) -> Result<(), InstanceError> {
     reporter
         .disconnect()
         .map_err(|_| InstanceError::StorytellerDisconnect)?;

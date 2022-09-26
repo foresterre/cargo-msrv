@@ -73,7 +73,7 @@ pub enum ToolchainFileKind {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::Event;
     use std::path::Path;
     use storyteller::Reporter;
@@ -84,14 +84,14 @@ mod tests {
         toolchain_file_toml = { Item::toolchain_file(ToolchainFileKind::Toml) },
     )]
     fn reported_action(item: Item) {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = AuxiliaryOutput::new(Destination::file(Path::new("hello").to_path_buf()), item);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::AuxiliaryOutput(event)),]
+            vec![Event::unscoped(Message::AuxiliaryOutput(event)),]
         );
     }
 }

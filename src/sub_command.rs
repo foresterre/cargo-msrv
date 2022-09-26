@@ -5,7 +5,7 @@
 /// * Run `cargo msrv verify` on the CI, to verify the crates MSRV is acceptable.
 pub use {find::Find, list::List, set::Set, show::Show, verify::Verify};
 
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::{Config, TResult};
 
 pub(crate) mod find;
@@ -21,5 +21,5 @@ pub trait SubCommand {
     type Output;
 
     /// Run the sub-command
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output>;
+    fn run(&self, config: &Config, reporter: &impl EventReporter) -> TResult<Self::Output>;
 }

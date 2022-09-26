@@ -110,7 +110,7 @@ mod tests {
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
-    use crate::reporter::{Message, ReporterSetup, TestReporter};
+    use crate::reporter::{Message, ReporterSetup, TestReporterWrapper};
     use crate::toolchain::OwnedToolchainSpec;
     use crate::{semver, Config, Event, SubcommandId};
     use cargo_metadata::PackageId;

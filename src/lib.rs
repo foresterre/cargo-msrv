@@ -26,7 +26,7 @@ use crate::check::RustupToolchainCheck;
 use crate::config::{Config, ReleaseSource, SubcommandId};
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{FetchIndex, Meta, SubcommandInit};
-use crate::reporter::{Event, Reporter};
+use crate::reporter::{Event, EventReporter};
 
 pub mod check;
 pub mod cli;
@@ -55,7 +55,7 @@ pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
 pub(crate) mod writer;
 
-pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+pub fn run_app(config: &Config, reporter: &impl EventReporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
 
     let subcommand_id = config.subcommand_id();
@@ -92,7 +92,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     Ok(())
 }
 
-fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
+fn fetch_index(config: &Config, reporter: &impl EventReporter) -> TResult<ReleaseIndex> {
     reporter.run_scoped_event(FetchIndex::new(config.release_source()), || {
         let source = config.release_source();
 

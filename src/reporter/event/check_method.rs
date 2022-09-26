@@ -53,7 +53,7 @@ impl Method {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::semver;
     use storyteller::Reporter;
 
@@ -63,7 +63,7 @@ mod tests {
         test_runner = { Method::TestRunner },
     )]
     fn reported_event(method: Method) {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = CheckMethod::new(
             OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
             method,
@@ -73,7 +73,7 @@ mod tests {
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::CheckMethod(event)),]
+            vec![Event::unscoped(Message::CheckMethod(event)),]
         );
     }
 }

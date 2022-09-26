@@ -8,7 +8,7 @@ use crate::error::{CargoMSRVError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::reporter::event::ShowResult;
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::SubCommand;
 
 #[derive(Default)]
@@ -17,12 +17,12 @@ pub struct Show;
 impl SubCommand for Show {
     type Output = ();
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
+    fn run(&self, config: &Config, reporter: &impl EventReporter) -> TResult<Self::Output> {
         show_msrv(config, reporter)
     }
 }
 
-fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+fn show_msrv(config: &Config, reporter: &impl EventReporter) -> TResult<()> {
     let cargo_toml = config.context().manifest_path()?;
 
     let contents = std::fs::read_to_string(cargo_toml).map_err(|error| CargoMSRVError::Io {

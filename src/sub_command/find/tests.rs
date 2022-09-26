@@ -2,7 +2,7 @@ use super::*;
 use crate::check::TestRunner;
 use crate::config::ConfigBuilder;
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::TestReporter;
+use crate::reporter::TestReporterWrapper;
 use crate::{Event, SubcommandId};
 use rust_releases::semver;
 use std::iter::FromIterator;
@@ -33,7 +33,7 @@ fn bisect_find_only_last() {
     ]);
 
     let config = Config::new(SubcommandId::Find, "".to_string());
-    let reporter = TestReporter::default();
+    let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok(&[semver::Version::new(1, 56, 0)]);
 
     let cmd = Find::new(&index, runner);
@@ -63,7 +63,7 @@ fn bisect_find_all_compatible() {
     ]);
 
     let config = Config::new(SubcommandId::Find, "".to_string());
-    let reporter = TestReporter::default();
+    let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok(&[
         semver::Version::new(1, 56, 0),
         semver::Version::new(1, 55, 0),
@@ -99,7 +99,7 @@ fn bisect_none_compatible() {
     ]);
 
     let config = Config::new(SubcommandId::Find, "".to_string());
-    let reporter = TestReporter::default();
+    let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok(&[]);
 
     let cmd = Find::new(&index, runner);
@@ -140,7 +140,7 @@ fn no_releases_available() {
         .maximum_version(max.clone())
         .build();
 
-    let reporter = TestReporter::default();
+    let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok(&[]);
 
     let cmd = Find::new(&index, runner);
