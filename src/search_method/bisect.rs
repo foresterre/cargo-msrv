@@ -6,7 +6,7 @@ use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
@@ -24,7 +24,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        _reporter: &impl Reporter,
+        _reporter: &impl EventReporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         match runner.check(config, &toolchain) {
@@ -40,7 +40,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         iteration: u64,
         total: u64,
         indices: Indices,
-        reporter: &impl Reporter,
+        reporter: &impl EventReporter,
     ) -> TResult<()> {
         let current = indices.middle() as u64;
 
@@ -68,7 +68,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
         &self,
         search_space: &[Release],
         config: &Config,
-        reporter: &impl Reporter,
+        reporter: &impl EventReporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
             let searcher = Bisector::new(search_space);
@@ -136,7 +136,7 @@ mod tests {
     use rust_releases::Release;
 
     use crate::check::TestRunner;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::search_method::FindMinimalSupportedRustVersion;
     use crate::semver::Version;
     use crate::{semver, Config, SubcommandId};
@@ -341,7 +341,7 @@ mod tests {
         let runner = TestRunner::with_ok(accept);
         let bisect = Bisect::new(&runner);
 
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let result = bisect
             .find_toolchain(search_space, &fake_config(), reporter.reporter())

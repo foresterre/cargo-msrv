@@ -5,16 +5,16 @@ use crate::error::IoErrorSource;
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::toolchain::ToolchainSpec;
-use crate::{CargoMSRVError, Config, Outcome, Reporter, TResult};
+use crate::{CargoMSRVError, Config, EventReporter, Outcome, TResult};
 use once_cell::unsync::OnceCell;
 use std::path::{Path, PathBuf};
 
-pub struct RustupToolchainCheck<'reporter, R: Reporter> {
+pub struct RustupToolchainCheck<'reporter, R: EventReporter> {
     reporter: &'reporter R,
     lockfile_path: OnceCell<PathBuf>,
 }
 
-impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
+impl<'reporter, R: EventReporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         self.reporter
             .run_scoped_event(CheckToolchain::new(toolchain.to_owned()), || {
@@ -50,7 +50,7 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     }
 }
 
-impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
+impl<'reporter, R: EventReporter> RustupToolchainCheck<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
         Self {
             reporter,

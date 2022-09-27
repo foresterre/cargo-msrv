@@ -3,7 +3,9 @@
 // * Requires: traits for Check, Output etc. to be separated to a library crate as
 //      well.
 
-use cargo_msrv::reporter::Event;
+use cargo_msrv::reporter::{
+    Event, EventReporter, Marker, Scope, ScopeGenerator, SupplyScopeGenerator,
+};
 use std::sync::{Arc, Mutex, MutexGuard};
 use storyteller::{
     event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventHandler,
@@ -12,6 +14,7 @@ use storyteller::{
 
 pub struct IntegrationTestReporter {
     inner: ChannelReporter<Event>,
+    id_gen: IntegrationTestScopeGenerator,
 }
 
 impl Reporter for IntegrationTestReporter {
@@ -31,7 +34,27 @@ impl IntegrationTestReporter {
     pub fn new(sender: EventSender<Event>) -> Self {
         Self {
             inner: ChannelReporter::new(sender),
+            id_gen: IntegrationTestScopeGenerator::default(),
         }
+    }
+}
+
+impl SupplyScopeGenerator for IntegrationTestReporter {
+    type ScopeGen = IntegrationTestScopeGenerator;
+
+    fn scope_generator(&self) -> &Self::ScopeGen {
+        &self.id_gen
+    }
+}
+
+#[derive(Default)]
+pub struct IntegrationTestScopeGenerator;
+
+impl ScopeGenerator for IntegrationTestScopeGenerator {
+    fn generate(&self) -> (Scope, Scope) {
+        let id = 0;
+
+        (Scope::new(id, Marker::Start), Scope::new(id, Marker::End))
     }
 }
 
@@ -80,7 +103,7 @@ impl EventTestDevice {
         handler.unwrap_events()
     }
 
-    pub fn reporter(&self) -> &impl Reporter<Event = Event, Err = ReporterError<Event>> {
+    pub fn reporter(&self) -> &impl EventReporter {
         &self.reporter
     }
 }

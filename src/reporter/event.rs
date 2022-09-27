@@ -1,6 +1,12 @@
 use std::fmt;
 use std::fmt::Formatter;
 
+// internals defining an event
+pub use scope::{Marker, Scope, ScopeCounter, ScopeGenerator, SupplyScopeGenerator};
+
+#[cfg(test)]
+pub use scope::TestScopeGenerator;
+
 // shared
 pub use shared::compatibility::Compatibility;
 
@@ -25,6 +31,9 @@ pub use types::{
     find_result::FindResult, list_result::ListResult, set_result::SetResult,
     show_result::ShowResult, verify_result::VerifyResult,
 };
+
+// internals defining an event
+mod scope;
 
 // shared
 mod shared;
@@ -52,31 +61,58 @@ pub struct Event {
     #[serde(flatten)]
     message: Message,
     #[serde(skip_serializing_if = "Option::is_none")]
-    scope: Option<EventScope>,
+    scope: Option<Scope>,
 }
 
 impl Event {
+    /// Create a new unscoped event.
     #[cfg(test)]
-    pub(crate) fn new(message: Message) -> Self {
+    pub(crate) fn unscoped(message: Message) -> Self {
         Self {
             message,
             scope: None,
         }
     }
 
+    /// Create a new scoped event.
+    #[cfg(test)]
+    pub(crate) fn scoped(message: Message, scope: Scope) -> Self {
+        Self {
+            message,
+            scope: Some(scope),
+        }
+    }
+
+    /// Get the context of the event.
     pub fn message(&self) -> &Message {
         &self.message
     }
 
-    pub(crate) fn with_scope(&self, scope: EventScope) -> Self {
-        let mut cloned = self.clone();
-        cloned.scope = Some(scope);
-        cloned
+    /// Return two copies of the event in its scoped form.
+    /// The first copy will be the `start` event while the second copy will be the `end` event.
+    ///
+    /// Unlike unscoped events, which are sent situationally, at one point in time, scoped events
+    /// mark a span during which an event took place and are intended to send an event at the start
+    /// of its span, and one at the end.
+    pub fn into_scoped(self, generator: &impl ScopeGenerator) -> (Self, Self) {
+        let (start_scope, end_scope) = generator.generate();
+        let (mut start_event, mut end_event) = (self.clone(), self);
+
+        start_event.scope = Some(start_scope);
+        end_event.scope = Some(end_scope);
+
+        (start_event, end_event)
     }
 
     /// Returns `true` if this is the start of the scope, _or_, if this event has no inner scope.
     pub fn is_scope_start(&self) -> bool {
-        matches!(self.scope, None | Some(EventScope::Start))
+        matches!(
+            self.scope,
+            None | Some(Scope {
+                id: _,
+                marker: Marker::Start
+            })
+        )
     }
 }
 
@@ -134,11 +170,4 @@ impl fmt::Display for Message {
     fn fmt(&self, _f: &mut Formatter<'_>) -> fmt::Result {
         Ok(())
     }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum EventScope {
-    Start,
-    End,
 }

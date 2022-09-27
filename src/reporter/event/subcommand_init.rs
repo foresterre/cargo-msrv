@@ -26,20 +26,20 @@ impl From<SubcommandInit> for Event {
 #[cfg(test)]
 mod tests {
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::{Event, SubcommandId, SubcommandInit};
     use storyteller::Reporter;
 
     #[test]
     fn reported_action() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = SubcommandInit::new(SubcommandId::Find);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::SubcommandInit(event)),]
+            vec![Event::unscoped(Message::SubcommandInit(event)),]
         );
     }
 }

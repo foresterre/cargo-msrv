@@ -4,7 +4,7 @@ use crate::check::Check;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
@@ -22,7 +22,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        _reporter: &impl Reporter,
+        _reporter: &impl EventReporter,
     ) -> TResult<Outcome> {
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
@@ -48,7 +48,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
         &self,
         search_space: &'spec [Release],
         config: &'spec Config,
-        reporter: &impl Reporter,
+        reporter: &impl EventReporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
             let mut last_compatible_index = None;
@@ -83,7 +83,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
 mod tests {
     use super::*;
     use crate::check::TestRunner;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use crate::{semver, Config, ReleaseIndex, SubcommandId};
     use rust_releases::Release;
     use std::iter::FromIterator;
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn none_supported() {
         let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let releases = vec![];
 
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn all_supported() {
         let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let releases = vec![
             Release::new_stable(semver::Version::new(1, 56, 0)),
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn most_recent_only() {
         let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 56, 0))];
 
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn least_recent_only_expects_rust_backwards_compat() {
         let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 54, 0))];
 
@@ -193,7 +193,7 @@ mod tests {
     #[test]
     fn middle_one_only_expects_rust_backwards_compat() {
         let config = Config::new(SubcommandId::Find, "my-test-target".to_string());
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let supported_releases = vec![Release::new_stable(semver::Version::new(1, 55, 0))];
 

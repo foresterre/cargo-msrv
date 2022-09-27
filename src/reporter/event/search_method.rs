@@ -26,7 +26,7 @@ impl From<FindMsrv> for Event {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use storyteller::Reporter;
 
     #[yare::parameterized(
@@ -34,14 +34,14 @@ mod tests {
         bisect = { Method::Bisect },
     )]
     fn reported_event(method: Method) {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = FindMsrv::new(method);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::FindMsrv(event)),]
+            vec![Event::unscoped(Message::FindMsrv(event)),]
         );
     }
 }

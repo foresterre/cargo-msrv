@@ -51,12 +51,12 @@ struct ResultDetails {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use storyteller::Reporter;
 
     #[test]
     fn reported_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let version = BareVersion::TwoComponents(14, 10);
         let event = SetResult::new(version, Path::new("wave").to_path_buf());
@@ -66,7 +66,7 @@ mod tests {
 
         assert_eq!(
             &events,
-            &[Event::new(Message::SubcommandResult(
+            &[Event::unscoped(Message::SubcommandResult(
                 SubcommandResult::Set(event)
             ))]
         );

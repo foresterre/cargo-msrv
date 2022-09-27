@@ -1,24 +1,25 @@
+use crate::reporter::event::{ScopeCounter, SupplyScopeGenerator, TestScopeGenerator};
 use crate::reporter::handler::TestingHandler;
-use crate::Event;
+use crate::{Event, EventReporter};
 use std::sync::Arc;
 use storyteller::{
     event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventListener,
     FinishProcessing, Reporter, ReporterError,
 };
 
-pub struct TestReporter {
-    reporter: ChannelReporter<Event>,
+pub struct TestReporterWrapper {
+    reporter: TestReporter,
     #[allow(unused)]
     listener: ChannelEventListener<Event>,
     handler: Arc<TestingHandler>,
     finalizer: ChannelFinalizeHandler,
 }
 
-impl Default for TestReporter {
+impl Default for TestReporterWrapper {
     fn default() -> Self {
         let (sender, receiver) = event_channel::<Event>();
 
-        let reporter = ChannelReporter::new(sender);
+        let reporter = TestReporter::new(ChannelReporter::new(sender));
         let listener = ChannelEventListener::new(receiver);
         let handler = Arc::new(TestingHandler::default());
         let finalizer = listener.run_handler(handler.clone());
@@ -32,7 +33,7 @@ impl Default for TestReporter {
     }
 }
 
-impl TestReporter {
+impl TestReporterWrapper {
     pub fn events(&self) -> Vec<Event> {
         self.handler
             .clone()
@@ -51,14 +52,49 @@ impl TestReporter {
         handler.unwrap_events()
     }
 
-    pub fn reporter(&self) -> &impl Reporter<Event = Event, Err = ReporterError<Event>> {
+    pub fn reporter(&self) -> &impl EventReporter {
         &self.reporter
+    }
+}
+
+struct TestReporter {
+    inner: ChannelReporter<Event>,
+    scope_generator: ScopeCounter,
+}
+
+impl TestReporter {
+    pub fn new(reporter: ChannelReporter<Event>) -> Self {
+        Self {
+            inner: reporter,
+            scope_generator: ScopeCounter::new(),
+        }
+    }
+}
+
+impl Reporter for TestReporter {
+    type Event = Event;
+    type Err = storyteller::ReporterError<Event>;
+
+    fn report_event(&self, event: impl Into<Self::Event>) -> Result<(), Self::Err> {
+        self.inner.report_event(event)
+    }
+
+    fn disconnect(self) -> Result<(), Self::Err> {
+        self.inner.disconnect()
+    }
+}
+
+impl SupplyScopeGenerator for TestReporter {
+    type ScopeGen = ScopeCounter;
+
+    fn scope_generator(&self) -> &Self::ScopeGen {
+        &self.scope_generator
     }
 }
 
 ///  A test reporter which does absolutely nothing.
 #[derive(Default)]
-pub struct FakeTestReporter;
+pub struct FakeTestReporter(TestScopeGenerator);
 
 impl Reporter for FakeTestReporter {
     type Event = Event;
@@ -70,5 +106,13 @@ impl Reporter for FakeTestReporter {
 
     fn disconnect(self) -> Result<(), Self::Err> {
         Ok(())
+    }
+}
+
+impl SupplyScopeGenerator for FakeTestReporter {
+    type ScopeGen = TestScopeGenerator;
+
+    fn scope_generator(&self) -> &Self::ScopeGen {
+        &self.0
     }
 }

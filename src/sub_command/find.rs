@@ -7,7 +7,7 @@ use crate::filter_releases::filter_releases;
 use crate::manifest::bare_version::BareVersion;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::event::FindResult;
-use crate::reporter::Reporter;
+use crate::reporter::EventReporter;
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
@@ -30,14 +30,14 @@ impl<'index, C: Check> Find<'index, C> {
 impl<'index, C: Check> SubCommand for Find<'index, C> {
     type Output = semver::Version;
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
+    fn run(&self, config: &Config, reporter: &impl EventReporter) -> TResult<Self::Output> {
         find_msrv(config, reporter, self.release_index, &self.runner)
     }
 }
 
 fn find_msrv(
     config: &Config,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
     release_index: &ReleaseIndex,
     runner: &impl Check,
 ) -> TResult<semver::Version> {
@@ -72,7 +72,7 @@ fn find_msrv(
 
 fn search(
     config: &Config,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
     index: &ReleaseIndex,
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
@@ -85,7 +85,7 @@ fn search(
 fn run_with_search_method(
     config: &Config,
     included_releases: &[Release],
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
     let search_method = config.search_method();
@@ -106,7 +106,7 @@ fn run_searcher(
     method: &impl FindMinimalSupportedRustVersion,
     releases: &[Release],
     config: &Config,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
 ) -> TResult<MinimumSupportedRustVersion> {
     let minimum_capable = method.find_toolchain(releases, config, reporter)?;
 
@@ -119,7 +119,7 @@ fn report_outcome(
     minimum_capable: &MinimumSupportedRustVersion,
     releases: &[Release],
     config: &Config,
-    reporter: &impl Reporter,
+    reporter: &impl EventReporter,
 ) -> TResult<()> {
     let (min, max) = min_max_releases(releases)?;
 

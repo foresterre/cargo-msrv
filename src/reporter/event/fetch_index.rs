@@ -26,33 +26,33 @@ impl From<FetchIndex> for Event {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use storyteller::Reporter;
 
     #[test]
     fn reported_rust_changelog_source() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = FetchIndex::new(ReleaseSource::RustChangelog);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::FetchIndex(event)),]
+            vec![Event::unscoped(Message::FetchIndex(event)),]
         );
     }
 
     #[cfg(feature = "rust-releases-dist-source")]
     #[test]
     fn reported_rust_dist_source() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
         let event = FetchIndex::new(ReleaseSource::RustDist);
 
         reporter.reporter().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
-            vec![Event::new(Message::FetchIndex(event)),]
+            vec![Event::unscoped(Message::FetchIndex(event)),]
         );
     }
 }

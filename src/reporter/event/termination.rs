@@ -49,19 +49,22 @@ struct SerializableReason {
 mod tests {
     use super::*;
     use crate::reporter::event::Message;
-    use crate::reporter::TestReporter;
+    use crate::reporter::TestReporterWrapper;
     use storyteller::Reporter;
 
     #[test]
     fn reported_non_is_not_error_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let event = TerminateWithFailure::new(CargoMSRVError::Storyteller);
 
         reporter.reporter().report_event(event.clone()).unwrap();
         let events = reporter.wait_for_events();
 
-        assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
+        assert_eq!(
+            &events,
+            &[Event::unscoped(Message::TerminateWithFailure(event))]
+        );
 
         if let Message::TerminateWithFailure(msg) = &events[0].message {
             assert!(!msg.should_highlight());
@@ -71,7 +74,7 @@ mod tests {
 
     #[test]
     fn reported_non_is_error_event() {
-        let reporter = TestReporter::default();
+        let reporter = TestReporterWrapper::default();
 
         let event = TerminateWithFailure::new(CargoMSRVError::UnableToFindAnyGoodVersion {
             command: "cargo build --all".to_string(),
@@ -80,7 +83,10 @@ mod tests {
         reporter.reporter().report_event(event.clone()).unwrap();
         let events = reporter.wait_for_events();
 
-        assert_eq!(&events, &[Event::new(Message::TerminateWithFailure(event))]);
+        assert_eq!(
+            &events,
+            &[Event::unscoped(Message::TerminateWithFailure(event))]
+        );
 
         if let Message::TerminateWithFailure(msg) = &events[0].message {
             assert!(msg.should_highlight());
