@@ -315,11 +315,13 @@ For example, if you want to find the MSRV, you could run <code>cargo msrv --outp
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.</p>
 <h1 id="common-fields-on-events"><a class="header" href="#common-fields-on-events">Common fields on events</a></h1>
 <table><thead><tr><th>name</th><th>optional</th><th>values</th><th>description</th></tr></thead><tbody>
-<tr><td>type</td><td>no</td><td></td><td>Identifies a specific event</td></tr>
-<tr><td>scope</td><td>yes</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Marks the begin or end of a scoped event</td></tr>
+<tr><td>type</td><td>no</td><td></td><td>Identifies a specific event.</td></tr>
+<tr><td>scope</td><td>yes</td><td></td><td>A pair of events which mark the start and end of an action. Together these two individual events are called a scoped event.</td></tr>
+<tr><td>scope.id</td><td>no</td><td></td><td>A unique id to match up the two events marking the begin and end of an action. The current incremental nature is an implementation detail and not guaranteed.</td></tr>
+<tr><td>scope.marker</td><td>no</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Whether the event marks the beginning or the end of the action</td></tr>
 </tbody></table>
 <p>The <strong>type</strong> field can be used to identify a specific event.</p>
-<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value marks the start of a scoped event, while <code>end</code>
+<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the marker subfield) marks the start of a scoped event, while <code>end</code>
 marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
 which an event took place.</p>
 <h1 id="events"><a class="header" href="#events">Events</a></h1>
