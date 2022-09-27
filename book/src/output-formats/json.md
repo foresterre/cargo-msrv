@@ -17,17 +17,18 @@ The section thereafter gives an overview of each of the supported events, with f
 
 # Common fields on events
 
-| name  | optional | values           | description                              |
-|-------|----------|------------------|------------------------------------------|
-| type  | no       |                  | Identifies a specific event              |
-| scope | yes      | "start" or "end" | Marks the begin or end of a scoped event |
+| name         | optional | values           | description                                                                                                                                                   |
+|--------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type         | no       |                  | Identifies a specific event.                                                                                                                                  |
+| scope        | yes      |                  | A pair of events which mark the start and end of an action. Together these two individual events are called a scoped event.                                   |
+| scope.id     | no       |                  | A unique id to match up the two events marking the begin and end of an action. The current incremental nature is an implementation detail and not guaranteed. |
+| scope.marker | no       | "start" or "end" | Whether the event marks the beginning or the end of the action                                                                                                |
 
 The **type** field can be used to identify a specific event.
 
-The **scope** field is only present for scoped events. The `start` value marks the start of a scoped event, while `end`
+The **scope** field is only present for scoped events. The `start` value (on the marker subfield) marks the start of a scoped event, while `end`
 marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
 which an event took place.
-
 
 # Events
 
