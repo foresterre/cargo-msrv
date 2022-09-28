@@ -1,10 +1,10 @@
 use crate::reporter::event::{ScopeCounter, SupplyScopeGenerator, TestScopeGenerator};
 use crate::reporter::handler::TestingHandler;
-use crate::{Event, EventReporter};
+use crate::{Event, Reporter};
 use std::sync::Arc;
 use storyteller::{
     event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventListener,
-    FinishProcessing, Reporter, ReporterError,
+    EventReporter, EventReporterError, FinishProcessing,
 };
 
 pub struct TestReporterWrapper {
@@ -52,7 +52,7 @@ impl TestReporterWrapper {
         handler.unwrap_events()
     }
 
-    pub fn reporter(&self) -> &impl EventReporter {
+    pub fn reporter(&self) -> &impl Reporter {
         &self.reporter
     }
 }
@@ -71,9 +71,9 @@ impl TestReporter {
     }
 }
 
-impl Reporter for TestReporter {
+impl EventReporter for TestReporter {
     type Event = Event;
-    type Err = storyteller::ReporterError<Event>;
+    type Err = storyteller::EventReporterError<Event>;
 
     fn report_event(&self, event: impl Into<Self::Event>) -> Result<(), Self::Err> {
         self.inner.report_event(event)
@@ -96,9 +96,9 @@ impl SupplyScopeGenerator for TestReporter {
 #[derive(Default)]
 pub struct FakeTestReporter(TestScopeGenerator);
 
-impl Reporter for FakeTestReporter {
+impl EventReporter for FakeTestReporter {
     type Event = Event;
-    type Err = ReporterError<Event>;
+    type Err = EventReporterError<Event>;
 
     fn report_event(&self, _event: impl Into<Self::Event>) -> Result<(), Self::Err> {
         Ok(())

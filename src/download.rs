@@ -2,24 +2,24 @@ use crate::command::RustupCommand;
 use crate::error::RustupInstallFailed;
 use crate::reporter::event::SetupToolchain;
 use crate::toolchain::ToolchainSpec;
-use crate::{CargoMSRVError, EventReporter, TResult};
+use crate::{CargoMSRVError, Reporter, TResult};
 
 pub trait DownloadToolchain {
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()>;
 }
 
 #[derive(Debug)]
-pub struct ToolchainDownloader<'reporter, R: EventReporter> {
+pub struct ToolchainDownloader<'reporter, R: Reporter> {
     reporter: &'reporter R,
 }
 
-impl<'reporter, R: EventReporter> ToolchainDownloader<'reporter, R> {
+impl<'reporter, R: Reporter> ToolchainDownloader<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
         Self { reporter }
     }
 }
 
-impl<'reporter, R: EventReporter> DownloadToolchain for ToolchainDownloader<'reporter, R> {
+impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter, R> {
     #[instrument(skip(self, toolchain))]
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()> {
         info!(toolchain = toolchain.spec(), "installing toolchain");

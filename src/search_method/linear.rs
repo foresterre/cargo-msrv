@@ -4,7 +4,7 @@ use crate::check::Check;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
@@ -22,7 +22,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        _reporter: &impl EventReporter,
+        _reporter: &impl Reporter,
     ) -> TResult<Outcome> {
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
@@ -48,7 +48,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
         &self,
         search_space: &'spec [Release],
         config: &'spec Config,
-        reporter: &impl EventReporter,
+        reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
             let mut last_compatible_index = None;

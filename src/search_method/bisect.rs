@@ -6,7 +6,7 @@ use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use crate::{Config, TResult};
@@ -24,7 +24,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         runner: &R,
         release: &Release,
         config: &Config,
-        _reporter: &impl EventReporter,
+        _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         match runner.check(config, &toolchain) {
@@ -40,7 +40,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         iteration: u64,
         total: u64,
         indices: Indices,
-        reporter: &impl EventReporter,
+        reporter: &impl Reporter,
     ) -> TResult<()> {
         let current = indices.middle() as u64;
 
@@ -68,7 +68,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
         &self,
         search_space: &[Release],
         config: &Config,
-        reporter: &impl EventReporter,
+        reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
             let searcher = Bisector::new(search_space);

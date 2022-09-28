@@ -1,11 +1,12 @@
 use crate::io::SendWriter;
 use crate::reporter::event::SubcommandResult;
 use crate::reporter::Message;
-use crate::SubcommandId;
-use std::cell::Cell;
+use crate::Event;
+use std::io;
 use std::io::{Stderr, Stdout};
-use std::sync::{Arc, Mutex, MutexGuard};
-use std::{fmt, io};
+#[cfg(test)]
+use std::sync::MutexGuard;
+use std::sync::{Arc, Mutex};
 use storyteller::EventHandler;
 
 /// An output handler which reports just some minimal results.
@@ -20,6 +21,7 @@ pub struct MinimalOutputHandler<S: SendWriter, F: SendWriter> {
     failure_writer: Arc<Mutex<F>>, // should we split the writer ??
 }
 
+#[cfg(test)]
 impl<S: SendWriter, F: SendWriter> MinimalOutputHandler<S, F> {
     fn new(success_writer: S, failure_writer: F) -> Self {
         Self {
@@ -54,24 +56,22 @@ impl<S: SendWriter, F: SendWriter> MinimalOutputHandler<S, F> {
 }
 
 impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
-    type Event = super::Event;
+    type Event = Event;
 
     fn handle(&self, event: Self::Event) {
         macro_rules! success_writeln {
             ($($arg:tt)*) => {{
                 let mut writer = self.success_writer.lock().expect("Unable to lock success_writer");
-                writeln!(&mut writer, $($arg)*);
+                let _ = writeln!(&mut writer, $($arg)*);
             }};
         }
 
         macro_rules! failure_writeln {
             ($($arg:tt)*) => {{
                 let mut writer = self.failure_writer.lock().expect("Unable to lock failure_writer");
-                writeln!(&mut writer, $($arg)*);
+                let _ = writeln!(&mut writer, $($arg)*);
             }};
         }
-
-        use std::io::Write;
 
         if let Message::SubcommandResult(result) = event.message() {
             match result {
@@ -81,7 +81,7 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
                     }
                     None => failure_writeln!("{}", "none"),
                 },
-                SubcommandResult::List(inner) => {
+                SubcommandResult::List(_inner) => {
                     failure_writeln!("unsupported")
                 }
                 SubcommandResult::Set(inner) => {
@@ -110,15 +110,11 @@ mod tests {
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
-    use crate::reporter::{Message, ReporterSetup, TestReporterWrapper};
     use crate::toolchain::OwnedToolchainSpec;
-    use crate::{semver, Config, Event, SubcommandId};
+    use crate::{semver, Config, SubcommandId};
     use cargo_metadata::PackageId;
-    use serde::Deserialize;
-    use std::convert::TryInto;
     use std::path::Path;
-    use std::sync::Arc;
-    use storyteller::{EventHandler, EventListener, FinishProcessing, Reporter};
+    use storyteller::EventHandler;
 
     #[test]
     fn find_with_result() {
@@ -171,10 +167,6 @@ mod tests {
 
     #[test]
     fn list_direct_deps() {
-        let config = Config::new(SubcommandId::Find, "my-target");
-        let min_available = BareVersion::ThreeComponents(1, 0, 0);
-        let max_available = BareVersion::ThreeComponents(2, 0, 0);
-
         let package_id = PackageId {
             repr: "hello_world".to_string(),
         };
@@ -228,7 +220,6 @@ mod tests {
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner_failure_writer().clone();
         let s = handler.inner_success_writer().clone();
         let s = String::from_utf8_lossy(&s);
         assert_eq!(s.as_ref(), "1.40.3\n");
@@ -250,7 +241,6 @@ mod tests {
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner_failure_writer().clone();
         let s = handler.inner_success_writer().clone();
         let s = String::from_utf8_lossy(&s);
         assert_eq!(s.as_ref(), "true\n");
@@ -272,7 +262,6 @@ mod tests {
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner_failure_writer().clone();
         let s = handler.inner_success_writer().clone();
         let s = String::from_utf8_lossy(&s);
         assert_eq!(s.as_ref(), "");
@@ -294,7 +283,6 @@ mod tests {
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner_failure_writer().clone();
         let s = handler.inner_success_writer().clone();
         let s = String::from_utf8_lossy(&s);
         assert_eq!(s.as_ref(), "");
@@ -313,7 +301,6 @@ mod tests {
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(event.into());
 
-        let output = handler.inner_failure_writer().clone();
         let s = handler.inner_success_writer().clone();
         let s = String::from_utf8_lossy(&s);
         assert_eq!(s.as_ref(), "");

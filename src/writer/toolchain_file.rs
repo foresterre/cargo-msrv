@@ -3,7 +3,7 @@ use crate::error::IoErrorSource;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::{semver, CargoMSRVError, Config, TResult};
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -17,7 +17,7 @@ const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 //     - in reverse: use the values from rust-toolchain file to auto configure config
 pub fn write_toolchain_file(
     config: &Config,
-    reporter: &impl EventReporter,
+    reporter: &impl Reporter,
     stable_version: &semver::Version,
 ) -> TResult<()> {
     let path_prefix = config.context().crate_root_path()?;

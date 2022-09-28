@@ -109,7 +109,7 @@ mod tests {
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
     use crate::SubcommandId;
-    use storyteller::Reporter;
+    use storyteller::EventReporter;
 
     #[test]
     fn reported_msrv_determined_event() {

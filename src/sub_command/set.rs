@@ -10,7 +10,7 @@ use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
 };
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
@@ -21,12 +21,12 @@ pub struct Set;
 impl SubCommand for Set {
     type Output = ();
 
-    fn run(&self, config: &Config, reporter: &impl EventReporter) -> TResult<Self::Output> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         set_msrv(config, reporter)
     }
 }
 
-fn set_msrv(config: &Config, reporter: &impl EventReporter) -> TResult<()> {
+fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     let cargo_toml = config.context().manifest_path()?;
 
     // Read the Cargo manifest to a String

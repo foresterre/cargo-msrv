@@ -55,7 +55,7 @@ mod tests {
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
     use crate::semver;
-    use storyteller::Reporter;
+    use storyteller::EventReporter;
 
     #[yare::parameterized(
         rustup_run_without_path = { Method::rustup_run(&["hello"], Option::<&Path>::None) },
