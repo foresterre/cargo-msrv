@@ -1,6 +1,6 @@
 # Output format: json
 
-The `json` output format is intended to be used as a machine-readable output, to be interpreted by tooling, altough
+The `json` output format is intended to be used as a machine-readable output, to be interpreted by tooling, although
 humans may also use it, as it provides the most detailed output of all supported output formats.
 
 As described on the [output-formats](index.md) page, `cargo-msrv` reports the status of the program via
@@ -15,6 +15,15 @@ For example, if you want to find the MSRV, you could run `cargo msrv --output-fo
 In the next section, you can find a description of the common fields of events.
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.
 
+# Events and scope
+
+Cargo MSRV currently reports two types of events: unscoped and scoped events. Unscoped events report about an action
+on a certain point in time, while scoped events report about an action which took place over a period of time.
+
+In the context of the `json` output format, an unscoped event will print a single json-line to the stderr, while
+a scoped event will print two json-lines to the stderr (one prior to starting the action, and one after the action has
+been completed).
+
 # Common fields on events
 
 | name         | optional | values           | description                                                                                                                                                   |
@@ -26,13 +35,12 @@ The section thereafter gives an overview of each of the supported events, with f
 
 The **type** field can be used to identify a specific event.
 
-The **scope** field is only present for scoped events. The `start` value (on the marker subfield) marks the start of a scoped event, while `end`
-marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
-which an event took place.
+The **scope** field is only present for scoped events. The `start` value (on the `marker` subfield) marks the start of a scoped event, while `end`
+marks the end of a scoped event.
 
-# Events
+# List of events
 
-## Event: Meta
+## Event: `Meta`
 
 **type:** meta
 
@@ -55,7 +63,7 @@ which an event took place.
 {"type":"meta","instance":"cargo-msrv","version":"0.15.1","sha_short":"79582b6","target_triple":"x86_64-pc-windows-msvc","cargo_features":"default,rust_releases_dist_source","rustc":"1.62.0"}
 ```
 
-## Event: FetchIndex
+## Event: `FetchIndex`
 
 **type:** fetch_index
 
@@ -76,7 +84,7 @@ reports that the index is being fetched, and details which source is used.
 {"type":"fetch_index","source":"rust_changelog","scope":"end"}
 ```
 
-## Event: CheckToolchain
+## Event: `CheckToolchain`
 
 **type:** check_toolchain
 
@@ -101,7 +109,7 @@ This event is called as a scoped event, and within it's scope, you'll find the f
 {"type":"check_toolchain","toolchain":{"version":"1.35.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
 ```
 
-## Event: SetupToolchain
+## Event: `SetupToolchain`
 
 **type:** setup_toolchain
 
@@ -124,7 +132,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
 ```
 
-## Event: CheckMethod
+## Event: `CheckMethod`
 
 **type:** check_method
 
@@ -149,7 +157,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"check_method","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"method":{"rustup_run":{"args":["1.37.0-x86_64-pc-windows-msvc","cargo","check"],"path":"..\\air3\\"}}}
 ```
 
-## Event: CheckResult
+## Event: `CheckResult`
 
 **type:** check_result
 
@@ -175,7 +183,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 {"type":"check_result","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"is_compatible":false,"error":"error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n"}
 ```
 
-## Event: AuxiliaryOutput
+## Event: `AuxiliaryOutput`
 
 **type:** auxiliary_output
 
@@ -202,7 +210,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 {"type":"auxiliary_output","destination":{"type":"file","path":"..\\air3\\Cargo.toml"},"item":{"type":"msrv","kind":"rust_version"}}
 ```
 
-## Event: Progress
+## Event: `Progress`
 
 **type:** progress
 
@@ -219,7 +227,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <!-- Future: add length of reduced set size -->
 
 
-## Event: SubcommandInit
+## Event: `SubcommandInit`
 
 **type:** subcommand_init
 
@@ -232,7 +240,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 | subcommand_id     | no       |           | A name identifying the subcommand |
 
 
-## Event: SubcommandResult
+## Event: `SubcommandResult`
 
 **type:** subcommand_result
 
@@ -370,7 +378,7 @@ Formatted:
 {"type":"subcommand_result","subcommand_id":"verify","result":{"toolchain":{"version":"1.38.0","target":"x86_64-pc-windows-msvc"},"is_compatible":true}}
 ```
 
-## Event: TerminateWithFailure
+## Event: `TerminateWithFailure`
 
 
 # Output by subcommand
