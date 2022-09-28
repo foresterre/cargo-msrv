@@ -138,7 +138,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="output-format-json"><a class="header" href="#output-format-json">Output format: json</a></h1>
-<p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, altough
+<p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, although
 humans may also use it, as it provides the most detailed output of all supported output formats.</p>
 <p>As described on the <a href="index.html">output-formats</a> page, <code>cargo-msrv</code> reports the status of the program via
 events. A processor transforms these events into their output-format. In case of the <code>json</code> output format, 
@@ -148,6 +148,12 @@ Each json serialized event ends with a newline. Each line thus represents a sing
 For example, if you want to find the MSRV, you could run <code>cargo msrv --output-format json</code>.</p>
 <p>In the next section, you can find a description of the common fields of events.
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.</p>
+<h1 id="events-and-scope"><a class="header" href="#events-and-scope">Events and scope</a></h1>
+<p>Cargo MSRV currently reports two types of events: unscoped and scoped events. Unscoped events report about an action
+on a certain point in time, while scoped events report about an action which took place over a period of time.</p>
+<p>In the context of the <code>json</code> output format, an unscoped event will print a single json-line to the stderr, while
+a scoped event will print two json-lines to the stderr (one prior to starting the action, and one after the action has
+been completed).</p>
 <h1 id="common-fields-on-events"><a class="header" href="#common-fields-on-events">Common fields on events</a></h1>
 <table><thead><tr><th>name</th><th>optional</th><th>values</th><th>description</th></tr></thead><tbody>
 <tr><td>type</td><td>no</td><td></td><td>Identifies a specific event.</td></tr>
@@ -156,11 +162,10 @@ The section thereafter gives an overview of each of the supported events, with f
 <tr><td>scope.marker</td><td>no</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Whether the event marks the beginning or the end of the action</td></tr>
 </tbody></table>
 <p>The <strong>type</strong> field can be used to identify a specific event.</p>
-<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the marker subfield) marks the start of a scoped event, while <code>end</code>
-marks the end of a scoped event. The scope is not an inherent property of the event itself. A scope adds a span during
-which an event took place.</p>
-<h1 id="events"><a class="header" href="#events">Events</a></h1>
-<h2 id="event-meta"><a class="header" href="#event-meta">Event: Meta</a></h2>
+<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the <code>marker</code> subfield) marks the start of a scoped event, while <code>end</code>
+marks the end of a scoped event.</p>
+<h1 id="list-of-events"><a class="header" href="#list-of-events">List of events</a></h1>
+<h2 id="event-meta"><a class="header" href="#event-meta">Event: <code>Meta</code></a></h2>
 <p><strong>type:</strong> meta</p>
 <p><strong>description:</strong> Reports metadata about the currently running <code>cargo-msrv</code> program instance.</p>
 <p><strong>fields:</strong></p>
@@ -175,7 +180,7 @@ which an event took place.</p>
 <p><strong>example:</strong></p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
 </code></pre>
-<h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: FetchIndex</a></h2>
+<h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: <code>FetchIndex</code></a></h2>
 <p><strong>type:</strong> fetch_index</p>
 <p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
 We obtain those using the <a href="https://crates.io/crates/rust-releases">rust-releases</a> library. The <code>FetchIndex</code> event
@@ -188,7 +193,7 @@ reports that the index is being fetched, and details which source is used. </p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;start&quot;}
 {&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;end&quot;}
 </code></pre>
-<h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: CheckToolchain</a></h2>
+<h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: <code>CheckToolchain</code></a></h2>
 <p><strong>type:</strong> check_toolchain</p>
 <p><strong>description:</strong> The primary way for <code>cargo-msrv</code> to determine whether a given Rust toolchain is compatible with your
 crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
@@ -205,7 +210,7 @@ This event is called as a scoped event, and within it's scope, you'll find the f
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
 {&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
 </code></pre>
-<h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: SetupToolchain</a></h2>
+<h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: <code>SetupToolchain</code></a></h2>
 <p><strong>type:</strong> setup_toolchain</p>
 <p><strong>description:</strong> The primary way for <code>cargo-msrv</code> to determine whether a given Rust toolchain is compatible with your
 crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
@@ -220,7 +225,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
 {&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
 </code></pre>
-<h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: CheckMethod</a></h2>
+<h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: <code>CheckMethod</code></a></h2>
 <p><strong>type:</strong> check_method</p>
 <p><strong>description:</strong> Reports which method has been used to check whether a toolchain is compatible with a crate.</p>
 <p><strong>fields:</strong></p>
@@ -236,7 +241,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <p><strong>example:</strong></p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;rustup_run&quot;:{&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3\\&quot;}}}
 </code></pre>
-<h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: CheckResult</a></h2>
+<h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: <code>CheckResult</code></a></h2>
 <p><strong>type:</strong> check_result</p>
 <p><strong>description:</strong> Reports the result of a <code>cargo-msrv</code> compatibility check.</p>
 <p><strong>fields:</strong></p>
@@ -252,7 +257,7 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 </code></pre>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;}
 </code></pre>
-<h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: AuxiliaryOutput</a></h2>
+<h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: <code>AuxiliaryOutput</code></a></h2>
 <p><strong>type:</strong> auxiliary_output</p>
 <p><strong>description:</strong> Reports about additional output written by <code>cargo-msrv</code> when applicable. For example, if the
 <code>--write-msrv</code> or <code>--write-toolchain-file</code> flag is provided, the MSRV will be written to the Cargo manifest or the
@@ -270,7 +275,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <p><strong>example:</strong></p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;auxiliary_output&quot;,&quot;destination&quot;:{&quot;type&quot;:&quot;file&quot;,&quot;path&quot;:&quot;..\\air3\\Cargo.toml&quot;},&quot;item&quot;:{&quot;type&quot;:&quot;msrv&quot;,&quot;kind&quot;:&quot;rust_version&quot;}}
 </code></pre>
-<h2 id="event-progress"><a class="header" href="#event-progress">Event: Progress</a></h2>
+<h2 id="event-progress"><a class="header" href="#event-progress">Event: <code>Progress</code></a></h2>
 <p><strong>type:</strong> progress</p>
 <p><strong>description:</strong> Reports on the progress of an ongoing MSRV search. </p>
 <p><strong>fields:</strong></p>
@@ -280,14 +285,14 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>iteration</td><td>no</td><td></td><td>How many iterations have been completed, plus one for the currently running iteration. Starts at <code>1</code>.</td></tr>
 </tbody></table>
 <!-- Future: add length of reduced set size -->
-<h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: SubcommandInit</a></h2>
+<h2 id="event-subcommandinit"><a class="header" href="#event-subcommandinit">Event: <code>SubcommandInit</code></a></h2>
 <p><strong>type:</strong> subcommand_init</p>
 <p><strong>description:</strong> Reports the start of a subcommand flow.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
 </tbody></table>
-<h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: SubcommandResult</a></h2>
+<h2 id="event-subcommandresult"><a class="header" href="#event-subcommandresult">Event: <code>SubcommandResult</code></a></h2>
 <p><strong>type:</strong> subcommand_result</p>
 <p><strong>description:</strong> Reports the outcome of a subcommand flow.</p>
 <p><strong>fields:</strong></p>
@@ -396,7 +401,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <p><strong>example 7: verify</strong>:</p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
 </code></pre>
-<h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: TerminateWithFailure</a></h2>
+<h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: <code>TerminateWithFailure</code></a></h2>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
 <h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
