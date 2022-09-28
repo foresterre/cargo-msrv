@@ -1,3 +1,4 @@
+use owo_colors::OwoColorize;
 use std::env;
 use std::ffi::OsString;
 use std::io;
@@ -87,8 +88,8 @@ pub enum CargoMSRVError {
     #[error("There are no Rust releases in the rust-releases index")]
     RustReleasesEmptyReleaseSet,
 
-    #[error("Unable to install toolchain with `rustup install {0}`.")]
-    RustupInstallFailed(String),
+    #[error(transparent)]
+    RustupInstallFailed(#[from] RustupInstallFailed),
 
     #[error("Check toolchain (with `rustup run <toolchain> <command>`) failed.")]
     RustupRunWithCommandFailed,
@@ -198,5 +199,25 @@ pub struct NoToolchainsToTryError {
 impl<T> From<ReporterError<T>> for CargoMSRVError {
     fn from(_: ReporterError<T>) -> Self {
         CargoMSRVError::Storyteller
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error(
+    "Unable to install toolchain '{}', rustup reported:\n    {}",
+    toolchain_spec,
+    stderr.trim_end().lines().collect::<Vec<_>>().join("\n    ").dimmed()
+)]
+pub struct RustupInstallFailed {
+    pub(crate) toolchain_spec: String,
+    pub(crate) stderr: String,
+}
+
+impl RustupInstallFailed {
+    pub fn new(toolchain_spec: impl Into<String>, stderr: impl Into<String>) -> Self {
+        Self {
+            toolchain_spec: toolchain_spec.into(),
+            stderr: stderr.into(),
+        }
     }
 }

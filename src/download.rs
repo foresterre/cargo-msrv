@@ -1,4 +1,5 @@
 use crate::command::RustupCommand;
+use crate::error::RustupInstallFailed;
 use crate::reporter::event::SetupToolchain;
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, EventReporter, TResult};
@@ -41,16 +42,8 @@ impl<'reporter, R: EventReporter> DownloadToolchain for ToolchainDownloader<'rep
                         "rustup failed to install toolchain"
                     );
 
-                    eprintln!(
-                        "Toolchain Download Failed -> \n\n{:?}\n{:?}\n{:?}\n{:?}\n<-\n\n",
-                        toolchain.spec(),
-                        rustup.stdout(),
-                        rustup.stderr(),
-                        "rustup failed to install toolchain"
-                    );
-
                     return Err(CargoMSRVError::RustupInstallFailed(
-                        toolchain.spec().to_string(),
+                        RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
                     ));
                 }
 
