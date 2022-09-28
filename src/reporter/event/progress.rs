@@ -34,7 +34,7 @@ mod tests {
     use super::*;
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
-    use storyteller::Reporter;
+    use storyteller::EventReporter;
 
     #[test]
     fn reported_event() {

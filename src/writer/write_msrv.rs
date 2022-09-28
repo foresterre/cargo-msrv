@@ -1,6 +1,6 @@
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::{semver, Config, Set, SubCommand, SubcommandId, TResult};
 
 /// Write the MSRV to the Cargo manifest
@@ -8,7 +8,7 @@ use crate::{semver, Config, Set, SubCommand, SubcommandId, TResult};
 /// Repurposes the Set MSRV subcommand for this action.
 pub fn write_msrv(
     config: &Config,
-    reporter: &impl EventReporter,
+    reporter: &impl Reporter,
     version: &semver::Version,
 ) -> TResult<()> {
     let config = ConfigBuilder::from_config(config)

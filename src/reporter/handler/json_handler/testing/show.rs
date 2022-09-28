@@ -1,10 +1,6 @@
-use crate::config::Config;
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::{SetResult, ShowResult};
+use crate::reporter::event::ShowResult;
 use crate::reporter::JsonHandler;
-use crate::semver;
-use crate::SubcommandId;
-use std::ops::Deref;
 use std::path::Path;
 use storyteller::EventHandler;
 

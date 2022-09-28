@@ -2,15 +2,12 @@ use crate::formatting::TermWidth;
 use crate::reporter::event::{CheckResult, CheckToolchain, FindResult, Message, SubcommandResult};
 use crate::{semver, Event, SubcommandId};
 use owo_colors::OwoColorize;
-use std::collections::HashMap;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use storyteller::EventHandler;
 use tabled::object::Segment;
-use tabled::width::Percent;
-use tabled::{Alignment, Disable, Header, Margin, Modify, Style, Table, Width};
+use tabled::{Alignment, Disable, Header, Modify, Style, Table, Width};
 
 pub struct HumanProgressHandler {
     pb: indicatif::ProgressBar,
@@ -53,7 +50,7 @@ impl HumanProgressHandler {
 }
 
 impl EventHandler for HumanProgressHandler {
-    type Event = super::Event;
+    type Event = Event;
 
     fn handle(&self, event: Self::Event) {
         #[allow(unused_must_use)]
@@ -75,18 +72,15 @@ impl EventHandler for HumanProgressHandler {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
                 self.start_runner_progress(it.toolchain.version());
             }
-            Message::CheckToolchain(it) /* is scope end */ => {
-                let version = it.toolchain.version();
+            Message::CheckToolchain(_it) /* is scope end */ => {
                 self.finish_runner_progress();
             }
             // Message::Compatibility(CheckResult {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
             Message::CheckResult(CheckResult {  compatibility }) if compatibility.is_compatible() => {
-                let version = compatibility.toolchain().version();
                 let message = Status::ok("Is compatible");
                 self.pb.println(message);
             }
             Message::CheckResult(CheckResult { compatibility }) if !compatibility.is_compatible() => {
-                let version = compatibility.toolchain().version();
                 let message = Status::fail("Is incompatible");
                 self.pb.println(message);
 
@@ -129,7 +123,7 @@ impl HumanProgressHandler {
                 );
                 self.pb.println(message);
             }
-            SubcommandResult::Verify(inner) => {
+            SubcommandResult::Verify(_inner) => {
                 // tbd.
             }
         }

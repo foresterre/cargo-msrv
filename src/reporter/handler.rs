@@ -1,12 +1,3 @@
-#![allow(unused)]
-
-use crate::{Event, SubcommandId};
-use owo_colors::OwoColorize;
-use std::io::Stderr;
-use std::sync::{Arc, Mutex, RwLock};
-use std::{io, marker};
-use storyteller::{EventHandler, Reporter};
-
 mod discard_output_handler;
 mod human_progress_handler;
 mod json_handler;

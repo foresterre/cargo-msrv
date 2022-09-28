@@ -87,7 +87,6 @@ fn compatible() {
 
 #[test]
 fn incompatible() {
-    let version = semver::Version::new(1, 2, 3);
     let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::none(
         &config,

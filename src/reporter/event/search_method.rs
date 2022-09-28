@@ -27,7 +27,7 @@ mod tests {
     use super::*;
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
-    use storyteller::Reporter;
+    use storyteller::EventReporter;
 
     #[yare::parameterized(
         linear = { Method::Linear },

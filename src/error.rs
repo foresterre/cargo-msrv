@@ -6,7 +6,6 @@ use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 use rust_releases::Release;
-use storyteller::ReporterError;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::log_level::ParseLogLevelError;
@@ -196,8 +195,8 @@ pub struct NoToolchainsToTryError {
     pub(crate) search_space: Vec<Release>,
 }
 
-impl<T> From<ReporterError<T>> for CargoMSRVError {
-    fn from(_: ReporterError<T>) -> Self {
+impl<T> From<storyteller::EventReporterError<T>> for CargoMSRVError {
+    fn from(_: storyteller::EventReporterError<T>) -> Self {
         CargoMSRVError::Storyteller
     }
 }

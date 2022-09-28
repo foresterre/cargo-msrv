@@ -1,6 +1,4 @@
 use crate::Event;
-use std::cell::{Cell, Ref, RefCell};
-use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard};
 use storyteller::EventHandler;
 
@@ -37,7 +35,7 @@ impl TestingHandler {
 }
 
 impl EventHandler for TestingHandler {
-    type Event = super::Event;
+    type Event = Event;
 
     fn handle(&self, event: Self::Event) {
         self.event_log.lock().unwrap().push(event);

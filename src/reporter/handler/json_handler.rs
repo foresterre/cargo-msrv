@@ -1,8 +1,10 @@
 use crate::io::SendWriter;
+use crate::Event;
 use std::io;
 use std::io::Stderr;
-use std::ops::Deref;
-use std::sync::{Arc, Mutex, MutexGuard};
+#[cfg(test)]
+use std::sync::MutexGuard;
+use std::sync::{Arc, Mutex};
 use storyteller::EventHandler;
 
 #[cfg(test)]
@@ -43,7 +45,7 @@ impl JsonHandler<Stderr> {
 }
 
 impl<W: SendWriter> EventHandler for JsonHandler<W> {
-    type Event = super::Event;
+    type Event = Event;
 
     fn handle(&self, event: Self::Event) {
         let mut w = self.writer.lock().expect(Self::LOCK_FAILURE_MSG);

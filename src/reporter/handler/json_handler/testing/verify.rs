@@ -1,12 +1,7 @@
-use crate::config::Config;
-use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::{SetResult, ShowResult, VerifyResult};
+use crate::reporter::event::VerifyResult;
 use crate::reporter::JsonHandler;
 use crate::semver;
 use crate::toolchain::OwnedToolchainSpec;
-use crate::SubcommandId;
-use std::ops::Deref;
-use std::path::Path;
 use storyteller::EventHandler;
 
 #[test]

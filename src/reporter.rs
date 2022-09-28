@@ -24,16 +24,17 @@ pub use testing::{FakeTestReporter, TestReporterWrapper};
 
 // Alias trait with convenience methods
 // This way we don't have to specify the associated type Event
-// So instead of `fn hello(reporter: &impl Reporter<Event = Event>)`, we write:
+// So instead of `fn hello(reporter: &impl EventReporter<Event = Event>)`, we write:
 // `fn hello(reporter: &impl Reporter)`
-pub trait EventReporter:
-    storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>> + SupplyScopeGenerator
+pub trait Reporter:
+    storyteller::EventReporter<Event = Event, Err = storyteller::EventReporterError<Event>>
+    + SupplyScopeGenerator
 {
     /// Perform a (fallible) action within the scope of the `f` closure, and report the start and
     /// end of this action.
     ///
-    /// NB: returns a `crate::TResult` (unlike the regular `report_event` which returns
-    /// a `Result<(), reporter::Reporter::Err>`), so the result is flattened to `cargo-msrv's`
+    /// NB: returns a `crate::TResult` (unlike `EventReporter::report_event` which returns
+    /// a `Result<(), reporter::EventReporter::Err>`), so the result is flattened to `cargo-msrv's`
     /// error data structure.
     fn run_scoped_event<T>(
         &self,
@@ -56,8 +57,8 @@ pub trait EventReporter:
     }
 }
 
-impl<R> EventReporter for R where
-    R: storyteller::Reporter<Event = Event, Err = storyteller::ReporterError<Event>>
+impl<R> Reporter for R where
+    R: storyteller::EventReporter<Event = Event, Err = storyteller::EventReporterError<Event>>
         + SupplyScopeGenerator
 {
 }
@@ -66,7 +67,7 @@ impl<R> EventReporter for R where
 pub struct ReporterSetup;
 
 impl ReporterSetup {
-    pub fn create(self) -> (impl EventReporter, impl EventListener<Event = Event>) {
+    pub fn create(self) -> (impl Reporter, impl EventListener<Event = Event>) {
         let (sender, receiver) = event_channel::<Event>();
 
         let reporter = MainReporter::new(ChannelReporter::new(sender));
@@ -90,9 +91,9 @@ impl MainReporter {
     }
 }
 
-impl storyteller::Reporter for MainReporter {
+impl storyteller::EventReporter for MainReporter {
     type Event = Event;
-    type Err = storyteller::ReporterError<Event>;
+    type Err = storyteller::EventReporterError<Event>;
 
     fn report_event(&self, event: impl Into<Self::Event>) -> Result<(), Self::Err> {
         self.inner.report_event(event)
@@ -116,7 +117,7 @@ mod tests {
     use super::*;
     use crate::reporter::event::{Marker, Message, Scope};
     use crate::reporter::TestReporterWrapper;
-    use crate::{CargoMSRVError, EventReporter, SubcommandId, SubcommandInit};
+    use crate::{CargoMSRVError, Reporter, SubcommandId, SubcommandInit};
 
     #[test]
     fn report_successful_scoped_event() {

@@ -12,7 +12,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
-use crate::reporter::EventReporter;
+use crate::reporter::Reporter;
 use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
 
@@ -38,7 +38,7 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
     type Output = ();
 
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, reporter: &impl EventReporter) -> TResult<Self::Output> {
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
         let rust_version = RustVersion::try_from_config(config)?;
 
         verify_msrv(
@@ -67,7 +67,7 @@ fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
-    reporter: &impl EventReporter,
+    reporter: &impl Reporter,
     config: &Config,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
@@ -89,14 +89,14 @@ fn verify_msrv(
 }
 
 // Report the successful verification to the user
-fn success(reporter: &impl EventReporter, toolchain: ToolchainSpec) -> TResult<()> {
+fn success(reporter: &impl Reporter, toolchain: ToolchainSpec) -> TResult<()> {
     reporter.report_event(VerifyResult::compatible(toolchain))?;
     Ok(())
 }
 
 // Report the failed verification to the user, and return a VerifyFailed error
 fn failure(
-    reporter: &impl EventReporter,
+    reporter: &impl Reporter,
     toolchain: ToolchainSpec,
     rust_version: RustVersion,
     error: Option<String>,

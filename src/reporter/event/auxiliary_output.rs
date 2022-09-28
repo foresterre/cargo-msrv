@@ -76,7 +76,7 @@ mod tests {
     use crate::reporter::TestReporterWrapper;
     use crate::Event;
     use std::path::Path;
-    use storyteller::Reporter;
+    use storyteller::EventReporter;
 
     #[yare::parameterized(
         rust_version_msrv = { Item::msrv(MsrvKind::RustVersion) },
