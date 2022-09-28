@@ -87,7 +87,7 @@ impl EventHandler for HumanProgressHandler {
             }
             Message::CheckResult(CheckResult { compatibility }) if !compatibility.is_compatible() => {
                 let version = compatibility.toolchain().version();
-                let message = Status::fail("Is Incompatible");
+                let message = Status::fail("Is incompatible");
                 self.pb.println(message);
 
                 if let Some(error_report) = compatibility.error() {
