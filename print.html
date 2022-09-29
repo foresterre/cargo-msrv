@@ -567,12 +567,16 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
 </code></pre>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: <code>TerminateWithFailure</code></a></h2>
-<h1 id="output-by-subcommand-1"><a class="header" href="#output-by-subcommand-1">Output by subcommand</a></h1>
-<h2 id="cargo-msrv-find-1"><a class="header" href="#cargo-msrv-find-1"># cargo msrv (find)</a></h2>
-<h2 id="cargo-msrv-list-1"><a class="header" href="#cargo-msrv-list-1"># cargo msrv list</a></h2>
-<h2 id="cargo-msrv-set-1"><a class="header" href="#cargo-msrv-set-1"># cargo msrv set</a></h2>
-<h2 id="cargo-msrv-show-1"><a class="header" href="#cargo-msrv-show-1"># cargo msrv show</a></h2>
-<h2 id="cargo-msrv-verify-1"><a class="header" href="#cargo-msrv-verify-1"># cargo msrv verify</a></h2>
+<p><strong>type:</strong> terminate_with_failure</p>
+<p><strong>description:</strong> Reports about failure which led to program termination with a non-zero exit code.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>description</th></tr></thead><tbody>
+<tr><td>reason</td><td>no</td><td>Reason of failure</td></tr>
+<tr><td>reason.description</td><td>no</td><td>Describes why cargo-msrv will terminate with a non-zero exit code</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;terminate_with_failure&quot;,&quot;reason&quot;:{&quot;description&quot;:&quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;}}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-minimal"><a class="header" href="#output-format-minimal">Output format: minimal</a></h1>
 <p>The purpose of the <code>minimal</code> output format option is to provide just enough output for a machine (or shell script!)
 to be understandable, while not requiring elaborate parsers like the <code>json</code> output format. It may also be used as
@@ -586,8 +590,8 @@ to <code>stderr</code>.</li>
 </ul>
 <p>You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.</p>
-<h1 id="output-by-subcommand-2"><a class="header" href="#output-by-subcommand-2">Output by subcommand</a></h1>
-<h2 id="cargo-msrv-find-2"><a class="header" href="#cargo-msrv-find-2"># cargo msrv (find)</a></h2>
+<h1 id="output-by-subcommand-1"><a class="header" href="#output-by-subcommand-1">Output by subcommand</a></h1>
+<h2 id="cargo-msrv-find-1"><a class="header" href="#cargo-msrv-find-1"># cargo msrv (find)</a></h2>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
 If it could not be found, we report <code>none</code> instead, and write this value to <code>stderr</code>.</p>
 <h3 id="example-1-4"><a class="header" href="#example-1-4">Example 1</a></h3>
@@ -603,10 +607,10 @@ or has incorrect syntax, the output will be <code>none</code>. </p>
 # stderr
 none
 </code></pre>
-<h2 id="cargo-msrv-list-2"><a class="header" href="#cargo-msrv-list-2"># cargo msrv list</a></h2>
+<h2 id="cargo-msrv-list-1"><a class="header" href="#cargo-msrv-list-1"># cargo msrv list</a></h2>
 <p>The <code>list</code> subcommand is not supported by the <code>minimal</code> output format, and &quot;unsupported&quot; will be printed.
 Support may be added in the future.</p>
-<h2 id="cargo-msrv-set-2"><a class="header" href="#cargo-msrv-set-2"># cargo msrv set</a></h2>
+<h2 id="cargo-msrv-set-1"><a class="header" href="#cargo-msrv-set-1"># cargo msrv set</a></h2>
 <p>The <code>set</code> subcommand prints the version set as MSRV.</p>
 <h3 id="example-1-5"><a class="header" href="#example-1-5">Example 1</a></h3>
 <p>If we set our MSRV to be <code>1.31</code>, the output will be <code>1.31</code>.</p>
@@ -614,7 +618,7 @@ Support may be added in the future.</p>
 # stdout
 1.31
 </code></pre>
-<h2 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2"># cargo msrv show</a></h2>
+<h2 id="cargo-msrv-show-1"><a class="header" href="#cargo-msrv-show-1"># cargo msrv show</a></h2>
 <p>The <code>show</code> subcommand prints the detected MSRV, if specified in the Cargo Manifest.</p>
 <h3 id="example-1-6"><a class="header" href="#example-1-6">Example 1</a></h3>
 <p>Assuming our Cargo manifest contains a <code>1.60</code> MSRV, <code>cargo-msrv</code> will print <code>1.60</code>.</p>
@@ -641,7 +645,7 @@ msrv = &quot;1.21.0&quot;
 # stdout
 1.21.0
 </code></pre>
-<h2 id="cargo-msrv-verify-2"><a class="header" href="#cargo-msrv-verify-2"># cargo msrv verify</a></h2>
+<h2 id="cargo-msrv-verify-1"><a class="header" href="#cargo-msrv-verify-1"># cargo msrv verify</a></h2>
 <p>The <code>verify</code> subcommand prints <code>true</code> (to stdout) with exit code zero if checking the toolchain for this platform which
 matches the MSRV succeeds. Else, it prints <code>false</code> (to stderr) with an exit code which is non-zero.</p>
 <h3 id="example-1-7"><a class="header" href="#example-1-7">Example 1</a></h3>
@@ -838,7 +842,7 @@ to pass the cargo-msrv check command for a crate&quot; (in its broadest sense).<
 </ol>
 <pre><code class="language-shell">cargo msrv help list # OR cargo msrv list --help
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list-3"><a class="header" href="#cargo-msrv-list-3">cargo-msrv list</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-list-2"><a class="header" href="#cargo-msrv-list-2">cargo-msrv list</a></h1>
 <h1 id="command-2"><a class="header" href="#command-2">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv list [options]</code></li>
@@ -968,7 +972,7 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </code></pre>
 <p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-3"><a class="header" href="#cargo-msrv-show-3">cargo-msrv show</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2">cargo-msrv show</a></h1>
 <h1 id="command-3"><a class="header" href="#command-3">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv show</code></li>
@@ -984,7 +988,7 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </ol>
 <pre><code class="language-shell">cargo msrv show
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify-3"><a class="header" href="#cargo-msrv-verify-3">cargo-msrv verify</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify-2"><a class="header" href="#cargo-msrv-verify-2">cargo-msrv verify</a></h1>
 <h1 id="command-4"><a class="header" href="#command-4">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv verify</code></li>

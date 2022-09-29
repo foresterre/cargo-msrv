@@ -402,12 +402,16 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
 </code></pre>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: <code>TerminateWithFailure</code></a></h2>
-<h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
-<h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
-<h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
-<h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
-<h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
-<h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
+<p><strong>type:</strong> terminate_with_failure</p>
+<p><strong>description:</strong> Reports about failure which led to program termination with a non-zero exit code.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>optional</th><th>description</th></tr></thead><tbody>
+<tr><td>reason</td><td>no</td><td>Reason of failure</td></tr>
+<tr><td>reason.description</td><td>no</td><td>Describes why cargo-msrv will terminate with a non-zero exit code</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;terminate_with_failure&quot;,&quot;reason&quot;:{&quot;description&quot;:&quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;}}
+</code></pre>
 
                     </main>
 
