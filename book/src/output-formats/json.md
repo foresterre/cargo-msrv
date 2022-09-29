@@ -380,15 +380,19 @@ Formatted:
 
 ## Event: `TerminateWithFailure`
 
+**type:** terminate_with_failure
 
-# Output by subcommand
+**description:** Reports about failure which led to program termination with a non-zero exit code.
 
-## \# cargo msrv (find)
+**fields:**
 
-## \# cargo msrv list
+| name               | optional | description                                                       |
+|--------------------|----------|-------------------------------------------------------------------|
+| reason             | no       | Reason of failure                                                 |
+| reason.description | no       | Describes why cargo-msrv will terminate with a non-zero exit code |
 
-## \# cargo msrv set
+**example:**
 
-## \# cargo msrv show
-
-## \# cargo msrv verify
+```json lines
+{"type":"terminate_with_failure","reason":{"description":"MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'"}}
+```
