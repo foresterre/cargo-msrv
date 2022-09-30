@@ -1,59 +1,57 @@
 use crate::config::{OutputFormat, TracingTargetOption};
 
 use crate::log_level::LogLevel;
-use clap::AppSettings;
-use clap::ArgGroup;
-use clap::Args;
+use clap::{ArgGroup, Args, ValueHint};
 use std::path::PathBuf;
 
 // Cli Options shared between subcommands
 #[derive(Debug, Args)]
-#[clap(setting = AppSettings::DeriveDisplayOrder)]
-#[clap(group(ArgGroup::new("paths").args(&["path", "manifest-path"])))]
+#[command(group(ArgGroup::new("paths").args(&["path", "manifest_path"])))]
 pub struct SharedOpts {
     /// Path to cargo project directory
-    #[clap(long, value_name = "Crate Directory", global = true)]
+    #[arg(long, value_name = "Crate Directory", global = true, value_hint = ValueHint::DirPath)]
     pub path: Option<PathBuf>,
 
     /// Path to cargo manifest file
-    #[clap(long, value_name = "Cargo Manifest", global = true)]
+    #[arg(long, value_name = "Cargo Manifest", global = true, value_hint = ValueHint::FilePath)]
     pub manifest_path: Option<PathBuf>,
 
-    #[clap(flatten)]
+    #[command(flatten)]
     pub user_output_opts: UserOutputOpts,
 
-    #[clap(flatten)]
+    #[command(flatten)]
     pub debug_output_opts: DebugOutputOpts,
 }
 
 #[derive(Debug, Args)]
-#[clap(next_help_heading = "USER OUTPUT OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
+#[command(next_help_heading = "User output options")]
 pub struct UserOutputOpts {
     /// Set the format of user output
-    #[clap(long,
-        possible_values = OutputFormat::custom_formats(),
+    #[arg(
+        long,
+        value_enum,
         default_value_t,
         value_name = "FORMAT",
-        global = true,
+        global = true
     )]
     pub output_format: OutputFormat,
 
     /// Disable user output
-    #[clap(long, global = true)]
+    #[arg(long, global = true)]
     pub no_user_output: bool,
 }
 
 #[derive(Debug, Args)]
-#[clap(next_help_heading = "DEBUG OUTPUT OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
+#[command(next_help_heading = "Debug output options")]
 pub struct DebugOutputOpts {
     /// Disable logging
-    #[clap(long, global = true)]
+    #[arg(long, global = true)]
     pub no_log: bool,
 
     /// Specify where the program should output its logs
-    #[clap(
+    #[arg(
         long,
-        arg_enum,
+        value_enum,
         default_value_t,
         value_name = "LOG TARGET",
         global = true
@@ -61,6 +59,6 @@ pub struct DebugOutputOpts {
     pub log_target: TracingTargetOption,
 
     /// Specify the severity of logs which should be
-    #[clap(long, default_value_t, value_name = "LEVEL", global = true)]
+    #[arg(long, value_enum, default_value_t, value_name = "LEVEL", global = true)]
     pub log_level: LogLevel,
 }

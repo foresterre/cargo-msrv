@@ -1,12 +1,11 @@
 use crate::manifest::bare_version;
 use crate::manifest::bare_version::BareVersion;
 use crate::ReleaseSource;
-use clap::AppSettings;
 use clap::Args;
 use std::str::FromStr;
 
 #[derive(Debug, Args)]
-#[clap(next_help_heading = "RUST RELEASES OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
+#[command(next_help_heading = "Rust releases options")]
 pub struct RustReleasesOpts {
     /// Least recent version or edition to take into account
     ///
@@ -15,25 +14,25 @@ pub struct RustReleasesOpts {
     ///
     /// For example, the edition alias "2018" would match Rust version `1.31.0`, since that's the
     /// first version which added support for the Rust 2018 edition.
-    #[clap(long, value_name = "VERSION_SPEC or EDITION", alias = "minimum")]
+    #[arg(long, value_name = "VERSION_SPEC or EDITION", alias = "minimum")]
     pub min: Option<EditionOrVersion>,
 
     /// Most recent version to take into account
     ///
     /// Given version must match a valid Rust toolchain, and be semver compatible, or
     /// be a two component `major.minor` version.
-    #[clap(long, value_name = "VERSION_SPEC", alias = "maximum")]
+    #[arg(long, value_name = "VERSION_SPEC", alias = "maximum")]
     pub max: Option<BareVersion>,
 
     /// Include all patch releases, instead of only the last
-    #[clap(long)]
+    #[arg(long)]
     pub include_all_patch_releases: bool,
 
-    #[clap(long, possible_values = ReleaseSource::variants(), default_value_t, value_name = "SOURCE")]
+    #[arg(long, value_enum, default_value_t, value_name = "SOURCE")]
     pub release_source: ReleaseSource,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum EditionOrVersion {
     Edition(Edition),
     Version(BareVersion),

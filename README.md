@@ -3,7 +3,7 @@
 This crate can assist you in finding the Minimum Supported Rust Version for a crate.
 
 In this readme you'll find everything to get you started. You can find more detailed explanations in the
-[cargo-msrv book](https://foresterre.github.io/cargo-msrv/index.html). 
+[cargo-msrv book](https://foresterre.github.io/cargo-msrv/index.html).
 
 ### Install
 
@@ -26,7 +26,7 @@ From the Arch Linux [community repository](https://archlinux.org/packages/commun
 
 ### Usage
 
-* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html) or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in your current working directory. 
+* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html) or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in your current working directory.
 * [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in the `<dir>` directory.
 * [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the compatibility check which decides whether a Rust version is
   compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
@@ -34,7 +34,7 @@ From the Arch Linux [community repository](https://archlinux.org/packages/commun
   * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv` key
     in the 'Cargo.toml' manifest. See the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
     for a more detailed description.
-* [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your dependencies as specified by their authors 
+* [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your dependencies as specified by their authors
 * [`cargo msrv show`](https://foresterre.github.io/cargo-msrv/commands/show.html) to show the currently specified MSRV
 
 Please refer to the [commands](https://foresterre.github.io/cargo-msrv/commands/index.html) chapter in the cargo-msrv
@@ -43,99 +43,141 @@ book for more detailed descriptions of the supported (sub) commands.
 
 **Options**
 ```
-cargo-msrv
-Martijn Gribnau <garm@ilumeo.com>
-Helps with finding the Minimal Supported Rust Version (MSRV)
+Find your Minimum Supported Rust Version!
 
-USAGE:
-    cargo msrv [OPTIONS] or cargo-msrv [OPTIONS]
+Usage: cargo msrv [OPTIONS] [-- <CUSTOM_CHECK_COMMAND>...] [COMMAND]
 
-OPTIONS:
-        --bisect
-            Use a binary search to find the MSRV instead of a linear search
+Commands:
+  list
+          Display the MSRV's of dependencies
+  set
+          Set the MSRV of the current crate to a given Rust version
+  show
+          Show the MSRV of your crate, as specified in the Cargo manifest
+  verify
+          Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest
+  help
+          Print this message or the help of the given subcommand(s)
 
-    -h, --help
-            Prints help information
+Options:
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-        --include-all-patch-releases
-            Include all patch releases, instead of only the last
+  -V, --version
+          Print version information
 
-        --linear
-            Use a linear search to find the MSRV, by checking toolchains from latest to earliest
+Find MSRV options:
+      --bisect
+          Use a binary search to find the MSRV (default)
 
-        --ignore-lockfile
-            Temporarily removes the lockfile, so it will not interfere with the building process. This is important when
-            testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile.
-        --log-level <log_level>
-            Specify the verbosity of logs the program should output [default: info]  [possible values:
-            error, warn, info, debug, trace]
-        --log-target <log_target>
-            Specify where the program should output its logs [default: file]  [possible values: file,
-            stdout]
-        --max <max>
-            Latest (most recent) version to take into account.Version must match a valid Rust toolchain, and be semver
-            compatible. [aliases: maximum]
-        --min <min>
-            Earliest (least recent) version to take into account. Version must match a valid Rust toolchain, and be
-            semver compatible. Edition aliases may also be used. [aliases: minimum]
-        --no-check-feedback
-            If provided, the outcome of each individual check will not be printed.
+          When the search space is sufficiently large, which is common, this is much faster than a linear search. A binary search will approximately halve the search space for each Rust version checked for compatibility.
 
-        --no-log
-            Disable logging
+      --linear
+          Use a linear search to find the MSRV
 
-        --no-read-min-edition
-            If provided, the 'package.edition' value in the Cargo.toml will not be used to reduce search space.
+          This method checks toolchain from the most recent release to the earliest.
 
-        --output-format <output_format>
-            Output status messages in machine-readable format. Machine-readable status updates will be printed in the
-            requested format to stdout. [possible values: json, void]
-        --release-source <release_source>
-            Select the rust-releases source to use as the release index [default: rust-changelog]  [possible
-            values: rust-changelog, rust-dist]
-        --path <DIR>
-            Path to the cargo project directory
+      --write-toolchain-file
+          Pin the MSRV by writing the version to a rust-toolchain file
 
-        --target <TARGET>
-            Check against a custom target (instead of the rustup default)
+          The toolchain file will pin the Rust version for this crate. See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
 
-        --toolchain-file
-            Output a rust-toolchain file with the MSRV as toolchain. The toolchain file will pin the Rust version for
-            this crate. See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
-    -V, --version
-            Prints version information
+      --ignore-lockfile
+          Temporarily remove the lockfile, so it will not interfere with the building process
 
-        --verify
-            Verify the MSRV defined in the 'package.rust-version' or the 'package.metadata.msrv' key in Cargo.toml. When
-            this flag is present, cargo-msrv will not attempt to determine the true MSRV. Instead it attempts to verify
-            whether for the specified MSRV, the `check` command passes. This is similar to how we determine whether a
-            Rust toolchain version is compatible for your crate or not. DEPRECATED: use the `cargo msrv verify`
-            subcommand instead.
+          This is important when testing against older Rust versions such as Cargo versions prior to Rust 1.38.0, for which Cargo does not recognize the newer lockfile formats.
 
-ARGS:
-    <COMMAND>...
-            If given, this command is used to validate if a Rust version is compatible. Should be available to rustup,
-            i.e. the command should work like so: `rustup run <toolchain> <COMMAND>`. The default check action is `cargo
-            check --all`.
+      --no-read-min-edition
+          Don't read the `edition` of the crate and do not use its value to reduce the search space
 
-SUBCOMMANDS:
-    help
-            Prints this message or the help of the given subcommand(s)
+      --no-check-feedback
+          Don't print the result of compatibility checks
 
-    list
-            List the MSRV's specified by dependency crate authors.
+          The feedback of a compatibility check can be useful to determine why a certain Rust version is not compatible. Rust usually prints very detailed error messages. While most often very useful, in some cases they may be too noisy or lengthy. If this flag is given, the result messages will not be printed.
 
-    show
-            Show the MSRV of your crate, as specified in the Cargo manifest.
+      --write-msrv
+          Write the MSRV to the Cargo manifest
 
-    verify
-            Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or
-            'package.metadata.msrv' key in the Cargo.toml manifest.
+          For toolchains which include a Cargo version which supports the rust-version field, the `package.rust-version` field will be written. For older Rust toolchains, the `package.metadata.msrv` field will be written instead.
 
-An argument provided after two dashes (`--`), will be interpreted as a custom command `check` command, used to validate
-whether a Rust toolchain version is compatible. The default `check` command is "cargo build". A custom `check` command
-should be runnable by rustup, as they will be passed on to rustup like so: `rustup run <toolchain> <COMMAND...>`. You'll
-only need to provide the <COMMAND...> part.
+Rust releases options:
+      --min <VERSION_SPEC or EDITION>
+          Least recent version or edition to take into account
+
+          Given version must match a valid Rust toolchain, and be semver compatible, be a two component `major.minor` version. or match a Rust edition alias.
+
+          For example, the edition alias "2018" would match Rust version `1.31.0`, since that's the first version which added support for the Rust 2018 edition.
+
+      --max <VERSION_SPEC>
+          Most recent version to take into account
+
+          Given version must match a valid Rust toolchain, and be semver compatible, or be a two component `major.minor` version.
+
+      --include-all-patch-releases
+          Include all patch releases, instead of only the last
+
+      --release-source <SOURCE>
+          [default: rust-changelog]
+          [possible values: rust-changelog, rust-dist]
+
+Toolchain options:
+      --target <TARGET>
+          Check against a custom target (instead of the rustup default)
+
+Custom check options:
+      --path <Crate Directory>
+          Path to cargo project directory
+
+      --manifest-path <Cargo Manifest>
+          Path to cargo manifest file
+
+  [CUSTOM_CHECK_COMMAND]...
+          Supply a custom `check` command to be used by cargo msrv
+
+User output options:
+      --output-format <FORMAT>
+          Set the format of user output
+
+          [default: human]
+
+          Possible values:
+          - human:
+            Progress bar rendered to stderr
+          - json:
+            Json status updates printed to stdout
+          - minimal:
+            Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
+
+      --no-user-output
+          Disable user output
+
+Debug output options:
+      --no-log
+          Disable logging
+
+      --log-target <LOG TARGET>
+          Specify where the program should output its logs
+
+          [default: file]
+          [possible values: file, stdout]
+
+      --log-level <LEVEL>
+          Specify the severity of logs which should be
+
+          [default: info]
+          [possible values: trace, debug, info, warn, error]
+
+
+            You may provide a custom compatibility `check` command as the last argument (only
+            when this argument is provided via the double dash syntax, e.g. `$ cargo msrv -- custom
+            command`.
+            This custom check command will then be used to validate whether a Rust version is
+            compatible.
+            A custom `check` command should be runnable by rustup, as they will be passed on to
+            rustup like so: `rustup run <toolchain> <COMMAND...>`. NB: You only need to provide the
+            <COMMAND...> part.
+
+            By default, the custom check command is `cargo check`.
 ```
 
 ### JSON format
@@ -215,7 +257,7 @@ is compatible, completes.
 
 #### MSRV completed
 
-Reported when all actions for a mode have been run to completion. 
+Reported when all actions for a mode have been run to completion.
 
 ```jsonc
 {
@@ -267,7 +309,7 @@ specific toolchain version, and our multiple tests may attempt to overwrite or m
 tests to get stuck and fail. You can achieve the above with the following Cargo command: `cargo test -- --test-threads=1`.
 
 ### License
- 
+
 Licensed under either of
 
 * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
