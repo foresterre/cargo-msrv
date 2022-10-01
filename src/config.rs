@@ -19,23 +19,18 @@ pub(crate) mod list;
 pub(crate) mod set;
 pub(crate) mod verify;
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Clone, Copy, Debug, Default, ValueEnum)]
 pub enum OutputFormat {
     /// Progress bar rendered to stderr
+    #[default]
     Human,
     /// Json status updates printed to stdout
     Json,
     /// Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
     Minimal,
     /// No output -- meant to be used for debugging and testing
-    #[value(hide = true)]
+    #[value(skip)]
     None,
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        Self::Human
-    }
 }
 
 impl fmt::Display for OutputFormat {
