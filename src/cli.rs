@@ -9,7 +9,7 @@ use crate::config::ConfigBuilder;
 use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
 use crate::{CargoMSRVError, Config, SubcommandId};
-use clap::{AppSettings, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
 
@@ -21,9 +21,9 @@ pub(crate) mod shared_opts;
 pub(crate) mod toolchain_opts;
 
 #[derive(Debug, Parser)]
-#[clap(version, bin_name = "cargo", max_term_width = 120)]
+#[command(version, bin_name = "cargo", max_term_width = 120)]
 pub struct CargoCli {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     subcommand: CargoMsrvCli,
 }
 
@@ -68,18 +68,18 @@ fn modify_args<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
 #[derive(Debug, Subcommand)]
 pub(in crate::cli) enum CargoMsrvCli {
     /// Find your Minimum Supported Rust Version!
-    #[clap(
+    #[command(
         author = "Martijn Gribnau <garm@ilumeo.com>",
         after_help = r#"
             You may provide a custom compatibility `check` command as the last argument (only
             when this argument is provided via the double dash syntax, e.g. `$ cargo msrv -- custom
             command`.
             This custom check command will then be used to validate whether a Rust version is
-            compatible. 
+            compatible.
             A custom `check` command should be runnable by rustup, as they will be passed on to
             rustup like so: `rustup run <toolchain> <COMMAND...>`. NB: You only need to provide the
             <COMMAND...> part.
-            
+
             By default, the custom check command is `cargo check`.
         "#
     )]
@@ -87,24 +87,24 @@ pub(in crate::cli) enum CargoMsrvCli {
 }
 
 #[derive(Debug, Args)]
-#[clap(version)]
+#[command(version)]
 pub(in crate::cli) struct CargoMsrvOpts {
-    #[clap(flatten)]
+    #[command(flatten)]
     pub(in crate::cli) find_opts: FindOpts,
 
-    #[clap(flatten)]
+    #[command(flatten)]
     pub(in crate::cli) shared_opts: SharedOpts,
 
-    #[clap(subcommand)]
+    #[command(subcommand)]
     pub(in crate::cli) subcommand: Option<SubCommand>,
 
     /// DEPRECATED: Use the `cargo msrv verify` subcommand instead
-    #[clap(long, global = false, hide = true)]
+    #[arg(long, global = false, hide = true)]
     pub(in crate::cli) verify: bool,
 }
 
 #[derive(Debug, Subcommand)]
-#[clap(propagate_version = true)]
+#[command(propagate_version = true)]
 pub(in crate::cli) enum SubCommand {
     /// Display the MSRV's of dependencies
     List(ListOpts),
@@ -118,15 +118,15 @@ pub(in crate::cli) enum SubCommand {
 }
 
 #[derive(Debug, Args)]
-#[clap(next_help_heading = "LIST OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
+#[command(next_help_heading = "List options")]
 pub(in crate::cli) struct ListOpts {
     /// Display the MSRV's of crates that your crate depends on
-    #[clap(long, possible_values = ListMsrvVariant::variants(), default_value_t)]
+    #[arg(long, value_enum, default_value_t)]
     variant: ListMsrvVariant,
 }
 
 #[derive(Debug, Args)]
-#[clap(next_help_heading = "SET OPTIONS", setting = AppSettings::DeriveDisplayOrder)]
+#[command(next_help_heading = "Set options")]
 pub(in crate::cli) struct SetOpts {
     /// The version to be set as MSRV
     ///
@@ -134,29 +134,26 @@ pub(in crate::cli) struct SetOpts {
     /// MSRV values prior to Rust 1.56 will be written to the `package.metadata.msrv` field
     /// in the Cargo manifest. MSRV's greater or equal to 1.56 will be written to
     /// `package.rust-version` in the Cargo manifest.
-    #[clap(value_name = "MSRV")]
+    #[arg(value_name = "MSRV")]
     msrv: BareVersion,
 }
 
 #[derive(Debug, Args)]
-#[clap(
-    next_help_heading = "VERIFY OPTIONS",
-    setting = AppSettings::DeriveDisplayOrder,
-)]
+#[command(next_help_heading = "Verify options")]
 pub(in crate::cli) struct VerifyOpts {
-    #[clap(flatten)]
+    #[command(flatten)]
     pub(in crate::cli) rust_releases_opts: RustReleasesOpts,
 
-    #[clap(flatten)]
+    #[command(flatten)]
     pub(in crate::cli) toolchain_opts: ToolchainOpts,
 
-    #[clap(flatten)]
+    #[command(flatten)]
     pub(in crate::cli) custom_check: CustomCheckOpts,
 
     /// The Rust version, to check against for toolchain compatibility
     ///
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
-    #[clap(long, value_name = "rust-version")]
+    #[arg(long, value_name = "rust-version")]
     rust_version: Option<BareVersion>,
 }
 
@@ -226,4 +223,15 @@ fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
                 SubcommandId::Find
             }
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CargoCli;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+        CargoCli::command().debug_assert();
+    }
 }

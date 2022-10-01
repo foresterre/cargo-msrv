@@ -1,4 +1,4 @@
-use clap::ArgEnum;
+use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -19,22 +19,18 @@ pub(crate) mod list;
 pub(crate) mod set;
 pub(crate) mod verify;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, ValueEnum)]
 pub enum OutputFormat {
     /// Progress bar rendered to stderr
+    #[default]
     Human,
     /// Json status updates printed to stdout
     Json,
     /// Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
     Minimal,
     /// No output -- meant to be used for debugging and testing
+    #[value(skip)]
     None,
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        Self::Human
-    }
 }
 
 impl fmt::Display for OutputFormat {
@@ -61,18 +57,6 @@ impl FromStr for OutputFormat {
                 unknown
             ))),
         }
-    }
-}
-
-impl OutputFormat {
-    pub const HUMAN: &'static str = "human";
-    pub const JSON: &'static str = "json";
-    pub const MINIMAL: &'static str = "minimal";
-
-    /// A set of formats which may be given as a configuration option
-    ///   through the CLI.
-    pub fn custom_formats() -> &'static [&'static str] {
-        &[Self::HUMAN, Self::JSON, Self::MINIMAL]
     }
 }
 
@@ -112,28 +96,13 @@ impl From<SubcommandId> for &'static str {
     }
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize, ValueEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
+    #[default]
     RustChangelog,
     #[cfg(feature = "rust-releases-dist-source")]
     RustDist,
-}
-
-impl Default for ReleaseSource {
-    fn default() -> Self {
-        Self::RustChangelog
-    }
-}
-
-impl ReleaseSource {
-    pub(crate) fn variants() -> &'static [&'static str] {
-        &[
-            "rust-changelog",
-            #[cfg(feature = "rust-releases-dist-source")]
-            "rust-dist",
-        ]
-    }
 }
 
 impl FromStr for ReleaseSource {
@@ -519,7 +488,7 @@ impl TracingOptions {
     }
 }
 
-#[derive(Debug, Copy, Clone, ArgEnum)]
+#[derive(Debug, Copy, Clone, ValueEnum)]
 pub enum TracingTargetOption {
     File,
     Stdout,

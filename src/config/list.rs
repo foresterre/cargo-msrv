@@ -1,14 +1,17 @@
 use std::fmt::Formatter;
 use std::{fmt, str::FromStr};
 
+use clap::ValueEnum;
+
 #[derive(Clone, Debug)]
 pub struct ListCmdConfig {
     pub variant: ListMsrvVariant,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
 pub enum ListMsrvVariant {
     DirectDeps,
+    #[default]
     OrderedByMSRV,
 }
 
@@ -38,17 +41,5 @@ impl fmt::Display for ListMsrvVariant {
             Self::DirectDeps => write!(f, "{}", DIRECT_DEPS),
             Self::OrderedByMSRV => write!(f, "{}", ORDERED_BY_MSRV),
         }
-    }
-}
-
-impl ListMsrvVariant {
-    pub(crate) const fn variants() -> &'static [&'static str] {
-        &[DIRECT_DEPS, ORDERED_BY_MSRV]
-    }
-}
-
-impl Default for ListMsrvVariant {
-    fn default() -> Self {
-        Self::OrderedByMSRV
     }
 }

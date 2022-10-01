@@ -1,10 +1,13 @@
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+use clap::ValueEnum;
+
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
 pub enum LogLevel {
     Trace,
     Debug,
+    #[default]
     Info,
     Warn,
     Error,
@@ -13,12 +16,6 @@ pub enum LogLevel {
 impl LogLevel {
     fn variants() -> &'static [&'static str] {
         &["trace", "debug", "info", "warn", "error"]
-    }
-}
-
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
     }
 }
 
