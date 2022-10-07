@@ -20,6 +20,11 @@ From the Arch Linux [community repository](https://archlinux.org/packages/commun
 
 `pacman -S cargo-msrv`
 
+Also, you can use the following commands for building and running via Docker:
+
+- `docker build -t cargo-msrv .`
+- `docker run -t -v "$(pwd)/Cargo.toml":/app/Cargo.toml cargo-msrv`
+
 ### Preview
 
 [![asciicast](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF.svg)](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF)
