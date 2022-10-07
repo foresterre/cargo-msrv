@@ -271,8 +271,11 @@ description of output per command.</p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.60.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;}}
 </code></pre>
 <h4 id="list-msrvs-specified-by-crate-authors"><a class="header" href="#list-msrvs-specified-by-crate-authors">List MSRV's specified by crate authors</a></h4>
-<p>Reported upon completion of listing the MSRV's of dependencies for a given crate.
-The <code>list</code> output depends on the <code>variant</code>.</p>
+<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given crate.
+The exact output depends on which variant is used, either <code>ordered-by-msrv</code> (default) or <code>direct-deps</code>.</p>
+<p>The output of the list command is almost the same as it was before. The event is no longer called <code>list</code>; instead
+the output is given via the <code>subcommand_result</code> event, where the value of <code>subcommand_id</code> is <code>list</code>. The output of the
+command (<code>variant</code> and <code>list</code> fields) can now be found as part of the <code>result</code> field. The <code>success</code> field has been removed.</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;list&quot;,
   // output variant
@@ -295,6 +298,12 @@ The <code>list</code> output depends on the <code>variant</code>.</p>
     }
   ],
 }
+</code></pre>
+<p>An example of the <code>ordered-by-msrv</code> variant:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+</code></pre>
+<p>An example of the <code>direct-deps</code> variant:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;:&quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
 </code></pre>
 
                     </main>
