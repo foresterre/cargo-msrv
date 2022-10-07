@@ -5,7 +5,7 @@
   - [Installation](./getting-started/installation.md)
   - [Quick Start](./getting-started/quick-start.md)
 - [Migration Guide](./migration-guide/index.md)
-  - [v0.15 to v0.16 JSON Output Format](./migration-guide/v0.15_v0.16_json.md)
+  - [v0.15 to v0.16 JSON](./migration-guide/v0.15_v0.16_json.md)
 - [Concepts](./concepts/index.md)
 - [Output Formats](output-formats/index.md)
   - [human](output-formats/human.md)
