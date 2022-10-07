@@ -304,8 +304,12 @@ latter has been replaced by the <code>check_toolchain</code> event. Reporting ab
 {&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:4,&quot;marker&quot;:&quot;end&quot;}}
 </code></pre>
 <h4 id="check-complete"><a class="header" href="#check-complete">Check complete</a></h4>
-<p>Reported when a check, which determines whether the toolchain version under test
-is compatible, completes.</p>
+<p>The <code>check-complete</code> message would be reported when a check, which determined whether the toolchain version under test
+is compatible, completed. It has been replaced by the <code>check_result</code> event. The result of the compatibility check is now
+reported via the <code>is_compatible</code> field, instead of the <code>success</code> field. The progress report can be followed via the
+<code>progress</code> event, and the <code>check_cmd</code> may be found by inspecting the <code>check_method</code> event, via the <code>method.args</code> field,
+assuming that the <code>rustup_run</code> method (<code>method.type</code>) is used.</p>
+<p>Previously, you would receive the following event:</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;check-complete&quot;,
   // The version that was just checked
@@ -322,9 +326,20 @@ is compatible, completes.</p>
   &quot;check_cmd&quot;: &quot;cargo check --all&quot;
 }
 </code></pre>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+<p>And now, you instead receive these events, if the toolchain is compatible:</p>
+<pre><code class="language-json lines">...
+{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:26,&quot;search_space_size&quot;:34,&quot;iteration&quot;:27}
 ...
-{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}
+{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.38.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+...
+{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+</code></pre>
+<p>Or, if the toolchain is deemed incompatible:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:27,&quot;search_space_size&quot;:34,&quot;iteration&quot;:28}
+...
+{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+...
+{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}
 </code></pre>
 <h4 id="msrv-completed"><a class="header" href="#msrv-completed">MSRV completed</a></h4>
 <p>Reported when all actions for a mode have been run to completion.</p>
