@@ -342,7 +342,12 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
 {&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}
 </code></pre>
 <h4 id="msrv-completed"><a class="header" href="#msrv-completed">MSRV completed</a></h4>
-<p>Reported when all actions for a mode have been run to completion.</p>
+<p>When the find msrv command or the verify command would be completed, they would report about their result.
+The success field would respectively be used to report whether an MSRV had been found, or whether the MSRV being verified
+was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the <code>subcommand_result</code>
+event. Please refer to the <a href="migration-guide/../output-formats/json.html#event-subcommandresult">subcommand_result</a> event for the complete
+description of output per command.</p>
+<p>The v0.15 output had the following format: </p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;msrv-complete&quot; /* OR */ &quot;reason&quot;: &quot;verify-complete&quot;,
   // true if a msrv was found
@@ -355,7 +360,11 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
   &quot;check_cmd&quot;: &quot;cargo check --all&quot;
 }
 </code></pre>
+<p>Below, you can find an example of the new output when finding the MSRV, where one is found:</p>
 <pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+</code></pre>
+<p>And another example for the output of the verify command, where the verification failed:</p>
+<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.60.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;}}
 </code></pre>
 <h4 id="list-msrvs-specified-by-crate-authors"><a class="header" href="#list-msrvs-specified-by-crate-authors">List MSRV's specified by crate authors</a></h4>
 <p>Reported upon completion of listing the MSRV's of dependencies for a given crate.
