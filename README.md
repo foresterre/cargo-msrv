@@ -25,6 +25,8 @@ Also, you can use the following commands for building and running via Docker:
 - `docker build -t cargo-msrv .`
 - `docker run -t -v "$(pwd)/Cargo.toml":/app/Cargo.toml cargo-msrv`
 
+Docker images are also available on [Docker Hub](https://hub.docker.com/r/foresterre/cargo-msrv).
+
 ### Preview
 
 [![asciicast](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF.svg)](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF)
