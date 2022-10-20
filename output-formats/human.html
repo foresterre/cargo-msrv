@@ -141,37 +141,42 @@
 <p>This is the default output format. It can also be specified using the <code>--output-format human</code> option.</p>
 <p>The output of the 'human' output format is intended to be interpreted by humans. It uses colour and custom printed
 layouts to convey its information to the user. </p>
+<p>In the next section, examples are given for each subcommand and a specific use case. You may run <code>cargo msrv help</code> to
+review all flags and options available.</p>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
+<p><strong>I want to find the MSRV of my project</strong></p>
+<p>Use: <code>cargo msrv</code>:</p>
+<p><a href="https://asciinema.org/a/530521"><img src="https://asciinema.org/a/530521.svg" alt="Screencast: find the MSRV" /></a></p>
 <p>The output shows for each checked toolchain whether it is determined to be compatible or not.
-Upon completion, a summary is shown which contains information on the search space considered, the search method used,
-the compiler target and of course the MSRV.</p>
-<h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
-<p>In this example, we'll try to find the MSRV for an example project.</p>
-<p>TODO screencast</p>
-<p>From the above summary, we can determine that the MSRV is <code>1.42</code>.</p>
-<h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
-<p>This example showcases a case where there's no valid MSRV.</p>
-<p>TODO screencast</p>
-<p>From the error message we learn that this is because of a nightly compiler feature, which is not available on stable.</p>
+If a toolchain is not compatible, a reason is printed which may help you discover why it is not deemed compatible.</p>
+<p>cargo-msrv will show a summary after the search completes. The summary consists of the search space considered,
+the search method used, the compiler target and of course the MSRV.</p>
+<p>It is also possible that no MSRV could be found, for example if the program is not valid Rust code (i.e. would not compile).</p>
+<p><strong>I want to find the MSRV and write the result to the Cargo manifest</strong></p>
+<p>Use the <code>--write-msrv</code> flag: <code>cargo msrv --write-msrv</code></p>
+<p><a href="https://asciinema.org/a/530521"><img src="https://asciinema.org/a/530521.svg" alt="Screencast: find the MSRV and write the result to the Cargo manifest" /></a></p>
+<p>The output is the same as for <code>cargo msrv</code>, plus an additional message which states that the MSRV has been written to
+the Cargo manifest.</p>
+<p><em>Support for also writing to the clippy config is tracked in 
+<a href="https://github.com/foresterre/cargo-msrv/issues/529">issue 529</a></em>.</p>
+<p><strong>I want to find the MSRV and limit or increase the search space</strong></p>
+<p>Use the <code>--min</code> and/or <code>--max</code> options: <code>cargo msrv --min &lt;Rust version or edition&gt; --max &lt;Rust version&gt;</code>.</p>
+<p><a href="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV"><img src="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV.svg" alt="Sceencast: find the MSRV with a customized search space" /></a></p>
+<p>By default, the search space is limited by the edition specified in the Cargo manifest. You may use the above
+options to override the limits of the search space. The output will be the same as otherwise running <code>cargo msrv</code>.</p>
+<p>In the example we specified the minimal version by specifying a Rust edition. We also could've specified a Rust version
+instead, e.g. <code>1.10</code> or <code>1.20.0</code>. It is not possible for the maximum considered version to specify an edition.</p>
+<p><strong>I Want to find the MSRV, but use a linear search</strong></p>
+<p>Use the <code>--linear</code> flag: <code>cargo msrv --linear</code>.</p>
+<p><a href="https://asciinema.org/a/530645"><img src="https://asciinema.org/a/530645.svg" alt="Screencast: find the MSRV using a linear search" /></a></p>
+<p>We use the bisection search method to speed up the search for the MSRV considerably, but sometimes a linear search
+can be useful, for example if the search space is very small. The output will be the same as otherwise running
+<code>cargo msrv</code>, except of course for the order in which the search is performed.</p>
 <h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
-<p>TODO</p>
 <h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
-<p>TODO</p>
-<h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
-<p>TODO example</p>
 <h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
-<p>TODO</p>
-<h3 id="example-1-2"><a class="header" href="#example-1-2">Example 1</a></h3>
-<p>TODO example</p>
-<h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
-<p>TODO example</p>
 <h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
-<p>TODO</p>
-<h3 id="example-1-3"><a class="header" href="#example-1-3">Example 1</a></h3>
-<p>TODO example</p>
-<h3 id="example-2-2"><a class="header" href="#example-2-2">Example 2</a></h3>
-<p>TODO example</p>
 
                     </main>
 
