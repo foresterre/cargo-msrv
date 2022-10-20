@@ -146,7 +146,7 @@ review all flags and options available.</p>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
 <p><strong>I want to find the MSRV of my project</strong></p>
-<p>Use: <code>cargo msrv</code>:</p>
+<p>Use: <code>cargo msrv</code></p>
 <p><a href="https://asciinema.org/a/530521"><img src="https://asciinema.org/a/530521.svg" alt="Screencast: find the MSRV" /></a></p>
 <p>The output shows for each checked toolchain whether it is determined to be compatible or not.
 If a toolchain is not compatible, a reason is printed which may help you discover why it is not deemed compatible.</p>
@@ -161,19 +161,27 @@ the Cargo manifest.</p>
 <p><em>Support for also writing to the clippy config is tracked in 
 <a href="https://github.com/foresterre/cargo-msrv/issues/529">issue 529</a></em>.</p>
 <p><strong>I want to find the MSRV and limit or increase the search space</strong></p>
-<p>Use the <code>--min</code> and/or <code>--max</code> options: <code>cargo msrv --min &lt;Rust version or edition&gt; --max &lt;Rust version&gt;</code>.</p>
+<p>Use the <code>--min</code> and/or <code>--max</code> options: <code>cargo msrv --min &lt;Rust version or edition&gt; --max &lt;Rust version&gt;</code></p>
 <p><a href="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV"><img src="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV.svg" alt="Sceencast: find the MSRV with a customized search space" /></a></p>
 <p>By default, the search space is limited by the edition specified in the Cargo manifest. You may use the above
 options to override the limits of the search space. The output will be the same as otherwise running <code>cargo msrv</code>.</p>
 <p>In the example we specified the minimal version by specifying a Rust edition. We also could've specified a Rust version
 instead, e.g. <code>1.10</code> or <code>1.20.0</code>. It is not possible for the maximum considered version to specify an edition.</p>
-<p><strong>I Want to find the MSRV, but use a linear search</strong></p>
-<p>Use the <code>--linear</code> flag: <code>cargo msrv --linear</code>.</p>
+<p><strong>I want to find the MSRV, but use a linear search</strong></p>
+<p>Use the <code>--linear</code> flag: <code>cargo msrv --linear</code></p>
 <p><a href="https://asciinema.org/a/530645"><img src="https://asciinema.org/a/530645.svg" alt="Screencast: find the MSRV using a linear search" /></a></p>
 <p>We use the bisection search method to speed up the search for the MSRV considerably, but sometimes a linear search
 can be useful, for example if the search space is very small. The output will be the same as otherwise running
 <code>cargo msrv</code>, except of course for the order in which the search is performed.</p>
 <h2 id="cargo-msrv-list"><a class="header" href="#cargo-msrv-list"># cargo msrv list</a></h2>
+<p><strong>I want to list the MSRV's of all dependencies</strong></p>
+<p>Use: <code>cargo msrv list</code></p>
+<p><a href="https://asciinema.org/a/530652"><img src="https://asciinema.org/a/530652.svg" alt="Screencast: list MSRV's of dependencies" /></a></p>
+<p>This example shows how to list the MSRV's of dependencies. The MSRV's are sourced from their Cargo manifests.</p>
+<p><strong>I want to list the MSRV's of my direct dependencies</strong></p>
+<p>Use the <code>--variant</code> option: <code>cargo msrv list --variant direct-deps</code></p>
+<p><a href="https://asciinema.org/a/AU2Xaq1hrXUYfjLdUvDzZHaCC"><img src="https://asciinema.org/a/AU2Xaq1hrXUYfjLdUvDzZHaCC.svg" alt="Screencast: list MSRV's of direct dependencies" /></a></p>
+<p>In this example, we instead list the MSRV's of the dependencies specified in the Cargo manifest.</p>
 <h2 id="cargo-msrv-set"><a class="header" href="#cargo-msrv-set"># cargo msrv set</a></h2>
 <h2 id="cargo-msrv-show"><a class="header" href="#cargo-msrv-show"># cargo msrv show</a></h2>
 <h2 id="cargo-msrv-verify"><a class="header" href="#cargo-msrv-verify"># cargo msrv verify</a></h2>
