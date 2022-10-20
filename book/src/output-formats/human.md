@@ -14,7 +14,7 @@ review all flags and options available.
 
 **I want to find the MSRV of my project**
 
-Use: `cargo msrv`:
+Use: `cargo msrv`
 
 [![Screencast: find the MSRV](https://asciinema.org/a/530521.svg)](https://asciinema.org/a/530521)
 
@@ -40,7 +40,7 @@ _Support for also writing to the clippy config is tracked in
 
 **I want to find the MSRV and limit or increase the search space**
 
-Use the `--min` and/or `--max` options: `cargo msrv --min <Rust version or edition> --max <Rust version>`.
+Use the `--min` and/or `--max` options: `cargo msrv --min <Rust version or edition> --max <Rust version>`
 
 [![Sceencast: find the MSRV with a customized search space](https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV.svg)](https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV)
 
@@ -50,9 +50,9 @@ options to override the limits of the search space. The output will be the same 
 In the example we specified the minimal version by specifying a Rust edition. We also could've specified a Rust version
 instead, e.g. `1.10` or `1.20.0`. It is not possible for the maximum considered version to specify an edition.
 
-**I Want to find the MSRV, but use a linear search**
+**I want to find the MSRV, but use a linear search**
 
-Use the `--linear` flag: `cargo msrv --linear`.
+Use the `--linear` flag: `cargo msrv --linear`
 
 [![Screencast: find the MSRV using a linear search](https://asciinema.org/a/530645.svg)](https://asciinema.org/a/530645)
 
@@ -60,8 +60,23 @@ We use the bisection search method to speed up the search for the MSRV considera
 can be useful, for example if the search space is very small. The output will be the same as otherwise running
 `cargo msrv`, except of course for the order in which the search is performed.
 
-
 ## \# cargo msrv list
+
+**I want to list the MSRV's of all dependencies**
+
+Use: `cargo msrv list`
+
+[![Screencast: list MSRV's of dependencies](https://asciinema.org/a/530652.svg)](https://asciinema.org/a/530652)
+
+This example shows how to list the MSRV's of dependencies. The MSRV's are sourced from their Cargo manifests.
+
+**I want to list the MSRV's of my direct dependencies**
+
+Use the `--variant` option: `cargo msrv list --variant direct-deps`
+
+[![Screencast: list MSRV's of direct dependencies](https://asciinema.org/a/AU2Xaq1hrXUYfjLdUvDzZHaCC.svg)](https://asciinema.org/a/AU2Xaq1hrXUYfjLdUvDzZHaCC)
+
+In this example, we instead list the MSRV's of the dependencies specified in the Cargo manifest.
 
 ## \# cargo msrv set
 
