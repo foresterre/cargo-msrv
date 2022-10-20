@@ -80,6 +80,12 @@ In this example, we instead list the MSRV's of the dependencies specified in the
 
 ## \# cargo msrv set
 
+**I want to set or update the MSRV of my project**
+
+Use: `cargo msrv set <version>`
+
+[![asciicast](https://asciinema.org/a/530670.svg)](https://asciinema.org/a/530670)
+
 ## \# cargo msrv show
 
 ## \# cargo msrv verify
