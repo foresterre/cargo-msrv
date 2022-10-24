@@ -41,7 +41,7 @@ tracing = "0.1"
 tracing-appender = "0.2"
 
 # building package graphs, consider moving to guppy once rust_version is supported
-cargo_metadata = "0.15.0"
+cargo_metadata = "0.15.1"
 petgraph = "0.6.2"
 
 once_cell = "1.15.0"
