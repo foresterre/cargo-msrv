@@ -25,6 +25,7 @@ pub use setup_toolchain::SetupToolchain;
 pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;
 pub use termination::TerminateWithFailure;
+pub use unable_to_confirm_valid_release_version::UnableToConfirmValidReleaseVersion;
 
 // types
 pub use types::{
@@ -54,6 +55,7 @@ mod setup_toolchain;
 mod subcommand_init;
 mod subcommand_result;
 mod termination;
+mod unable_to_confirm_valid_release_version;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -126,6 +128,7 @@ pub enum Message {
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!
+    UnableToConfirmValidReleaseVersion(UnableToConfirmValidReleaseVersion),
 
     // todo: ReducedSearchSpace
     //       with: reason, reduction

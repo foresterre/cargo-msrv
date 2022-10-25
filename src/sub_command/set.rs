@@ -1,32 +1,70 @@
 use std::io::Write;
 
-use rust_releases::semver;
-
+use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::{table, value, Document, Item, Value};
 
-use crate::error::{IoErrorSource, SetMsrvError};
+use crate::error::{InvalidMsrvSetError, IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
+    UnableToConfirmValidReleaseVersion,
 };
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
-#[derive(Default)]
-pub struct Set;
+pub struct Set<'index> {
+    release_index: Option<&'index ReleaseIndex>,
+}
 
-impl SubCommand for Set {
-    type Output = ();
-
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        set_msrv(config, reporter)
+impl<'index> Set<'index> {
+    pub fn new(release_index: Option<&'index ReleaseIndex>) -> Self {
+        Self { release_index }
     }
 }
 
-fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+impl SubCommand for Set<'_> {
+    type Output = ();
+
+    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
+        let configured_msrv = &config.sub_command_config().set().msrv;
+
+        match self.release_index {
+            Some(index) if has_release(configured_msrv, index) => {
+                set_msrv(config, reporter, configured_msrv)
+            }
+            Some(index) => Err(InvalidMsrvSetError {
+                input: configured_msrv.clone(),
+                search_space: index.releases().to_vec(),
+            }
+            .into()),
+            None => {
+                reporter.report_event(UnableToConfirmValidReleaseVersion {})?;
+                set_msrv(config, reporter, configured_msrv)
+            }
+        }
+    }
+}
+
+fn has_release(configured_msrv: &BareVersion, release_index: &ReleaseIndex) -> bool {
+    release_index
+        .releases()
+        .iter()
+        .any(|release| matches_release(configured_msrv, release))
+}
+
+fn matches_release(configured_msrv: &BareVersion, release: &Release) -> bool {
+    let major_match = release.version().major == configured_msrv.major();
+    let minor_match = release.version().minor == configured_msrv.minor();
+    let patch_match = configured_msrv
+        .patch()
+        .map_or(true, |patch| release.version().patch == patch);
+    major_match && minor_match && patch_match
+}
+
+fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TResult<()> {
     let cargo_toml = config.context().manifest_path()?;
 
     // Read the Cargo manifest to a String
@@ -38,7 +76,6 @@ fn set_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     // Parse the Cargo manifest contents, in particular the MSRV value
     let mut manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
     check_workspace(&manifest)?;
-    let msrv = &config.sub_command_config().set().msrv;
 
     // Set the MSRV
     set_or_override_msrv(&mut manifest, msrv)?;
@@ -919,5 +956,52 @@ edition = "2021"
             .unwrap();
 
         assert_eq!(new_manifest.minimum_rust_version().unwrap(), &METADATA_MSRV)
+    }
+}
+
+#[cfg(test)]
+mod valid_release_tests {
+    use std::iter::FromIterator;
+
+    use cargo_metadata::semver;
+    use rust_releases::{Release, ReleaseIndex};
+
+    use crate::manifest::bare_version::BareVersion;
+    use crate::sub_command::set::has_release;
+
+    #[test]
+    fn releases_include_bare() {
+        let bare = BareVersion::TwoComponents(1, 55);
+        let index =
+            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 0))]);
+
+        assert!(has_release(&bare, &index))
+    }
+
+    #[test]
+    fn releases_does_not_include_bare() {
+        let bare = BareVersion::TwoComponents(1, 55);
+        let index =
+            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 54, 0))]);
+
+        assert!(!has_release(&bare, &index))
+    }
+
+    #[test]
+    fn releases_includes_bare_with_patch() {
+        let bare = BareVersion::ThreeComponents(1, 55, 100);
+        let index =
+            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 100))]);
+
+        assert!(has_release(&bare, &index))
+    }
+
+    #[test]
+    fn releases_does_not_include_bare_with_patch() {
+        let bare = BareVersion::ThreeComponents(1, 55, 100);
+        let index =
+            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 0))]);
+
+        assert!(!has_release(&bare, &index))
     }
 }

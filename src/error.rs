@@ -45,6 +45,9 @@ pub enum CargoMSRVError {
     InvalidRustVersionNumber(#[from] std::num::ParseIntError),
 
     #[error(transparent)]
+    InvalidMsrvSet(#[from] InvalidMsrvSetError),
+
+    #[error(transparent)]
     InvalidUTF8(#[from] FromUtf8Error),
 
     #[error("No crate root found for given crate")]
@@ -192,6 +195,16 @@ pub enum SetMsrvError {
 pub struct NoToolchainsToTryError {
     pub(crate) min: Option<BareVersion>,
     pub(crate) max: Option<BareVersion>,
+    pub(crate) search_space: Vec<Release>,
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("No Rust releases match input '{}' (search space: [{}])",
+    input,
+    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", ") )
+]
+pub struct InvalidMsrvSetError {
+    pub(crate) input: BareVersion,
     pub(crate) search_space: Vec<Release>,
 }
 

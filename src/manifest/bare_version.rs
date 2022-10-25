@@ -29,6 +29,27 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
+    pub fn major(&self) -> BareVersionUsize {
+        match self {
+            Self::TwoComponents(major, _) => *major,
+            Self::ThreeComponents(major, _, _) => *major,
+        }
+    }
+
+    pub fn minor(&self) -> BareVersionUsize {
+        match self {
+            Self::TwoComponents(_, minor) => *minor,
+            Self::ThreeComponents(_, minor, _) => *minor,
+        }
+    }
+
+    pub fn patch(&self) -> Option<BareVersionUsize> {
+        match self {
+            Self::TwoComponents(_, _) => None,
+            Self::ThreeComponents(_, _, patch) => Some(*patch),
+        }
+    }
+
     pub fn to_comparator(&self) -> semver::Comparator {
         match self {
             Self::TwoComponents(major, minor) => semver::Comparator {
@@ -396,7 +417,7 @@ mod bare_version_tests {
         too_large_int_minor_2c = { "0.18446744073709551616" },
         too_large_int_major_3c = { "18446744073709551616.0.0" },
         too_large_int_minor_3c = { "0.18446744073709551616.0" },
-        too_large_int_patch_3c = { "0.0.18446744073709551616" },        
+        too_large_int_patch_3c = { "0.0.18446744073709551616" },
         neg_int_major = { "-1.0.0" },
         neg_int_minor = { "0.-1.0" },
         neg_int_patch = { "0.0.-1" },

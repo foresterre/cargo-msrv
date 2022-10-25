@@ -68,6 +68,10 @@ impl EventHandler for HumanProgressHandler {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
                 self.pb.enable_steady_tick(Duration::from_millis(150));
             }
+            Message::UnableToConfirmValidReleaseVersion(_) => {
+                let message = Status::info("Unable to verify if provided version is an existing Rust release version");
+                self.pb.println(message);
+            }
             Message::CheckToolchain(it) if event.is_scope_start() => {
                 self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
                 self.start_runner_progress(it.toolchain.version());
@@ -170,6 +174,11 @@ impl Status {
 
     fn fail(message: impl Display) -> String {
         let lead = format!("[{}]", "FAIL".bright_red());
+        format!("  {:>16}  {}", lead, message)
+    }
+
+    fn info(message: impl Display) -> String {
+        let lead = format!("[{}]", "INFO".bright_yellow());
         format!("  {:>16}  {}", lead, message)
     }
 
