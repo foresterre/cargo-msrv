@@ -14,7 +14,10 @@ pub struct TerminateWithFailure {
 
 impl TerminateWithFailure {
     pub fn new(error: CargoMSRVError) -> Self {
-        let highlight = matches!(error, CargoMSRVError::UnableToFindAnyGoodVersion { .. });
+        let highlight = matches!(
+            error,
+            CargoMSRVError::UnableToFindAnyGoodVersion { .. } | CargoMSRVError::InvalidMsrvSet(_)
+        );
 
         Self {
             highlight,

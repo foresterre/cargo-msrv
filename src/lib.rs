@@ -82,7 +82,8 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
             List::default().run(config, reporter)?;
         }
         SubcommandId::Set => {
-            Set::default().run(config, reporter)?;
+            let index = fetch_index(config, reporter).ok();
+            Set::new(index.as_ref()).run(config, reporter)?;
         }
         SubcommandId::Show => {
             Show::default().run(config, reporter)?;
