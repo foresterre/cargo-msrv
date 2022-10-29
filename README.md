@@ -28,7 +28,7 @@ Also, you can use the following commands for building and running via Docker:
 Docker images are also available on [Docker Hub](https://hub.docker.com/r/foresterre/cargo-msrv).
 
 _Note:_
-To use `cargo msrv find` or `cargo msrv verify` it is required to have installed rust via `rustup`.
+To use `cargo msrv (find)` or `cargo msrv verify`, it is required to have installed rust via `rustup`.
 
 ### Preview
 
