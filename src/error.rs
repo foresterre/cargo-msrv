@@ -6,10 +6,13 @@ use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 use rust_releases::Release;
+use thiserror::Error;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
+use crate::manifest::ManifestParseError;
+use crate::manifest::reader::ManifestReaderError;
 
 use crate::sub_command::{show, verify};
 
@@ -32,11 +35,8 @@ pub enum CargoMSRVError {
     #[error("{0}")]
     GenericMessage(String),
 
-    #[error("IO error: '{error}'. caused by: '{source}'.")]
-    Io {
-        error: io::Error,
-        source: IoErrorSource,
-    },
+    #[error(transparent)]
+    Io (#[from] IoError),
 
     #[error("{0}")]
     InvalidConfig(String),
@@ -49,6 +49,12 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     InvalidUTF8(#[from] FromUtf8Error),
+
+    #[error(transparent)]
+    ManifestParseError(#[from] ManifestParseError),
+
+    #[error(transparent)]
+    ManifestReaderError(#[from] ManifestReaderError),
 
     #[error("No crate root found for given crate")]
     NoCrateRootFound,
@@ -149,6 +155,13 @@ impl From<String> for CargoMSRVError {
     fn from(s: String) -> Self {
         Self::GenericMessage(s)
     }
+}
+
+#[derive(Debug,Error)]
+#[error("IO error: '{error}'. caused by: '{source}'.")]
+pub struct IoError {
+    pub error: io::Error,
+    pub source: IoErrorSource,
 }
 
 #[derive(Debug, thiserror::Error)]

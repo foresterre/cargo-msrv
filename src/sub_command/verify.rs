@@ -1,20 +1,18 @@
-use std::convert::TryFrom;
-use std::path::{Path, PathBuf};
+
+use std::path::PathBuf;
 
 use rust_releases::{Release, ReleaseIndex};
 
-use toml_edit::Document;
-
 use crate::check::Check;
 use crate::config::Config;
-use crate::error::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
 use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
+use crate::manifest::reader::{ ManifestReader, CargoManifestReader};
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, C: Check> {
@@ -51,17 +49,6 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 
         Ok(())
     }
-}
-
-/// Parse the cargo manifest from the given path.
-fn parse_manifest(path: &Path) -> TResult<CargoManifest> {
-    let contents = std::fs::read_to_string(path).map_err(|error| CargoMSRVError::Io {
-        error,
-        source: IoErrorSource::ReadFile(path.to_path_buf()),
-    })?;
-
-    let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
-    CargoManifest::try_from(manifest)
 }
 
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
@@ -156,7 +143,7 @@ impl RustVersion {
             Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
             None => {
                 let path = config.context().manifest_path()?;
-                let manifest = parse_manifest(path)?;
+                let manifest = CargoManifestReader::parse_manifest(path)?;
 
                 manifest
                     .minimum_rust_version()

@@ -1,4 +1,4 @@
-use crate::error::IoErrorSource;
+use crate::error::{IoError, IoErrorSource};
 use crate::{CargoMSRVError, Config, TResult};
 use once_cell::unsync::OnceCell;
 use std::ffi::OsStr;
@@ -115,10 +115,10 @@ impl GivenPath {
                 Ok(Path::new(".").to_path_buf())
             }
             Self::Manifest(p) => Ok(p.parent().unwrap().to_path_buf()),
-            Self::None => std::env::current_dir().map_err(|error| CargoMSRVError::Io {
+            Self::None => std::env::current_dir().map_err(|error| CargoMSRVError::Io(IoError {
                 error,
                 source: IoErrorSource::CurrentDir,
-            }),
+            })),
         }
     }
 }

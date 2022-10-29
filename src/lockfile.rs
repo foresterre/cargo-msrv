@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-use crate::error::{CargoMSRVError, IoErrorSource, TResult};
+use crate::error::{CargoMSRVError, IoError, IoErrorSource, TResult};
 
 pub struct LockfileHandler<S: LockfileState> {
     state: PathBuf,
@@ -31,7 +31,7 @@ impl LockfileHandler<Start> {
     pub fn move_lockfile(self) -> TResult<LockfileHandler<Moved>> {
         let folder = self.state.parent().unwrap();
         std::fs::rename(self.state.as_path(), folder.join(CARGO_LOCK_REPLACEMENT)).map_err(
-            |error| CargoMSRVError::Io {
+            |error| IoError {
                 error,
                 source: IoErrorSource::RenameFile(self.state.clone()),
             },
@@ -48,7 +48,7 @@ impl LockfileHandler<Moved> {
     pub fn move_lockfile_back(self) -> TResult<LockfileHandler<Complete>> {
         let folder = self.state.parent().unwrap();
         std::fs::rename(folder.join(CARGO_LOCK_REPLACEMENT), self.state.as_path()).map_err(
-            |err| CargoMSRVError::Io {
+            |err| IoError {
                 error: err,
                 source: IoErrorSource::RenameFile(self.state.clone()),
             },
