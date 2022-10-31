@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use toml_edit::Document;
 
 use crate::config::Config;
-use crate::error::{CargoMSRVError, IoError, IoErrorSource, TResult};
+use crate::error::{IoError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
 use crate::reporter::event::ShowResult;

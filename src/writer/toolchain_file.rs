@@ -4,10 +4,9 @@ use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
 use crate::reporter::Reporter;
-use crate::{semver, CargoMSRVError, Config, TResult};
+use crate::{semver, Config, TResult};
 use std::fmt;
 use std::path::{Path, PathBuf};
-
 
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
@@ -71,6 +70,7 @@ channel = "{}"
 
 #[cfg(test)]
 mod write_toolchain_file_tests {
+    use super::IoError;
     use crate::config::ConfigBuilder;
     use crate::error::IoErrorSource;
     use crate::reporter::event::{
@@ -80,7 +80,6 @@ mod write_toolchain_file_tests {
     use crate::writer::toolchain_file::write_toolchain_file;
     use crate::{semver, CargoMSRVError, Event, SubcommandId};
     use test_dir::{DirBuilder, FileType, TestDir};
-    use super::IoError;
 
     #[test]
     fn no_toolchain_file_yet() {
@@ -245,7 +244,7 @@ channel = "1.55.77"
 
         assert!(matches!(
             error,
-            CargoMSRVError::Io( IoError {
+            CargoMSRVError::Io(IoError {
                 error: _,
                 source: IoErrorSource::WriteFile(_),
             })

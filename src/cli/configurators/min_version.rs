@@ -5,8 +5,8 @@ use std::path;
 use std::path::PathBuf;
 
 use crate::cli::rust_releases_opts::Edition;
-use crate::{CargoMSRVError, TResult};
 use crate::error::IoError;
+use crate::{CargoMSRVError, TResult};
 
 pub(in crate::cli) struct MinVersion;
 

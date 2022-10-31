@@ -5,14 +5,12 @@ use std::io;
 use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
-use rust_releases::Release;
-use thiserror::Error;
-
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
-use crate::manifest::ManifestParseError;
 use crate::manifest::reader::ManifestReaderError;
+use crate::manifest::ManifestParseError;
+use rust_releases::Release;
 
 use crate::sub_command::{show, verify};
 
@@ -36,7 +34,7 @@ pub enum CargoMSRVError {
     GenericMessage(String),
 
     #[error(transparent)]
-    Io (#[from] IoError),
+    Io(#[from] IoError),
 
     #[error("{0}")]
     InvalidConfig(String),
@@ -157,7 +155,7 @@ impl From<String> for CargoMSRVError {
     }
 }
 
-#[derive(Debug,Error)]
+#[derive(Debug, thiserror::Error)]
 #[error("IO error: '{error}'. caused by: '{source}'.")]
 pub struct IoError {
     pub error: io::Error,

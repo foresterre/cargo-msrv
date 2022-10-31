@@ -1,4 +1,4 @@
-
+use std::convert::TryFrom;
 use std::path::PathBuf;
 
 use rust_releases::{Release, ReleaseIndex};
@@ -7,12 +7,13 @@ use crate::check::Check;
 use crate::config::Config;
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
+use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
+use crate::manifest::CargoManifest;
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
 use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
-use crate::manifest::reader::{ ManifestReader, CargoManifestReader};
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, C: Check> {
@@ -143,7 +144,8 @@ impl RustVersion {
             Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
             None => {
                 let path = config.context().manifest_path()?;
-                let manifest = CargoManifestReader::parse_manifest(path)?;
+                let document = TomlDocumentReader::read_document(path)?;
+                let manifest = CargoManifest::try_from(document)?;
 
                 manifest
                     .minimum_rust_version()

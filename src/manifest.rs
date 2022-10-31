@@ -1,7 +1,6 @@
-use crate::manifest::bare_version::{BareVersion, Error};
+use crate::manifest::bare_version::BareVersion;
 use std::convert::TryFrom;
 use toml_edit::{Document, Item, TomlError};
-use thiserror::Error;
 
 pub(crate) mod bare_version;
 pub mod reader;
@@ -54,17 +53,15 @@ impl TomlParser for CargoManifestParser {
     }
 }
 
-#[derive(Debug,Error)]
+#[derive(Debug, thiserror::Error)]
 #[error("The minimum rust version in your manifest file could not be parsed: {inner}")]
-pub struct ManifestParseError{
-    pub inner: bare_version::Error
+pub struct ManifestParseError {
+    pub inner: bare_version::Error,
 }
 
 impl From<bare_version::Error> for ManifestParseError {
     fn from(bare: bare_version::Error) -> Self {
-        Self{
-            inner:bare
-        }
+        Self { inner: bare }
     }
 }
 
@@ -123,9 +120,10 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::error::CargoMSRVError;
     use crate::manifest::bare_version::Error;
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, ManifestParseError, TomlParser};
+    use crate::manifest::{
+        BareVersion, CargoManifest, CargoManifestParser, ManifestParseError, TomlParser,
+    };
     use std::convert::TryFrom;
     use toml_edit::Document;
 
@@ -216,11 +214,8 @@ rust-version = "1.56.0-nightly"
 
         let parse_err = CargoManifest::try_from(manifest).unwrap_err();
 
-        if let ManifestParseError{
-            inner
-        } = parse_err {
-            assert_eq!(inner, Error::PreReleaseModifierNotAllowed);
-        }
+        let ManifestParseError { inner } = parse_err;
+        assert_eq!(inner, Error::PreReleaseModifierNotAllowed);
     }
 
     #[test]

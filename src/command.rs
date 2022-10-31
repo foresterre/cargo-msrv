@@ -2,7 +2,7 @@ use std::ffi::{OsStr, OsString};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-use crate::error::{CargoMSRVError, IoError, IoErrorSource, TResult};
+use crate::error::{IoError, IoErrorSource, TResult};
 
 pub struct RustupCommand {
     command: Command,
@@ -85,12 +85,10 @@ impl RustupCommand {
             error,
             source: IoErrorSource::SpawnProcess(cmd.to_owned()),
         })?;
-        let output = child
-            .wait_with_output()
-            .map_err(|error| IoError {
-                error,
-                source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.to_owned()),
-            })?;
+        let output = child.wait_with_output().map_err(|error| IoError {
+            error,
+            source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.to_owned()),
+        })?;
 
         Ok(RustupOutput {
             output,

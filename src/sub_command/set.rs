@@ -5,14 +5,13 @@ use toml_edit::{table, value, Document, Item, Value};
 
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
-use crate::manifest::reader::{ ManifestReader, CargoManifestReader};
+use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
     UnableToConfirmValidReleaseVersion,
 };
 use crate::reporter::Reporter;
 use crate::{CargoMSRVError, Config, SubCommand, TResult};
-use crate::manifest::{CargoManifestParser, TomlParser};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 

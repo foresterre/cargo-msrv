@@ -115,10 +115,12 @@ impl GivenPath {
                 Ok(Path::new(".").to_path_buf())
             }
             Self::Manifest(p) => Ok(p.parent().unwrap().to_path_buf()),
-            Self::None => std::env::current_dir().map_err(|error| CargoMSRVError::Io(IoError {
-                error,
-                source: IoErrorSource::CurrentDir,
-            })),
+            Self::None => std::env::current_dir().map_err(|error| {
+                CargoMSRVError::Io(IoError {
+                    error,
+                    source: IoErrorSource::CurrentDir,
+                })
+            }),
         }
     }
 }
