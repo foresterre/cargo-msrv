@@ -3,7 +3,7 @@ use std::io::Write;
 use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::{table, value, Document, Item, Value};
 
-use crate::error::{InvalidMsrvSetError, IoErrorSource, SetMsrvError};
+use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::event::{
@@ -68,7 +68,7 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
     let cargo_toml = config.context().manifest_path()?;
 
     // Read the Cargo manifest to a String
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| CargoMSRVError::Io {
+    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| IoError {
         error,
         source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;
@@ -85,13 +85,13 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
         .write(true)
         .truncate(true)
         .open(&cargo_toml)
-        .map_err(|error| CargoMSRVError::Io {
+        .map_err(|error| IoError {
             error,
             source: IoErrorSource::OpenFile(cargo_toml.to_path_buf()),
         })?;
 
     // Write the new manifest contents with the newly set MSRV value
-    write!(&mut file, "{}", manifest).map_err(|error| CargoMSRVError::Io {
+    write!(&mut file, "{}", manifest).map_err(|error| IoError {
         error,
         source: IoErrorSource::WriteFile(cargo_toml.to_path_buf()),
     })?;

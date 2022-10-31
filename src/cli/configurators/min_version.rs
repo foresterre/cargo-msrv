@@ -5,6 +5,7 @@ use std::path;
 use std::path::PathBuf;
 
 use crate::cli::rust_releases_opts::Edition;
+use crate::error::IoError;
 use crate::{CargoMSRVError, TResult};
 
 pub(in crate::cli) struct MinVersion;
@@ -44,7 +45,7 @@ fn find_manifest(builder: &ConfigBuilder) -> TResult<PathBuf> {
     let crate_folder = if let Some(path) = builder.get_crate_path() {
         Ok(path.to_path_buf())
     } else {
-        std::env::current_dir().map_err(|error| CargoMSRVError::Io {
+        std::env::current_dir().map_err(|error| IoError {
             error,
             source: IoErrorSource::CurrentDir,
         })
@@ -62,7 +63,7 @@ fn set_min_version_from_manifest<'c>(
     use toml_edit::Document;
     use toml_edit::Item;
 
-    let contents = std::fs::read_to_string(cargo_toml).map_err(|error| CargoMSRVError::Io {
+    let contents = std::fs::read_to_string(cargo_toml).map_err(|error| IoError {
         error,
         source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;

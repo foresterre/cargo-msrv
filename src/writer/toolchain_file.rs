@@ -1,10 +1,10 @@
 use crate::combinators::ThenSome;
-use crate::error::IoErrorSource;
+use crate::error::{IoError, IoErrorSource};
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
 use crate::reporter::Reporter;
-use crate::{semver, CargoMSRVError, Config, TResult};
+use crate::{semver, Config, TResult};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -24,7 +24,7 @@ pub fn write_toolchain_file(
     let path = toolchain_file(path_prefix);
     let content = format_toolchain_file(stable_version);
 
-    std::fs::write(&path, content).map_err(|error| CargoMSRVError::Io {
+    std::fs::write(&path, content).map_err(|error| IoError {
         error,
         source: IoErrorSource::WriteFile(path.clone()),
     })?;
@@ -70,6 +70,7 @@ channel = "{}"
 
 #[cfg(test)]
 mod write_toolchain_file_tests {
+    use super::IoError;
     use crate::config::ConfigBuilder;
     use crate::error::IoErrorSource;
     use crate::reporter::event::{
@@ -243,10 +244,10 @@ channel = "1.55.77"
 
         assert!(matches!(
             error,
-            CargoMSRVError::Io {
+            CargoMSRVError::Io(IoError {
                 error: _,
                 source: IoErrorSource::WriteFile(_),
-            }
+            })
         ));
 
         let message = format!("{error}");

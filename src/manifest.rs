@@ -3,6 +3,7 @@ use std::convert::TryFrom;
 use toml_edit::{Document, Item, TomlError};
 
 pub(crate) mod bare_version;
+pub mod reader;
 
 pub trait TomlParser {
     type Error;
@@ -52,8 +53,20 @@ impl TomlParser for CargoManifestParser {
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+#[error("The minimum rust version in your manifest file could not be parsed: {inner}")]
+pub struct ManifestParseError {
+    pub inner: bare_version::Error,
+}
+
+impl From<bare_version::Error> for ManifestParseError {
+    fn from(bare: bare_version::Error) -> Self {
+        Self { inner: bare }
+    }
+}
+
 impl TryFrom<Document> for CargoManifest {
-    type Error = crate::CargoMSRVError;
+    type Error = ManifestParseError;
 
     fn try_from(map: Document) -> Result<Self, Self::Error> {
         let minimum_rust_version = minimum_rust_version(&map)?;
@@ -64,7 +77,7 @@ impl TryFrom<Document> for CargoManifest {
     }
 }
 
-fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, crate::CargoMSRVError> {
+fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, bare_version::Error> {
     let version = match find_minimum_rust_version(value) {
         Some(version) => version,
         None => return Ok(None),
@@ -107,9 +120,10 @@ fn find_minimum_rust_version(document: &Document) -> Option<&str> {
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::error::CargoMSRVError;
     use crate::manifest::bare_version::Error;
-    use crate::manifest::{BareVersion, CargoManifest, CargoManifestParser, TomlParser};
+    use crate::manifest::{
+        BareVersion, CargoManifest, CargoManifestParser, ManifestParseError, TomlParser,
+    };
     use std::convert::TryFrom;
     use toml_edit::Document;
 
@@ -200,11 +214,8 @@ rust-version = "1.56.0-nightly"
 
         let parse_err = CargoManifest::try_from(manifest).unwrap_err();
 
-        if let CargoMSRVError::BareVersionParse(err) = parse_err {
-            assert_eq!(err, Error::PreReleaseModifierNotAllowed);
-        } else {
-            panic!("Incorrect cargo-msrv error type");
-        }
+        let ManifestParseError { inner } = parse_err;
+        assert_eq!(inner, Error::PreReleaseModifierNotAllowed);
     }
 
     #[test]

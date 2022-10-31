@@ -1,7 +1,7 @@
 use crate::check::Check;
 use crate::command::RustupCommand;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
-use crate::error::IoErrorSource;
+use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::toolchain::ToolchainSpec;
@@ -153,7 +153,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         let lock_file = self.lockfile_path(config)?;
 
         if lock_file.is_file() {
-            std::fs::remove_file(&lock_file).map_err(|error| CargoMSRVError::Io {
+            std::fs::remove_file(&lock_file).map_err(|error| IoError {
                 error,
                 source: IoErrorSource::RemoveFile(lock_file.to_path_buf()),
             })?;
