@@ -43,11 +43,11 @@ impl serde::Serialize for OrderedByMsrvFormatter<'_> {
 fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
     let package_id = &graph.root_crate();
     let root_index = graph.index()[package_id].into();
-    let mut bfs = Bfs::new(&graph.packages(), root_index);
+    let mut bfs = Bfs::new(graph.packages(), root_index);
 
     let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
 
-    while let Some(nx) = bfs.next(&graph.packages()) {
+    while let Some(nx) = bfs.next(graph.packages()) {
         let package = &graph.packages()[nx];
 
         let msrv = package_msrv(package);

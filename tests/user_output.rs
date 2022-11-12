@@ -11,7 +11,7 @@ fn expect_no_user_output() {
     let test_subject = fixtures_path().join("1.36.0");
 
     let process = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--quiet",
             "--manifest-path",
