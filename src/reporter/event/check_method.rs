@@ -58,8 +58,8 @@ mod tests {
     use storyteller::EventReporter;
 
     #[yare::parameterized(
-        rustup_run_without_path = { Method::rustup_run(&["hello"], Option::<&Path>::None) },
-        rustup_run_with_path = { Method::rustup_run(&["hello"], Some(Path::new("haha"))) },
+        rustup_run_without_path = { Method::rustup_run(["hello"], Option::<&Path>::None) },
+        rustup_run_with_path = { Method::rustup_run(["hello"], Some(Path::new("haha"))) },
         test_runner = { Method::TestRunner },
     )]
     fn reported_event(method: Method) {

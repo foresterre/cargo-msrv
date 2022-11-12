@@ -29,7 +29,7 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
                 let rustup = RustupCommand::new()
                     .with_stdout()
                     .with_stderr()
-                    .with_args(&["--profile", "minimal", toolchain.spec()])
+                    .with_args(["--profile", "minimal", toolchain.spec()])
                     .install()?;
 
                 let status = rustup.exit_status();

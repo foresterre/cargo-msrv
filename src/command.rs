@@ -75,7 +75,7 @@ impl RustupCommand {
             args = ?self.args.as_slice()
         );
 
-        self.command.arg(&cmd);
+        self.command.arg(cmd);
         self.command.args(self.args);
 
         self.command.stdout(self.stdout);

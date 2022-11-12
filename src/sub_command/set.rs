@@ -68,7 +68,7 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
     let cargo_toml = config.context().manifest_path()?;
 
     // Read the Cargo manifest to a String
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| IoError {
+    let contents = std::fs::read_to_string(cargo_toml).map_err(|error| IoError {
         error,
         source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;
@@ -84,7 +84,7 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
     let mut file = std::fs::OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open(&cargo_toml)
+        .open(cargo_toml)
         .map_err(|error| IoError {
             error,
             source: IoErrorSource::OpenFile(cargo_toml.to_path_buf()),

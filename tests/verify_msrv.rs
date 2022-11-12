@@ -82,7 +82,7 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
     let test_subject = [cargo_msrv_dir, "tests", "fixtures", "1.56.0-edition-2021"].join("/");
 
     let mut process = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--manifest-path",
             &cargo_msrv_manifest,
@@ -118,7 +118,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
     let test_subject = [cargo_msrv_dir, "tests", "fixtures", "unbuildable-with-msrv"].join("/");
 
     let mut process = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--manifest-path",
             &cargo_msrv_manifest,
@@ -148,7 +148,7 @@ fn verify_subcommand_success_with_custom_check_cmd() {
     let test_subject = [cargo_msrv_dir, "tests", "fixtures", "1.56.0-edition-2021"].join("/");
 
     let mut process = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--manifest-path",
             &cargo_msrv_manifest,
