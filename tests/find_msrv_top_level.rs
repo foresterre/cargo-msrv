@@ -1,3 +1,8 @@
+// This module mirrors the tests in 'find_msrv' in the same folder. Between that test module
+// and this one, there is one difference: that module calls `cargo msrv find` while this one
+// calls just `cargo msrv`, the top level command without the `find` subcommand,
+// which is still supported for backwards compatibility.
+// When we say mirror, currently, we simply mean copied :).
 extern crate cargo_msrv;
 
 use crate::common::fixture::copy_fixture_to_test_dir;
@@ -28,14 +33,7 @@ mod common;
 fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let folder = copy_fixture_to_test_dir(folder);
 
-    let with_args = vec![
-        "cargo",
-        "msrv",
-        "find",
-        "--linear",
-        "--path",
-        folder.path_as_str(),
-    ];
+    let with_args = vec!["cargo", "msrv", "--linear", "--path", folder.path_as_str()];
 
     let result = find_msrv(with_args).unwrap();
     let actual_version = result.unwrap();
@@ -60,14 +58,7 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
 fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
     let folder = copy_fixture_to_test_dir(folder);
 
-    let with_args = vec![
-        "cargo",
-        "msrv",
-        "find",
-        "--bisect",
-        "--path",
-        folder.path_as_str(),
-    ];
+    let with_args = vec!["cargo", "msrv", "--bisect", "--path", folder.path_as_str()];
 
     let result = find_msrv(with_args).unwrap();
     let actual_version = result.unwrap();
@@ -79,7 +70,7 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
 fn msrv_unsupported() {
     let folder = copy_fixture_to_test_dir("unbuildable");
 
-    let with_args = vec!["cargo", "msrv", "find", "--path", folder.path_as_str()];
+    let with_args = vec!["cargo", "msrv", "--path", folder.path_as_str()];
 
     let result = find_msrv(with_args);
 
@@ -109,7 +100,6 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     let with_args = vec![
         "cargo",
         "msrv",
-        "find",
         "--linear",
         "--path",
         folder.path_as_str(),
@@ -144,7 +134,6 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
     let with_args = vec![
         "cargo",
         "msrv",
-        "find",
         "--linear",
         "--release-source",
         release_source,
@@ -168,7 +157,6 @@ fn msrv_with_old_lockfile() {
     let with_args = vec![
         "cargo",
         "msrv",
-        "find",
         "--linear",
         "--path",
         folder.path_as_str(),
@@ -188,14 +176,7 @@ mod minimum_from_edition {
     fn msrv_min_with_edition_in_cargo_toml() {
         let folder = copy_fixture_to_test_dir("1.30.0");
 
-        let with_args = vec![
-            "cargo",
-            "msrv",
-            "find",
-            "--linear",
-            "--path",
-            folder.path_as_str(),
-        ];
+        let with_args = vec!["cargo", "msrv", "--linear", "--path", folder.path_as_str()];
 
         let versions = vec![
             Release::new_stable(semver::Version::new(1, 32, 0)),
@@ -223,7 +204,6 @@ mod minimum_from_edition {
         let with_args = vec![
             "cargo",
             "msrv",
-            "find",
             "--linear",
             "--path",
             folder.path_as_str(),
@@ -269,7 +249,7 @@ fn msrv_in_a_virtual_workspace_default_check_command(
     let folder = folder.path().join(package);
     let folder = folder.to_str().unwrap();
 
-    let with_args = vec!["cargo", "msrv", "find", "--path", folder];
+    let with_args = vec!["cargo", "msrv", "--path", folder];
 
     let versions = vec![
         Release::new_stable(semver::Version::new(1, 58, 1)),
@@ -307,7 +287,7 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
     let folder = folder.path().join(package);
     let folder = folder.to_str().unwrap();
 
-    let base_command = vec!["cargo", "msrv", "find", "--path", folder, "--"];
+    let base_command = vec!["cargo", "msrv", "--path", folder, "--"];
     let custom_check_command = command.split_ascii_whitespace().collect::<Vec<_>>();
     let command = vec![base_command, custom_check_command];
 

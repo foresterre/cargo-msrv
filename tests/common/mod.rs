@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+pub mod fixture;
 pub mod reporter;
 pub mod runner;
 pub mod sub_cmd_find;
