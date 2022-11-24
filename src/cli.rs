@@ -88,6 +88,7 @@ pub(in crate::cli) enum CargoMsrvCli {
 
 #[derive(Debug, Args)]
 #[command(version)]
+///
 pub(in crate::cli) struct CargoMsrvOpts {
     #[command(flatten)]
     pub(in crate::cli) find_opts: FindOpts,
@@ -106,6 +107,9 @@ pub(in crate::cli) struct CargoMsrvOpts {
 #[derive(Debug, Subcommand)]
 #[command(propagate_version = true)]
 pub(in crate::cli) enum SubCommand {
+    /// Find the MSRV of your Rust project!
+    Find(FindOpts),
+
     /// Display the MSRV's of dependencies
     List(ListOpts),
     /// Set the MSRV of the current crate to a given Rust version
@@ -211,6 +215,7 @@ fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
     opts.subcommand
         .as_ref()
         .map(|subcommand| match subcommand {
+            SubCommand::Find(_) => SubcommandId::Find,
             SubCommand::List(_) => SubcommandId::List,
             SubCommand::Show => SubcommandId::Show,
             SubCommand::Set(_) => SubcommandId::Set,
