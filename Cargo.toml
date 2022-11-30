@@ -80,7 +80,7 @@ phenomenon = "~1.0.0"
 test_dir = "0.2.0"
 
 [build-dependencies]
-vergen = { version = "7.4.2", default-features = false, features = ["build", "cargo", "git", "rustc"] }
+vergen = { version = "7.4.3", default-features = false, features = ["build", "cargo", "git", "rustc"] }
 
 [profile.release]
 lto = true
