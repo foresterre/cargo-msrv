@@ -100,7 +100,7 @@ impl BareVersion {
             })
     }
 
-    pub fn to_semver_version(&self) -> crate::semver::Version {
+    pub fn to_semver_version(&self) -> semver::Version {
         match self {
             Self::TwoComponents(major, minor) => semver::Version::new(*major, *minor, 0),
             Self::ThreeComponents(major, minor, patch) => {
@@ -289,7 +289,7 @@ fn parse_number(input: &[u8]) -> Result<(BareVersionUsize, ParsedTokens), Error>
 
     match len {
         0 => Err(Error::UnexpectedEndOfInput),
-        _ => Ok((out, len as usize)),
+        _ => Ok((out, len)),
     }
 }
 
