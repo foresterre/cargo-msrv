@@ -189,7 +189,7 @@ impl Status {
 }
 
 fn message_box(message: &str) -> String {
-    Table::new(&[format!("{}", message.dimmed())])
+    Table::new([format!("{}", message.dimmed())])
         .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
         .with(Style::rounded())
         .with(Width::wrap(TermWidth::width()))
