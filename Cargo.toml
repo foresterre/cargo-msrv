@@ -34,7 +34,7 @@ indicatif = "0.17.2"
 json = "0.12.4" # todo: replace all with serde_json!
 
 # read Cargo.toml
-toml_edit = "0.16.2"
+toml_edit = "0.17.1"
 
 dirs = "4.0.0"
 tracing = "0.1"
