@@ -28,7 +28,7 @@ tag-name = "v{{version}}"
 clap = { version = "4.0.29", features = ["derive"] }
 
 # UI
-indicatif = "0.17.2"
+indicatif = "0.17.3"
 
 # read Cargo.toml
 toml_edit = "0.17.1"
