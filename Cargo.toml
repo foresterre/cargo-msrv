@@ -30,9 +30,6 @@ clap = { version = "4.0.29", features = ["derive"] }
 # UI
 indicatif = "0.17.2"
 
-# json output
-json = "0.12.4" # todo: replace all with serde_json!
-
 # read Cargo.toml
 toml_edit = "0.17.1"
 
