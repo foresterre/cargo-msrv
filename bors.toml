@@ -1,4 +1,9 @@
 status = [
+    "fmt",
+    "licenses_and_advisories (advisories)",
+    "licenses_and_advisories (bans licenses sources)",
+    "linter",
+    "msrv",
     "test (msrv)",
     "test (stable)",
     "test (beta)",
@@ -6,9 +11,4 @@ status = [
     "test (macos)",
     "test (win-gnu)",
     "test (win-msvc)",
-    "rustfmt",
-    "linter",
-    "licenses_and_advisories (advisories)",
-    "licenses_and_advisories (bans licenses sources)",
-    "msrv"
 ]

@@ -78,23 +78,3 @@ jobs:
 
       - name: test_all
         run: cargo test --verbose --all -- --test-threads=1
-
-  rustfmt:
-    name: rustfmt
-    runs-on: ubuntu-18.04
-    steps:
-      - name: checkout_repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - name: install_rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          profile: minimal
-      - name: install_rustfmt
-        run: rustup component add rustfmt
-      - name: check_formatting
-        run: |
-          cargo fmt -- --check

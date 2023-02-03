@@ -1,0 +1,25 @@
+name: "ci-fmt"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+      - staging # for Bors
+      - trying # for Bors
+jobs:
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout_repository
+        uses: actions/checkout@v3
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: check_formatting
+        run: |
+          cargo fmt -- --check
