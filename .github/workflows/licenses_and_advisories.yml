@@ -1,0 +1,23 @@
+name: "ci-licenses_and_advisories"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+      - staging # for Bors
+      - trying # for Bors
+jobs:
+  licenses_and_advisories:
+    name: licenses_and_advisories
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        checks:
+          - advisories
+          - bans licenses sources
+
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: EmbarkStudios/cargo-deny-action@v1

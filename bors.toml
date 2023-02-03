@@ -8,7 +8,7 @@ status = [
     "test (win-msvc)",
     "rustfmt",
     "clippy",
-    "cargo_deny (advisories)",
-    "cargo_deny (bans licenses sources)",
+    "licenses_and_advisories (advisories)",
+    "licenses_and_advisories (bans licenses sources)",
     "msrv"
 ]
