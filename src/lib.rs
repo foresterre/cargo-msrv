@@ -9,7 +9,11 @@
 //! please feel free to open an [issue](https://github.com/foresterre/cargo-msrv/issues/new).
 
 #![deny(clippy::all)]
-#![allow(clippy::upper_case_acronyms, clippy::unnecessary_wraps)]
+#![allow(
+    clippy::upper_case_acronyms,
+    clippy::unnecessary_wraps,
+    clippy::uninlined_format_args
+)]
 
 extern crate core;
 #[macro_use]
