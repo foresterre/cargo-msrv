@@ -98,23 +98,3 @@ jobs:
       - name: check_formatting
         run: |
           cargo fmt -- --check
-
-  clippy:
-    name: clippy
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: checkout_repo
-        uses: actions/checkout@v3
-      - name: install_rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          profile: minimal
-          components: clippy
-      - name: check_clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets --workspace

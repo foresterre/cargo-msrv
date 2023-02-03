@@ -7,7 +7,7 @@ status = [
     "test (win-gnu)",
     "test (win-msvc)",
     "rustfmt",
-    "clippy",
+    "linter",
     "licenses_and_advisories (advisories)",
     "licenses_and_advisories (bans licenses sources)",
     "msrv"
