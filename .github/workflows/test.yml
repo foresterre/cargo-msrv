@@ -1,0 +1,60 @@
+name: "ci-test"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+      - staging # for Bors
+      - trying # for Bors
+  schedule:
+    - cron: '00 05 * * *'
+jobs:
+  test:
+    name: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [ubuntu-stable, macos-stable, win-gnu-stable, win-msvc-stable, ubuntu-beta, ubuntu-nightly]
+        include:
+          - build: ubuntu-stable
+            os: ubuntu-latest
+            rust: stable
+
+          - build: macos-stable
+            os: macOS-latest
+            rust: stable
+
+          - build: win-gnu-stable
+            os: windows-latest
+            rust: stable-x86_64-gnu
+
+          - build: win-msvc-stable
+            os: windows-latest
+            rust: stable
+
+          - build: ubuntu-beta
+            os: ubuntu-latest
+            rust: beta
+
+          - build: ubuntu-nightly
+            os: ubuntu-latest
+            rust: nightly
+    steps:
+      - name: checkout_repository
+        uses: actions/checkout@v3
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: fetch
+        run: cargo fetch --verbose
+
+      - name: build
+        run: cargo build --verbose
+
+      - name: test_all
+        run: cargo test --verbose --all -- --test-threads=1
