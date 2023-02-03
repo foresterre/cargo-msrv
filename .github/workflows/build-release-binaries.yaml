@@ -13,15 +13,15 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             archive_ext: tar
-            rust: stable
+
           - target: x86_64-apple-darwin
             os: macos-latest
             archive_ext: tar
-            rust: stable
+
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             archive_ext: zip
-            rust: stable
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: checkout_tagged_commit
@@ -30,11 +30,7 @@ jobs:
           ref: ${{ github.event.release.target_commitish }}
 
       - name: install_rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          override: true
-          profile: minimal
+        uses: dtolnay/rust-toolchain@stable
 
       - name: build_${{ matrix.target }}_release_binary
         run: cargo build --target=${{ matrix.target }} --release
