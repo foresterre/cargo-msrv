@@ -1,4 +1,4 @@
-name: "Build Release Binaries"
+name: "ci-build-release-binaries"
 
 on:
   release:
