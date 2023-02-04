@@ -15,7 +15,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
 
       - name: run_code_coverage
-        uses: actions-rs/tarpaulin@v0.1
+        uses: actions-rs/tarpaulin@v0.1.0
         with:
           args: "--all-features --ignore-tests --frozen --timeout 1500 -- --test-threads=1"
 
