@@ -12,11 +12,11 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            archive_ext: tar
+            archive_ext: tgz
 
           - target: x86_64-apple-darwin
             os: macos-latest
-            archive_ext: tar
+            archive_ext: tgz
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
@@ -29,56 +29,66 @@ jobs:
         with:
           ref: ${{ github.event.release.target_commitish }}
 
+      - name: set_archive_name
+        shell: bash
+        run: echo "archive=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}.${{ matrix.archive_ext }}" >> $GITHUB_OUTPUT
+
+      - name: set_subfolder
+        shell: bash
+        run: echo "subfolder=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+      - name: show_outputs
+        shell: bash
+        run: |
+          echo "Archive: '${{ steps.create-archive-name.outputs.archive }}'"
+          echo "Subfolder: '${{ steps.create-archive-name.outputs.subfolder }}'"
+      
+      - name: create_pkg_subfolder
+        shell: bash
+        run: mkdir ${{ steps.create-archive-name.outputs.subfolder }}
+            
+      - name: copy_files_to_pkg_subfolder
+        shell: bash
+        run: |
+          cp LICENSE-APACHE ${{ steps.create-archive-name.outputs.subfolder }}
+          cp LICENSE-MIT ${{ steps.create-archive-name.outputs.subfolder }}
+          cp README.md ${{ steps.create-archive-name.outputs.subfolder }}
+      
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: build_${{ matrix.target }}_release_binary
+        shell: bash
         run: cargo build --target=${{ matrix.target }} --release
 
       - name: install_cargo_about
+        shell: bash
         run: cargo install cargo-about
 
       - name: generate_dep_licenses_file
-        run: cargo about generate --output-file third-party-licenses.html about.hbs
-
-      # Remove once python 3 is the default
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
-
-      - id: create-archive-name
-        shell: python # Use python to have a prettier name for the archive on Windows.
-        run: |
-          import platform
-          os_info = platform.uname()
-
-          triple = "${{ matrix.target }}".split("-")
-          arch = triple[0]
-
-          archive_name=f'cargo-msrv_${{ github.event.release.tag_name }}_{os_info.system}_{arch}.${{ matrix.archive_ext }}'
-
-          print(f'::set-output name=archive::{archive_name}')
+        shell: bash
+        run: cargo about generate --output-file "${{ steps.create-archive-name.outputs.subfolder }}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
         if: matrix.os == 'macos-latest'
         shell: bash
-        run: |
-          cp  ./target/${{ matrix.target }}/release/cargo-msrv cargo-msrv
-          gtar --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
+        run:
+          cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.create-archive-name.outputs.subfolder }}
+          gtar --create --gzip --file=${{ steps.create-archive-name.outputs.archive }} ${{ steps.create-archive-name.outputs.subfolder }}
 
       - name: pack_archive_linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv cargo-msrv
-          tar --create --file=${{ steps.create-archive-name.outputs.archive }} cargo-msrv third-party-licenses.html LICENSE-APACHE LICENSE-MIT README.md
+          cp target/${{ matrix.target }}/release/cargo-msrv ${{ steps.create-archive-name.outputs.subfolder }}
+          tar --create --gzip --file=${{ steps.create-archive-name.outputs.archive }} ${{ steps.create-archive-name.outputs.subfolder }}
 
       - name: pack_archive_windows
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./cargo-msrv.exe
-          7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./cargo-msrv.exe ./third-party-licenses.html ./LICENSE-APACHE ./LICENSE-MIT ./README.md
+          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./${{ steps.create-archive-name.outputs.subfolder }}
+          7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ${{ steps.create-archive-name.outputs.subfolder }}
 
       - name: upload_artifact
         uses: actions/upload-release-asset@v1.0.2
