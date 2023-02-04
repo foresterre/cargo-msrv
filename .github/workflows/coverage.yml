@@ -1,8 +1,6 @@
+name: "ci-coverage"
 on:
   pull_request:
-
-name: Code Coverage
-
 jobs:
   coverage:
     name: coverage
