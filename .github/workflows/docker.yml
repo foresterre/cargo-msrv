@@ -1,4 +1,4 @@
-name: "Docker Automated Builds"
+name: "ci-docker"
 
 on:
   push:
