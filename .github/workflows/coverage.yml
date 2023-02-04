@@ -14,11 +14,14 @@ jobs:
       - name: install_rust_nightly
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: run_code_coverage
+      - name: install_code_coverage_tool
         uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: generate_code_coverage
-        run: cargo llvm-cov --all-features --locked --lcov --output-path lcov.info
+        # `--lib` ensures we only run unit tests, no integration tests.
+        # Integration tests are disabled, because they rely on Rust toolchains which do not support the rustc option
+        # `-C instrument-coverage`, needed by llvm-cov.
+        run: cargo llvm-cov --all-features --locked --lcov --output-path lcov.info --lib
 
       - name: upload_code_coverage
         uses: codecov/codecov-action@v3
