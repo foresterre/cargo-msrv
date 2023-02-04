@@ -1,0 +1,28 @@
+name: "ci-linter"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+      - staging # for Bors
+      - trying # for Bors
+jobs:
+  linter:
+    name: linter
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: checkout_repo
+        uses: actions/checkout@v3
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: check_clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --all-targets --workspace
