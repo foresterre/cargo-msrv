@@ -1,10 +1,8 @@
+name: "ci-book"
 on:
   push:
     branches: [main]
   pull_request:
-
-name: Book
-
 jobs:
   book:
     name: build-and-publish-book
