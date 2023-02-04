@@ -45,8 +45,17 @@ jobs:
       - name: checkout_repository
         uses: actions/checkout@v3
 
+      # We would prefer to use `dtolnay/rust-toolchain@master with toolchain=${{ matrix.rust }}` or `rustup update ${{ matrix.rust }}`.
+      # However, when using either we run into a linking issue:
+      # `error: could not create link from 'C:\\Users\\runneradmin\\.cargo\\bin\\rustup.exe' to 'C:\\Users\\runneradmin\\.cargo\\bin\\cargo.exe'\n" })', tests\find_msrv.rs:156:39`
+      # I find the message odd, because we only need to install the toolchain, not set it as the default, and replace the
+      # binary; so what is meant by "link" in the above error?
       - name: install_rust
-        run: rustup update ${{ matrix.rust }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+          profile: minimal
 
       - name: fetch
         run: cargo fetch --verbose
