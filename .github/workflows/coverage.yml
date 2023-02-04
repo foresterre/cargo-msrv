@@ -5,6 +5,8 @@ jobs:
   coverage:
     name: coverage
     runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
     steps:
       - name: checkout_repository
         uses: actions/checkout@v3
@@ -13,9 +15,12 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
 
       - name: run_code_coverage
-        uses: actions-rs/tarpaulin@v0.1.0
-        with:
-          args: "--all-features --ignore-tests --frozen --timeout 1500 -- --test-threads=1"
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: generate_code_coverage
+        run: cargo llvm-cov --all-features --locked --lcov --output-path lcov.info
 
       - name: upload_code_coverage
         uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
