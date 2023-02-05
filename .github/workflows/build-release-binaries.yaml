@@ -29,32 +29,29 @@ jobs:
         with:
           ref: ${{ github.event.release.target_commitish }}
 
-      - name: set_archive_output
-        id: set_archive_output
+      - name: set_output
+        id: set_output
         shell: bash
-        run: echo "archive=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}.${{ matrix.archive_ext }}" >> $GITHUB_OUTPUT
-
-      - name: set_subfolder_output
-        id: set_subfolder_output
-        shell: bash
-        run: echo "subfolder=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "archive=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}.${{ matrix.archive_ext }}" >> $GITHUB_OUTPUT
+          echo "subfolder=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
 
       - name: show_outputs
         shell: bash
         run: |
-          echo "Archive: '${{ steps.set_subfolder_output.outputs.archive }}'"
-          echo "Subfolder: '${{ steps.set_subfolder_output.outputs.subfolder }}'"
+          echo "Archive: '${{ steps.set_output.outputs.archive }}'"
+          echo "Subfolder: '${{ steps.set_output.outputs.subfolder }}'"
       
       - name: create_pkg_subfolder
         shell: bash
-        run: mkdir ${{ steps.set_subfolder_output.outputs.subfolder }}
+        run: mkdir ${{ steps.set_output.outputs.subfolder }}
             
       - name: copy_files_to_pkg_subfolder
         shell: bash
         run: |
-          cp LICENSE-APACHE ${{ steps.set_archive_name.outputs.subfolder }}
-          cp LICENSE-MIT ${{ steps.set_subfolder_output.outputs.subfolder }}
-          cp README.md ${{ steps.set_subfolder_output.outputs.subfolder }}
+          cp LICENSE-APACHE ${{ steps.set_output.outputs.subfolder }}
+          cp LICENSE-MIT ${{ steps.set_output.outputs.subfolder }}
+          cp README.md ${{ steps.set_output.outputs.subfolder }}
       
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
@@ -69,28 +66,28 @@ jobs:
 
       - name: generate_dep_licenses_file
         shell: bash
-        run: cargo about generate --output-file "${{ steps.set_subfolder_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
+        run: cargo about generate --output-file "${{ steps.set_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
         if: matrix.os == 'macos-latest'
         shell: bash
         run:
-          cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_subfolder_output.outputs.subfolder }}
-          gtar --create --gzip --file=${{ steps.set_subfolder_output.outputs.archive }} ${{ steps.set_subfolder_output.outputs.subfolder }}
+          cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
+          gtar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: pack_archive_linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_subfolder_output.outputs.subfolder }}
-          tar --create --gzip --file=${{ steps.set_subfolder_output.outputs.archive }} ${{ steps.set_subfolder_output.outputs.subfolder }}
+          cp target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
+          tar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: pack_archive_windows
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./${{ steps.set_subfolder_output.outputs.subfolder }}
-          7z a -tzip ${{ steps.set_subfolder_output.outputs.archive }} ${{ steps.set_subfolder_output.outputs.subfolder }}
+          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./${{ steps.set_output.outputs.subfolder }}
+          7z a -tzip ${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: upload_artifact
         uses: actions/upload-release-asset@v1.0.2
@@ -98,6 +95,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ steps.set_subfolder_output.outputs.archive }}
-          asset_name: ${{ steps.set_subfolder_output.outputs.archive }}
+          asset_path: ./${{ steps.set_output.outputs.archive }}
+          asset_name: ${{ steps.set_output.outputs.archive }}
           asset_content_type: application/gzip
