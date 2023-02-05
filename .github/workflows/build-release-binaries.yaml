@@ -30,10 +30,12 @@ jobs:
           ref: ${{ github.event.release.target_commitish }}
 
       - name: set_archive_output
+        id: set_archive_output
         shell: bash
         run: echo "archive=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}.${{ matrix.archive_ext }}" >> $GITHUB_OUTPUT
 
       - name: set_subfolder_output
+        id: set_subfolder_output
         shell: bash
         run: echo "subfolder=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
 
