@@ -2,6 +2,7 @@ use crate::config::list::ListMsrvVariant;
 use crate::dependency_graph::DependencyGraph;
 use crate::reporter::event::Message;
 use crate::Event;
+use std::borrow::Cow;
 
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::types::list_result::ordered_by_msrv::OrderedByMsrvFormatter;
@@ -72,4 +73,15 @@ impl serde::Serialize for ResultDetails {
             }
         }
     }
+}
+
+fn display_option(option: &Option<String>) -> Cow<'static, str> {
+    match option {
+        Some(s) => Cow::from(s.to_string()),
+        None => Cow::from(""),
+    }
+}
+
+fn display_vec(vec: &[String]) -> Cow<'static, str> {
+    Cow::from(vec.join(", "))
 }

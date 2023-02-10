@@ -54,7 +54,7 @@ owo-colors = "3.5.0"
 terminal_size = "0.2.3"
 
 [dependencies.tabled]
-version = "0.8.0"
+version = "0.10.0"
 features = ["color"]
 
 [dependencies.storyteller]

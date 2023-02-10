@@ -1,3 +1,5 @@
+use super::display_option;
+use super::display_vec;
 use super::metadata::*;
 use crate::config::list::DIRECT_DEPS;
 use crate::dependency_graph::DependencyGraph;
@@ -45,8 +47,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
 
     neighbors.map(move |dependency| {
         let package = &graph.packages()[dependency];
-
-        let msrv = super::metadata::package_msrv(package);
+        let msrv = package_msrv(package);
 
         Values {
             name: &package.name,
@@ -61,37 +62,16 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
     })
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, Tabled)]
 struct Values<'a> {
+    #[tabled(rename = "Name")]
     name: &'a str,
+    #[tabled(rename = "Version")]
     version: &'a crate::semver::Version,
+    #[tabled(rename = "MSRV", display_with = "display_option")]
     msrv: Option<String>,
+    #[tabled(rename = "Depends on", display_with = "display_vec")]
     dependencies: Vec<String>,
-}
-
-impl Tabled for Values<'_> {
-    const LENGTH: usize = 4;
-
-    fn fields(&self) -> Vec<String> {
-        vec![
-            self.name.to_string(),
-            self.version.to_string(),
-            self.msrv
-                .as_deref()
-                .map(|s| s.to_string())
-                .unwrap_or_default(),
-            self.dependencies.join(", "),
-        ]
-    }
-
-    fn headers() -> Vec<String> {
-        vec![
-            "Name".to_string(),
-            "Version".to_string(),
-            "MSRV".to_string(),
-            "Depends on".to_string(),
-        ]
-    }
 }
 
 #[derive(serde::Serialize)]

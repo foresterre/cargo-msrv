@@ -1,3 +1,5 @@
+use super::display_option;
+use super::display_vec;
 use crate::config::list::ORDERED_BY_MSRV;
 use crate::dependency_graph::DependencyGraph;
 use crate::formatting::table;
@@ -64,30 +66,13 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
         })
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, Tabled)]
 #[serde(rename_all = "snake_case")]
 struct Values {
+    #[tabled(rename = "MSRV", display_with = "display_option")]
     msrv: Option<String>,
+    #[tabled(rename = "Dependency", display_with = "display_vec")]
     dependencies: Vec<String>,
-}
-
-impl Tabled for Values {
-    const LENGTH: usize = 2;
-
-    fn fields(&self) -> Vec<String> {
-        let msrv = self
-            .msrv
-            .as_deref()
-            .map(|s| s.to_string())
-            .unwrap_or_default();
-        let deps = self.dependencies.join(", ");
-
-        vec![msrv, deps]
-    }
-
-    fn headers() -> Vec<String> {
-        vec!["MSRV".to_string(), "Dependency".to_string()]
-    }
 }
 
 #[derive(serde::Serialize)]

@@ -6,8 +6,9 @@ use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 use storyteller::EventHandler;
-use tabled::object::Segment;
-use tabled::{Alignment, Disable, Header, Modify, Style, Table, Width};
+use tabled::builder::Builder;
+use tabled::object::{Rows, Segment};
+use tabled::{Alignment, Disable, Margin, Modify, Style, Table, Width};
 
 pub struct HumanProgressHandler {
     pb: indicatif::ProgressBar,
@@ -155,7 +156,10 @@ impl CheckToolchain {
 
 impl FindResult {
     fn summary(&self) -> String {
-        result_table(self)
+        let title = "Result:".bold();
+        let table = result_table(self);
+
+        format!("{}\n{}", title, table)
     }
 }
 
@@ -189,10 +193,15 @@ impl Status {
 }
 
 fn message_box(message: &str) -> String {
-    Table::new([format!("{}", message.dimmed())])
-        .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
-        .with(Style::rounded())
+    let mut builder = Builder::default();
+    builder.add_record([format!("{}", message.dimmed())]);
+
+    let mut table = builder.build();
+
+    table
         .with(Width::wrap(TermWidth::width()))
+        .with(Style::rounded())
+        .with(Margin::new(2, 0, 1, 1))
         .to_string()
 }
 
@@ -228,9 +237,9 @@ fn result_table(result: &FindResult) -> String {
     ];
 
     Table::new(content)
-        .with(Disable::Row(..1)) // Disables the header; Style::header_off doesn't work! ordering matters!
-        .with(Header(format!("{}", "Result:".bold())))
+        .with(Disable::row(Rows::first())) // Disables the header
         .with(Modify::new(Segment::all()).with(Alignment::left()))
         .with(Style::blank())
+        .with(Margin::new(2, 0, 0, 1))
         .to_string()
 }
