@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 use storyteller::EventHandler;
 use tabled::builder::Builder;
-use tabled::object::{Rows, Segment};
+use tabled::object::{Columns, Rows, Segment};
 use tabled::{Alignment, Disable, Margin, Modify, Style, Table, Width};
 
 pub struct HumanProgressHandler {
@@ -168,28 +168,45 @@ struct Status;
 impl Status {
     fn meta(message: impl Display) -> String {
         let lead = format!("[{}]", "Meta".bright_blue());
-        format!("  {:>16}  {}", lead, message)
+        status(lead, message)
     }
 
     fn ok(message: impl Display) -> String {
         let lead = format!("[{}]", "OK".bright_green());
-        format!("  {:>16}  {}", lead, message)
+
+        status(lead, message)
     }
 
     fn fail(message: impl Display) -> String {
         let lead = format!("[{}]", "FAIL".bright_red());
-        format!("  {:>16}  {}", lead, message)
+
+        status(lead, message)
     }
 
     fn info(message: impl Display) -> String {
         let lead = format!("[{}]", "INFO".bright_yellow());
-        format!("  {:>16}  {}", lead, message)
+        status(lead, message)
     }
 
     fn with_lead(lead: impl Display, message: impl Display) -> String {
         let lead = format!("[{}]", lead);
-        format!("  {:>16}  {}", lead, message)
+        status(lead, message)
     }
+}
+
+fn status(lead: impl Display, message: impl Display) -> String {
+    let mut builder = Builder::default();
+    builder.add_record([format!("{lead}"), format!("{message}")]);
+
+    let mut table = builder.build();
+
+    table
+        .with(Alignment::left())
+        .with(Modify::new(Columns::first()).with(Width::increase(6)))
+        .with(Width::wrap(TermWidth::width()))
+        .with(Style::blank())
+        .with(Margin::new(1, 0, 0, 0))
+        .to_string()
 }
 
 fn message_box(message: &str) -> String {
