@@ -432,7 +432,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.16.0-beta.6"
+version = "0.16.0-beta.7"
 dependencies = [
  "bisector",
  "cargo_metadata",
