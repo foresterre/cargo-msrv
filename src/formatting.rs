@@ -20,12 +20,13 @@ pub fn table<T: Tabled>(iter: impl IntoIterator<Item = T>) -> Table {
     let width = TermWidth::width();
     let width = width - (width / 5);
 
-    Table::new(iter).with(
-        Modify::new(Segment::all())
-            // A compromise between 'works usually' and still dynamically sizing based on the term width.
-            // Tabled and dynamic sizing are very funky together...
-            .with(Width::wrap(width).keep_words())
-            .with(Alignment::left())
-            .with(Alignment::top()),
-    )
+    Table::new(iter)
+        .with(
+            Modify::new(Segment::all()) // A compromise between 'works usually' and still dynamically sizing based on the term width.
+                // Tabled and dynamic sizing are very funky together...
+                .with(Width::wrap(width).keep_words())
+                .with(Alignment::left())
+                .with(Alignment::top()),
+        )
+        .to_owned()
 }
