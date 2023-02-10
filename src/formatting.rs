@@ -8,11 +8,15 @@ pub struct TermWidth;
 
 impl TermWidth {
     pub fn width() -> usize {
-        *TERM_WIDTH.get_or_init(|| {
+        let minimum = 40;
+
+        let width = *TERM_WIDTH.get_or_init(|| {
             terminal_size::terminal_size()
                 .map(|(w, _)| w.0)
                 .unwrap_or(80) as usize
-        })
+        });
+
+        width.checked_sub(2).unwrap_or(minimum)
     }
 }
 
