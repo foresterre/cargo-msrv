@@ -500,9 +500,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
-version = "4.1.4"
+version = "4.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f13b9c79b5d1dd500d20ef541215a6423c75829ef43117e1b4d17fd8af0b5d76"
+checksum = "3339b77607ffdf358f6b1146107785d6cdb2b3f251e1920e96c45a0fc08a7b18"
 dependencies = [
  "bitflags",
  "clap_derive",
