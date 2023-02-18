@@ -15,7 +15,7 @@ build = "build.rs"
 
 
 [features]
-default = ["rust-releases-dist-source"]
+default = []
 rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
 
 
