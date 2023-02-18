@@ -12,7 +12,6 @@ use crate::ctx::{ContextValues, LazyContext};
 use rust_releases::semver;
 
 use crate::error::{CargoMSRVError, TResult};
-use crate::log_level::LogLevel;
 use crate::manifest::bare_version;
 
 pub(crate) mod list;
@@ -188,7 +187,6 @@ pub struct Config<'a> {
     ignore_lockfile: bool,
     output_format: OutputFormat,
     release_source: ReleaseSource,
-    tracing_config: Option<TracingOptions>,
     no_read_min_edition: Option<semver::Version>,
     no_check_feedback: bool,
 
@@ -213,7 +211,6 @@ impl<'a> Config<'a> {
             ignore_lockfile: false,
             output_format: OutputFormat::Human,
             release_source: ReleaseSource::RustChangelog,
-            tracing_config: None,
             no_read_min_edition: None,
             no_check_feedback: false,
             sub_command_config: SubCommandConfig::None,
@@ -281,11 +278,6 @@ impl<'a> Config<'a> {
 
     pub fn release_source(&self) -> ReleaseSource {
         self.release_source
-    }
-
-    /// Options as to configure tracing (and logging) settings. If absent, tracing will be disabled.
-    pub fn tracing(&self) -> Option<&TracingOptions> {
-        self.tracing_config.as_ref()
     }
 
     pub fn no_read_min_version(&self) -> Option<&semver::Version> {
@@ -404,11 +396,6 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn tracing_config(mut self, cfg: TracingOptions) -> Self {
-        self.inner.tracing_config = Some(cfg);
-        self
-    }
-
     pub fn no_read_min_edition(mut self, version: semver::Version) -> Self {
         self.inner.no_read_min_edition = Some(version);
         self
@@ -455,67 +442,4 @@ impl SubCommandConfig {
     as_sub_command_config!(list, ListConfig, ListCmdConfig);
     as_sub_command_config!(set, SetConfig, SetCmdConfig);
     as_sub_command_config!(verify, VerifyConfig, VerifyCmdConfig);
-}
-
-#[derive(Debug, Clone)]
-pub struct TracingOptions {
-    target: TracingTargetOption,
-    level: LogLevel,
-}
-
-impl TracingOptions {
-    pub fn new(target: TracingTargetOption, level: LogLevel) -> Self {
-        Self { target, level }
-    }
-}
-
-impl Default for TracingOptions {
-    fn default() -> Self {
-        Self {
-            target: TracingTargetOption::File,
-            level: LogLevel::default(),
-        }
-    }
-}
-
-impl TracingOptions {
-    pub fn target(&self) -> &TracingTargetOption {
-        &self.target
-    }
-
-    pub fn level(&self) -> &LogLevel {
-        &self.level
-    }
-}
-
-#[derive(Debug, Copy, Clone, ValueEnum)]
-pub enum TracingTargetOption {
-    File,
-    Stdout,
-}
-
-impl Default for TracingTargetOption {
-    fn default() -> Self {
-        Self::File
-    }
-}
-
-impl TracingTargetOption {
-    pub const FILE: &'static str = "file";
-    pub const STDOUT: &'static str = "stdout";
-}
-
-impl FromStr for TracingTargetOption {
-    type Err = CargoMSRVError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            Self::FILE => Ok(Self::File),
-            Self::STDOUT => Ok(Self::Stdout),
-            unknown => Err(CargoMSRVError::InvalidConfig(format!(
-                "Given log target '{}' is not valid",
-                unknown
-            ))),
-        }
-    }
 }

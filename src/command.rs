@@ -70,11 +70,6 @@ impl RustupCommand {
     /// * [RustupCommand::install](RustupCommand::run)
     /// * [RustupCommand::show](RustupCommand::run)
     pub fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
-        debug!(
-            cmd = ?cmd,
-            args = ?self.args.as_slice()
-        );
-
         self.command.arg(cmd);
         self.command.args(self.args);
 

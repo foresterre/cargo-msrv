@@ -6,7 +6,6 @@ use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
-use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 use crate::manifest::reader::ManifestReaderError;
 use crate::manifest::ManifestParseError;
@@ -74,9 +73,6 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     ParseEditionOrVersion(#[from] ParseEditionOrVersionError),
-
-    #[error(transparent)]
-    ParseLogLevel(#[from] ParseLogLevelError),
 
     #[error("Unable to parse Cargo.toml: {0}")]
     ParseToml(#[from] toml_edit::TomlError),

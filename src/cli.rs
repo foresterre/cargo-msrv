@@ -199,7 +199,6 @@ impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
         builder = configurators::IgnoreLockfile::configure(builder, opts)?;
         builder = configurators::UserOutput::configure(builder, opts)?;
         builder = configurators::ReleaseSource::configure(builder, opts)?;
-        builder = configurators::Tracing::configure(builder, opts)?;
         builder = configurators::CheckFeedback::configure(builder, opts)?;
         builder = configurators::SubCommandConfigurator::configure(builder, opts)?;
 

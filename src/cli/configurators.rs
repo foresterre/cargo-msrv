@@ -15,7 +15,6 @@ mod search_method;
 mod search_space;
 mod sub_command_configurator;
 mod target;
-mod tracing_configurator;
 mod user_output;
 mod write_msrv;
 
@@ -32,7 +31,6 @@ pub(in crate::cli) use search_method::SearchMethodConfig;
 pub(in crate::cli) use search_space::IncludeAllPatchReleases;
 pub(in crate::cli) use sub_command_configurator::SubCommandConfigurator;
 pub(in crate::cli) use target::Target;
-pub(in crate::cli) use tracing_configurator::Tracing;
 pub(in crate::cli) use user_output::UserOutput;
 pub(in crate::cli) use write_msrv::WriteMsrv;
 

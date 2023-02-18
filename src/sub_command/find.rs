@@ -45,18 +45,11 @@ fn find_msrv(
 
     match &search_result {
         MinimumSupportedRustVersion::NoCompatibleToolchain => {
-            info!("no minimal-compatible toolchain found");
-
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
                 command: config.check_command_string(),
             })
         }
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
-            info!(
-                %toolchain,
-                "found minimal-compatible toolchain"
-            );
-
             if config.output_toolchain_file() {
                 write_toolchain_file(config, reporter, toolchain.version())?;
             }
@@ -89,7 +82,6 @@ fn run_with_search_method(
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
     let search_method = config.search_method();
-    info!(?search_method);
 
     // Run a linear or binary search depending on the configuration
     match search_method {

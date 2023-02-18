@@ -20,10 +20,7 @@ impl<'reporter, R: Reporter> ToolchainDownloader<'reporter, R> {
 }
 
 impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter, R> {
-    #[instrument(skip(self, toolchain))]
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()> {
-        info!(toolchain = toolchain.spec(), "installing toolchain");
-
         self.reporter
             .run_scoped_event(SetupToolchain::new(toolchain.to_owned()), || {
                 let rustup = RustupCommand::new()
@@ -35,13 +32,6 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
                 let status = rustup.exit_status();
 
                 if !status.success() {
-                    error!(
-                        toolchain = toolchain.spec(),
-                        stdout = rustup.stdout(),
-                        stderr = rustup.stderr(),
-                        "rustup failed to install toolchain"
-                    );
-
                     return Err(CargoMSRVError::RustupInstallFailed(
                         RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
                     ));

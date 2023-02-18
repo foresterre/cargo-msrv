@@ -84,8 +84,6 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
 
             let mut last_compatible_index = None;
 
-            info!(?search_space);
-
             while let Step {
                 indices: next_indices,
                 result: Some(step),
@@ -94,8 +92,6 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
                 indices,
             )? {
                 iteration += 1;
-
-                info!(?indices, ?next_indices);
 
                 Self::show_progress(iteration, total, indices, reporter)?;
 

@@ -1,6 +1,5 @@
-use crate::config::{OutputFormat, TracingTargetOption};
+use crate::config::OutputFormat;
 
-use crate::log_level::LogLevel;
 use clap::{ArgGroup, Args, ValueHint};
 use std::path::PathBuf;
 
@@ -18,9 +17,6 @@ pub struct SharedOpts {
 
     #[command(flatten)]
     pub user_output_opts: UserOutputOpts,
-
-    #[command(flatten)]
-    pub debug_output_opts: DebugOutputOpts,
 }
 
 #[derive(Debug, Args)]
@@ -39,26 +35,4 @@ pub struct UserOutputOpts {
     /// Disable user output
     #[arg(long, global = true)]
     pub no_user_output: bool,
-}
-
-#[derive(Debug, Args)]
-#[command(next_help_heading = "Debug output options")]
-pub struct DebugOutputOpts {
-    /// Disable logging
-    #[arg(long, global = true)]
-    pub no_log: bool,
-
-    /// Specify where the program should output its logs
-    #[arg(
-        long,
-        value_enum,
-        default_value_t,
-        value_name = "LOG TARGET",
-        global = true
-    )]
-    pub log_target: TracingTargetOption,
-
-    /// Specify the severity of logs which should be
-    #[arg(long, value_enum, default_value_t, value_name = "LEVEL", global = true)]
-    pub log_level: LogLevel,
 }

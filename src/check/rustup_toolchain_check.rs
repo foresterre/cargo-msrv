@@ -18,8 +18,6 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
     fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         self.reporter
             .run_scoped_event(CheckToolchain::new(toolchain.to_owned()), || {
-                info!(ignore_lockfile_enabled = config.ignore_lockfile());
-
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
                 let cargo_lock = self.lockfile_path(config)?;
 
@@ -96,14 +94,6 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
             Ok(Outcome::new_success(toolchain.to_owned()))
         } else {
             let stderr = rustup_output.stderr();
-            let command = cmd.join(" ");
-
-            info!(
-                ?toolchain,
-                stderr,
-                cmd = command.as_str(),
-                "try_building run failed"
-            );
 
             Ok(Outcome::new_failure(
                 toolchain.to_owned(),

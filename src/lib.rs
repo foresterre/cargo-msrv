@@ -16,8 +16,6 @@
 )]
 
 extern crate core;
-#[macro_use]
-extern crate tracing;
 
 pub use crate::outcome::Outcome;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
@@ -50,7 +48,6 @@ pub(crate) mod download;
 pub(crate) mod filter_releases;
 pub(crate) mod formatting;
 pub(crate) mod lockfile;
-pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod msrv;
 pub(crate) mod outcome;
@@ -63,11 +60,6 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
 
     let subcommand_id = config.subcommand_id();
-
-    info!(
-        subcommand_id = Into::<&'static str>::into(subcommand_id),
-        "running subcommand"
-    );
 
     reporter.report_event(SubcommandInit::new(subcommand_id))?;
 
@@ -99,13 +91,6 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
 
 fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
     reporter.run_scoped_event(FetchIndex::new(config.release_source()), || {
-        let source = config.release_source();
-
-        info!(
-            source = Into::<&'static str>::into(source),
-            "fetching index"
-        );
-
         let index = match config.release_source() {
             ReleaseSource::RustChangelog => {
                 RustChangelog::fetch_channel(Channel::Stable)?.build_index()?

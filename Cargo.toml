@@ -34,8 +34,6 @@ indicatif = "0.17.2"
 toml_edit = "0.19.3"
 
 dirs = "4.0.0"
-tracing = "0.1"
-tracing-appender = "0.2"
 
 # building package graphs, consider moving to guppy once rust_version is supported
 cargo_metadata = "0.15.3"
