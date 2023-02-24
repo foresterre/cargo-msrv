@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: install_rust_nightly
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@stable
 
       - name: install_code_coverage_tool
         uses: taiki-e/install-action@cargo-llvm-cov
