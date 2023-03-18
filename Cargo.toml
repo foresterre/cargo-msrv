@@ -16,9 +16,7 @@ build = "build.rs"
 
 [features]
 default = ["rust-releases-dist-source"]
-rust-releases-dist-source = ["rust-releases/rust-releases-rust-dist"]
-
-
+rust-releases-dist-source = ["rust-releases/rust-dist"]
 
 [package.metadata.release]
 tag-name = "v{{version}}"
@@ -66,9 +64,9 @@ features = ["json"]
 
 # Get the available rust versions
 [dependencies.rust-releases]
-version = "0.22.2"
+version = "0.23.0"
 default-features = false
-features = ["rust-releases-rust-changelog"]
+features = ["rust-changelog"]
 
 [dev-dependencies]
 parameterized = "1.0.1"

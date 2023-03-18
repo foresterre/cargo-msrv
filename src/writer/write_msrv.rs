@@ -1,7 +1,7 @@
 use crate::config::set::SetCmdConfig;
 use crate::config::{ConfigBuilder, SubCommandConfig};
 use crate::reporter::Reporter;
-use crate::{fetch_index, semver, Config, Set, SubCommand, SubcommandId, TResult};
+use crate::{release_index, semver, Config, Set, SubCommand, SubcommandId, TResult};
 
 /// Write the MSRV to the Cargo manifest
 ///
@@ -18,7 +18,7 @@ pub fn write_msrv(
         }))
         .build();
 
-    let index = fetch_index(&config, reporter).ok();
+    let index = release_index::fetch_index(&config, reporter).ok();
     Set::new(index.as_ref()).run(&config, reporter)?;
 
     Ok(())
