@@ -22,15 +22,12 @@ extern crate tracing;
 pub use crate::outcome::Outcome;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
-#[cfg(feature = "rust-releases-dist-source")]
-use rust_releases::RustDist;
-use rust_releases::{semver, Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
-
 use crate::check::RustupToolchainCheck;
 use crate::config::{Config, ReleaseSource, SubcommandId};
 use crate::error::{CargoMSRVError, TResult};
-use crate::reporter::event::{FetchIndex, Meta, SubcommandInit};
+use crate::reporter::event::{Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
+use rust_releases::semver;
 
 pub mod check;
 pub mod cli;
@@ -54,6 +51,7 @@ pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod msrv;
 pub(crate) mod outcome;
+mod release_index;
 pub(crate) mod search_method;
 pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
@@ -73,12 +71,12 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
 
     match subcommand_id {
         SubcommandId::Find => {
-            let index = fetch_index(config, reporter)?;
+            let index = release_index::fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Find::new(&index, runner).run(config, reporter)?;
         }
         SubcommandId::Verify => {
-            let index = fetch_index(config, reporter)?;
+            let index = release_index::fetch_index(config, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
             Verify::new(&index, runner).run(config, reporter)?;
         }
@@ -86,7 +84,7 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
             List::default().run(config, reporter)?;
         }
         SubcommandId::Set => {
-            let index = fetch_index(config, reporter).ok();
+            let index = release_index::fetch_index(config, reporter).ok();
             Set::new(index.as_ref()).run(config, reporter)?;
         }
         SubcommandId::Show => {
@@ -95,25 +93,4 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
     }
 
     Ok(())
-}
-
-fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
-    reporter.run_scoped_event(FetchIndex::new(config.release_source()), || {
-        let source = config.release_source();
-
-        info!(
-            source = Into::<&'static str>::into(source),
-            "fetching index"
-        );
-
-        let index = match config.release_source() {
-            ReleaseSource::RustChangelog => {
-                RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
-            }
-            #[cfg(feature = "rust-releases-dist-source")]
-            ReleaseSource::RustDist => RustDist::fetch_channel(Channel::Stable)?.build_index()?,
-        };
-
-        Ok(index)
-    })
 }

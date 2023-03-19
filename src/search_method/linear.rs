@@ -84,8 +84,8 @@ mod tests {
     use super::*;
     use crate::check::TestRunner;
     use crate::reporter::TestReporterWrapper;
-    use crate::{semver, Config, ReleaseIndex, SubcommandId};
-    use rust_releases::Release;
+    use crate::{semver, Config, SubcommandId};
+    use rust_releases::{Release, ReleaseIndex};
     use std::iter::FromIterator;
 
     #[test]
