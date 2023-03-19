@@ -1658,9 +1658,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65be9a9ccb731350bd21c50c97f29aeb17e14a129d9efd67e74882ec13a90986"
+checksum = "1d7729eb92571adcda674d27f5362a75b748c79737a7cd2c158aaa7397a597e5"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
@@ -1669,9 +1669,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-core"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95d9bfc792cce14258f6a1ce8780ccc5153056aacba542dc9aa62436e0266716"
+checksum = "32edfe0eae9750e8525aee2f7bcdbc7e931a58b4486bc0c69412eb4f9e7dd287"
 dependencies = [
  "semver",
  "thiserror",
@@ -1679,9 +1679,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-io"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2301924aaa4ece45d2b2b1284d01157505b44f8fa74c99cf26e4455472512cdd"
+checksum = "24a8cd18b159ff677661f140d5c31a2d02a8dc58074e9cd934c4a1db041d4f4e"
 dependencies = [
  "directories-next",
  "thiserror",
@@ -1690,9 +1690,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-rust-changelog"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "263c0369c5f2acad70974db7bf765b3166af3598c40c4b0c0bde91e0abe5c32b"
+checksum = "3c4860a245b2b6bdc47981fea3bbd02b9ab04c60577b5bcd3ff1723deb7cf2a0"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
@@ -1702,9 +1702,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-rust-dist"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2abd7e9447ff83e385fb613199b70bd0c87b56c7e438b06c3ec2fe77f2e141f"
+checksum = "386e5ae69c07cc0e894a8af729fd4c2e83673be6ff6abe911faf83db34855ccb"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
