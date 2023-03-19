@@ -47,7 +47,7 @@ thiserror = "1.0.39"
 bisector = "0.4.0"
 
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.93"
+serde_json = "1.0.94"
 
 owo-colors = "3.5.0"
 
