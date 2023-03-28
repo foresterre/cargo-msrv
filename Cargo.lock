@@ -311,7 +311,6 @@ dependencies = [
  "http-body",
  "hyper",
  "hyper-rustls",
- "hyper-tls",
  "lazy_static",
  "pin-project-lite",
  "serde",
@@ -883,21 +882,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "foreign-types"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1"
-dependencies = [
- "foreign-types-shared",
-]
-
-[[package]]
-name = "foreign-types-shared"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
-
-[[package]]
 name = "form_urlencoded"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1139,19 +1123,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hyper-tls"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6183ddfa99b85da61a140bea0efc93fdf56ceaa041b37d553518030827f9905"
-dependencies = [
- "bytes",
- "hyper",
- "native-tls",
- "tokio",
- "tokio-native-tls",
-]
-
-[[package]]
 name = "idna"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1343,24 +1314,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "native-tls"
-version = "0.2.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07226173c32f2926027b63cce4bcd8076c3552846cbe7925f3aaffeac0a3b92e"
-dependencies = [
- "lazy_static",
- "libc",
- "log",
- "openssl",
- "openssl-probe",
- "openssl-sys",
- "schannel",
- "security-framework",
- "security-framework-sys",
- "tempfile",
-]
-
-[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1422,49 +1375,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7e5500299e16ebb147ae15a00a942af264cf3688f47923b8fc2cd5858f23ad3"
 
 [[package]]
-name = "openssl"
-version = "0.10.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd2523381e46256e40930512c7fd25562b9eae4812cb52078f155e87217c9d1e"
-dependencies = [
- "bitflags 1.3.2",
- "cfg-if",
- "foreign-types",
- "libc",
- "once_cell",
- "openssl-macros",
- "openssl-sys",
-]
-
-[[package]]
-name = "openssl-macros"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b501e44f11665960c7e7fcf062c7d96a14ade4aa98116c004b2e37b5be7d736c"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
-
-[[package]]
-name = "openssl-sys"
-version = "0.9.81"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "176be2629957c157240f68f61f2d0053ad3a4ecfdd9ebf1e6521d18d9635cf67"
-dependencies = [
- "autocfg",
- "cc",
- "libc",
- "pkg-config",
- "vcpkg",
-]
 
 [[package]]
 name = "os_str_bytes"
@@ -1775,9 +1689,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d7729eb92571adcda674d27f5362a75b748c79737a7cd2c158aaa7397a597e5"
+checksum = "9ba1bc15d7326b35ba242b98422c325e57ff6e846892758c6b81cc8763720fbf"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
@@ -1786,9 +1700,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-core"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32edfe0eae9750e8525aee2f7bcdbc7e931a58b4486bc0c69412eb4f9e7dd287"
+checksum = "1aef2423b67cdc3bdf923dd02e7b91c66eb1122dd8366a5d79e56c8038c069a0"
 dependencies = [
  "semver",
  "thiserror",
@@ -1796,9 +1710,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-io"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24a8cd18b159ff677661f140d5c31a2d02a8dc58074e9cd934c4a1db041d4f4e"
+checksum = "c77f00b93d1bf517cbd3e8408ab2be8a6c4212c16f93c55d52bbd61c27352cc2"
 dependencies = [
  "directories-next",
  "thiserror",
@@ -1807,9 +1721,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-rust-changelog"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c4860a245b2b6bdc47981fea3bbd02b9ab04c60577b5bcd3ff1723deb7cf2a0"
+checksum = "724d82b629ec0729ec67d07b07031fa6076a6fbe3751325c5e537362f2490f1d"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
@@ -1819,15 +1733,13 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-rust-dist"
-version = "0.24.1"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d831f35eec194b74b578b8f696ab55915052bd5d377f56619d2120dca26a666"
+checksum = "aaae7b46171b01fd596cf9467354ca00bfc8fd22c8d1d350edaa88baf202c23c"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
  "aws-sig-auth",
- "aws-smithy-client",
- "aws-smithy-http",
  "lazy_static",
  "regex",
  "rust-releases-core",
@@ -2132,19 +2044,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tempfile"
-version = "3.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af18f7ae1acd354b992402e9ec5864359d693cd8a79dcbef59f76891701c1e95"
-dependencies = [
- "cfg-if",
- "fastrand",
- "redox_syscall",
- "rustix",
- "windows-sys 0.42.0",
-]
-
-[[package]]
 name = "termcolor"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2273,16 +2172,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "tokio-native-tls"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbae76ab933c85776efabc971569dd6119c580d8f5d448769dec1764bf796ef2"
-dependencies = [
- "native-tls",
- "tokio",
 ]
 
 [[package]]
