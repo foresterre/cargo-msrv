@@ -33,17 +33,17 @@ impl Meta {
     }
 }
 
-const UNDEFINED: &str = "undefined";
+const EMPTY: &str = "";
 
 impl Default for Meta {
     fn default() -> Self {
         Self {
             instance: option_env!("CARGO_PKG_NAME").unwrap_or("cargo-msrv"),
-            version: option_env!("CARGO_PKG_VERSION").unwrap_or(UNDEFINED),
-            sha_short: option_env!("VERGEN_GIT_SHA_SHORT").unwrap_or(UNDEFINED),
-            target_triple: option_env!("VERGEN_CARGO_TARGET_TRIPLE").unwrap_or(UNDEFINED),
-            cargo_features: option_env!("VERGEN_CARGO_FEATURES").unwrap_or(UNDEFINED),
-            rustc: option_env!("VERGEN_RUSTC_SEMVER").unwrap_or(UNDEFINED),
+            version: option_env!("CARGO_PKG_VERSION").unwrap_or(EMPTY),
+            sha_short: option_env!("VERGEN_GIT_SHA_SHORT").unwrap_or(EMPTY),
+            target_triple: option_env!("VERGEN_CARGO_TARGET_TRIPLE").unwrap_or(EMPTY),
+            cargo_features: option_env!("VERGEN_CARGO_FEATURES").unwrap_or(EMPTY),
+            rustc: option_env!("VERGEN_RUSTC_SEMVER").unwrap_or(EMPTY),
         }
     }
 }
