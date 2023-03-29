@@ -29,7 +29,7 @@ clap = { version = "4.1.10", features = ["derive"] }
 indicatif = "0.17.2"
 
 # read Cargo.toml
-toml_edit = "0.19.7"
+toml_edit = "0.19.8"
 
 dirs = "5.0.0"
 tracing = "0.1"
