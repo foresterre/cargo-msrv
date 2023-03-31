@@ -60,7 +60,7 @@ impl EventHandler for HumanProgressHandler {
         match event.message() {
             Message::Meta(it) => {
                 let message = it.format_human();
-                self.pb.println(message.trim());
+                self.pb.println(message);
             }
             Message::SubcommandInit(it) if it.subcommand_id().should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
@@ -260,19 +260,17 @@ fn result_table(result: &FindResult) -> String {
 
 impl Meta {
     fn format_human(&self) -> String {
-        let sha_short = self.sha_short();
-
-        let sha_fmt = if sha_short.is_empty() {
-            String::new()
+        let sha_fmt = if let Some(sha) = self.sha_short() {
+            format!("({})", sha)
         } else {
-            format!("({})", sha_short)
+            String::new()
         };
 
         Status::meta(format_args!(
             "{} {} {}",
             self.instance(),
             self.version(),
-            sha_fmt,
+            sha_fmt.trim(),
         ))
     }
 }
