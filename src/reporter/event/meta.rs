@@ -6,44 +6,48 @@ use crate::Event;
 pub struct Meta {
     instance: &'static str,
     version: &'static str,
-    sha_short: &'static str,
-    target_triple: &'static str,
-    cargo_features: &'static str,
-    rustc: &'static str,
+    sha_short: Option<&'static str>,
+    target_triple: Option<&'static str>,
+    cargo_features: Option<&'static str>,
+    rustc: Option<&'static str>,
 }
 
 impl Meta {
     pub fn instance(&self) -> &'static str {
         self.instance
     }
+
     pub fn version(&self) -> &'static str {
         self.version
     }
-    pub fn sha_short(&self) -> &'static str {
+
+    pub fn sha_short(&self) -> Option<&'static str> {
         self.sha_short
     }
-    pub fn target_triple(&self) -> &'static str {
+    pub fn target_triple(&self) -> Option<&'static str> {
         self.target_triple
     }
-    pub fn cargo_features(&self) -> &'static str {
+
+    pub fn cargo_features(&self) -> Option<&'static str> {
         self.cargo_features
     }
-    pub fn rustc(&self) -> &'static str {
+
+    pub fn rustc(&self) -> Option<&'static str> {
         self.rustc
     }
 }
 
-const EMPTY: &str = "";
+const UNKNOWN_VERSION: &str = "?";
 
 impl Default for Meta {
     fn default() -> Self {
         Self {
             instance: option_env!("CARGO_PKG_NAME").unwrap_or("cargo-msrv"),
-            version: option_env!("CARGO_PKG_VERSION").unwrap_or(EMPTY),
-            sha_short: option_env!("VERGEN_GIT_SHA_SHORT").unwrap_or(EMPTY),
-            target_triple: option_env!("VERGEN_CARGO_TARGET_TRIPLE").unwrap_or(EMPTY),
-            cargo_features: option_env!("VERGEN_CARGO_FEATURES").unwrap_or(EMPTY),
-            rustc: option_env!("VERGEN_RUSTC_SEMVER").unwrap_or(EMPTY),
+            version: option_env!("CARGO_PKG_VERSION").unwrap_or(UNKNOWN_VERSION),
+            sha_short: option_env!("VERGEN_GIT_SHA_SHORT"),
+            target_triple: option_env!("VERGEN_CARGO_TARGET_TRIPLE"),
+            cargo_features: option_env!("VERGEN_CARGO_FEATURES"),
+            rustc: option_env!("VERGEN_RUSTC_SEMVER"),
         }
     }
 }

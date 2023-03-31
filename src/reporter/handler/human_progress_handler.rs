@@ -260,12 +260,10 @@ fn result_table(result: &FindResult) -> String {
 
 impl Meta {
     fn format_human(&self) -> String {
-        let sha_short = self.sha_short();
-
-        let sha_fmt = if sha_short.is_empty() {
-            String::new()
+        let sha_fmt = if let Some(sha) = self.sha_short() {
+            format!("({})", sha)
         } else {
-            format!("({})", sha_short)
+            String::new()
         };
 
         Status::meta(format_args!(
