@@ -60,7 +60,7 @@ impl EventHandler for HumanProgressHandler {
         match event.message() {
             Message::Meta(it) => {
                 let message = it.format_human();
-                self.pb.println(message.trim());
+                self.pb.println(message);
             }
             Message::SubcommandInit(it) if it.subcommand_id().should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
@@ -272,7 +272,7 @@ impl Meta {
             "{} {} {}",
             self.instance(),
             self.version(),
-            sha_fmt,
+            sha_fmt.trim(),
         ))
     }
 }
