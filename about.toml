@@ -3,19 +3,35 @@ accepted = [
     "BSD-3-Clause",
     "ISC",
     "MIT",
-    "MPL-2.0",
-    "OpenSSL",
     "Zlib",
     "0BSD",
-    "Unicode-DFS-2016",
 ]
-workarounds = ["ring"]
+workarounds = ["ring", "rustls"]
 
 ignore-build-dependencies = true
 ignore-dev-dependencies = true
+
+[unicode-ident]
+accepted = ["Unicode-DFS-2016"]
 
 [ring]
 accepted = ["ISC", "OpenSSL"]
 
 [webpki]
-accepted = ["ISC"]
+accepted = ["ISC", "BSD-3-Clause"]
+
+[webpki.clarify]
+license = "ISC AND BSD-3-Clause"
+
+[[webpki.clarify.files]]
+path = "LICENSE"
+license = "ISC"
+checksum = "5B698CA13897BE3AFDB7174256FA1574F8C6892B8BEA1A66DD6469D3FE27885A"
+
+[[webpki.clarify.files]]
+path = "third-party/chromium/LICENSE"
+license = "BSD-3-Clause"
+checksum = "845022E0C1DB1ABB41A6BA4CD3C4B674EC290F3359D9D3C78AE558D4C0ED9308"
+
+[webpki-roots]
+accepted = ["MPL-2.0"]
