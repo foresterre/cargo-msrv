@@ -1,10 +1,14 @@
-use vergen::{vergen, Config, ShaKind};
+use vergen::EmitBuilder;
 
 fn main() {
     // generate build info
-    let mut config = Config::default();
-    *config.git_mut().sha_kind_mut() = ShaKind::Short;
-    if let Err(e) = vergen(config) {
+    if let Err(e) = EmitBuilder::builder()
+        .cargo_target_triple()
+        .cargo_features()
+        .git_sha(true)
+        .rustc_semver()
+        .emit()
+    {
         eprintln!("Unable to set build metadata: '{}'", e);
     }
 }

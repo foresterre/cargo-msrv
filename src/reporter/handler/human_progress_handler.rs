@@ -1,5 +1,7 @@
 use crate::formatting::TermWidth;
-use crate::reporter::event::{CheckResult, CheckToolchain, FindResult, Message, SubcommandResult};
+use crate::reporter::event::{
+    CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandResult,
+};
 use crate::{semver, Event, SubcommandId};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
@@ -57,13 +59,8 @@ impl EventHandler for HumanProgressHandler {
         #[allow(unused_must_use)]
         match event.message() {
             Message::Meta(it) => {
-                let message = Status::meta(format_args!(
-                    "{} {} ({})",
-                    it.instance(),
-                    it.version(),
-                    it.sha_short(),
-                ));
-                self.pb.println(message);
+                let message = it.format_human();
+                self.pb.println(message.trim());
             }
             Message::SubcommandInit(it) if it.subcommand_id().should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
@@ -259,4 +256,23 @@ fn result_table(result: &FindResult) -> String {
         .with(Style::blank())
         .with(Margin::new(2, 0, 0, 1))
         .to_string()
+}
+
+impl Meta {
+    fn format_human(&self) -> String {
+        let sha_short = self.sha_short();
+
+        let sha_fmt = if sha_short.is_empty() {
+            String::new()
+        } else {
+            format!("({})", sha_short)
+        };
+
+        Status::meta(format_args!(
+            "{} {} {}",
+            self.instance(),
+            self.version(),
+            sha_fmt,
+        ))
+    }
 }
