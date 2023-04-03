@@ -7,28 +7,46 @@ In this readme you'll find everything to get you started. You can find more deta
 
 ### Install
 
-With Cargo from crates.io [latest release]:
+#### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
 
-`cargo install cargo-msrv` to install or <br>
-`cargo install cargo-msrv --force` to update
+| cargo       | supported | command                                                                                    |
+|-------------|-----------|--------------------------------------------------------|
+| stable      | 💚        | `$ cargo install cargo-msrv`                           |
+| beta        | 💚        | `$ cargo install cargo-msrv --version v0.16.0-beta.11` |
+| development | ❌        |                                                        |
 
-With Cargo from Github [latest development version]:
+#### cargo ([git source](https://github.com/foresterre/cargo-msrv))
 
-`cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --branch main`
+| cargo       | supported | command                                                                                    |
+|-------------|-----------|--------------------------------------------------------------------------------------------|
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1`         |
+| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.11` |
+| development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git`                       |
 
-From the Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/):
+#### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
-`pacman -S cargo-msrv`
+| cargo       | supported | command                                                             |
+|-------------|-----------|---------------------------------------------------------------------|
+| stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`           |
+| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.11 --no-confirm cargo-msrv` |
+| development | ❌        |                                                                     |
 
-Also, you can use the following commands for building and running via Docker:
+#### Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/)
 
-- `docker build -t cargo-msrv .`
-- `docker run -t -v "$(pwd)/Cargo.toml":/app/Cargo.toml cargo-msrv`
+* `pacman -S cargo-msrv`
+
+#### Docker
+
+You can use the following commands for building and running via Docker:
+
+* `$ docker build -t cargo-msrv .`
+* `$ docker run -t -v "$(pwd)/Cargo.toml":/app/Cargo.toml cargo-msrv`
 
 Docker images are also available on [Docker Hub](https://hub.docker.com/r/foresterre/cargo-msrv).
 
-_Note:_
-To use `cargo msrv (find)` or `cargo msrv verify`, it is required to have installed rust via `rustup`.
+### Prerequisites
+
+[Rustup](https://rustup.rs/) is required for the `cargo msrv (find)` and `cargo msrv verify` commands.
 
 ### Preview
 
