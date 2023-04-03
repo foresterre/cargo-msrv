@@ -49,7 +49,7 @@ serde_json = "1.0.95"
 
 owo-colors = "3.5.0"
 
-terminal_size = "0.2.5"
+terminal_size = "0.2.6"
 
 [dependencies.tabled]
 version = "0.10.0"
