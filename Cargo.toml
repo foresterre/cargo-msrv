@@ -64,7 +64,7 @@ features = ["json"]
 
 # Get the available rust versions
 [dependencies.rust-releases]
-version = "0.25.0"
+version = "0.26.0"
 default-features = false
 features = ["rust-changelog"]
 
