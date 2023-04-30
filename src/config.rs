@@ -82,6 +82,19 @@ pub enum SubcommandId {
     Set,
     // Shows the MSRV of the current crate as specified in the Cargo manifest
     Show,
+    // Forward the subcommand to cargo
+    Forward(ForwardedSubcommandId),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ForwardedSubcommandId {
+    // Build the project with the given MSRV
+    Build,
+    // Check the project with the given MSRV
+    Check,
+    // Test the project with the given MSRV
+    Test,
 }
 
 impl From<SubcommandId> for &'static str {
@@ -92,6 +105,11 @@ impl From<SubcommandId> for &'static str {
             SubcommandId::Verify => "verify",
             SubcommandId::Set => "set",
             SubcommandId::Show => "show",
+            SubcommandId::Forward(fwd) => match fwd {
+                ForwardedSubcommandId::Build => "build",
+                ForwardedSubcommandId::Check => "check",
+                ForwardedSubcommandId::Test => "test",
+            },
         }
     }
 }
