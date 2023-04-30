@@ -549,6 +549,7 @@ name = "cargo-msrv"
 version = "0.16.0-beta.13"
 dependencies = [
  "bisector",
+ "camino",
  "cargo_metadata",
  "clap",
  "dirs",

@@ -6,7 +6,6 @@
 use std::collections::HashSet;
 
 use cargo_msrv::check::Check;
-use cargo_msrv::config::Config;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::toolchain::{OwnedToolchainSpec, ToolchainSpec};
 use cargo_msrv::Outcome;
@@ -14,28 +13,30 @@ use rust_releases::semver::Version;
 
 pub struct TestRunner {
     accept_versions: HashSet<Version>,
+    target: &'static str,
 }
 
 impl TestRunner {
-    pub fn with_ok<'v, T: IntoIterator<Item = &'v Version>>(iter: T) -> Self {
+    pub fn with_ok<'v, T: IntoIterator<Item = &'v Version>>(target: &'static str, iter: T) -> Self {
         Self {
             accept_versions: iter.into_iter().cloned().collect(),
+            target,
         }
     }
 }
 
 impl Check for TestRunner {
-    fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> Result<Outcome, CargoMSRVError> {
+    fn check(&self, toolchain: &ToolchainSpec) -> Result<Outcome, CargoMSRVError> {
         let v = toolchain.version();
 
         if self.accept_versions.contains(toolchain.version()) {
             Ok(Outcome::new_success(OwnedToolchainSpec::new(
                 v,
-                config.target(),
+                self.target,
             )))
         } else {
             Ok(Outcome::new_failure(
-                OwnedToolchainSpec::new(v, config.target()),
+                OwnedToolchainSpec::new(v, self.target),
                 "f".to_string(),
             ))
         }

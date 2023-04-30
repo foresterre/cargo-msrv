@@ -1,7 +1,7 @@
 use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
-use std::path::{Path, PathBuf};
+use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -31,7 +31,7 @@ impl From<CheckMethod> for Event {
 pub enum Method {
     RustupRun {
         args: Vec<String>,
-        path: Option<PathBuf>,
+        path: Utf8PathBuf,
     },
     #[cfg(test)]
     TestRunner,
@@ -40,11 +40,11 @@ pub enum Method {
 impl Method {
     pub fn rustup_run(
         args: impl IntoIterator<Item = impl AsRef<str>>,
-        path: Option<impl AsRef<Path>>,
+        path: impl AsRef<Utf8Path>,
     ) -> Self {
         Self::RustupRun {
             args: args.into_iter().map(|s| s.as_ref().to_string()).collect(),
-            path: path.as_ref().map(|path| path.as_ref().to_path_buf()),
+            path: path.as_ref().to_path_buf(),
         }
     }
 }
@@ -55,11 +55,11 @@ mod tests {
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
     use crate::semver;
+    use camino::Utf8Path;
     use storyteller::EventReporter;
 
     #[yare::parameterized(
-        rustup_run_without_path = { Method::rustup_run(["hello"], Option::<&Path>::None) },
-        rustup_run_with_path = { Method::rustup_run(["hello"], Some(Path::new("haha"))) },
+        rustup_run_with_path = { Method::rustup_run(["hello"], Utf8Path::new("haha")) },
         test_runner = { Method::TestRunner },
     )]
     fn reported_event(method: Method) {
@@ -69,7 +69,7 @@ mod tests {
             method,
         );
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),

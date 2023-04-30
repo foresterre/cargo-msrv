@@ -103,30 +103,32 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 
 #[cfg(test)]
 mod tests {
-    use crate::config::list::ListMsrvVariant;
+    use crate::context::list::ListMsrvVariant;
+    use crate::context::SearchMethod;
     use crate::dependency_graph::DependencyGraph;
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::event::{
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
+    use crate::semver;
     use crate::toolchain::OwnedToolchainSpec;
-    use crate::{semver, Config, SubcommandId};
+    use camino::Utf8Path;
     use cargo_metadata::PackageId;
-    use std::path::Path;
     use storyteller::EventHandler;
 
     #[test]
     fn find_with_result() {
-        let config = Config::new(SubcommandId::Find, "my-target");
+        let msrv = semver::Version::new(1, 10, 100);
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
         let event = FindResult::new_msrv(
-            semver::Version::new(1, 10, 100),
-            &config,
+            msrv,
+            "x",
             min_available,
             max_available,
+            SearchMethod::Linear,
         );
 
         let s = Vec::new();
@@ -145,11 +147,10 @@ mod tests {
 
     #[test]
     fn find_without_result() {
-        let config = Config::new(SubcommandId::Find, "my-target");
         let min_available = BareVersion::ThreeComponents(1, 0, 0);
         let max_available = BareVersion::ThreeComponents(2, 0, 0);
 
-        let event = FindResult::none(&config, min_available, max_available);
+        let event = FindResult::none("x", min_available, max_available, SearchMethod::Linear);
 
         let s = Vec::new();
         let f = Vec::new();
@@ -191,7 +192,7 @@ mod tests {
     fn set_output() {
         let event = SetResult::new(
             BareVersion::TwoComponents(1, 20),
-            Path::new("/my/path").to_path_buf(),
+            Utf8Path::new("/my/path").to_path_buf(),
         );
 
         let s = Vec::new();
@@ -212,7 +213,7 @@ mod tests {
     fn show_output() {
         let event = ShowResult::new(
             BareVersion::ThreeComponents(1, 40, 3),
-            Path::new("/my/path").to_path_buf(),
+            Utf8Path::new("/my/path").to_path_buf(),
         );
 
         let s = Vec::new();

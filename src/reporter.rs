@@ -115,17 +115,19 @@ impl SupplyScopeGenerator for MainReporter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::{Marker, Message, Scope};
+    use crate::reporter::event::{Marker, Message, Meta, Scope};
     use crate::reporter::TestReporterWrapper;
-    use crate::{CargoMSRVError, Reporter, SubcommandId, SubcommandInit};
+    use crate::{CargoMSRVError, Reporter, SubcommandInit};
+    use std::collections::BTreeSet;
+    use storyteller::EventReporter;
 
     #[test]
     fn report_successful_scoped_event() {
         let reporter = TestReporterWrapper::default();
-        let content = SubcommandInit::new(SubcommandId::Find);
+        let content = SubcommandInit::new("find");
 
         let out = reporter
-            .reporter()
+            .get()
             .run_scoped_event(content.clone(), || TResult::<bool>::Ok(true))
             .unwrap();
 
@@ -145,10 +147,10 @@ mod tests {
     #[test]
     fn report_failed_scoped_event() {
         let reporter = TestReporterWrapper::default();
-        let content = SubcommandInit::new(SubcommandId::Find);
+        let content = SubcommandInit::new("find");
 
         let out = reporter
-            .reporter()
+            .get()
             .run_scoped_event(content.clone(), || {
                 TResult::<bool>::Err(CargoMSRVError::Storyteller)
             })
@@ -164,5 +166,42 @@ mod tests {
         assert_eq!(&events, &[start, end]);
 
         assert!(matches!(out, CargoMSRVError::Storyteller));
+    }
+
+    #[test]
+    fn report_event() {
+        let setup = ReporterSetup::default();
+
+        let (reporter, _listener) = setup.create();
+
+        let result = reporter.report_event(Meta::default());
+        assert!(result.is_ok());
+
+        let disconnect = reporter.disconnect();
+        assert!(disconnect.is_ok());
+    }
+
+    #[test]
+    fn scopes() {
+        use std::iter;
+
+        let setup = ReporterSetup::default();
+
+        let (reporter, _listener) = setup.create();
+        let gen = reporter.scope_generator();
+
+        let set = iter::repeat_with(|| gen.generate())
+            .take(1000)
+            .map(|(start, end)| {
+                assert!(start.is_start());
+                assert!(!end.is_start());
+
+                assert_eq!(start.id, end.id);
+
+                start.id
+            })
+            .collect::<BTreeSet<_>>();
+
+        assert_eq!(set.len(), 1000);
     }
 }

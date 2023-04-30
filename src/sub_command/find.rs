@@ -1,13 +1,14 @@
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
-use crate::config::{Config, SearchMethod};
-use crate::error::{CargoMSRVError, TResult};
-use crate::filter_releases::filter_releases;
+use crate::context::{FindContext, SearchMethod};
+use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::msrv::MinimumSupportedRustVersion;
+use crate::releases_filter::ReleasesFilter;
 use crate::reporter::event::FindResult;
 use crate::reporter::Reporter;
+use crate::rust_release::RustRelease;
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
@@ -28,27 +29,28 @@ impl<'index, C: Check> Find<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Find<'index, C> {
+    type Context = FindContext;
     type Output = semver::Version;
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        find_msrv(config, reporter, self.release_index, &self.runner)
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
+        find_msrv(ctx, reporter, self.release_index, &self.runner)
     }
 }
 
 fn find_msrv(
-    config: &Config,
+    ctx: &FindContext,
     reporter: &impl Reporter,
     release_index: &ReleaseIndex,
     runner: &impl Check,
 ) -> TResult<semver::Version> {
-    let search_result = search(config, reporter, release_index, runner)?;
+    let search_result = search(ctx, reporter, release_index, runner)?;
 
     match &search_result {
         MinimumSupportedRustVersion::NoCompatibleToolchain => {
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: config.check_command_string(),
+                command: ctx.check_cmd.custom_rustup_command().join(" "),
             })
         }
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
@@ -57,47 +59,72 @@ fn find_msrv(
                 "found minimal-compatible toolchain"
             );
 
-            if config.output_toolchain_file() {
-                write_toolchain_file(config, reporter, toolchain.version())?;
+            let version = toolchain.version();
+
+            if ctx.write_toolchain_file {
+                let crate_root = ctx.environment.root();
+
+                write_toolchain_file(reporter, version, crate_root)?;
             }
 
-            if config.write_msrv() {
-                write_msrv(config, reporter, toolchain.version())?;
+            if ctx.write_msrv {
+                let environment_ctx = ctx.environment.clone();
+                let user_output_ctx = ctx.user_output.clone();
+                let rust_releases_ctx = ctx.rust_releases.clone();
+
+                write_msrv(
+                    reporter,
+                    BareVersion::two_component_from_semver(toolchain.version()),
+                    Some(release_index), // Re-use the already obtained index
+                    environment_ctx,
+                    user_output_ctx,
+                    rust_releases_ctx,
+                )?;
             }
 
-            Ok(toolchain.version().clone())
+            Ok(version.clone())
         }
     }
 }
 
 fn search(
-    config: &Config,
+    ctx: &FindContext,
     reporter: &impl Reporter,
     index: &ReleaseIndex,
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
     let releases = index.releases();
-    let included_releases = filter_releases(config, releases);
 
-    run_with_search_method(config, &included_releases, reporter, runner)
+    let min = ctx
+        .rust_releases
+        .resolve_minimum_version(&ctx.environment)?;
+
+    let releases_filter = ReleasesFilter::new(
+        ctx.rust_releases.consider_patch_releases,
+        min.as_ref(),
+        ctx.rust_releases.maximum_rust_version.as_ref(),
+    );
+
+    let included_releases = releases_filter.filter(releases);
+    run_with_search_method(ctx, &included_releases, reporter, runner)
 }
 
 fn run_with_search_method(
-    config: &Config,
+    ctx: &FindContext,
     included_releases: &[Release],
     reporter: &impl Reporter,
     runner: &impl Check,
 ) -> TResult<MinimumSupportedRustVersion> {
-    let search_method = config.search_method();
+    let search_method = ctx.search_method;
     info!(?search_method);
 
     // Run a linear or binary search depending on the configuration
     match search_method {
         SearchMethod::Linear => {
-            run_searcher(&Linear::new(runner), included_releases, config, reporter)
+            run_searcher(&Linear::new(runner), included_releases, ctx, reporter)
         }
         SearchMethod::Bisect => {
-            run_searcher(&Bisect::new(runner), included_releases, config, reporter)
+            run_searcher(&Bisect::new(runner), included_releases, ctx, reporter)
         }
     }
 }
@@ -105,12 +132,28 @@ fn run_with_search_method(
 fn run_searcher(
     method: &impl FindMinimalSupportedRustVersion,
     releases: &[Release],
-    config: &Config,
+    ctx: &FindContext,
     reporter: &impl Reporter,
 ) -> TResult<MinimumSupportedRustVersion> {
-    let minimum_capable = method.find_toolchain(releases, config, reporter)?;
+    let searchable_releases = releases
+        .iter()
+        .map(|r| RustRelease::new(r.clone(), &ctx.toolchain.target))
+        .collect::<Vec<_>>();
+    let minimum_capable = method
+        .find_toolchain(&searchable_releases, reporter)
+        .map_err(|err| match err {
+            CargoMSRVError::NoToolchainsToTry(inner) if !inner.has_clues() => {
+                let user_min = ctx.rust_releases.minimum_rust_version.clone();
+                let user_max = ctx.rust_releases.maximum_rust_version.clone();
 
-    report_outcome(&minimum_capable, releases, config, reporter)?;
+                CargoMSRVError::NoToolchainsToTry(NoToolchainsToTryError::with_clues(
+                    user_min, user_max,
+                ))
+            }
+            _ => err,
+        })?;
+
+    report_outcome(&minimum_capable, releases, ctx, reporter)?;
 
     Ok(minimum_capable)
 }
@@ -118,19 +161,45 @@ fn run_searcher(
 fn report_outcome(
     minimum_capable: &MinimumSupportedRustVersion,
     releases: &[Release],
-    config: &Config,
+    ctx: &FindContext,
     reporter: &impl Reporter,
 ) -> TResult<()> {
     let (min, max) = min_max_releases(releases)?;
+
+    let minimum_considered = ctx
+        .rust_releases
+        .minimum_rust_version
+        .clone()
+        .unwrap_or(min);
+
+    let maximum_considered = ctx
+        .rust_releases
+        .maximum_rust_version
+        .clone()
+        .unwrap_or(max);
+
+    let target = ctx.toolchain.target.as_str();
+    let search_method = ctx.search_method;
 
     match minimum_capable {
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
             let version = toolchain.version();
 
-            reporter.report_event(FindResult::new_msrv(version.clone(), config, min, max))?;
+            reporter.report_event(FindResult::new_msrv(
+                version.clone(),
+                target,
+                minimum_considered,
+                maximum_considered,
+                search_method,
+            ))?;
         }
         MinimumSupportedRustVersion::NoCompatibleToolchain => {
-            reporter.report_event(FindResult::none(config, min, max))?;
+            reporter.report_event(FindResult::none(
+                target,
+                minimum_considered,
+                maximum_considered,
+                search_method,
+            ))?;
         }
     }
 

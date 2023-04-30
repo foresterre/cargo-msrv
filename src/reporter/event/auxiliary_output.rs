@@ -1,6 +1,6 @@
 use crate::reporter::event::Message;
 use crate::Event;
-use std::path::PathBuf;
+use camino::Utf8PathBuf;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -25,11 +25,11 @@ impl From<AuxiliaryOutput> for Event {
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Destination {
-    File { path: PathBuf },
+    File { path: Utf8PathBuf },
 }
 
 impl Destination {
-    pub fn file(path: PathBuf) -> Self {
+    pub fn file(path: Utf8PathBuf) -> Self {
         Self::File { path }
     }
 }
@@ -75,7 +75,7 @@ mod tests {
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
     use crate::Event;
-    use std::path::Path;
+    use camino::Utf8Path;
     use storyteller::EventReporter;
 
     #[yare::parameterized(
@@ -85,9 +85,10 @@ mod tests {
     )]
     fn reported_action(item: Item) {
         let reporter = TestReporterWrapper::default();
-        let event = AuxiliaryOutput::new(Destination::file(Path::new("hello").to_path_buf()), item);
+        let path = Utf8Path::new("hello");
+        let event = AuxiliaryOutput::new(Destination::file(path.to_path_buf()), item);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),

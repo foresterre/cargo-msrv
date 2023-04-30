@@ -38,7 +38,7 @@ mod tests {
             "test_target",
         ));
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),

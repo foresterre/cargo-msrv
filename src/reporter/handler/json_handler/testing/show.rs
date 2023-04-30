@@ -1,14 +1,14 @@
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::ShowResult;
 use crate::reporter::JsonHandler;
-use std::path::Path;
+use camino::Utf8Path;
 use storyteller::EventHandler;
 
 #[test]
 fn handler() {
     let event = ShowResult::new(
         BareVersion::ThreeComponents(1, 2, 3),
-        Path::new("/hello/world").to_path_buf(),
+        Utf8Path::new("/hello/world").to_path_buf(),
     );
 
     let writer = Vec::new();
@@ -34,7 +34,7 @@ fn handler() {
 fn event() {
     let event = ShowResult::new(
         BareVersion::ThreeComponents(1, 10, 100),
-        Path::new("/hello/world").to_path_buf(),
+        Utf8Path::new("/hello/world").to_path_buf(),
     );
 
     let expected = serde_json::json!({

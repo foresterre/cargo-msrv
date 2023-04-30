@@ -39,7 +39,7 @@ pub enum EditionOrVersion {
 }
 
 impl EditionOrVersion {
-    pub fn as_bare_version(&self) -> bare_version::BareVersion {
+    pub fn as_bare_version(&self) -> BareVersion {
         match self {
             Self::Edition(edition) => edition.as_bare_version(),
             Self::Version(version) => version.clone(),
@@ -68,7 +68,7 @@ impl FromStr for Edition {
 }
 
 impl Edition {
-    pub fn as_bare_version(&self) -> bare_version::BareVersion {
+    pub fn as_bare_version(&self) -> BareVersion {
         match self {
             Self::Edition2015 => BareVersion::ThreeComponents(1, 0, 0),
             Self::Edition2018 => BareVersion::ThreeComponents(1, 31, 0),

@@ -1,6 +1,6 @@
-use crate::config::Config;
 use crate::dependency_graph::DependencyGraph;
 use crate::error::{CargoMSRVError, TResult};
+use camino::Utf8Path;
 use cargo_metadata::MetadataCommand;
 
 pub(crate) trait DependencyResolver {
@@ -12,13 +12,11 @@ pub(crate) struct CargoMetadataResolver {
 }
 
 impl CargoMetadataResolver {
-    pub fn try_from_config(config: &Config) -> TResult<Self> {
-        let manifest_path = config.context().manifest_path()?;
-
+    pub fn from_manifest_path(path: &Utf8Path) -> Self {
         let mut metadata_command = MetadataCommand::new();
-        metadata_command.manifest_path(manifest_path);
+        metadata_command.manifest_path(path);
 
-        Ok(Self { metadata_command })
+        Self { metadata_command }
     }
 }
 

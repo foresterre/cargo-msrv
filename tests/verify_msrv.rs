@@ -72,7 +72,6 @@ fn verify_failed_no_msrv_specified(folder: &str) {
 
 #[parameterized(
     verify_variant = {
-        "--verify", // as flag on default command
         "verify", // as sub command after options and flags
     }
 )]
@@ -107,7 +106,6 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
 
 #[parameterized(
     verify_variant = {
-        "--verify", // as flag on default command
         "verify", // as sub command after options and flags
     }
 )]

@@ -1,4 +1,4 @@
-use crate::config::{Config, SearchMethod};
+use crate::context::SearchMethod;
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
@@ -23,22 +23,17 @@ pub struct FindResult {
 impl FindResult {
     pub fn new_msrv(
         version: semver::Version,
-        config: &Config,
+        target: impl Into<String>,
         min: BareVersion,
         max: BareVersion,
+        search_method: SearchMethod,
     ) -> Self {
         Self {
-            target: config.target().to_string(),
-            minimum_version: config
-                .minimum_version()
-                .map(Clone::clone)
-                .unwrap_or_else(|| min),
-            maximum_version: config
-                .maximum_version()
-                .map(Clone::clone)
-                .unwrap_or_else(|| max),
+            target: target.into(),
+            minimum_version: min,
+            maximum_version: max,
 
-            search_method: config.search_method(),
+            search_method,
 
             result: ResultDetails::Determined {
                 version,
@@ -47,19 +42,18 @@ impl FindResult {
         }
     }
 
-    pub fn none(config: &Config, min: BareVersion, max: BareVersion) -> Self {
+    pub fn none(
+        target: impl Into<String>,
+        min: BareVersion,
+        max: BareVersion,
+        search_method: SearchMethod,
+    ) -> Self {
         Self {
-            target: config.target().to_string(),
-            minimum_version: config
-                .minimum_version()
-                .map(Clone::clone)
-                .unwrap_or_else(|| min),
-            maximum_version: config
-                .maximum_version()
-                .map(Clone::clone)
-                .unwrap_or_else(|| max),
+            target: target.into(),
+            minimum_version: min,
+            maximum_version: max,
 
-            search_method: config.search_method(),
+            search_method,
 
             result: ResultDetails::Undetermined { success: False },
         }
@@ -108,20 +102,17 @@ mod tests {
     use super::*;
     use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
-    use crate::SubcommandId;
     use storyteller::EventReporter;
 
     #[test]
     fn reported_msrv_determined_event() {
         let reporter = TestReporterWrapper::default();
-        let config = Config::new(SubcommandId::Find, "".to_string());
         let version = semver::Version::new(1, 3, 0);
         let min = BareVersion::TwoComponents(1, 0);
         let max = BareVersion::ThreeComponents(1, 4, 0);
 
-        let event = FindResult::new_msrv(version, &config, min, max);
-
-        reporter.reporter().report_event(event.clone()).unwrap();
+        let event = FindResult::new_msrv(version, "x", min, max, SearchMethod::Linear);
+        reporter.get().report_event(event.clone()).unwrap();
 
         let events = reporter.wait_for_events();
         assert_eq!(
@@ -132,21 +123,20 @@ mod tests {
         );
 
         let inner = &events[0].message;
-        if let Message::SubcommandResult(SubcommandResult::Find(res)) = inner {
-            assert_eq!(res.msrv(), Some(&semver::Version::new(1, 3, 0)));
-        }
+        assert!(
+            matches!(inner, Message::SubcommandResult(SubcommandResult::Find(res)) if res.msrv() == Some(&semver::Version::new(1, 3, 0)))
+        );
     }
 
     #[test]
     fn reported_msrv_undetermined_event() {
         let reporter = TestReporterWrapper::default();
-        let config = Config::new(SubcommandId::Find, "".to_string());
         let min = BareVersion::TwoComponents(1, 0);
         let max = BareVersion::ThreeComponents(1, 4, 0);
 
-        let event = FindResult::none(&config, min, max);
+        let event = FindResult::none("x", min, max, SearchMethod::Linear);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         let events = reporter.wait_for_events();
         assert_eq!(
@@ -157,8 +147,8 @@ mod tests {
         );
 
         let inner = &events[0].message;
-        if let Message::SubcommandResult(SubcommandResult::Find(res)) = inner {
-            assert_eq!(res.msrv(), None);
-        }
+        assert!(
+            matches!(inner, Message::SubcommandResult(SubcommandResult::Find(res)) if res.msrv().is_none())
+        );
     }
 }

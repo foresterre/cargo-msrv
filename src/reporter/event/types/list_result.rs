@@ -1,9 +1,9 @@
-use crate::config::list::ListMsrvVariant;
 use crate::dependency_graph::DependencyGraph;
 use crate::reporter::event::Message;
 use crate::Event;
 use std::borrow::Cow;
 
+use crate::context::list::ListMsrvVariant;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::types::list_result::ordered_by_msrv::OrderedByMsrvFormatter;
 use direct_deps::DirectDepsFormatter;
