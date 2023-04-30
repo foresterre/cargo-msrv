@@ -40,6 +40,7 @@ pub mod toolchain;
 
 pub(crate) mod combinators;
 pub(crate) mod command;
+mod context;
 pub(crate) mod ctx;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;

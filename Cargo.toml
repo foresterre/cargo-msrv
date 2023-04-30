@@ -14,59 +14,34 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 build = "build.rs"
 
 
-[features]
-default = ["rust-releases-dist-source"]
-rust-releases-dist-source = ["rust-releases/rust-dist"]
-
 [package.metadata.release]
 tag-name = "v{{version}}"
 
 [dependencies]
-# Used for parsing cli arguments.
-clap = { version = "4.1.10", features = ["derive"] }
+bisector = "0.4.0" # bisection with a custom comparator
+camino = "1.1" # utf-8 paths
+cargo_metadata = "0.15.4" # resolving Cargo manifest metadata (consider `guppy`!)
+clap = { version = "4.1.10", features = ["derive"] } # parse CLI arguments
+dirs = "5.0.0" # common directories
+indicatif = "0.17.2" # UI
+once_cell = "1.17.1" # lazy data structures and thunking
+owo-colors = "3.5.0" # color support for the terminal
+petgraph = "0.6.3" # graph data structures
+rust-releases = { version = "0.26.0", default-features = false, features = ["rust-changelog"]  } # get the available rust versions
+serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
+serde_json = "1.0.96"  # JSON serialization and deserialization
+storyteller = "0.8.0" # minimal multi user output architecture
+tabled = { version = "0.10.0", features = ["color"] } # pretty print tables
+terminal_size = "0.2.6" # determine the terminal size
+thiserror = "1.0.39" # error handling
+toml_edit = "0.19.8" # read and write the Cargo.toml
+tracing = "0.1" # tracing
+tracing-appender = "0.2" # tracing
+tracing-subscriber = { version = "0.3", features = ["json"] }
 
-# UI
-indicatif = "0.17.2"
-
-# read Cargo.toml
-toml_edit = "0.19.8"
-
-dirs = "5.0.0"
-tracing = "0.1"
-tracing-appender = "0.2"
-
-# building package graphs, consider moving to guppy once rust_version is supported
-cargo_metadata = "0.15.4"
-petgraph = "0.6.3"
-
-once_cell = "1.17.1"
-thiserror = "1.0.39"
-
-bisector = "0.4.0"
-
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.96"
-
-owo-colors = "3.5.0"
-
-terminal_size = "0.2.6"
-
-[dependencies.tabled]
-version = "0.10.0"
-features = ["color"]
-
-[dependencies.storyteller]
-version = "0.8.0"
-
-[dependencies.tracing-subscriber]
-version = "0.3"
-features = ["json"]
-
-# Get the available rust versions
-[dependencies.rust-releases]
-version = "0.26.0"
-default-features = false
-features = ["rust-changelog"]
+[features]
+default = ["rust-releases-dist-source"]
+rust-releases-dist-source = ["rust-releases/rust-dist"]
 
 [dev-dependencies]
 parameterized = "1.0.1"
