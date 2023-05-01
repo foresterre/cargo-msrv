@@ -31,7 +31,7 @@ indicatif = "0.17.2"
 # read Cargo.toml
 toml_edit = "0.19.8"
 
-dirs = "5.0.0"
+dirs = "5.0.1"
 tracing = "0.1"
 tracing-appender = "0.2"
 
