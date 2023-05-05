@@ -21,7 +21,7 @@ pub(crate) mod shared_opts;
 pub(crate) mod toolchain_opts;
 
 #[derive(Debug, Parser)]
-#[command(version, bin_name = "cargo", max_term_width = 120)]
+#[command(version, name = "cargo", bin_name = "cargo", max_term_width = 120)]
 pub struct CargoCli {
     #[command(subcommand)]
     subcommand: CargoMsrvCli,
