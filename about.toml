@@ -11,11 +11,14 @@ workarounds = ["ring", "rustls"]
 ignore-build-dependencies = true
 ignore-dev-dependencies = true
 
-[unicode-ident]
-accepted = ["Unicode-DFS-2016"]
+[option-ext]
+accepted = ["MPL-2.0"]
 
 [ring]
 accepted = ["ISC", "OpenSSL"]
+
+[unicode-ident]
+accepted = ["Unicode-DFS-2016"]
 
 [webpki]
 accepted = ["ISC", "BSD-3-Clause"]
