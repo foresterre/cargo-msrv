@@ -1,15 +1,15 @@
 use bisector::{Bisector, ConvergeTo, Indices, Step};
-use rust_releases::Release;
 
 use crate::check::Check;
+use crate::config::SearchMethod;
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
+use crate::rust_release::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
-use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, TResult};
+use crate::TResult;
 
 pub struct Bisect<'runner, R: Check> {
     runner: &'runner R,
@@ -22,12 +22,12 @@ impl<'runner, R: Check> Bisect<'runner, R> {
 
     fn run_check(
         runner: &R,
-        release: &Release,
-        config: &Config,
+        release: &RustRelease,
         _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
-        let toolchain = ToolchainSpec::new(release.version(), config.target());
-        match runner.check(config, &toolchain) {
+        let toolchain = release.as_toolchain_spec();
+
+        match runner.check(&toolchain) {
             Ok(outcome) => match outcome {
                 Outcome::Success(outcome) => Ok(ConvergeTo::Right(outcome)),
                 Outcome::Failure(outcome) => Ok(ConvergeTo::Left(outcome)),
@@ -48,49 +48,33 @@ impl<'runner, R: Check> Bisect<'runner, R> {
 
         Ok(())
     }
-
-    fn minimum_capable(msrv: Option<&Release>, config: &Config) -> MinimumSupportedRustVersion {
-        msrv.map_or(
-            MinimumSupportedRustVersion::NoCompatibleToolchain,
-            |release| {
-                let version = release.version();
-
-                MinimumSupportedRustVersion::Toolchain {
-                    toolchain: OwnedToolchainSpec::new(version, config.target()),
-                }
-            },
-        )
-    }
 }
 
 impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
     fn find_toolchain(
         &self,
-        search_space: &[Release],
-        config: &Config,
+        search_space: &[RustRelease],
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
-        reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
+        info!(?search_space);
+
+        reporter.run_scoped_event(FindMsrv::new(SearchMethod::Bisect), || {
             let searcher = Bisector::new(search_space);
 
             let total = search_space.len() as u64;
             let mut iteration = 0_u64;
             let mut indices =
                 Indices::try_from_bisector(&searcher).map_err(|_| NoToolchainsToTryError {
-                    min: config.minimum_version().map(Clone::clone),
-                    max: config.maximum_version().map(Clone::clone),
                     search_space: search_space.to_vec(),
                 })?;
 
             let mut last_compatible_index = None;
 
-            info!(?search_space);
-
             while let Step {
                 indices: next_indices,
                 result: Some(step),
             } = searcher.try_bisect(
-                |release| Self::run_check(self.runner, release, config, reporter),
+                |release| Self::run_check(self.runner, release, reporter),
                 indices,
             )? {
                 iteration += 1;
@@ -116,7 +100,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
             let msrv = if indices.middle() == search_space.len() - 1 {
                 Self::show_progress(iteration + 1, total, indices, reporter)?;
 
-                match Self::run_check(self.runner, converged_to_release, config, reporter)? {
+                match Self::run_check(self.runner, converged_to_release, reporter)? {
                     ConvergeTo::Left(_outcome) => {
                         last_compatible_index.map(|i| &search_space[i.middle()])
                     }
@@ -126,7 +110,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
                 last_compatible_index.map(|i| &search_space[i.middle()])
             };
 
-            Ok(Self::minimum_capable(msrv, config))
+            Ok(MinimumSupportedRustVersion::from_option(msrv))
         })
     }
 }

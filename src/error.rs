@@ -1,3 +1,4 @@
+use camino::Utf8PathBuf;
 use owo_colors::OwoColorize;
 use std::env;
 use std::ffi::OsString;
@@ -10,6 +11,7 @@ use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 use crate::manifest::reader::ManifestReaderError;
 use crate::manifest::ManifestParseError;
+use crate::rust_release::RustRelease;
 use rust_releases::Release;
 
 use crate::sub_command::{show, verify};
@@ -67,7 +69,7 @@ pub enum CargoMSRVError {
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
 
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
-    NoMSRVKeyInCargoToml(PathBuf),
+    NoMSRVKeyInCargoToml(Utf8PathBuf),
 
     #[error(transparent)]
     ParseEdition(#[from] ParseEditionError),
@@ -171,19 +173,19 @@ pub enum IoErrorSource {
     CurrentDir,
 
     #[error("Unable to open file '{0}'")]
-    OpenFile(PathBuf),
+    OpenFile(Utf8PathBuf),
 
     #[error("Unable to read file '{0}'")]
-    ReadFile(PathBuf),
+    ReadFile(Utf8PathBuf),
 
     #[error("Unable to write file '{0}'")]
-    WriteFile(PathBuf),
+    WriteFile(Utf8PathBuf),
 
     #[error("Unable to remove file '{0}'")]
-    RemoveFile(PathBuf),
+    RemoveFile(Utf8PathBuf),
 
     #[error("Unable to rename file '{0}'")]
-    RenameFile(PathBuf),
+    RenameFile(Utf8PathBuf),
 
     #[error("Unable to spawn process '{0:?}'")]
     SpawnProcess(OsString),
@@ -201,15 +203,11 @@ pub enum SetMsrvError {
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("No Rust releases to check {} {} (search space: [{}])",
-    min.as_ref().map(|s| format!("(min: {})", s)).unwrap_or_default(),
-    max.as_ref().map(|s| format!("(max: {})", s)).unwrap_or_default(),
+#[error("No Rust releases to check (search space: [{}])",
     search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", ") )
 ]
 pub struct NoToolchainsToTryError {
-    pub(crate) min: Option<BareVersion>,
-    pub(crate) max: Option<BareVersion>,
-    pub(crate) search_space: Vec<Release>,
+    pub(crate) search_space: Vec<RustRelease>,
 }
 
 #[derive(Debug, thiserror::Error)]

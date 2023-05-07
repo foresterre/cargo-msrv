@@ -1,7 +1,7 @@
 use crate::reporter::event::Message;
 use crate::toolchain::OwnedToolchainSpec;
 use crate::Event;
-use std::path::{Path, PathBuf};
+use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -31,7 +31,7 @@ impl From<CheckMethod> for Event {
 pub enum Method {
     RustupRun {
         args: Vec<String>,
-        path: Option<PathBuf>,
+        path: Utf8PathBuf,
     },
     #[cfg(test)]
     TestRunner,
@@ -40,11 +40,11 @@ pub enum Method {
 impl Method {
     pub fn rustup_run(
         args: impl IntoIterator<Item = impl AsRef<str>>,
-        path: Option<impl AsRef<Path>>,
+        path: impl AsRef<Utf8Path>,
     ) -> Self {
         Self::RustupRun {
             args: args.into_iter().map(|s| s.as_ref().to_string()).collect(),
-            path: path.as_ref().map(|path| path.as_ref().to_path_buf()),
+            path: path.as_ref().to_path_buf(),
         }
     }
 }

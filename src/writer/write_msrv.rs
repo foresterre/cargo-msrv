@@ -1,25 +1,29 @@
-use crate::config::set::SetCmdConfig;
-use crate::config::{ConfigBuilder, SubCommandConfig};
+use crate::context::{EnvironmentContext, RustReleasesContext, SetContext, UserOutputContext};
+use crate::manifest::bare_version::BareVersion;
 use crate::reporter::Reporter;
-use crate::{release_index, semver, Config, Set, SubCommand, SubcommandId, TResult};
+use crate::{release_index, Set, SubCommand, TResult};
 
 /// Write the MSRV to the Cargo manifest
 ///
 /// Repurposes the Set MSRV subcommand for this action.
 pub fn write_msrv(
-    config: &Config,
     reporter: &impl Reporter,
-    version: &semver::Version,
+    msrv: BareVersion,
+    environment: EnvironmentContext,
+    user_output: UserOutputContext,
+    rust_releases: RustReleasesContext,
 ) -> TResult<()> {
-    let config = ConfigBuilder::from_config(config)
-        .mode_intent(SubcommandId::Set)
-        .sub_command_config(SubCommandConfig::SetConfig(SetCmdConfig {
-            msrv: version.into(),
-        }))
-        .build();
+    let release_source = rust_releases.release_source;
 
-    let index = release_index::fetch_index(&config, reporter).ok();
-    Set::new(index.as_ref()).run(&config, reporter)?;
+    let context = SetContext {
+        msrv,
+        environment,
+        user_output,
+        rust_releases,
+    };
+
+    let index = release_index::fetch_index(reporter, release_source).ok();
+    Set::new(index.as_ref()).run(&context, reporter)?;
 
     Ok(())
 }

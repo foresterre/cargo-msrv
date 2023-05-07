@@ -1,26 +1,49 @@
 use crate::manifest::bare_version;
-use crate::{semver, Config};
+use crate::semver;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
 
-pub fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
-    let releases = if config.include_all_patch_releases() {
-        releases.to_vec()
-    } else {
-        releases.iter().cloned().latest_stable_releases().collect()
-    };
+/// Filter releases based on the given configuration.
+pub struct ReleasesFilter<'ctx> {
+    include_all_patch_releases: bool,
+    minimum_version: Option<&'ctx bare_version::BareVersion>,
+    maximum_version: Option<&'ctx bare_version::BareVersion>,
+}
 
-    // Pre-filter the [min-version:max-version] range
-    releases
-        .into_iter()
-        .filter(|release| {
-            include_version(
-                release.version(),
-                config.minimum_version(),
-                config.maximum_version(),
-            )
-        })
-        .collect::<Vec<_>>()
+impl<'ctx> ReleasesFilter<'ctx> {
+    /// Initiate a new filter
+    pub fn new(
+        include_all_patch_releases: bool,
+        minimum_version: Option<&'ctx bare_version::BareVersion>,
+        maximum_version: Option<&'ctx bare_version::BareVersion>,
+    ) -> Self {
+        Self {
+            include_all_patch_releases,
+            minimum_version,
+            maximum_version,
+        }
+    }
+
+    /// Filter the given slice of releases, based on the options set for the filter.
+    pub fn filter(&self, releases: &[Release]) -> Vec<Release> {
+        let releases = if self.include_all_patch_releases {
+            releases.to_vec()
+        } else {
+            releases.iter().cloned().latest_stable_releases().collect()
+        };
+
+        // Pre-filter the [min-version:max-version] range
+        releases
+            .into_iter()
+            .filter(|release| {
+                include_version(
+                    release.version(),
+                    self.minimum_version.as_deref(),
+                    self.maximum_version.as_deref(),
+                )
+            })
+            .collect::<Vec<_>>()
+    }
 }
 
 fn include_version(

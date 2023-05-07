@@ -1,10 +1,10 @@
-use crate::cli::{shared_opts, CargoCli, CargoMsrvOpts};
+use crate::cli::CargoMsrvOpts;
 use crate::config::SearchMethod;
 use crate::context::{
-    CustomCheckContext, DebugOutputContext, EnvironmentContext, RustReleasesContext,
-    ToolchainContext, UserOutputContext,
+    CheckCmdContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
 };
-use std::convert::TryInto;
+use crate::error::CargoMSRVError;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
 pub struct FindContext {
@@ -32,28 +32,30 @@ pub struct FindContext {
     /// The context for Rust toolchains
     pub toolchain: ToolchainContext,
 
-    /// The context for custom checks to be used with rustup
-    pub custom_check: CustomCheckContext,
+    /// The context for checks to be used with rustup
+    pub check_cmd: CheckCmdContext,
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
 
     /// User output options
     pub user_output: UserOutputContext,
-
-    /// Debug output options
-    pub debug_output: DebugOutputContext,
 }
 
-impl From<CargoMsrvOpts> for FindContext {
-    fn from(opts: CargoMsrvOpts) -> Self {
+impl TryFrom<CargoMsrvOpts> for FindContext {
+    type Error = CargoMSRVError;
+
+    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
             find_opts,
             shared_opts,
             ..
         } = opts;
 
-        Self {
+        let toolchain = find_opts.toolchain_opts.try_into()?;
+        let environment = (&shared_opts).try_into()?;
+
+        Ok(Self {
             search_method: if find_opts.linear {
                 SearchMethod::Linear
             } else {
@@ -65,11 +67,10 @@ impl From<CargoMsrvOpts> for FindContext {
             no_check_feedback: find_opts.no_check_feedback,
             write_msrv: find_opts.write_msrv,
             rust_releases: find_opts.rust_releases_opts.into(),
-            toolchain: find_opts.toolchain_opts.into(),
-            custom_check: find_opts.custom_check_opts.into(),
-            environment: (&shared_opts).try_into().unwrap(), // todo!
+            toolchain,
+            check_cmd: find_opts.custom_check_opts.into(),
+            environment,
             user_output: shared_opts.user_output_opts.into(),
-            debug_output: shared_opts.debug_output_opts.into(),
-        }
+        })
     }
 }

@@ -1,18 +1,22 @@
-use crate::cli::{shared_opts, CargoMsrvOpts, SubCommand};
-use crate::context::list::ListContext;
+use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{
-    CustomCheckContext, DebugOutputContext, EnvironmentContext, RustReleasesContext,
-    ToolchainContext, UserOutputContext,
+    CheckCmdContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
 };
-use crate::manifest::bare_version::BareVersion;
+
+use crate::error::CargoMSRVError;
 use crate::sub_command::verify::RustVersion;
-use clap::builder::TypedValueParser;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
 pub struct VerifyContext {
     /// The resolved Rust version, to check against for toolchain compatibility.
-    pub rust_version: BareVersion,
+    pub rust_version: RustVersion,
+
+    /// Ignore the lockfile for the MSRV verification
+    pub ignore_lockfile: bool,
+
+    /// Don't print the result of compatibility check
+    pub no_check_feedback: bool,
 
     /// The context for Rust releases
     pub rust_releases: RustReleasesContext,
@@ -21,20 +25,19 @@ pub struct VerifyContext {
     pub toolchain: ToolchainContext,
 
     /// The context for custom checks to be used with rustup
-    pub custom_check: CustomCheckContext,
+    pub custom_check: CheckCmdContext,
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
 
     /// User output options
     pub user_output: UserOutputContext,
-
-    /// Debug output options
-    pub debug_output: DebugOutputContext,
 }
 
-impl From<CargoMsrvOpts> for VerifyContext {
-    fn from(opts: CargoMsrvOpts) -> Self {
+impl TryFrom<CargoMsrvOpts> for VerifyContext {
+    type Error = CargoMSRVError;
+
+    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
             find_opts,
             shared_opts,
@@ -46,23 +49,23 @@ impl From<CargoMsrvOpts> for VerifyContext {
             _ => unreachable!("This should never happen. The subcommand is not `verify`!"),
         };
 
-        let environment = (&shared_opts).try_into().unwrap(); // todo!
+        let toolchain = find_opts.toolchain_opts.try_into()?;
+        let environment = (&shared_opts).try_into()?;
 
         let rust_version = match subcommand.rust_version {
-            Some(v) => v,
-            None => RustVersion::try_from_environment(&environment)
-                .unwrap() /* todo! */
-                .into_version(),
+            Some(v) => RustVersion::from_arg(v),
+            None => RustVersion::try_from_environment(&environment)?,
         };
 
-        Self {
+        Ok(Self {
             rust_version,
+            ignore_lockfile: find_opts.ignore_lockfile,
+            no_check_feedback: find_opts.no_check_feedback,
             rust_releases: find_opts.rust_releases_opts.into(),
-            toolchain: find_opts.toolchain_opts.into(),
+            toolchain,
             custom_check: find_opts.custom_check_opts.into(),
             environment,
             user_output: shared_opts.user_output_opts.into(),
-            debug_output: shared_opts.debug_output_opts.into(),
-        }
+        })
     }
 }

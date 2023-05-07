@@ -1,10 +1,8 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::config::list::ListMsrvVariant;
-use crate::context::{
-    CustomCheckContext, DebugOutputContext, EnvironmentContext, RustReleasesContext,
-    ToolchainContext, UserOutputContext,
-};
-use std::convert::TryInto;
+use crate::context::{EnvironmentContext, UserOutputContext};
+use crate::error::CargoMSRVError;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
 pub struct ListContext {
@@ -16,13 +14,12 @@ pub struct ListContext {
 
     /// User output options
     pub user_output: UserOutputContext,
-
-    /// Debug output options
-    pub debug_output: DebugOutputContext,
 }
 
-impl From<CargoMsrvOpts> for ListContext {
-    fn from(opts: CargoMsrvOpts) -> Self {
+impl TryFrom<CargoMsrvOpts> for ListContext {
+    type Error = CargoMSRVError;
+
+    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
             shared_opts,
             subcommand,
@@ -34,11 +31,12 @@ impl From<CargoMsrvOpts> for ListContext {
             _ => unreachable!("This should never happen. The subcommand is not `list`!"),
         };
 
-        Self {
+        let environment = (&shared_opts).try_into()?;
+
+        Ok(Self {
             variant: subcommand.variant,
-            environment: (&shared_opts).try_into().unwrap(), // todo!
+            environment, // todo!
             user_output: shared_opts.user_output_opts.into(),
-            debug_output: shared_opts.debug_output_opts.into(),
-        }
+        })
     }
 }

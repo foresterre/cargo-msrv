@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::context::ListContext;
 use crate::dependency_graph::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::error::TResult;
 use crate::reporter::event::ListResult;
@@ -9,17 +9,18 @@ use crate::SubCommand;
 pub struct List;
 
 impl SubCommand for List {
+    type Context = ListContext;
     type Output = ();
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        list_msrv(config, reporter)
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
+        list_msrv(ctx, reporter)
     }
 }
 
-fn list_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    let resolver = CargoMetadataResolver::try_from_config(config)?;
+fn list_msrv(ctx: &ListContext, reporter: &impl Reporter) -> TResult<()> {
+    let resolver = CargoMetadataResolver::from_manifest_path(&ctx.environment.manifest());
     let graph = resolver.resolve()?;
-    let variant = config.sub_command_config().list().variant;
+    let variant = ctx.variant;
 
     reporter.report_event(ListResult::new(variant, graph))?;
 

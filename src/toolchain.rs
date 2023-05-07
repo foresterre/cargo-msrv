@@ -26,6 +26,10 @@ impl<'spec> ToolchainSpec<'spec> {
         self.version
     }
 
+    pub fn target(&self) -> &str {
+        self.target
+    }
+
     pub fn to_owned(&self) -> OwnedToolchainSpec {
         OwnedToolchainSpec {
             version: self.version.clone(),

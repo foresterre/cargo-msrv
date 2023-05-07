@@ -19,11 +19,12 @@ extern crate core;
 #[macro_use]
 extern crate tracing;
 
+pub use crate::context::Context;
 pub use crate::outcome::Outcome;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
 use crate::check::RustupToolchainCheck;
-use crate::config::{Config, ReleaseSource, SubcommandId};
+use crate::config::ReleaseSource;
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
@@ -41,11 +42,9 @@ pub mod toolchain;
 pub(crate) mod combinators;
 pub(crate) mod command;
 mod context;
-pub(crate) mod ctx;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 pub(crate) mod download;
-pub(crate) mod filter_releases;
 pub(crate) mod formatting;
 pub(crate) mod lockfile;
 pub(crate) mod log_level;
@@ -53,43 +52,50 @@ pub(crate) mod manifest;
 pub(crate) mod msrv;
 pub(crate) mod outcome;
 mod release_index;
+pub(crate) mod releases_filter;
+mod rust_release;
 pub(crate) mod search_method;
 pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
 pub(crate) mod writer;
 
-pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
+    reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
-    let subcommand_id = config.subcommand_id();
+    match ctx {
+        Context::Find(ctx) => {
+            let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
+            let runner = RustupToolchainCheck::new(
+                reporter,
+                ctx.ignore_lockfile,
+                ctx.no_check_feedback,
+                &ctx.environment,
+                &ctx.check_cmd,
+            );
+            Find::new(&index, runner).run(ctx, reporter)?;
+        }
+        Context::List(ctx) => {
+            List::default().run(ctx, reporter)?;
+        }
+        Context::Set(ctx) => {
+            let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source).ok();
+            Set::new(index.as_ref()).run(ctx, reporter)?;
+        }
+        Context::Show(ctx) => {
+            Show::default().run(ctx, reporter)?;
+        }
+        Context::Verify(ctx) => {
+            let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
+            let runner = RustupToolchainCheck::new(
+                reporter,
+                ctx.ignore_lockfile,
+                ctx.no_check_feedback,
+                &ctx.environment,
+                &ctx.custom_check,
+            );
 
-    info!(
-        subcommand_id = Into::<&'static str>::into(subcommand_id),
-        "running subcommand"
-    );
-
-    reporter.report_event(SubcommandInit::new(subcommand_id))?;
-
-    match subcommand_id {
-        SubcommandId::Find => {
-            let index = release_index::fetch_index(config, reporter)?;
-            let runner = RustupToolchainCheck::new(reporter);
-            Find::new(&index, runner).run(config, reporter)?;
-        }
-        SubcommandId::Verify => {
-            let index = release_index::fetch_index(config, reporter)?;
-            let runner = RustupToolchainCheck::new(reporter);
-            Verify::new(&index, runner).run(config, reporter)?;
-        }
-        SubcommandId::List => {
-            List::default().run(config, reporter)?;
-        }
-        SubcommandId::Set => {
-            let index = release_index::fetch_index(config, reporter).ok();
-            Set::new(index.as_ref()).run(config, reporter)?;
-        }
-        SubcommandId::Show => {
-            Show::default().run(config, reporter)?;
+            Verify::new(&index, runner).run(ctx, reporter)?;
         }
     }
 

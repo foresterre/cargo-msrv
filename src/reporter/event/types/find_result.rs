@@ -1,4 +1,5 @@
-use crate::config::{Config, SearchMethod};
+use crate::config::SearchMethod;
+use crate::context::FindContext;
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
@@ -23,22 +24,24 @@ pub struct FindResult {
 impl FindResult {
     pub fn new_msrv(
         version: semver::Version,
-        config: &Config,
+        ctx: &FindContext,
         min: BareVersion,
         max: BareVersion,
     ) -> Self {
         Self {
-            target: config.target().to_string(),
-            minimum_version: config
-                .minimum_version()
-                .map(Clone::clone)
+            target: ctx.toolchain.target.clone(),
+            minimum_version: ctx
+                .rust_releases
+                .minimum_rust_version
+                .clone()
                 .unwrap_or_else(|| min),
-            maximum_version: config
-                .maximum_version()
-                .map(Clone::clone)
+            maximum_version: ctx
+                .rust_releases
+                .maximum_rust_version
+                .clone()
                 .unwrap_or_else(|| max),
 
-            search_method: config.search_method(),
+            search_method: ctx.search_method,
 
             result: ResultDetails::Determined {
                 version,
@@ -47,19 +50,21 @@ impl FindResult {
         }
     }
 
-    pub fn none(config: &Config, min: BareVersion, max: BareVersion) -> Self {
+    pub fn none(ctx: &FindContext, min: BareVersion, max: BareVersion) -> Self {
         Self {
-            target: config.target().to_string(),
-            minimum_version: config
-                .minimum_version()
-                .map(Clone::clone)
+            target: ctx.toolchain.target.clone(),
+            minimum_version: ctx
+                .rust_releases
+                .minimum_rust_version
+                .clone()
                 .unwrap_or_else(|| min),
-            maximum_version: config
-                .maximum_version()
-                .map(Clone::clone)
+            maximum_version: ctx
+                .rust_releases
+                .maximum_rust_version
+                .clone()
                 .unwrap_or_else(|| max),
 
-            search_method: config.search_method(),
+            search_method: ctx.search_method,
 
             result: ResultDetails::Undetermined { success: False },
         }

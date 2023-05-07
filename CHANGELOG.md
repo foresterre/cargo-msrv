@@ -26,7 +26,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise that the toolchain-file is an output.
 * Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
 * The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
-* Updated user output formatting to be more consistent between output formats
+* Updated user output formatting to be more consistent between output formats.
+* `cargo-msrv` now requires paths to be UTF-8.
+* `--write-msrv` now writes two, instead of three component version numbers .
+
 
 #### Infra
 

@@ -4,9 +4,9 @@ use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
 use crate::reporter::Reporter;
-use crate::{semver, Config, TResult};
+use crate::{semver, TResult};
+use camino::{Utf8Path, Utf8PathBuf};
 use std::fmt;
-use std::path::{Path, PathBuf};
 
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
 const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
@@ -16,12 +16,11 @@ const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 // - consider: do not simply override, also support components, targets, profile
 //     - in reverse: use the values from rust-toolchain file to auto configure config
 pub fn write_toolchain_file(
-    config: &Config,
     reporter: &impl Reporter,
     stable_version: &semver::Version,
+    crate_root: &Utf8Path,
 ) -> TResult<()> {
-    let path_prefix = config.context().crate_root_path()?;
-    let path = toolchain_file(path_prefix);
+    let path = toolchain_file(crate_root);
     let content = format_toolchain_file(stable_version);
 
     std::fs::write(&path, content).map_err(|error| IoError {
@@ -38,13 +37,13 @@ pub fn write_toolchain_file(
 }
 
 /// Determine whether we should use a .toml extension or no extension for the rust-toolchain file.
-fn toolchain_file(path: &Path) -> PathBuf {
-    fn without_extension(path: &Path) -> Option<PathBuf> {
+fn toolchain_file(path: &Utf8Path) -> Utf8PathBuf {
+    fn without_extension(path: &Utf8Path) -> Option<Utf8PathBuf> {
         let file = path.join(TOOLCHAIN_FILE);
         ThenSome::then_some(file.exists(), file)
     }
 
-    fn with_extension(path: &Path) -> Option<PathBuf> {
+    fn with_extension(path: &Utf8Path) -> Option<Utf8PathBuf> {
         let file = path.join(TOOLCHAIN_FILE_TOML);
         ThenSome::then_some(file.exists(), file)
     }

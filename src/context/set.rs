@@ -1,27 +1,30 @@
-use crate::cli::{shared_opts, CargoMsrvOpts, SubCommand};
-use crate::context::list::ListContext;
-use crate::context::{DebugOutputContext, EnvironmentContext, UserOutputContext};
+use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::context::{EnvironmentContext, RustReleasesContext, UserOutputContext};
+use crate::error::CargoMSRVError;
 use crate::manifest::bare_version::BareVersion;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
 pub struct SetContext {
     /// MSRV to set.
     pub msrv: BareVersion,
 
+    /// The context for Rust releases
+    pub rust_releases: RustReleasesContext,
+
     /// Resolved environment options
     pub environment: EnvironmentContext,
 
     /// User output options
     pub user_output: UserOutputContext,
-
-    /// Debug output options
-    pub debug_output: DebugOutputContext,
 }
 
-impl From<CargoMsrvOpts> for SetContext {
-    fn from(opts: CargoMsrvOpts) -> Self {
+impl TryFrom<CargoMsrvOpts> for SetContext {
+    type Error = CargoMSRVError;
+
+    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
+            find_opts,
             shared_opts,
             subcommand,
             ..
@@ -32,11 +35,13 @@ impl From<CargoMsrvOpts> for SetContext {
             _ => unreachable!("This should never happen. The subcommand is not `set`!"),
         };
 
-        Self {
+        let environment = (&shared_opts).try_into()?;
+
+        Ok(Self {
             msrv: subcommand.msrv,
-            environment: (&shared_opts).try_into().unwrap(), // todo!
+            rust_releases: find_opts.rust_releases_opts.into(),
+            environment,
             user_output: shared_opts.user_output_opts.into(),
-            debug_output: shared_opts.debug_output_opts.into(),
-        }
+        })
     }
 }
