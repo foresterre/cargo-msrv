@@ -5,6 +5,7 @@ use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
 use crate::config::Config;
+use crate::context::EnvironmentContext;
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
@@ -38,7 +39,8 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 
     /// Run the verifier against a Rust version which is obtained from the config.
     fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        let rust_version = RustVersion::try_from_config(config)?;
+        // todo!
+        let rust_version = RustVersion::from_arg(BareVersion::TwoComponents(1, 0));
 
         verify_msrv(
             reporter,
@@ -128,41 +130,42 @@ impl From<RustVersion> for VerifyFailed {
 /// A combination of a bare (two- or three component) Rust version and the source which was used to
 /// locate this version.
 #[derive(Debug)]
-struct RustVersion {
+pub struct RustVersion {
     rust_version: BareVersion,
     source: RustVersionSource,
 }
 
 impl RustVersion {
-    /// Obtain the rust-version from one of two sources, in order:
-    /// 1. the rust-version given to the verify subcommand, or
-    /// 2. the rust-version as specified in the Cargo manifest
-    fn try_from_config(config: &Config) -> TResult<Self> {
-        let rust_version = config.sub_command_config().verify().rust_version.as_ref();
-
-        let (rust_version, source) = match rust_version {
-            Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
-            None => {
-                let path = config.context().manifest_path()?;
-                let document = TomlDocumentReader::read_document(path)?;
-                let manifest = CargoManifest::try_from(document)?;
-
-                manifest
-                    .minimum_rust_version()
-                    .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(path.to_path_buf()))
-                    .map(|v| (v.clone(), RustVersionSource::Manifest(path.to_path_buf())))
-            }
-        }?;
-
-        Ok(Self {
+    pub fn from_arg(rust_version: BareVersion) -> Self {
+        Self {
             rust_version,
-            source,
-        })
+            source: RustVersionSource::Arg,
+        }
+    }
+
+    pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
+        let manifest_path = env.manifest().into_std_path_buf();
+
+        let document = TomlDocumentReader::read_document(&manifest_path)?;
+        let manifest = CargoManifest::try_from(document)?;
+
+        manifest
+            .minimum_rust_version()
+            .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(manifest_path.clone()))
+            .map(|v| RustVersion {
+                rust_version: v.clone(),
+                source: RustVersionSource::Manifest(manifest_path.clone()),
+            })
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
-    fn version(&self) -> &BareVersion {
+    pub fn version(&self) -> &BareVersion {
         &self.rust_version
+    }
+
+    /// Get the version and discard all else.
+    pub fn into_version(self) -> BareVersion {
+        self.rust_version
     }
 }
 

@@ -147,6 +147,9 @@ Thank you in advance!"#
 
     #[error("Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually.")]
     UnableToRunCheck,
+
+    #[error(transparent)]
+    Path(#[from] PathError),
 }
 
 impl From<String> for CargoMSRVError {
@@ -243,4 +246,43 @@ impl RustupInstallFailed {
             stderr: stderr.into(),
         }
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum PathError {
+    #[error("No parent directory for '{}'", .0.display())]
+    NoParent(PathBuf),
+
+    #[error(transparent)]
+    InvalidUtf8(#[from] InvalidUtf8Error),
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error(transparent)]
+pub struct InvalidUtf8Error {
+    error: Utf8PathErrorInner,
+}
+
+impl From<camino::FromPathError> for InvalidUtf8Error {
+    fn from(value: camino::FromPathError) -> Self {
+        Self {
+            error: Utf8PathErrorInner::FromPath(value),
+        }
+    }
+}
+
+impl From<camino::FromPathBufError> for InvalidUtf8Error {
+    fn from(value: camino::FromPathBufError) -> Self {
+        Self {
+            error: Utf8PathErrorInner::FromPathBuf(value),
+        }
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+enum Utf8PathErrorInner {
+    #[error("Path contains non UTF-8 characters")]
+    FromPath(camino::FromPathError),
+    #[error("Path contains non UTF-8 characters (path: '{}')", .0.as_path().display())]
+    FromPathBuf(camino::FromPathBufError),
 }

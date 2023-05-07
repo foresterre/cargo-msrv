@@ -1,9 +1,12 @@
+use crate::cli::{shared_opts, CargoCli, CargoMsrvOpts};
 use crate::config::SearchMethod;
 use crate::context::{
     CustomCheckContext, DebugOutputContext, EnvironmentContext, RustReleasesContext,
     ToolchainContext, UserOutputContext,
 };
+use std::convert::TryInto;
 
+#[derive(Debug)]
 pub struct FindContext {
     /// Use a binary (bisect) or linear search to find the MSRV
     pub search_method: SearchMethod,
@@ -43,7 +46,30 @@ pub struct FindContext {
 }
 
 impl From<CargoMsrvOpts> for FindContext {
-    fn from(value: CargoMsrvOpts) -> Self {
-        todo!()
+    fn from(opts: CargoMsrvOpts) -> Self {
+        let CargoMsrvOpts {
+            find_opts,
+            shared_opts,
+            ..
+        } = opts;
+
+        Self {
+            search_method: if find_opts.linear {
+                SearchMethod::Linear
+            } else {
+                SearchMethod::Bisect
+            },
+            write_toolchain_file: find_opts.write_toolchain_file,
+            ignore_lockfile: find_opts.ignore_lockfile,
+            no_read_min_edition: find_opts.no_read_min_edition,
+            no_check_feedback: find_opts.no_check_feedback,
+            write_msrv: find_opts.write_msrv,
+            rust_releases: find_opts.rust_releases_opts.into(),
+            toolchain: find_opts.toolchain_opts.into(),
+            custom_check: find_opts.custom_check_opts.into(),
+            environment: (&shared_opts).try_into().unwrap(), // todo!
+            user_output: shared_opts.user_output_opts.into(),
+            debug_output: shared_opts.debug_output_opts.into(),
+        }
     }
 }

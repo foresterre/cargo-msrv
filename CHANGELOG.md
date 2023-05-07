@@ -39,6 +39,10 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
 * Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
 
+### Removed
+
+* Removed deprecated option `cargo msrv --verify`. Use `cargo msrv verify` instead.
+
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
 ## [0.15.1] - 2022-02-24

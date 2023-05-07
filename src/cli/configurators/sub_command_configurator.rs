@@ -28,10 +28,6 @@ impl Configure for SubCommandConfigurator {
             }
         }
 
-        if opts.verify {
-            return configure_deprecated_verify_flag(builder);
-        }
-
         Ok(builder)
     }
 }
