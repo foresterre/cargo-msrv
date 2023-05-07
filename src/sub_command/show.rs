@@ -1,9 +1,11 @@
+use camino::Utf8PathBuf;
 use std::convert::TryFrom;
 use std::path::PathBuf;
 
 use toml_edit::Document;
 
 use crate::config::Config;
+use crate::context::ShowContext;
 use crate::error::{IoError, IoErrorSource, TResult};
 
 use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
@@ -15,15 +17,16 @@ use crate::SubCommand;
 pub struct Show;
 
 impl SubCommand for Show {
+    type Context = ShowContext;
     type Output = ();
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        show_msrv(config, reporter)
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
+        show_msrv(ctx, reporter)
     }
 }
 
-fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
-    let cargo_toml = config.context().manifest_path()?;
+fn show_msrv(ctx: &ShowContext, reporter: &impl Reporter) -> TResult<()> {
+    let cargo_toml = ctx.environment.manifest();
 
     let contents = std::fs::read_to_string(cargo_toml).map_err(|error| IoError {
         error,
@@ -37,7 +40,7 @@ fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         .minimum_rust_version()
         .ok_or_else(|| Error::NoMSRVInCargoManifest(cargo_toml.to_path_buf()))?;
 
-    reporter.report_event(ShowResult::new(msrv.clone(), cargo_toml.to_path_buf()))?;
+    reporter.report_event(ShowResult::new(msrv.clone(), cargo_toml.clone()))?;
 
     Ok(())
 }
@@ -45,5 +48,5 @@ fn show_msrv(config: &Config, reporter: &impl Reporter) -> TResult<()> {
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("MSRV was not specified in Cargo manifest at '{}'", .0.display())]
-    NoMSRVInCargoManifest(PathBuf),
+    NoMSRVInCargoManifest(Utf8PathBuf),
 }

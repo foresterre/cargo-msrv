@@ -4,15 +4,14 @@ use crate::context::{
     CustomCheckContext, DebugOutputContext, EnvironmentContext, RustReleasesContext,
     ToolchainContext, UserOutputContext,
 };
-use crate::manifest::bare_version::BareVersion;
+
 use crate::sub_command::verify::RustVersion;
-use clap::builder::TypedValueParser;
 use std::convert::TryInto;
 
 #[derive(Debug)]
 pub struct VerifyContext {
     /// The resolved Rust version, to check against for toolchain compatibility.
-    pub rust_version: BareVersion,
+    pub rust_version: RustVersion,
 
     /// The context for Rust releases
     pub rust_releases: RustReleasesContext,
@@ -49,10 +48,8 @@ impl From<CargoMsrvOpts> for VerifyContext {
         let environment = (&shared_opts).try_into().unwrap(); // todo!
 
         let rust_version = match subcommand.rust_version {
-            Some(v) => v,
-            None => RustVersion::try_from_environment(&environment)
-                .unwrap() /* todo! */
-                .into_version(),
+            Some(v) => RustVersion::from_arg(v),
+            None => RustVersion::try_from_environment(&environment).unwrap(), // todo!
         };
 
         Self {

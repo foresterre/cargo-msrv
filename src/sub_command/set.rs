@@ -3,6 +3,7 @@ use std::io::Write;
 use rust_releases::{semver, Release, ReleaseIndex};
 use toml_edit::{table, value, Document, Item, Value};
 
+use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
@@ -11,7 +12,7 @@ use crate::reporter::event::{
     UnableToConfirmValidReleaseVersion,
 };
 use crate::reporter::Reporter;
-use crate::{CargoMSRVError, Config, SubCommand, TResult};
+use crate::{CargoMSRVError, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -26,14 +27,15 @@ impl<'index> Set<'index> {
 }
 
 impl SubCommand for Set<'_> {
+    type Context = SetContext;
     type Output = ();
 
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        let configured_msrv = &config.sub_command_config().set().msrv;
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
+        let configured_msrv = &ctx.msrv;
 
         match self.release_index {
             Some(index) if has_release(configured_msrv, index) => {
-                set_msrv(config, reporter, configured_msrv)
+                set_msrv(ctx, reporter, configured_msrv)
             }
             Some(index) => Err(InvalidMsrvSetError {
                 input: configured_msrv.clone(),
@@ -42,7 +44,7 @@ impl SubCommand for Set<'_> {
             .into()),
             None => {
                 reporter.report_event(UnableToConfirmValidReleaseVersion {})?;
-                set_msrv(config, reporter, configured_msrv)
+                set_msrv(ctx, reporter, configured_msrv)
             }
         }
     }
@@ -64,13 +66,13 @@ fn matches_release(configured_msrv: &BareVersion, release: &Release) -> bool {
     major_match && minor_match && patch_match
 }
 
-fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TResult<()> {
-    let cargo_toml = config.context().manifest_path()?;
+fn set_msrv(ctx: &SetContext, reporter: &impl Reporter, msrv: &BareVersion) -> TResult<()> {
+    let cargo_toml = ctx.environment.manifest();
 
     // Read the Cargo manifest to a String
     let contents = std::fs::read_to_string(cargo_toml).map_err(|error| IoError {
         error,
-        source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
+        source: IoErrorSource::ReadFile(cargo_toml.clone()),
     })?;
 
     // Parse the Cargo manifest contents, in particular the MSRV value
@@ -84,10 +86,10 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
     let mut file = std::fs::OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open(cargo_toml)
+        .open(&cargo_toml)
         .map_err(|error| IoError {
             error,
-            source: IoErrorSource::OpenFile(cargo_toml.to_path_buf()),
+            source: IoErrorSource::OpenFile(cargo_toml.clone()),
         })?;
 
     // Write the new manifest contents with the newly set MSRV value
@@ -97,12 +99,12 @@ fn set_msrv(config: &Config, reporter: &impl Reporter, msrv: &BareVersion) -> TR
     })?;
 
     reporter.report_event(AuxiliaryOutput::new(
-        Destination::file(cargo_toml.to_path_buf()),
+        Destination::file(cargo_toml.clone()),
         AuxiliaryOutputItem::msrv(MsrvKind::RustVersion),
     ))?;
 
     // Report that the MSRV was set
-    reporter.report_event(SetResult::new(msrv.clone(), cargo_toml.to_path_buf()))?;
+    reporter.report_event(SetResult::new(msrv.clone(), cargo_toml.clone()))?;
 
     Ok(())
 }

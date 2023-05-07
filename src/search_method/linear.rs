@@ -7,7 +7,7 @@ use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::toolchain::{OwnedToolchainSpec, ToolchainSpec};
-use crate::{Config, TResult};
+use crate::TResult;
 
 pub struct Linear<'runner, R: Check> {
     runner: &'runner R,
@@ -18,12 +18,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
         Self { runner }
     }
 
-    fn run_check(
-        runner: &R,
-        release: &Release,
-        config: &Config,
-        _reporter: &impl Reporter,
-    ) -> TResult<Outcome> {
+    fn run_check(runner: &R, release: &Release, _reporter: &impl Reporter) -> TResult<Outcome> {
         let toolchain = ToolchainSpec::new(release.version(), config.target());
         runner.check(config, &toolchain)
     }
@@ -31,7 +26,6 @@ impl<'runner, R: Check> Linear<'runner, R> {
     fn minimum_capable(
         releases: &[Release],
         index_of_msrv: Option<usize>,
-        config: &Config,
     ) -> MinimumSupportedRustVersion {
         index_of_msrv.map_or(MinimumSupportedRustVersion::NoCompatibleToolchain, |i| {
             let version = releases[i].version();
@@ -47,7 +41,6 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
     fn find_toolchain<'spec>(
         &self,
         search_space: &'spec [Release],
-        config: &'spec Config,
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         reporter.run_scoped_event(FindMsrv::new(config.search_method()), || {
@@ -70,11 +63,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
                 last_compatible_index = Some(i);
             }
 
-            Ok(Self::minimum_capable(
-                search_space,
-                last_compatible_index,
-                config,
-            ))
+            Ok(Self::minimum_capable(search_space, last_compatible_index))
         })
     }
 }

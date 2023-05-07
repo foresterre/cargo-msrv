@@ -11,16 +11,11 @@ use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::{DebugOutputOpts, SharedOpts, UserOutputOpts};
 use crate::cli::toolchain_opts::ToolchainOpts;
 
-use crate::config::{OutputFormat, ReleaseSource, TracingTargetOption};
-use crate::context::find::FindContext;
-use crate::context::list::ListContext;
-use crate::context::set::SetContext;
-use crate::context::show::ShowContext;
-use crate::context::verify::VerifyContext;
+use crate::config::{OutputFormat, ReleaseSource, SubcommandId, TracingTargetOption};
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
 use crate::log_level::LogLevel;
 use crate::manifest::bare_version::BareVersion;
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use std::convert::{TryFrom, TryInto};
 use std::env;
 use std::path::Path;
@@ -31,16 +26,34 @@ mod set;
 mod show;
 mod verify;
 
+pub use find::FindContext;
+pub use list::ListContext;
+pub use set::SetContext;
+pub use show::ShowContext;
+pub use verify::VerifyContext;
+
 /// Using sub-contexts allows us to write `From` implementations,
 /// for each sub-command, where each only contains the relevant portion of
 /// data.
 #[derive(Debug)]
 pub enum Context {
     Find(FindContext),
-    Verify(VerifyContext),
     List(ListContext),
     Set(SetContext),
     Show(ShowContext),
+    Verify(VerifyContext),
+}
+
+impl Context {
+    pub fn reporting_name(&self) -> &'static str {
+        match self {
+            Context::Find(_) => "find",
+            Context::List(_) => "list",
+            Context::Set(_) => "set",
+            Context::Show(_) => "show",
+            Context::Verify(_) => "verify",
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -140,6 +153,11 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
 }
 
 impl EnvironmentContext {
+    /// Path to the crate root
+    pub fn root(&self) -> &Utf8Path {
+        &self.crate_path
+    }
+
     /// The path to the Cargo manifest
     pub fn manifest(&self) -> Utf8PathBuf {
         self.crate_path.join("Cargo.toml")

@@ -23,7 +23,8 @@ pub use crate::outcome::Outcome;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
 use crate::check::RustupToolchainCheck;
-use crate::config::{Config, ReleaseSource, SubcommandId};
+use crate::config::ReleaseSource;
+use crate::context::Context;
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
@@ -41,7 +42,6 @@ pub mod toolchain;
 pub(crate) mod combinators;
 pub(crate) mod command;
 mod context;
-pub(crate) mod ctx;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 pub(crate) mod download;
@@ -58,39 +58,38 @@ pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
 pub(crate) mod writer;
 
-pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
+    reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
-    let subcommand_id = config.subcommand_id();
-
-    info!(
-        subcommand_id = Into::<&'static str>::into(subcommand_id),
-        "running subcommand"
-    );
-
-    reporter.report_event(SubcommandInit::new(subcommand_id))?;
-
-    match subcommand_id {
-        SubcommandId::Find => {
-            let index = release_index::fetch_index(config, reporter)?;
+    match ctx {
+        Context::Find(ctx) => {
+            let index = release_index::fetch_index(ctx, reporter)?;
             let runner = RustupToolchainCheck::new(reporter);
-            Find::new(&index, runner).run(config, reporter)?;
+            Find::new(&index, runner).run(ctx, reporter)?;
         }
-        SubcommandId::Verify => {
-            let index = release_index::fetch_index(config, reporter)?;
-            let runner = RustupToolchainCheck::new(reporter);
-            Verify::new(&index, runner).run(config, reporter)?;
-        }
-        SubcommandId::List => {
-            List::default().run(config, reporter)?;
-        }
-        SubcommandId::Set => {
-            let index = release_index::fetch_index(config, reporter).ok();
-            Set::new(index.as_ref()).run(config, reporter)?;
-        }
-        SubcommandId::Show => {
-            Show::default().run(config, reporter)?;
-        }
+
+        // SubcommandId::Find => {
+        //     let index = release_index::fetch_index(ctx, reporter)?;
+        //     let runner = RustupToolchainCheck::new(reporter);
+        //     Find::new(&index, runner).run(ctx, reporter)?;
+        // }
+        // SubcommandId::Verify => {
+        //     let index = release_index::fetch_index(ctx, reporter)?;
+        //     let runner = RustupToolchainCheck::new(reporter);
+        //     Verify::new(&index, runner).run(ctx, reporter)?;
+        // }
+        // SubcommandId::List => {
+        //     List::default().run(ctx, reporter)?;
+        // }
+        // SubcommandId::Set => {
+        //     let index = release_index::fetch_index(ctx, reporter).ok();
+        //     Set::new(index.as_ref()).run(ctx, reporter)?;
+        // }
+        // SubcommandId::Show => {
+        //     Show::default().run(ctx, reporter)?;
+        // }
+        _ => todo!("wip"),
     }
 
     Ok(())

@@ -1,4 +1,4 @@
-use crate::config::{Config, ReleaseSource};
+use crate::config::ReleaseSource;
 use crate::error::TResult;
 use crate::reporter::event::FetchIndex;
 use crate::reporter::Reporter;
@@ -6,16 +6,17 @@ use crate::reporter::Reporter;
 use rust_releases::RustDist;
 use rust_releases::{Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
 
-pub fn fetch_index(config: &Config, reporter: &impl Reporter) -> TResult<ReleaseIndex> {
-    reporter.run_scoped_event(FetchIndex::new(config.release_source()), || {
-        let source = config.release_source();
-
+pub fn fetch_index(
+    reporter: &impl Reporter,
+    release_source: ReleaseSource,
+) -> TResult<ReleaseIndex> {
+    reporter.run_scoped_event(FetchIndex::new(release_source), || {
         info!(
             source = Into::<&'static str>::into(source),
             "fetching index"
         );
 
-        let index = match config.release_source() {
+        let index = match release_source {
             ReleaseSource::RustChangelog => {
                 RustChangelog::fetch_channel(Channel::Stable)?.build_index()?
             }

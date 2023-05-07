@@ -4,7 +4,7 @@ pub use {bisect::Bisect, linear::Linear};
 
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
-use crate::{Config, TResult};
+use crate::TResult;
 
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each
 /// step, making this an efficient search function.
@@ -23,7 +23,6 @@ pub trait FindMinimalSupportedRustVersion {
     fn find_toolchain(
         &self,
         search_space: &[Release],
-        config: &Config,
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion>;
 }

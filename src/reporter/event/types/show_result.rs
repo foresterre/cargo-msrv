@@ -2,6 +2,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
 use crate::Event;
+use camino::{Utf8Path, Utf8PathBuf};
 use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -11,7 +12,7 @@ pub struct ShowResult {
 }
 
 impl ShowResult {
-    pub fn new(version: impl Into<BareVersion>, manifest_path: PathBuf) -> Self {
+    pub fn new(version: impl Into<BareVersion>, manifest_path: Utf8PathBuf) -> Self {
         Self {
             result: ResultDetails {
                 version: version.into(),
@@ -24,7 +25,7 @@ impl ShowResult {
         &self.result.version
     }
 
-    pub fn manifest_path(&self) -> &Path {
+    pub fn manifest_path(&self) -> &Utf8Path {
         &self.result.manifest_path
     }
 }
@@ -44,7 +45,7 @@ impl From<ShowResult> for Event {
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 struct ResultDetails {
     version: BareVersion,
-    manifest_path: PathBuf,
+    manifest_path: Utf8PathBuf,
 }
 
 #[cfg(test)]

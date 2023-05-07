@@ -1,10 +1,16 @@
 use crate::manifest::bare_version;
-use crate::{semver, Config};
+use crate::semver;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
 
-pub fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
-    let releases = if config.include_all_patch_releases() {
+struct FilterSettings<'ctx> {
+    include_all_patch_releases: bool,
+    minimum_version: Option<&'ctx bare_version::BareVersion>,
+    maximum_version: Option<&'ctx bare_version::BareVersion>,
+}
+
+pub fn filter_releases(settings: &FilterSettings, releases: &[Release]) -> Vec<Release> {
+    let releases = if settings.include_all_patch_releases {
         releases.to_vec()
     } else {
         releases.iter().cloned().latest_stable_releases().collect()
@@ -16,8 +22,8 @@ pub fn filter_releases(config: &Config, releases: &[Release]) -> Vec<Release> {
         .filter(|release| {
             include_version(
                 release.version(),
-                config.minimum_version(),
-                config.maximum_version(),
+                settings.minimum_version.as_deref(),
+                settings.maximum_version.as_deref(),
             )
         })
         .collect::<Vec<_>>()

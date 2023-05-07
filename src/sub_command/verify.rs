@@ -1,3 +1,4 @@
+use camino::{Utf8Path, Utf8PathBuf};
 use std::convert::TryFrom;
 use std::path::PathBuf;
 
@@ -5,7 +6,7 @@ use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
 use crate::config::Config;
-use crate::context::EnvironmentContext;
+use crate::context::{EnvironmentContext, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
@@ -35,16 +36,17 @@ impl<'index, C: Check> Verify<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Verify<'index, C> {
+    type Context = VerifyContext;
     type Output = ();
 
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
         // todo!
-        let rust_version = RustVersion::from_arg(BareVersion::TwoComponents(1, 0));
+        let rust_version = ctx.rust_version.clone();
 
         verify_msrv(
             reporter,
-            config,
+            ctx,
             self.release_index,
             rust_version,
             &self.runner,
@@ -58,7 +60,7 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
     reporter: &impl Reporter,
-    config: &Config,
+    config: &VerifyContext,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
     runner: &impl Check,
@@ -129,7 +131,7 @@ impl From<RustVersion> for VerifyFailed {
 
 /// A combination of a bare (two- or three component) Rust version and the source which was used to
 /// locate this version.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RustVersion {
     rust_version: BareVersion,
     source: RustVersionSource,
@@ -144,7 +146,7 @@ impl RustVersion {
     }
 
     pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
-        let manifest_path = env.manifest().into_std_path_buf();
+        let manifest_path = env.manifest();
 
         let document = TomlDocumentReader::read_document(&manifest_path)?;
         let manifest = CargoManifest::try_from(document)?;
@@ -170,11 +172,11 @@ impl RustVersion {
 }
 
 /// Source used to obtain a Rust version for the verifier.
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 enum RustVersionSource {
     #[error("as --rust-version argument")]
     Arg,
 
     #[error("as MSRV in the Cargo manifest located at '{0}'")]
-    Manifest(PathBuf),
+    Manifest(Utf8PathBuf),
 }

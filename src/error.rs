@@ -1,3 +1,4 @@
+use camino::Utf8PathBuf;
 use owo_colors::OwoColorize;
 use std::env;
 use std::ffi::OsString;
@@ -67,7 +68,7 @@ pub enum CargoMSRVError {
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
 
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
-    NoMSRVKeyInCargoToml(PathBuf),
+    NoMSRVKeyInCargoToml(Utf8PathBuf),
 
     #[error(transparent)]
     ParseEdition(#[from] ParseEditionError),
@@ -171,19 +172,19 @@ pub enum IoErrorSource {
     CurrentDir,
 
     #[error("Unable to open file '{0}'")]
-    OpenFile(PathBuf),
+    OpenFile(Utf8PathBuf),
 
     #[error("Unable to read file '{0}'")]
-    ReadFile(PathBuf),
+    ReadFile(Utf8PathBuf),
 
     #[error("Unable to write file '{0}'")]
-    WriteFile(PathBuf),
+    WriteFile(Utf8PathBuf),
 
     #[error("Unable to remove file '{0}'")]
-    RemoveFile(PathBuf),
+    RemoveFile(Utf8PathBuf),
 
     #[error("Unable to rename file '{0}'")]
-    RenameFile(PathBuf),
+    RenameFile(Utf8PathBuf),
 
     #[error("Unable to spawn process '{0:?}'")]
     SpawnProcess(OsString),

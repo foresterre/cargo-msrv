@@ -2,7 +2,7 @@ use crate::formatting::TermWidth;
 use crate::reporter::event::{
     CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandResult,
 };
-use crate::{semver, Event, SubcommandId};
+use crate::{semver, Event};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -129,12 +129,6 @@ impl HumanProgressHandler {
                 // tbd.
             }
         }
-    }
-}
-
-impl SubcommandId {
-    pub fn should_enable_spinner(&self) -> bool {
-        matches!(self, Self::Find | Self::Verify)
     }
 }
 

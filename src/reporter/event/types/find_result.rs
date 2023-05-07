@@ -1,4 +1,4 @@
-use crate::config::{Config, SearchMethod};
+use crate::config::SearchMethod;
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;

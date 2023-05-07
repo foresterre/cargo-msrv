@@ -1,18 +1,18 @@
 use crate::reporter::event::Message;
-use crate::{Event, SubcommandId};
+use crate::Event;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct SubcommandInit {
-    subcommand_id: SubcommandId,
+    subcommand_id: &'static str,
 }
 
 impl SubcommandInit {
-    pub fn new(subcommand_id: SubcommandId) -> Self {
+    pub fn new(subcommand_id: &'static str) -> Self {
         Self { subcommand_id }
     }
 
-    pub fn subcommand_id(&self) -> SubcommandId {
+    pub fn subcommand_id(&self) -> &'static str {
         self.subcommand_id
     }
 }
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn reported_action() {
         let reporter = TestReporterWrapper::default();
-        let event = SubcommandInit::new(SubcommandId::Find);
+        let event = SubcommandInit::new("find");
 
         reporter.reporter().report_event(event.clone()).unwrap();
 

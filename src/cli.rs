@@ -1,19 +1,14 @@
-use crate::cli::configurators::Configure;
 use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::find_opts::FindOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::config::list::ListMsrvVariant;
-use crate::config::ConfigBuilder;
-use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
-use crate::{CargoMSRVError, Config, SubcommandId};
 use clap::{Args, Parser, Subcommand};
 use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
 
-pub mod configurators;
 pub(crate) mod custom_check_opts;
 pub(crate) mod find_opts;
 pub(crate) mod rust_releases_opts;
@@ -151,68 +146,6 @@ pub struct VerifyOpts {
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
     #[arg(long, value_name = "rust-version")]
     pub rust_version: Option<BareVersion>,
-}
-
-// Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoCli> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(cli: &'opts CargoCli) -> Result<Self, Self::Error> {
-        (&cli.subcommand).try_into()
-    }
-}
-
-// Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoMsrvCli> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(cli: &'opts CargoMsrvCli) -> Result<Self, Self::Error> {
-        match cli {
-            CargoMsrvCli::Msrv(opts) => opts.try_into(),
-        }
-    }
-}
-
-impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: &'opts CargoMsrvOpts) -> Result<Self, Self::Error> {
-        let mode = make_mode(opts);
-        let target = default_target()?;
-
-        let mut builder = ConfigBuilder::new(mode, &target);
-
-        builder = configurators::CustomCheckCommand::configure(builder, opts)?;
-        builder = configurators::PathConfig::configure(builder, opts)?;
-        builder = configurators::ManifestPathConfig::configure(builder, opts)?;
-        builder = configurators::Target::configure(builder, opts)?;
-        builder = configurators::MinVersion::configure(builder, opts)?;
-        builder = configurators::MaxVersion::configure(builder, opts)?;
-        builder = configurators::SearchMethodConfig::configure(builder, opts)?;
-        builder = configurators::IncludeAllPatchReleases::configure(builder, opts)?;
-        builder = configurators::OutputToolchainFile::configure(builder, opts)?;
-        builder = configurators::WriteMsrv::configure(builder, opts)?;
-        builder = configurators::IgnoreLockfile::configure(builder, opts)?;
-        builder = configurators::UserOutput::configure(builder, opts)?;
-        builder = configurators::ReleaseSource::configure(builder, opts)?;
-        builder = configurators::Tracing::configure(builder, opts)?;
-        builder = configurators::CheckFeedback::configure(builder, opts)?;
-        builder = configurators::SubCommandConfigurator::configure(builder, opts)?;
-
-        Ok(builder.build())
-    }
-}
-
-fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
-    opts.subcommand
-        .as_ref()
-        .map(|subcommand| match subcommand {
-            SubCommand::List(_) => SubcommandId::List,
-            SubCommand::Show => SubcommandId::Show,
-            SubCommand::Set(_) => SubcommandId::Set,
-            SubCommand::Verify(_) => SubcommandId::Verify,
-        })
-        .unwrap_or_else(|| SubcommandId::Find)
 }
 
 #[cfg(test)]

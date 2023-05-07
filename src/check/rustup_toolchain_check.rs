@@ -1,29 +1,32 @@
 use crate::check::Check;
 use crate::command::RustupCommand;
+use crate::context::EnvironmentContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::{LockfileHandler, CARGO_LOCK};
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::toolchain::ToolchainSpec;
-use crate::{CargoMSRVError, Config, Outcome, Reporter, TResult};
-use once_cell::unsync::OnceCell;
-use std::path::{Path, PathBuf};
+use crate::{CargoMSRVError, Outcome, Reporter, TResult};
+use camino::{Utf8Path, Utf8PathBuf};
+use std::path::Path;
 
-pub struct RustupToolchainCheck<'reporter, R: Reporter> {
+pub struct RustupToolchainCheck<'reporter, 'env, R: Reporter> {
     reporter: &'reporter R,
-    lockfile_path: OnceCell<PathBuf>,
+    settings: Settings<'env>,
 }
 
-impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
-    fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome> {
+impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, '_, R> {
+    fn check(&self, toolchain: &ToolchainSpec) -> TResult<Outcome> {
+        let settings = &self.settings;
+
         self.reporter
             .run_scoped_event(CheckToolchain::new(toolchain.to_owned()), || {
-                info!(ignore_lockfile_enabled = config.ignore_lockfile());
+                info!(ignore_lockfile_enabled = settings.ignore_lockfile());
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
-                let cargo_lock = self.lockfile_path(config)?;
+                let cargo_lock = self.lockfile_path(settings)?;
 
-                let handle_wrap = if config.ignore_lockfile() && cargo_lock.is_file() {
+                let handle_wrap = if settings.ignore_lockfile() && cargo_lock.is_file() {
                     let handle = LockfileHandler::new(cargo_lock).move_lockfile()?;
 
                     Some(handle)
@@ -31,14 +34,14 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
                     None
                 };
 
-                self.prepare(toolchain, config)?;
+                self.prepare(toolchain, settings)?;
 
-                let path = current_dir_crate_path(config)?;
+                let path = current_dir_crate_path(settings)?;
                 let outcome =
-                    self.run_check_command_via_rustup(toolchain, path, config.check_command())?;
+                    self.run_check_command_via_rustup(toolchain, path, settings.check_command())?;
 
                 // report outcome to UI
-                self.report_outcome(&outcome, config.no_check_feedback())?;
+                self.report_outcome(&outcome, settings.no_check_feedback())?;
 
                 // move the lockfile back
                 if let Some(handle) = handle_wrap {
@@ -51,19 +54,26 @@ impl<'reporter, R: Reporter> Check for RustupToolchainCheck<'reporter, R> {
 }
 
 impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
-    pub fn new(reporter: &'reporter R) -> Self {
+    pub fn new(
+        reporter: &'reporter R,
+        ignore_lockfile: bool,
+        environment: &EnvironmentContext,
+    ) -> Self {
         Self {
             reporter,
-            lockfile_path: OnceCell::new(),
+            settings: Settings {
+                ignore_lockfile,
+                environment,
+            },
         }
     }
 
-    fn prepare(&self, toolchain: &ToolchainSpec, config: &Config) -> TResult<()> {
+    fn prepare(&self, toolchain: &ToolchainSpec, settings: &Settings) -> TResult<()> {
         let downloader = ToolchainDownloader::new(self.reporter);
         downloader.download(toolchain)?;
 
-        if config.ignore_lockfile() {
-            self.remove_lockfile(config)?;
+        if settings.ignore_lockfile() {
+            self.remove_lockfile(&settings.lockfile_path())?;
         }
 
         Ok(())
@@ -138,20 +148,7 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         Ok(())
     }
 
-    fn lockfile_path(&self, config: &Config) -> TResult<&Path> {
-        let path = self.lockfile_path.get_or_try_init(|| {
-            config
-                .context()
-                .crate_root_path()
-                .map(|path| path.join(CARGO_LOCK))
-        })?;
-
-        Ok(path)
-    }
-
-    fn remove_lockfile(&self, config: &Config) -> TResult<()> {
-        let lock_file = self.lockfile_path(config)?;
-
+    fn remove_lockfile(&self, lock_file: &Utf8Path) -> TResult<()> {
         if lock_file.is_file() {
             std::fs::remove_file(lock_file).map_err(|error| IoError {
                 error,
@@ -160,6 +157,32 @@ impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
         }
 
         Ok(())
+    }
+}
+
+struct Settings<'env> {
+    ignore_lockfile: bool,
+    environment: &'env EnvironmentContext,
+}
+
+impl Settings<'_> {
+    fn new(ignore_lockfile: bool, environment: &EnvironmentContext) -> Self {
+        Self {
+            ignore_lockfile,
+            environment,
+        }
+    }
+
+    fn ignore_lockfile(&self) -> bool {
+        self.ignore_lockfile
+    }
+
+    fn crate_root_path(&self) -> &Utf8Path {
+        self.environment.root()
+    }
+
+    fn lockfile_path(&self) -> Utf8PathBuf {
+        self.environment.lock()
     }
 }
 

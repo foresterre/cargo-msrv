@@ -1,5 +1,6 @@
 use crate::reporter::event::Message;
 use crate::Event;
+use camino::Utf8PathBuf;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -25,11 +26,11 @@ impl From<AuxiliaryOutput> for Event {
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum Destination {
-    File { path: PathBuf },
+    File { path: Utf8PathBuf },
 }
 
 impl Destination {
-    pub fn file(path: PathBuf) -> Self {
+    pub fn file(path: Utf8PathBuf) -> Self {
         Self::File { path }
     }
 }
