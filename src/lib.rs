@@ -22,11 +22,13 @@ extern crate tracing;
 pub use crate::outcome::Outcome;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
-use crate::check::RustupToolchainCheck;
+use crate::check::{Check, RustupToolchainCheck};
+use crate::command::RustupCommand;
 use crate::config::{Config, ReleaseSource, SubcommandId};
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
+use crate::toolchain::ToolchainSpec;
 use rust_releases::semver;
 
 pub mod check;
@@ -90,7 +92,26 @@ pub fn run_app(config: &Config, reporter: &impl Reporter) -> TResult<()> {
         SubcommandId::Show => {
             Show::default().run(config, reporter)?;
         }
+        SubcommandId::Forward(fwd) => {
+            // Read the MSRV
+            let msrv = todo!();
+
+            // Run rustup run <toolchain> cargo (build | check | test) ...args
+
+            let run_forwarded_subcommand = todo!();
+        }
     }
 
     Ok(())
+}
+
+fn run(config: &Config, reporter: &impl Reporter) -> TResult<()> {
+    let rustup_output = RustupCommand::new()
+        .with_args(cmd.iter())
+        .with_optional_dir(dir)
+        .with_stderr()
+        .run()
+        .map_err(|_| CargoMSRVError::UnableToRunCheck)?;
+
+    let status = rustup_output.exit_status();
 }

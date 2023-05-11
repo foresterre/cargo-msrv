@@ -5,7 +5,7 @@ use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::config::list::ListMsrvVariant;
-use crate::config::ConfigBuilder;
+use crate::config::{ConfigBuilder, ForwardedSubcommandId};
 use crate::default_target::default_target;
 use crate::manifest::bare_version::BareVersion;
 use crate::{CargoMSRVError, Config, SubcommandId};
@@ -115,6 +115,10 @@ pub(in crate::cli) enum SubCommand {
     /// Verify whether the MSRV is satisfiable. The MSRV must be specified using the
     /// 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest.
     Verify(VerifyOpts),
+
+    /// Subcommands which are ran with the MSRV toolchain and forwarded to cargo
+    #[command(flatten)]
+    CargoSubcommand(CargoSubcommand),
 }
 
 #[derive(Debug, Args)]
@@ -155,6 +159,17 @@ pub(in crate::cli) struct VerifyOpts {
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
     #[arg(long, value_name = "rust-version")]
     rust_version: Option<BareVersion>,
+}
+
+#[derive(Debug, Subcommand)]
+#[command(next_help_heading = "Cargo Subcommands")]
+enum CargoSubcommand {
+    /// Run cargo build with the MSRV toolchain
+    Build,
+    /// Run cargo check with the MSRV toolchain
+    Check,
+    /// Run cargo test with the MSRV toolchain
+    Test,
 }
 
 // Interpret the CLI config frontend as general Config
@@ -215,6 +230,11 @@ fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
             SubCommand::Show => SubcommandId::Show,
             SubCommand::Set(_) => SubcommandId::Set,
             SubCommand::Verify(_) => SubcommandId::Verify,
+            SubCommand::CargoSubcommand(subcommand) => match subcommand {
+                CargoSubcommand::Build => SubcommandId::Forward(ForwardedSubcommandId::Build),
+                CargoSubcommand::Check => SubcommandId::Forward(ForwardedSubcommandId::Check),
+                CargoSubcommand::Test => SubcommandId::Forward(ForwardedSubcommandId::Test),
+            },
         })
         .unwrap_or_else(|| {
             if opts.verify {
