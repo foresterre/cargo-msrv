@@ -45,7 +45,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 ### Removed
 
 * Removed deprecated option `cargo msrv --verify`. Use `cargo msrv verify` instead.
-* Removed option to disable reading the Rust edition in from the Cargo manifest with `--no-read-min-edition`, which limited the search space.
+* Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo manifest, `--no-read-min-edition`.
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
