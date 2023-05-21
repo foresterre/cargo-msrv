@@ -146,8 +146,8 @@ Thank you in advance!"#
     #[error("The Rust stable version could not be parsed from the stable channel manifest.")]
     UnableToParseRustVersion,
 
-    #[error("Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually.")]
-    UnableToRunCheck,
+    #[error("Unable to run the check command: '{}' at '{}'", &command, &cwd)]
+    UnableToRunCheck { command: String, cwd: Utf8PathBuf },
 
     #[error(transparent)]
     Path(#[from] PathError),
