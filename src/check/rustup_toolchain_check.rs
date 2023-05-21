@@ -100,7 +100,10 @@ impl<'reporter, 'env, 'cc, R: Reporter> RustupToolchainCheck<'reporter, 'env, 'c
             .with_dir(dir)
             .with_stderr()
             .run()
-            .map_err(|_| CargoMSRVError::UnableToRunCheck)?;
+            .map_err(|_| CargoMSRVError::UnableToRunCheck {
+                command: cmd[1..].join(" "),
+                cwd: dir.to_path_buf(),
+            })?;
 
         let status = rustup_output.exit_status();
 
