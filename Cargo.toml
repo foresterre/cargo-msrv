@@ -13,6 +13,7 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 
 build = "build.rs"
 
+exclude = ["/design"]
 
 [package.metadata.release]
 tag-name = "v{{version}}"
