@@ -26,6 +26,10 @@ impl<'spec> ToolchainSpec<'spec> {
         self.version
     }
 
+    pub fn target(&self) -> &str {
+        self.target
+    }
+
     pub fn to_owned(&self) -> OwnedToolchainSpec {
         OwnedToolchainSpec {
             version: self.version.clone(),
@@ -81,4 +85,107 @@ impl std::fmt::Display for OwnedToolchainSpec {
 
 fn make_toolchain_spec(version: &semver::Version, target: &str) -> String {
     format!("{}-{}", version, target)
+}
+
+#[cfg(test)]
+mod tests_toolchain_spec {
+    use super::*;
+
+    #[test]
+    fn get_spec() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = ToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.spec(), "1.2.3-x");
+    }
+
+    #[test]
+    fn get_version() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = ToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.version(), &version);
+    }
+
+    #[test]
+    fn get_target() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = ToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.target(), "x");
+    }
+
+    #[test]
+    fn to_owned() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = ToolchainSpec::new(&version, "x");
+        let owned = toolchain.to_owned();
+
+        let expected = OwnedToolchainSpec::new(&version, "x");
+
+        assert_eq!(owned, expected);
+    }
+
+    #[test]
+    fn into() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = ToolchainSpec::new(&version, "x");
+        let owned: OwnedToolchainSpec = toolchain.into();
+
+        let expected = OwnedToolchainSpec::new(&version, "x");
+
+        assert_eq!(owned, expected);
+    }
+}
+
+#[cfg(test)]
+mod tests_owned_toolchain_spec {
+    use super::*;
+
+    #[test]
+    fn get_spec() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.spec(), "1.2.3-x");
+    }
+
+    #[test]
+    fn get_version() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.version(), &version);
+    }
+
+    #[test]
+    fn get_target() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+
+        assert_eq!(toolchain.target(), "x");
+    }
+
+    #[test]
+    fn display() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+        let formatted = format!("{}", toolchain);
+
+        assert_eq!(&formatted, toolchain.spec());
+        assert_eq!(&formatted, "1.2.3-x");
+    }
+}
+
+#[cfg(test)]
+mod tests_make_toolchain_spec {
+    use super::*;
+
+    #[test]
+    fn make_spec() {
+        let version = semver::Version::new(1, 2, 3);
+        let spec = make_toolchain_spec(&version, "y");
+
+        assert_eq!(spec, "1.2.3-y");
+    }
 }

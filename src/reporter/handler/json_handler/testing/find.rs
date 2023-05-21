@@ -1,20 +1,20 @@
-use crate::config::Config;
+use crate::context::SearchMethod;
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::FindResult;
 use crate::reporter::JsonHandler;
 use crate::semver;
-use crate::SubcommandId;
 use storyteller::EventHandler;
 
 #[test]
 fn compatible_handler() {
     let version = semver::Version::new(1, 2, 3);
-    let config = Config::new(SubcommandId::Find, "my-target");
+
     let event = FindResult::new_msrv(
         version,
-        &config,
+        "x",
         BareVersion::TwoComponents(1, 0),
         BareVersion::TwoComponents(1, 10),
+        SearchMethod::Linear,
     );
 
     let writer = Vec::new();
@@ -38,11 +38,11 @@ fn compatible_handler() {
 
 #[test]
 fn incompatible_handler() {
-    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::none(
-        &config,
+        "x",
         BareVersion::TwoComponents(1, 0),
         BareVersion::TwoComponents(1, 10),
+        SearchMethod::Bisect,
     );
 
     let writer = Vec::new();
@@ -66,12 +66,12 @@ fn incompatible_handler() {
 #[test]
 fn compatible() {
     let version = semver::Version::new(1, 2, 3);
-    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::new_msrv(
         version,
-        &config,
+        "x",
         BareVersion::TwoComponents(1, 0),
         BareVersion::TwoComponents(1, 10),
+        SearchMethod::Bisect,
     );
 
     let expected = serde_json::json!({
@@ -87,11 +87,11 @@ fn compatible() {
 
 #[test]
 fn incompatible() {
-    let config = Config::new(SubcommandId::Find, "my-target");
     let event = FindResult::none(
-        &config,
+        "x",
         BareVersion::TwoComponents(1, 0),
         BareVersion::TwoComponents(1, 10),
+        SearchMethod::Bisect,
     );
 
     let expected = serde_json::json!({

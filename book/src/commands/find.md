@@ -67,7 +67,6 @@ does not contain new features, thus no features to impact the MSRV. When you pro
 patch versions will be included in the search space.
 
 
-
 **`--ignore-lockfile`**
 
 Temporarily (re)moves the lockfile, so it will not interfere with the building process. This is important when
@@ -113,13 +112,6 @@ incompatible, for example, so you can identify Rust features which require a cer
 
 Do not write (internal) debug log output to the log target.
 
-
-**`--no-read-min-edition`**
-            
-If provided, the 'package.edition' value in the Cargo.toml will not be used to reduce search space.
-By default, the edition is read from the `Cargo.toml` file and used as the minimum Rust version. See also `--min`.
-
-
 **`--no-user-output`**
 
 Disables printing of diagnostic status messages. Useful when internal log output messages are printed to the stdout,
@@ -157,14 +149,6 @@ See [here](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file)
 **`-V, --version`**
 
 Prints cargo-msrv version information
-
-**`--verify` (DEPRECATED)**
-
-Verify the MSRV specified by a crate author in the 'package.rust-version' or the 'package.metadata.msrv' key, in the
-Cargo manifest `Cargo.toml`. When this flag is present, cargo-msrv will not attempt to determine the true MSRV. 
-Instead, it only attempts to verify whether for the specified MSRV, the _cargo-msrv check_ command passes.
-
-_DEPRECATED: use `cargo msrv verify` instead_
 
 **`--` ...cmd** 
 

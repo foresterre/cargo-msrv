@@ -1,6 +1,6 @@
 use super::display_option;
 use super::display_vec;
-use crate::config::list::ORDERED_BY_MSRV;
+use crate::context::list::ORDERED_BY_MSRV;
 use crate::dependency_graph::DependencyGraph;
 use crate::formatting::table;
 use crate::reporter::event::types::list_result::metadata::{format_version, package_msrv};

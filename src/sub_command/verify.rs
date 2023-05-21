@@ -1,10 +1,10 @@
+use camino::Utf8PathBuf;
 use std::convert::TryFrom;
-use std::path::PathBuf;
 
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
-use crate::config::Config;
+use crate::context::{EnvironmentContext, OutputFormat, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
@@ -34,15 +34,17 @@ impl<'index, C: Check> Verify<'index, C> {
 }
 
 impl<'index, C: Check> SubCommand for Verify<'index, C> {
+    type Context = VerifyContext;
     type Output = ();
 
     /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output> {
-        let rust_version = RustVersion::try_from_config(config)?;
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
+        // todo!
+        let rust_version = ctx.rust_version.clone();
 
         verify_msrv(
             reporter,
-            config,
+            ctx,
             self.release_index,
             rust_version,
             &self.runner,
@@ -56,7 +58,7 @@ impl<'index, C: Check> SubCommand for Verify<'index, C> {
 /// for the (given or specified) `rust_version`.
 fn verify_msrv(
     reporter: &impl Reporter,
-    config: &Config,
+    ctx: &VerifyContext,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
     runner: &impl Check,
@@ -65,11 +67,12 @@ fn verify_msrv(
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
-    let toolchain = ToolchainSpec::new(version, config.target());
+    let target = ctx.toolchain.target.as_str();
+    let toolchain = ToolchainSpec::new(version, target);
 
-    match runner.check(config, &toolchain)? {
+    match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),
-        Outcome::Failure(_) if config.no_check_feedback() => {
+        Outcome::Failure(_) if ctx.user_output.output_format == OutputFormat::None => {
             failure(reporter, toolchain, rust_version, None)
         }
         Outcome::Failure(f) => failure(reporter, toolchain, rust_version, Some(f.error_message)),
@@ -127,51 +130,52 @@ impl From<RustVersion> for VerifyFailed {
 
 /// A combination of a bare (two- or three component) Rust version and the source which was used to
 /// locate this version.
-#[derive(Debug)]
-struct RustVersion {
+#[derive(Clone, Debug)]
+pub struct RustVersion {
     rust_version: BareVersion,
     source: RustVersionSource,
 }
 
 impl RustVersion {
-    /// Obtain the rust-version from one of two sources, in order:
-    /// 1. the rust-version given to the verify subcommand, or
-    /// 2. the rust-version as specified in the Cargo manifest
-    fn try_from_config(config: &Config) -> TResult<Self> {
-        let rust_version = config.sub_command_config().verify().rust_version.as_ref();
-
-        let (rust_version, source) = match rust_version {
-            Some(v) => Ok((v.clone(), RustVersionSource::Arg)),
-            None => {
-                let path = config.context().manifest_path()?;
-                let document = TomlDocumentReader::read_document(path)?;
-                let manifest = CargoManifest::try_from(document)?;
-
-                manifest
-                    .minimum_rust_version()
-                    .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(path.to_path_buf()))
-                    .map(|v| (v.clone(), RustVersionSource::Manifest(path.to_path_buf())))
-            }
-        }?;
-
-        Ok(Self {
+    pub fn from_arg(rust_version: BareVersion) -> Self {
+        Self {
             rust_version,
-            source,
-        })
+            source: RustVersionSource::Arg,
+        }
+    }
+
+    pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
+        let manifest_path = env.manifest();
+
+        let document = TomlDocumentReader::read_document(&manifest_path)?;
+        let manifest = CargoManifest::try_from(document)?;
+
+        manifest
+            .minimum_rust_version()
+            .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(manifest_path.clone()))
+            .map(|v| RustVersion {
+                rust_version: v.clone(),
+                source: RustVersionSource::Manifest(manifest_path.clone()),
+            })
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
-    fn version(&self) -> &BareVersion {
+    pub fn version(&self) -> &BareVersion {
         &self.rust_version
+    }
+
+    /// Get the version and discard all else.
+    pub fn into_version(self) -> BareVersion {
+        self.rust_version
     }
 }
 
 /// Source used to obtain a Rust version for the verifier.
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 enum RustVersionSource {
     #[error("as --rust-version argument")]
     Arg,
 
     #[error("as MSRV in the Cargo manifest located at '{0}'")]
-    Manifest(PathBuf),
+    Manifest(Utf8PathBuf),
 }

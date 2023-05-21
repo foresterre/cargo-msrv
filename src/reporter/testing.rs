@@ -52,7 +52,7 @@ impl TestReporterWrapper {
         handler.unwrap_events()
     }
 
-    pub fn reporter(&self) -> &impl Reporter {
+    pub fn get(&self) -> &impl Reporter {
         &self.reporter
     }
 }

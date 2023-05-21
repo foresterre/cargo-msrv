@@ -9,11 +9,11 @@ In this readme you'll find everything to get you started. You can find more deta
 
 #### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
 
-| cargo       | supported | command                                                                                    |
-|-------------|-----------|--------------------------------------------------------|
-| stable      | 💚        | `$ cargo install cargo-msrv`                           |
+| cargo       | supported | command                                               |
+|-------------|-----------|-------------------------------------------------------|
+| stable      | 💚        | `$ cargo install cargo-msrv`                          |
 | beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.13` |
-| development | ❌        |                                                        |
+| development | ❌        |                                                       |
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
 
@@ -27,7 +27,7 @@ In this readme you'll find everything to get you started. You can find more deta
 
 | cargo       | supported | command                                                             |
 |-------------|-----------|---------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`           |
+| stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`         |
 | beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.13 --no-confirm cargo-msrv` |
 | development | ❌        |                                                                     |
 
@@ -90,10 +90,10 @@ Commands:
 
 Options:
   -h, --help
-          Print help information (use `-h` for a summary)
+          Print help (see a summary with '-h')
 
   -V, --version
-          Print version information
+          Print version
 
 Find MSRV options:
       --bisect
@@ -115,9 +115,6 @@ Find MSRV options:
           Temporarily remove the lockfile, so it will not interfere with the building process
 
           This is important when testing against older Rust versions such as Cargo versions prior to Rust 1.38.0, for which Cargo does not recognize the newer lockfile formats.
-
-      --no-read-min-edition
-          Don't read the `edition` of the crate and do not use its value to reduce the search space
 
       --no-check-feedback
           Don't print the result of compatibility checks

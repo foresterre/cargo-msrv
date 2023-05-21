@@ -1,11 +1,11 @@
 use crate::common::reporter::EventTestDevice;
 use cargo_msrv::check::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::config::test_config_from_cli;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
-use cargo_msrv::{Find, SubCommand};
+use cargo_msrv::{Context, Find, SubCommand};
 use rust_releases::{semver, Release, ReleaseIndex};
+use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;
 
@@ -56,22 +56,35 @@ pub fn find_msrv_with_releases<
     included_releases: V,
 ) -> Result<TestResult, CargoMSRVError> {
     let matches = CargoCli::parse_args(with_args);
-    let config = test_config_from_cli(&matches).expect("Unable to parse cli arguments");
+    let opts = matches.to_cargo_msrv_cli().to_opts();
+    let ctx = Context::try_from(opts)?;
+    let find_ctx = ctx.to_find_context().unwrap();
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
     let available_versions = ReleaseIndex::from_iter(included_releases);
 
     let device = EventTestDevice::default();
-    let runner = RustupToolchainCheck::new(device.reporter());
+
+    let ignore_toolchain = find_ctx.ignore_lockfile;
+    let no_check_feedback = find_ctx.no_check_feedback;
+    let env = &find_ctx.environment;
+    let check_cmd = &find_ctx.check_cmd;
+
+    let runner = RustupToolchainCheck::new(
+        device.reporter(),
+        ignore_toolchain,
+        no_check_feedback,
+        env,
+        check_cmd,
+    );
 
     // Determine the MSRV from the index of available releases.
     let cmd = Find::new(&available_versions, runner);
 
-    cmd.run(&config, device.reporter())?;
+    cmd.run(&find_ctx, device.reporter())?;
 
     let events = device.wait_for_events();
-
     let mut test_result = TestResult::default();
 
     for item in events {

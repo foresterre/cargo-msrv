@@ -1,3 +1,4 @@
+use camino::Utf8PathBuf;
 use owo_colors::OwoColorize;
 use std::env;
 use std::ffi::OsString;
@@ -67,7 +68,7 @@ pub enum CargoMSRVError {
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
 
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
-    NoMSRVKeyInCargoToml(PathBuf),
+    NoMSRVKeyInCargoToml(Utf8PathBuf),
 
     #[error(transparent)]
     ParseEdition(#[from] ParseEditionError),
@@ -147,6 +148,9 @@ Thank you in advance!"#
 
     #[error("Unable to run the checking command. If --check <cmd> is specified, you could try to verify if you can run the cmd manually.")]
     UnableToRunCheck,
+
+    #[error(transparent)]
+    Path(#[from] PathError),
 }
 
 impl From<String> for CargoMSRVError {
@@ -168,19 +172,19 @@ pub enum IoErrorSource {
     CurrentDir,
 
     #[error("Unable to open file '{0}'")]
-    OpenFile(PathBuf),
+    OpenFile(Utf8PathBuf),
 
     #[error("Unable to read file '{0}'")]
-    ReadFile(PathBuf),
+    ReadFile(Utf8PathBuf),
 
     #[error("Unable to write file '{0}'")]
-    WriteFile(PathBuf),
+    WriteFile(Utf8PathBuf),
 
     #[error("Unable to remove file '{0}'")]
-    RemoveFile(PathBuf),
+    RemoveFile(Utf8PathBuf),
 
     #[error("Unable to rename file '{0}'")]
-    RenameFile(PathBuf),
+    RenameFile(Utf8PathBuf),
 
     #[error("Unable to spawn process '{0:?}'")]
     SpawnProcess(OsString),
@@ -198,15 +202,40 @@ pub enum SetMsrvError {
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("No Rust releases to check {} {} (search space: [{}])",
-    min.as_ref().map(|s| format!("(min: {})", s)).unwrap_or_default(),
-    max.as_ref().map(|s| format!("(max: {})", s)).unwrap_or_default(),
-    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", ") )
-]
+#[error("No Rust releases to check: the filtered search space is empty.{}",
+    inner.as_ref().map(|clues| format!("{}", clues)).unwrap_or_default(),
+)]
 pub struct NoToolchainsToTryError {
-    pub(crate) min: Option<BareVersion>,
-    pub(crate) max: Option<BareVersion>,
-    pub(crate) search_space: Vec<Release>,
+    inner: Option<NoToolchainToTryClues>,
+}
+
+impl NoToolchainsToTryError {
+    pub fn new_empty() -> Self {
+        Self { inner: None }
+    }
+
+    pub fn with_clues(user_min: Option<BareVersion>, user_max: Option<BareVersion>) -> Self {
+        Self {
+            inner: Some(NoToolchainToTryClues {
+                min: user_min,
+                max: user_max,
+            }),
+        }
+    }
+
+    pub fn has_clues(&self) -> bool {
+        self.inner.is_some()
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error(" Search space limited by user to min Rust '{}', and max Rust '{}'",
+    min.as_ref().map(|s| format!("{}", s)).unwrap_or_else(|| "<not overridden>".to_string()),
+    max.as_ref().map(|s| format!("{}", s)).unwrap_or_else(|| "<not overridden>".to_string()),
+)]
+pub struct NoToolchainToTryClues {
+    min: Option<BareVersion>,
+    max: Option<BareVersion>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -243,4 +272,43 @@ impl RustupInstallFailed {
             stderr: stderr.into(),
         }
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum PathError {
+    #[error("No parent directory for '{}'", .0.display())]
+    NoParent(PathBuf),
+
+    #[error(transparent)]
+    InvalidUtf8(#[from] InvalidUtf8Error),
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error(transparent)]
+pub struct InvalidUtf8Error {
+    error: Utf8PathErrorInner,
+}
+
+impl From<camino::FromPathError> for InvalidUtf8Error {
+    fn from(value: camino::FromPathError) -> Self {
+        Self {
+            error: Utf8PathErrorInner::FromPath(value),
+        }
+    }
+}
+
+impl From<camino::FromPathBufError> for InvalidUtf8Error {
+    fn from(value: camino::FromPathBufError) -> Self {
+        Self {
+            error: Utf8PathErrorInner::FromPathBuf(value),
+        }
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+enum Utf8PathErrorInner {
+    #[error("Path contains non UTF-8 characters")]
+    FromPath(camino::FromPathError),
+    #[error("Path contains non UTF-8 characters (path: '{}')", .0.as_path().display())]
+    FromPathBuf(camino::FromPathBufError),
 }

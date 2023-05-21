@@ -2,7 +2,7 @@ use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
 use crate::Event;
-use std::path::{Path, PathBuf};
+use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -11,7 +11,7 @@ pub struct ShowResult {
 }
 
 impl ShowResult {
-    pub fn new(version: impl Into<BareVersion>, manifest_path: PathBuf) -> Self {
+    pub fn new(version: impl Into<BareVersion>, manifest_path: Utf8PathBuf) -> Self {
         Self {
             result: ResultDetails {
                 version: version.into(),
@@ -24,7 +24,7 @@ impl ShowResult {
         &self.result.version
     }
 
-    pub fn manifest_path(&self) -> &Path {
+    pub fn manifest_path(&self) -> &Utf8Path {
         &self.result.manifest_path
     }
 }
@@ -44,7 +44,7 @@ impl From<ShowResult> for Event {
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 struct ResultDetails {
     version: BareVersion,
-    manifest_path: PathBuf,
+    manifest_path: Utf8PathBuf,
 }
 
 #[cfg(test)]
@@ -59,10 +59,10 @@ mod tests {
         let reporter = TestReporterWrapper::default();
 
         let version = BareVersion::ThreeComponents(1, 2, 3);
-        let path = Path::new("lv").to_path_buf();
+        let path = Utf8Path::new("lv").to_path_buf();
         let event = ShowResult::new(version, path);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         let events = reporter.wait_for_events();
 
@@ -75,7 +75,7 @@ mod tests {
 
         if let Message::SubcommandResult(SubcommandResult::Show(msg)) = &events[0].message {
             assert_eq!(msg.version(), &BareVersion::ThreeComponents(1, 2, 3));
-            assert_eq!(&msg.manifest_path(), &Path::new("lv"));
+            assert_eq!(&msg.manifest_path(), &Utf8Path::new("lv"));
         }
     }
 }

@@ -61,7 +61,7 @@ mod tests {
 
         let event = TerminateWithFailure::new(CargoMSRVError::Storyteller);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
         let events = reporter.wait_for_events();
 
         assert_eq!(
@@ -83,7 +83,7 @@ mod tests {
             command: "cargo build --all".to_string(),
         });
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
         let events = reporter.wait_for_events();
 
         assert_eq!(

@@ -1,7 +1,7 @@
 use super::display_option;
 use super::display_vec;
 use super::metadata::*;
-use crate::config::list::DIRECT_DEPS;
+use crate::context::list::DIRECT_DEPS;
 use crate::dependency_graph::DependencyGraph;
 use crate::formatting::table;
 use tabled::{Style, Tabled};

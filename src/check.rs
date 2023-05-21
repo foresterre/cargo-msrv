@@ -1,4 +1,3 @@
-use crate::config::Config;
 use crate::toolchain::ToolchainSpec;
 
 mod rustup_toolchain_check;
@@ -11,5 +10,5 @@ pub use rustup_toolchain_check::RustupToolchainCheck;
 pub use testing::TestRunner;
 
 pub trait Check {
-    fn check(&self, config: &Config, toolchain: &ToolchainSpec) -> TResult<Outcome>;
+    fn check(&self, toolchain: &ToolchainSpec) -> TResult<Outcome>;
 }

@@ -212,39 +212,6 @@ mod minimum_from_edition {
             ]
         );
     }
-
-    #[test]
-    fn msrv_no_minimum_with_flag() {
-        let folder = fixtures_path().join("1.30.0");
-
-        let with_args = vec![
-            "cargo",
-            "msrv",
-            "--linear",
-            "--path",
-            folder.to_str().unwrap(),
-            "--no-read-min-edition",
-        ];
-
-        let versions = vec![
-            Release::new_stable(semver::Version::new(1, 32, 0)),
-            Release::new_stable(semver::Version::new(1, 31, 0)),
-            Release::new_stable(semver::Version::new(1, 30, 0)),
-            Release::new_stable(semver::Version::new(1, 29, 0)),
-        ];
-
-        let test_result = find_msrv_with_releases(with_args, versions).unwrap();
-
-        assert_eq!(test_result.msrv().unwrap().minor, 31);
-        assert_eq!(
-            test_result.successful_checks(),
-            &[
-                semver::Version::new(1, 32, 0),
-                semver::Version::new(1, 31, 0),
-                semver::Version::new(1, 30, 0),
-            ]
-        );
-    }
 }
 //
 #[parameterized(

@@ -29,6 +29,10 @@ impl<'s> TryFrom<&'s str> for BareVersion {
 }
 
 impl BareVersion {
+    pub fn two_component_from_semver(version: &semver::Version) -> Self {
+        Self::TwoComponents(version.major, version.minor)
+    }
+
     pub fn major(&self) -> BareVersionUsize {
         match self {
             Self::TwoComponents(major, _) => *major,

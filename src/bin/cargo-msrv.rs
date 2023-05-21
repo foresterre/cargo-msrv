@@ -8,14 +8,13 @@ use storyteller::{EventHandler, EventListener, FinishProcessing};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::config::{Config, OutputFormat, TracingOptions, TracingTargetOption};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
     DiscardOutputHandler, HumanProgressHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
 };
 use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
-use cargo_msrv::run_app;
+use cargo_msrv::{run_app, Context, OutputFormat, TracingOptions, TracingTargetOption};
 
 fn main() {
     std::process::exit(
@@ -34,7 +33,7 @@ fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     args: F,
 ) -> Result<(Option<TracingGuard>, ExitCode), InstanceError> {
     let matches = CargoCli::parse_args(args());
-    let config = Config::try_from(&matches).map_err(InstanceError::CargoMsrv)?;
+    let opts = matches.to_cargo_msrv_cli().to_opts();
 
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
     // long as the lifetime of the worker guard. If we don't do this, the guard would be dropped after
@@ -42,15 +41,23 @@ fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     // `init_and_run` would not be logged.
     let mut guard = None;
 
-    if let Some(options) = config.tracing() {
-        let tracing_config = TracingConfig::try_from_options(options)?;
+    let tracing_is_enabled = !opts.shared_opts.debug_output_opts.no_log;
+
+    if tracing_is_enabled {
+        let options = TracingOptions::new(
+            opts.shared_opts.debug_output_opts.log_target,
+            opts.shared_opts.debug_output_opts.log_level,
+        );
+
+        let tracing_config = TracingConfig::try_from_options(&options)?;
         guard = Some(init_tracing(&tracing_config)?);
     }
 
-    init_and_run(&config).map(|exit_code| (guard, exit_code))
+    let context = Context::try_from(opts).map_err(InstanceError::CargoMsrv)?;
+    init_and_run(&context).map(|exit_code| (guard, exit_code))
 }
 
-fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
+fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
     tracing::info!(
         cargo_msrv_version = env!("CARGO_PKG_VERSION"),
         "initializing"
@@ -61,12 +68,13 @@ fn init_and_run(config: &Config) -> Result<ExitCode, InstanceError> {
 
     tracing::info!("storyteller channel created");
 
-    let handler = WrappingHandler::from(config.output_format());
+    let output_format = ctx.output_format();
+    let handler = WrappingHandler::from(output_format);
     let finalizer = listener.run_handler(Arc::new(handler));
     tracing::info!("storyteller started handler");
     tracing::info!("start run_app");
 
-    let res = run_app(config, &reporter);
+    let res = run_app(ctx, &reporter);
 
     tracing::info!("finished run_app");
 
@@ -255,7 +263,7 @@ fn log_folder() -> Result<PathBuf, InstanceError> {
 
 #[derive(Debug, thiserror::Error)]
 enum InstanceError {
-    // Only for compat. with `Config::try_from`, which is not as easily converted to this Error type
+    // Only for compat. with `Context::try_from`, which is not as easily converted to this Error type
     // of the bin crate.
     // For that reason, we do not derive `#[from] CargoMSRVError`, so we don't silently miss calls
     // which may produce an `Err(CargoMSRVError)` where we do not want it.

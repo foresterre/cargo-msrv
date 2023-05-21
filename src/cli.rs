@@ -1,19 +1,13 @@
-use crate::cli::configurators::Configure;
 use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::find_opts::FindOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
-use crate::config::list::ListMsrvVariant;
-use crate::config::ConfigBuilder;
-use crate::default_target::default_target;
+use crate::context::list::ListMsrvVariant;
 use crate::manifest::bare_version::BareVersion;
-use crate::{CargoMSRVError, Config, SubcommandId};
 use clap::{Args, Parser, Subcommand};
-use std::convert::{TryFrom, TryInto};
 use std::ffi::{OsStr, OsString};
 
-pub(in crate::cli) mod configurators;
 pub(crate) mod custom_check_opts;
 pub(crate) mod find_opts;
 pub(crate) mod rust_releases_opts;
@@ -31,6 +25,10 @@ impl CargoCli {
     pub fn parse_args<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(args: I) -> Self {
         let modified_args = modify_args(args);
         CargoCli::parse_from(modified_args)
+    }
+
+    pub fn to_cargo_msrv_cli(self) -> CargoMsrvCli {
+        self.subcommand
     }
 }
 
@@ -66,7 +64,7 @@ fn modify_args<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
 }
 
 #[derive(Debug, Subcommand)]
-pub(in crate::cli) enum CargoMsrvCli {
+pub enum CargoMsrvCli {
     /// Find your Minimum Supported Rust Version!
     #[command(
         author = "Martijn Gribnau <garm@ilumeo.com>",
@@ -86,26 +84,30 @@ pub(in crate::cli) enum CargoMsrvCli {
     Msrv(CargoMsrvOpts),
 }
 
+impl CargoMsrvCli {
+    pub fn to_opts(self) -> CargoMsrvOpts {
+        match self {
+            Self::Msrv(opts) => opts,
+        }
+    }
+}
+
 #[derive(Debug, Args)]
 #[command(version)]
-pub(in crate::cli) struct CargoMsrvOpts {
+pub struct CargoMsrvOpts {
     #[command(flatten)]
-    pub(in crate::cli) find_opts: FindOpts,
+    pub find_opts: FindOpts,
 
     #[command(flatten)]
-    pub(in crate::cli) shared_opts: SharedOpts,
+    pub shared_opts: SharedOpts,
 
     #[command(subcommand)]
-    pub(in crate::cli) subcommand: Option<SubCommand>,
-
-    /// DEPRECATED: Use the `cargo msrv verify` subcommand instead
-    #[arg(long, global = false, hide = true)]
-    pub(in crate::cli) verify: bool,
+    pub subcommand: Option<SubCommand>,
 }
 
 #[derive(Debug, Subcommand)]
 #[command(propagate_version = true)]
-pub(in crate::cli) enum SubCommand {
+pub enum SubCommand {
     /// Display the MSRV's of dependencies
     List(ListOpts),
     /// Set the MSRV of the current crate to a given Rust version
@@ -119,15 +121,15 @@ pub(in crate::cli) enum SubCommand {
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "List options")]
-pub(in crate::cli) struct ListOpts {
+pub struct ListOpts {
     /// Display the MSRV's of crates that your crate depends on
     #[arg(long, value_enum, default_value_t)]
-    variant: ListMsrvVariant,
+    pub variant: ListMsrvVariant,
 }
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Set options")]
-pub(in crate::cli) struct SetOpts {
+pub struct SetOpts {
     /// The version to be set as MSRV
     ///
     /// The given version must be a two- or three component Rust version number.
@@ -135,94 +137,26 @@ pub(in crate::cli) struct SetOpts {
     /// in the Cargo manifest. MSRV's greater or equal to 1.56 will be written to
     /// `package.rust-version` in the Cargo manifest.
     #[arg(value_name = "MSRV")]
-    msrv: BareVersion,
+    pub msrv: BareVersion,
 }
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Verify options")]
-pub(in crate::cli) struct VerifyOpts {
+pub struct VerifyOpts {
     #[command(flatten)]
-    pub(in crate::cli) rust_releases_opts: RustReleasesOpts,
+    pub rust_releases_opts: RustReleasesOpts,
 
     #[command(flatten)]
-    pub(in crate::cli) toolchain_opts: ToolchainOpts,
+    pub toolchain_opts: ToolchainOpts,
 
     #[command(flatten)]
-    pub(in crate::cli) custom_check: CustomCheckOpts,
+    pub custom_check: CustomCheckOpts,
 
     /// The Rust version, to check against for toolchain compatibility
     ///
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
     #[arg(long, value_name = "rust-version")]
-    rust_version: Option<BareVersion>,
-}
-
-// Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoCli> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(cli: &'opts CargoCli) -> Result<Self, Self::Error> {
-        (&cli.subcommand).try_into()
-    }
-}
-
-// Interpret the CLI config frontend as general Config
-impl<'opts> TryFrom<&'opts CargoMsrvCli> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(cli: &'opts CargoMsrvCli) -> Result<Self, Self::Error> {
-        match cli {
-            CargoMsrvCli::Msrv(opts) => opts.try_into(),
-        }
-    }
-}
-
-impl<'opts> TryFrom<&'opts CargoMsrvOpts> for Config<'opts> {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: &'opts CargoMsrvOpts) -> Result<Self, Self::Error> {
-        let mode = make_mode(opts);
-        let target = default_target()?;
-
-        let mut builder = ConfigBuilder::new(mode, &target);
-
-        builder = configurators::CustomCheckCommand::configure(builder, opts)?;
-        builder = configurators::PathConfig::configure(builder, opts)?;
-        builder = configurators::ManifestPathConfig::configure(builder, opts)?;
-        builder = configurators::Target::configure(builder, opts)?;
-        builder = configurators::MinVersion::configure(builder, opts)?;
-        builder = configurators::MaxVersion::configure(builder, opts)?;
-        builder = configurators::SearchMethodConfig::configure(builder, opts)?;
-        builder = configurators::IncludeAllPatchReleases::configure(builder, opts)?;
-        builder = configurators::OutputToolchainFile::configure(builder, opts)?;
-        builder = configurators::WriteMsrv::configure(builder, opts)?;
-        builder = configurators::IgnoreLockfile::configure(builder, opts)?;
-        builder = configurators::UserOutput::configure(builder, opts)?;
-        builder = configurators::ReleaseSource::configure(builder, opts)?;
-        builder = configurators::Tracing::configure(builder, opts)?;
-        builder = configurators::CheckFeedback::configure(builder, opts)?;
-        builder = configurators::SubCommandConfigurator::configure(builder, opts)?;
-
-        Ok(builder.build())
-    }
-}
-
-fn make_mode(opts: &CargoMsrvOpts) -> SubcommandId {
-    opts.subcommand
-        .as_ref()
-        .map(|subcommand| match subcommand {
-            SubCommand::List(_) => SubcommandId::List,
-            SubCommand::Show => SubcommandId::Show,
-            SubCommand::Set(_) => SubcommandId::Set,
-            SubCommand::Verify(_) => SubcommandId::Verify,
-        })
-        .unwrap_or_else(|| {
-            if opts.verify {
-                SubcommandId::Verify
-            } else {
-                SubcommandId::Find
-            }
-        })
+    pub rust_version: Option<BareVersion>,
 }
 
 #[cfg(test)]
