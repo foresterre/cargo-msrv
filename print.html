@@ -944,9 +944,6 @@ checks ran, and their results. This is especially useful if you want to know why
 incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.</p>
 <p><strong><code>--no-log</code></strong></p>
 <p>Do not write (internal) debug log output to the log target.</p>
-<p><strong><code>--no-read-min-edition</code></strong></p>
-<p>If provided, the 'package.edition' value in the Cargo.toml will not be used to reduce search space.
-By default, the edition is read from the <code>Cargo.toml</code> file and used as the minimum Rust version. See also <code>--min</code>.</p>
 <p><strong><code>--no-user-output</code></strong></p>
 <p>Disables printing of diagnostic status messages. Useful when internal log output messages are printed to the stdout,
 using <code>--log-target stdout</code>, so no clipping between the user output prints and log message prints will take place.
@@ -971,11 +968,6 @@ is incorrect.</p>
 See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file">here</a> for more about the toolchain-file.</p>
 <p><strong><code>-V, --version</code></strong></p>
 <p>Prints cargo-msrv version information</p>
-<p><strong><code>--verify</code> (DEPRECATED)</strong></p>
-<p>Verify the MSRV specified by a crate author in the 'package.rust-version' or the 'package.metadata.msrv' key, in the
-Cargo manifest <code>Cargo.toml</code>. When this flag is present, cargo-msrv will not attempt to determine the true MSRV. 
-Instead, it only attempts to verify whether for the specified MSRV, the <em>cargo-msrv check</em> command passes.</p>
-<p><em>DEPRECATED: use <code>cargo msrv verify</code> instead</em></p>
 <p><strong><code>--</code> ...cmd</strong> </p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
 <code>cargo check --all</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
