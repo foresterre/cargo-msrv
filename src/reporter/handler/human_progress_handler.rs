@@ -1,8 +1,8 @@
 use crate::formatting::TermWidth;
 use crate::reporter::event::{
-    CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandResult,
+    CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit, SubcommandResult,
 };
-use crate::{semver, Event, SubcommandId};
+use crate::{semver, Event};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -62,7 +62,7 @@ impl EventHandler for HumanProgressHandler {
                 let message = it.format_human();
                 self.pb.println(message);
             }
-            Message::SubcommandInit(it) if it.subcommand_id().should_enable_spinner() => {
+            Message::SubcommandInit(it) if it.should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
                 self.pb.enable_steady_tick(Duration::from_millis(150));
             }
@@ -129,12 +129,6 @@ impl HumanProgressHandler {
                 // tbd.
             }
         }
-    }
-}
-
-impl SubcommandId {
-    pub fn should_enable_spinner(&self) -> bool {
-        matches!(self, Self::Find | Self::Verify)
     }
 }
 
@@ -272,5 +266,13 @@ impl Meta {
             self.version(),
             sha_fmt.trim(),
         ))
+    }
+}
+
+impl SubcommandInit {
+    fn should_enable_spinner(&self) -> bool {
+        let id = self.subcommand_id();
+
+        matches!(id, "find" | "verify")
     }
 }

@@ -1,10 +1,10 @@
+use camino::{Utf8Path, Utf8PathBuf};
 use std::marker::PhantomData;
-use std::path::{Path, PathBuf};
 
 use crate::error::{IoError, IoErrorSource, TResult};
 
 pub struct LockfileHandler<S: LockfileState> {
-    state: PathBuf,
+    state: Utf8PathBuf,
     marker: PhantomData<S>,
 }
 
@@ -17,11 +17,10 @@ impl LockfileState for Start {}
 impl LockfileState for Moved {}
 impl LockfileState for Complete {}
 
-pub const CARGO_LOCK: &str = "Cargo.lock";
 const CARGO_LOCK_REPLACEMENT: &str = "Cargo.lock-ignored-for-cargo-msrv";
 
 impl LockfileHandler<Start> {
-    pub fn new<P: AsRef<Path>>(lock_file: P) -> Self {
+    pub fn new<P: AsRef<Utf8Path>>(lock_file: P) -> Self {
         Self {
             state: lock_file.as_ref().to_path_buf(),
             marker: PhantomData,

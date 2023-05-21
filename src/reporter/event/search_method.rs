@@ -1,4 +1,4 @@
-use crate::config::SearchMethod as Method;
+use crate::context::SearchMethod as Method;
 use crate::reporter::event::Message;
 use crate::Event;
 
@@ -37,7 +37,7 @@ mod tests {
         let reporter = TestReporterWrapper::default();
         let event = FindMsrv::new(method);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),

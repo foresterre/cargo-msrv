@@ -35,10 +35,6 @@ pub struct FindOpts {
     #[arg(long)]
     pub ignore_lockfile: bool,
 
-    /// Don't read the `edition` of the crate and do not use its value to reduce the search space
-    #[arg(long)]
-    pub no_read_min_edition: bool,
-
     /// Don't print the result of compatibility checks
     ///
     /// The feedback of a compatibility check can be useful to determine why a certain Rust

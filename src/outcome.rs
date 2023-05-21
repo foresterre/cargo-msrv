@@ -55,3 +55,34 @@ pub struct FailureOutcome {
     pub(crate) toolchain_spec: OwnedToolchainSpec,
     pub(crate) error_message: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::toolchain::OwnedToolchainSpec;
+    use crate::Outcome;
+    use rust_releases::semver;
+
+    #[test]
+    fn success_outcome() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+
+        let outcome = Outcome::new_success(toolchain.clone());
+
+        assert!(outcome.is_success());
+        assert_eq!(outcome.version(), &version);
+        assert_eq!(outcome.toolchain_spec(), &toolchain);
+    }
+
+    #[test]
+    fn failure_outcome() {
+        let version = semver::Version::new(1, 2, 3);
+        let toolchain = OwnedToolchainSpec::new(&version, "x");
+
+        let outcome = Outcome::new_failure(toolchain.clone(), "msg".to_string());
+
+        assert!(!outcome.is_success());
+        assert_eq!(outcome.version(), &version);
+        assert_eq!(outcome.toolchain_spec(), &toolchain);
+    }
+}

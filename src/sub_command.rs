@@ -6,20 +6,21 @@
 pub use {find::Find, list::List, set::Set, show::Show, verify::Verify};
 
 use crate::reporter::Reporter;
-use crate::{Config, TResult};
+use crate::TResult;
 
-pub(crate) mod find;
-pub(crate) mod list;
-pub(crate) mod set;
-pub(crate) mod show;
-pub(crate) mod verify;
+pub mod find;
+pub mod list;
+pub mod set;
+pub mod show;
+pub mod verify;
 
 /// A sub-command of `cargo-msrv`.
 ///
 /// It takes a set of inputs, from the `config`, and reports it's results via the `reporter`.
 pub trait SubCommand {
+    type Context;
     type Output;
 
     /// Run the sub-command
-    fn run(&self, config: &Config, reporter: &impl Reporter) -> TResult<Self::Output>;
+    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output>;
 }

@@ -41,7 +41,7 @@ mod tests {
         let reporter = TestReporterWrapper::default();
         let event = Progress::new(10, 100, 30);
 
-        reporter.reporter().report_event(event.clone()).unwrap();
+        reporter.get().report_event(event.clone()).unwrap();
 
         assert_eq!(
             reporter.wait_for_events(),
