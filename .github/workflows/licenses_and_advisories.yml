@@ -7,6 +7,7 @@ on:
       - main
       - staging # for Bors
       - trying # for Bors
+  merge_group:
 jobs:
   licenses_and_advisories:
     name: licenses_and_advisories
