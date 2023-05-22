@@ -28,7 +28,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                                             |
 |-------------|-----------|---------------------------------------------------------------------|
 | stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`         |
-| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.13 --no-confirm cargo-msrv` |
+| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.14 --no-confirm cargo-msrv` |
 | development | ❌        |                                                                     |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
