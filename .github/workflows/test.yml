@@ -7,6 +7,7 @@ on:
       - main
       - staging # for Bors
       - trying # for Bors
+  merge_group:
   schedule:
     - cron: '00 05 * * *'
 jobs:
