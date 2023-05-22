@@ -17,11 +17,11 @@ In this readme you'll find everything to get you started. You can find more deta
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
 
-| cargo       | supported | command                                                                                    |
-|-------------|-----------|--------------------------------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1`         |
-| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.14` |
-| development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git`                       |
+| cargo       | supported | command                                                                                               |
+|-------------|-----------|-------------------------------------------------------------------------------------------------------|
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1` cargo-msrv         |
+| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.14` cargo-msrv |
+| development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv                       |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
