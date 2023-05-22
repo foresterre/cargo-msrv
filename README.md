@@ -31,7 +31,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.13 --no-confirm cargo-msrv` |
 | development | ❌        |                                                                     |
 
-#### Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/)
+#### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
 
 * `pacman -S cargo-msrv`
 
