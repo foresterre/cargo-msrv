@@ -31,7 +31,7 @@ cargo install cargo-msrv --git https://github.com/foresterre/cargo-msrv.git --br
 
 ### Arch Linux 🔸
 
-cargo-msrv is available from the Arch Linux [community repository](https://archlinux.org/packages/community/x86_64/cargo-msrv/).
+cargo-msrv is available from the Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/).
 
 **How to install?**
 
