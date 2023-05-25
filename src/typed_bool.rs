@@ -84,3 +84,51 @@ impl<'de> serde::de::Visitor<'de> for FalseVisitor {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serialize_false() {
+        let serialized = serde_json::to_value(False).unwrap();
+
+        assert!(matches!(serialized, serde_json::Value::Bool(false)));
+    }
+
+    #[test]
+    fn serialize_true() {
+        let serialized = serde_json::to_value(True).unwrap();
+
+        assert!(matches!(serialized, serde_json::Value::Bool(true)));
+    }
+
+    #[test]
+    fn deserialize_false() {
+        let value = serde_json::from_str("false").unwrap();
+
+        assert!(matches!(value, False));
+    }
+
+    #[test]
+    fn deserialize_true() {
+        let value = serde_json::from_str("true").unwrap();
+
+        assert!(matches!(value, True));
+    }
+
+    #[test]
+    fn deserialize_false_failed() {
+        let error = serde_json::from_str::<False>("true").unwrap_err();
+        let error_message = format!("{}", error);
+        assert!(error_message.contains("Value 'true' must be 'false'"),)
+    }
+
+    #[test]
+    fn deserialize_true_failed() {
+        let error = serde_json::from_str::<True>("false").unwrap_err();
+        let error_message = format!("{}", error);
+
+        assert!(error_message.contains("Value 'false' must be 'true'"),)
+    }
+}
