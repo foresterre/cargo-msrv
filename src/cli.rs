@@ -161,11 +161,135 @@ pub struct VerifyOpts {
 
 #[cfg(test)]
 mod tests {
-    use super::CargoCli;
+    use super::*;
 
     #[test]
     fn verify_cli() {
         use clap::CommandFactory;
         CargoCli::command().debug_assert();
+    }
+
+    mod top_level {
+        use super::*;
+
+        mod find_opts {
+            use super::*;
+
+            #[test]
+            fn has_bisect() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--bisect"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.bisect);
+                assert!(!opts.find_opts.linear);
+            }
+
+            #[test]
+            fn has_not_bisect() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.bisect);
+            }
+
+            #[test]
+            fn has_linear() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--linear"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.linear);
+                assert!(!opts.find_opts.bisect);
+            }
+
+            #[test]
+            fn has_not_linear() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.linear);
+            }
+
+            #[test]
+            fn has_write_toolchain_file() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--write-toolchain-file"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.write_toolchain_file);
+            }
+
+            #[test]
+            fn has_not_write_toolchain_file() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.write_toolchain_file);
+            }
+
+            #[test]
+            fn has_ignore_lockfile() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--ignore-lockfile"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.ignore_lockfile);
+            }
+
+            #[test]
+            fn has_not_ignore_lockfile() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.ignore_lockfile);
+            }
+
+            #[test]
+            fn has_no_check_feedback() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--no-check-feedback"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.no_check_feedback);
+            }
+
+            #[test]
+            fn has_not_no_check_feedback() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.no_check_feedback);
+            }
+
+            #[test]
+            fn has_write_msrv() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "--write-msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(opts.find_opts.write_msrv);
+            }
+
+            #[test]
+            fn has_not_write_msrv() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert!(!opts.find_opts.write_msrv);
+            }
+
+            // todo: rust-releases opts
+
+            // todo: toolchain opts
+
+            // todo: custom check opts
+        }
     }
 }
