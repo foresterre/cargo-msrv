@@ -32,7 +32,7 @@ rust-releases = { version = "0.26.0", default-features = false, features = ["rus
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
 serde_json = "1.0.96"  # JSON serialization and deserialization
 storyteller = "0.8.1" # minimal multi user output architecture
-tabled = { version = "0.10.0", features = ["color"] } # pretty print tables
+tabled = { version = "0.12.1", features = ["color"] } # pretty print tables
 terminal_size = "0.2.6" # determine the terminal size
 thiserror = "1.0.39" # error handling
 toml_edit = "0.19.10" # read and write the Cargo.toml
