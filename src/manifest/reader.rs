@@ -23,7 +23,7 @@ impl DocumentReader for TomlDocumentReader {
                 source: IoErrorSource::ReadFile(path.to_path_buf()),
             })?;
 
-            CargoManifestParser::default()
+            CargoManifestParser
                 .parse(&contents)
                 .map_err(ManifestReaderError::Toml)
         }

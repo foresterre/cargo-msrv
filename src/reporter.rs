@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn report_event() {
-        let setup = ReporterSetup::default();
+        let setup = ReporterSetup;
 
         let (reporter, _listener) = setup.create();
 
@@ -185,7 +185,7 @@ mod tests {
     fn scopes() {
         use std::iter;
 
-        let setup = ReporterSetup::default();
+        let setup = ReporterSetup;
 
         let (reporter, _listener) = setup.create();
         let gen = reporter.scope_generator();

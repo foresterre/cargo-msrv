@@ -63,7 +63,7 @@ fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
         "initializing"
     );
 
-    let setup = ReporterSetup::default();
+    let setup = ReporterSetup;
     let (reporter, listener) = setup.create();
 
     tracing::info!("storyteller channel created");

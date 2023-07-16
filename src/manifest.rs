@@ -137,9 +137,7 @@ edition = "2018"
 [dependencies]
 "#;
 
-        assert!(CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .is_ok());
+        assert!(CargoManifestParser.parse::<Document>(contents).is_ok());
     }
 
     #[test]
@@ -152,9 +150,7 @@ edition = "2018"
 [dependencies]
 "#;
 
-        assert!(CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .is_err());
+        assert!(CargoManifestParser.parse::<Document>(contents).is_err());
     }
 
     #[test]
@@ -167,9 +163,7 @@ edition = "2018"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
 
@@ -187,9 +181,7 @@ rust-version = "1.56.0"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
@@ -208,9 +200,7 @@ rust-version = "1.56.0-nightly"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let parse_err = CargoManifest::try_from(manifest).unwrap_err();
 
@@ -229,9 +219,7 @@ rust-version = "1.56"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
@@ -263,9 +251,7 @@ rust-version = "{}"
             version
         );
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(&contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(&contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest);
 
@@ -285,9 +271,7 @@ msrv = "1.51.0"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
@@ -308,9 +292,7 @@ msrv = "1.51"
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
@@ -336,9 +318,7 @@ metadata = { msrv = "1.51" }
 [dependencies]
 "#;
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
@@ -372,9 +352,7 @@ msrv = "{}"
             version
         );
 
-        let manifest = CargoManifestParser::default()
-            .parse::<Document>(&contents)
-            .unwrap();
+        let manifest = CargoManifestParser.parse::<Document>(&contents).unwrap();
 
         let manifest = CargoManifest::try_from(manifest);
 

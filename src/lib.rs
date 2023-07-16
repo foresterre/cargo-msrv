@@ -75,14 +75,14 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
             Find::new(&index, runner).run(ctx, reporter)?;
         }
         Context::List(ctx) => {
-            List::default().run(ctx, reporter)?;
+            List.run(ctx, reporter)?;
         }
         Context::Set(ctx) => {
             let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source).ok();
             Set::new(index.as_ref()).run(ctx, reporter)?;
         }
         Context::Show(ctx) => {
-            Show::default().run(ctx, reporter)?;
+            Show.run(ctx, reporter)?;
         }
         Context::Verify(ctx) => {
             let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
