@@ -32,11 +32,7 @@ pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semve
     fn parse(path: &Path) -> Option<semver::Version> {
         std::fs::read_to_string(path)
             .ok()
-            .and_then(|contents| {
-                CargoManifestParser::default()
-                    .parse::<Document>(&contents)
-                    .ok()
-            })
+            .and_then(|contents| CargoManifestParser.parse::<Document>(&contents).ok())
             .and_then(|map| CargoManifest::try_from(map).ok())
             .and_then(|manifest| manifest.minimum_rust_version().map(ToOwned::to_owned))
             .map(|version: BareVersion| version.to_semver_version())

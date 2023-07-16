@@ -76,7 +76,7 @@ fn set_msrv(ctx: &SetContext, reporter: &impl Reporter, msrv: &BareVersion) -> T
     })?;
 
     // Parse the Cargo manifest contents, in particular the MSRV value
-    let mut manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
+    let mut manifest = CargoManifestParser.parse::<Document>(&contents)?;
     check_workspace(&manifest)?;
 
     // Set the MSRV
@@ -236,9 +236,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -258,9 +256,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
@@ -281,9 +277,7 @@ rust-version = "1.58.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -306,9 +300,7 @@ msrv = "1.58.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -337,9 +329,7 @@ other = 1
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -372,9 +362,7 @@ msrv = "1.11.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -400,9 +388,7 @@ rust-version = "1.58"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -437,9 +423,7 @@ other = 1
 
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -472,9 +456,7 @@ metadata = { msrv = "1.15" }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -512,9 +494,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         let expected = manifest.clone();
 
@@ -534,9 +514,7 @@ rust-version = "1.56.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -565,9 +543,7 @@ msrv = "1.56.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -600,9 +576,7 @@ other = 7
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -641,9 +615,7 @@ metadata = { msrv = "1.15" }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -672,9 +644,7 @@ metadata = { msrv = "1.15", other = 1 }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -717,9 +687,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -739,9 +707,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 56, 1)).unwrap();
 
@@ -761,9 +727,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
@@ -783,9 +747,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 10, 1)).unwrap();
 
@@ -817,9 +779,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser::default()
-                .parse::<Document>(input)
-                .unwrap();
+            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -841,9 +801,7 @@ rust-version = "1.56"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser::default()
-                .parse::<Document>(input)
-                .unwrap();
+            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -867,9 +825,7 @@ msrv = "1.54"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser::default()
-                .parse::<Document>(input)
-                .unwrap();
+            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -891,9 +847,7 @@ metadata = { msrv = "1.54" }
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser::default()
-                .parse::<Document>(input)
-                .unwrap();
+            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -915,9 +869,7 @@ metadata = { k = "1.54" }
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser::default()
-                .parse::<Document>(input)
-                .unwrap();
+            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -944,14 +896,12 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser::default()
-            .parse::<Document>(input)
-            .unwrap();
+        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
         let output = manifest.to_string();
-        let new_manifest: CargoManifest = CargoManifestParser::default()
+        let new_manifest: CargoManifest = CargoManifestParser
             .parse::<Document>(&output)
             .unwrap()
             .try_into()

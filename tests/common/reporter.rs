@@ -32,7 +32,7 @@ impl IntegrationTestReporter {
     pub fn new(sender: EventSender<Event>) -> Self {
         Self {
             inner: ChannelReporter::new(sender),
-            id_gen: IntegrationTestScopeGenerator::default(),
+            id_gen: IntegrationTestScopeGenerator,
         }
     }
 }

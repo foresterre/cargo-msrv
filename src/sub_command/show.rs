@@ -31,7 +31,7 @@ fn show_msrv(ctx: &ShowContext, reporter: &impl Reporter) -> TResult<()> {
         source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
     })?;
 
-    let manifest = CargoManifestParser::default().parse::<Document>(&contents)?;
+    let manifest = CargoManifestParser.parse::<Document>(&contents)?;
     let manifest = CargoManifest::try_from(manifest)?;
 
     let msrv = manifest
