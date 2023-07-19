@@ -612,9 +612,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
-version = "4.3.9"
+version = "4.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bba77a07e4489fb41bd90e8d4201c3eb246b3c2c9ea2ba0bddd6c1d1df87db7d"
+checksum = "5b0827b011f6f8ab38590295339817b0d26f344aa4932c3ced71b45b0c54b4a9"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -623,22 +623,21 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.3.9"
+version = "4.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c9b4a88bb4bc35d3d6f65a21b0f0bafe9c894fa00978de242c555ec28bea1c0"
+checksum = "9441b403be87be858db6a23edb493e7f694761acdc3343d5a0fcaafd304cbc9e"
 dependencies = [
  "anstream",
  "anstyle",
- "bitflags",
  "clap_lex",
  "strsim",
 ]
 
 [[package]]
 name = "clap_derive"
-version = "4.3.2"
+version = "4.3.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8cd2b2a819ad6eec39e8f1d6b53001af1e5469f8c177579cdaeb313115b825f"
+checksum = "54a9bb5758fc5dfe728d1019941681eccaf0cf8a4189b692a0ee2f2ecf90a050"
 dependencies = [
  "heck",
  "proc-macro2",
