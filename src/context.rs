@@ -7,13 +7,13 @@
 //! Unlike the opts, the context is top down, not bottom up.
 
 use crate::cli::custom_check_opts::CustomCheckOpts;
+use crate::cli::find_opts::FindOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::{SharedOpts, UserOutputOpts};
 use crate::cli::toolchain_opts::ToolchainOpts;
 
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
 use crate::manifest::bare_version::BareVersion;
-use crate::sub_command::verify::VerifyContext;
 use camino::{Utf8Path, Utf8PathBuf};
 use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
@@ -27,7 +27,7 @@ pub mod set;
 pub mod show;
 
 use crate::cli::rust_releases_opts::Edition;
-use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::cli::{CargoMsrvOpts, SubCommand, VerifyOpts};
 use crate::default_target::default_target;
 use crate::log_level::LogLevel;
 pub use find::FindContext;
@@ -44,7 +44,7 @@ pub enum Context {
     List(ListContext),
     Set(SetContext),
     Show(ShowContext),
-    Verify(VerifyContext),
+    Verify(VerifyOpts, FindOpts, SharedOpts),
 }
 
 impl Context {
@@ -54,7 +54,7 @@ impl Context {
             Context::List(ctx) => ctx.user_output.output_format,
             Context::Set(ctx) => ctx.user_output.output_format,
             Context::Show(ctx) => ctx.user_output.output_format,
-            Context::Verify(ctx) => ctx.user_output.output_format,
+            Context::Verify(_, _, shared_opts) => shared_opts.user_output_opts.output_format,
         }
     }
 
@@ -64,22 +64,13 @@ impl Context {
             Context::List(_) => "list",
             Context::Set(_) => "set",
             Context::Show(_) => "show",
-            Context::Verify(_) => "verify",
+            Context::Verify(..) => "verify",
         }
     }
 
     /// Returns the inner find context, if it was present.
     pub fn to_find_context(self) -> Option<FindContext> {
         if let Self::Find(ctx) = self {
-            Some(ctx)
-        } else {
-            None
-        }
-    }
-
-    /// Returns the inner find context, if it was present.
-    pub fn to_verify_context(self) -> Option<VerifyContext> {
-        if let Self::Verify(ctx) = self {
             Some(ctx)
         } else {
             None
@@ -96,11 +87,9 @@ impl TryFrom<CargoMsrvOpts> for Context {
             Some(SubCommand::List(_)) => Self::List(ListContext::try_from(opts)?),
             Some(SubCommand::Set(_)) => Self::Set(SetContext::try_from(opts)?),
             Some(SubCommand::Show) => Self::Show(ShowContext::try_from(opts)?),
-            Some(SubCommand::Verify(verify_opts)) => Self::Verify(VerifyContext::new(
-                verify_opts,
-                opts.shared_opts,
-                opts.find_opts,
-            )?),
+            Some(SubCommand::Verify(verify_opts)) => {
+                Self::Verify(verify_opts, opts.find_opts, opts.shared_opts)
+            }
         };
 
         Ok(ctx)

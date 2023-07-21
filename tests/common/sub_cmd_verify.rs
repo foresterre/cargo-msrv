@@ -16,7 +16,7 @@ where
     let matches = CargoCli::parse_args(with_args);
     let opts = matches.to_cargo_msrv_cli().to_opts();
     let ctx = Context::try_from(opts)?;
-    let verify_ctx = ctx.to_verify_context().unwrap();
+    let Context::Verify(verify_opts, find_opts, shared_opts) = ctx else {panic!()};
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
@@ -25,5 +25,11 @@ where
     let device = EventTestDevice::default();
 
     // Determine the MSRV from the index of available releases.
-    verify_msrv(device.reporter(), &verify_ctx, &available_versions)
+    verify_msrv(
+        device.reporter(),
+        verify_opts,
+        find_opts,
+        shared_opts,
+        &available_versions,
+    )
 }

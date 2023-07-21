@@ -28,6 +28,7 @@ use crate::context::ReleaseSource;
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SubcommandInit};
 use crate::reporter::{Event, Reporter};
+use context::RustReleasesContext;
 use rust_releases::semver;
 
 pub mod check;
@@ -84,10 +85,15 @@ pub fn run_app(ctx: Context, reporter: &impl Reporter) -> TResult<()> {
         Context::Show(ctx) => {
             Show.run(&ctx, reporter)?;
         }
-        Context::Verify(ctx) => {
-            let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
+        Context::Verify(verify_opts, find_opts, shared_opts) => {
+            let rust_releases: RustReleasesContext = find_opts
+                .rust_releases_opts
+                .clone() // TODO: we can avoid this clone
+                .into();
 
-            verify_msrv(reporter, &ctx, &index)?;
+            let index = release_index::fetch_index(reporter, rust_releases.release_source)?;
+
+            verify_msrv(reporter, verify_opts, find_opts, shared_opts, &index)?;
         }
     }
 

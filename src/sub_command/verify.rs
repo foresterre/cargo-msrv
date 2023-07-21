@@ -8,8 +8,7 @@ use crate::cli::find_opts::FindOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::VerifyOpts;
 use crate::context::{
-    CheckCmdContext, EnvironmentContext, OutputFormat, RustReleasesContext, ToolchainContext,
-    UserOutputContext,
+    CheckCmdContext, EnvironmentContext, OutputFormat, ToolchainContext, UserOutputContext,
 };
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
@@ -21,7 +20,7 @@ use crate::reporter::Reporter;
 use crate::toolchain::ToolchainSpec;
 
 #[derive(Debug)]
-pub struct VerifyContext {
+struct VerifyContext {
     /// The resolved Rust version, to check against for toolchain compatibility.
     pub rust_version: RustVersion,
 
@@ -30,9 +29,6 @@ pub struct VerifyContext {
 
     /// Don't print the result of compatibility check
     pub no_check_feedback: bool,
-
-    /// The context for Rust releases
-    pub rust_releases: RustReleasesContext,
 
     /// The context for Rust toolchains
     pub toolchain: ToolchainContext,
@@ -51,9 +47,29 @@ pub struct VerifyContext {
 /// for the (given or specified) `rust_version`.
 pub fn verify_msrv(
     reporter: &impl Reporter,
-    ctx: &VerifyContext,
+    verify_opts: VerifyOpts,
+    find_opts: FindOpts,
+    shared_opts: SharedOpts,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
+    let toolchain = find_opts.toolchain_opts.try_into()?;
+    let environment = (&shared_opts).try_into()?;
+
+    let rust_version = match verify_opts.rust_version {
+        Some(v) => RustVersion::from_arg(v),
+        None => RustVersion::try_from_environment(&environment)?,
+    };
+
+    let ctx = VerifyContext {
+        rust_version,
+        ignore_lockfile: find_opts.ignore_lockfile,
+        no_check_feedback: find_opts.no_check_feedback,
+        toolchain,
+        check_cmd: find_opts.custom_check_opts.into(),
+        environment,
+        user_output: shared_opts.user_output_opts.into(),
+    };
+
     let rust_version = ctx.rust_version.clone();
 
     let bare_version = rust_version.version();
@@ -118,33 +134,6 @@ pub enum Error {
 pub struct VerifyFailed {
     rust_version: BareVersion,
     source: RustVersionSource,
-}
-
-impl VerifyContext {
-    pub(crate) fn new(
-        verify_opts: VerifyOpts,
-        shared_opts: SharedOpts,
-        find_opts: FindOpts,
-    ) -> Result<Self, CargoMSRVError> {
-        let toolchain = find_opts.toolchain_opts.try_into()?;
-        let environment = (&shared_opts).try_into()?;
-
-        let rust_version = match verify_opts.rust_version {
-            Some(v) => RustVersion::from_arg(v),
-            None => RustVersion::try_from_environment(&environment)?,
-        };
-
-        Ok(Self {
-            rust_version,
-            ignore_lockfile: find_opts.ignore_lockfile,
-            no_check_feedback: find_opts.no_check_feedback,
-            rust_releases: find_opts.rust_releases_opts.into(),
-            toolchain,
-            check_cmd: find_opts.custom_check_opts.into(),
-            environment,
-            user_output: shared_opts.user_output_opts.into(),
-        })
-    }
 }
 
 impl From<RustVersion> for VerifyFailed {

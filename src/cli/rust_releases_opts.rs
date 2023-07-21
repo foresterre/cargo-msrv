@@ -4,7 +4,7 @@ use crate::ReleaseSource;
 use clap::Args;
 use std::str::FromStr;
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Rust releases options")]
 pub struct RustReleasesOpts {
     /// Least recent version or edition to take into account
