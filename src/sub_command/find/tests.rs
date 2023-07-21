@@ -1,7 +1,7 @@
 use super::*;
 use crate::check::TestRunner;
 use crate::context::{
-    CheckCmdContext, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
+    CheckCmd, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
     UserOutputContext,
 };
 use crate::manifest::bare_version::BareVersion;
@@ -247,7 +247,7 @@ fn create_test_context() -> FindContext {
         toolchain: ToolchainContext {
             target: "x".to_string(),
         },
-        check_cmd: CheckCmdContext {
+        check_cmd: CheckCmd {
             rustup_command: vec![],
         },
         environment: EnvironmentContext {

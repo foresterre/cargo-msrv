@@ -7,7 +7,7 @@ use crate::check::{Check, RustupToolchainCheck};
 use crate::cli::find_opts::FindOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::VerifyOpts;
-use crate::context::{CheckCmdContext, EnvironmentContext, OutputFormat, ToolchainContext};
+use crate::context::{CheckCmd, EnvironmentContext, OutputFormat, ToolchainContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
@@ -41,14 +41,14 @@ pub fn verify_msrv(
     let target = toolchain.target.as_str();
     let toolchain = ToolchainSpec::new(version, target);
 
-    let check_cmd_context = CheckCmdContext::from(find_opts.custom_check_opts);
+    let check_cmd = CheckCmd::from(find_opts.custom_check_opts);
 
     let runner = RustupToolchainCheck::new(
         reporter,
         find_opts.ignore_lockfile,
         find_opts.no_check_feedback,
         &environment,
-        &check_cmd_context,
+        &check_cmd,
     );
 
     match runner.check(&toolchain)? {

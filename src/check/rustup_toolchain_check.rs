@@ -1,6 +1,6 @@
 use crate::check::Check;
 use crate::command::RustupCommand;
-use crate::context::{CheckCmdContext, EnvironmentContext};
+use crate::context::{CheckCmd, EnvironmentContext};
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::LockfileHandler;
@@ -61,7 +61,7 @@ impl<'reporter, 'env, 'cc, R: Reporter> RustupToolchainCheck<'reporter, 'env, 'c
         ignore_lockfile: bool,
         no_check_feedback: bool,
         environment: &'env EnvironmentContext,
-        check_cmd: &'cc CheckCmdContext,
+        check_cmd: &'cc CheckCmd,
     ) -> Self {
         Self {
             reporter,
@@ -182,7 +182,7 @@ struct Settings<'env, 'cc> {
     no_check_feedback: bool,
 
     environment: &'env EnvironmentContext,
-    check_cmd: &'cc CheckCmdContext,
+    check_cmd: &'cc CheckCmd,
 }
 
 impl<'env, 'cc> Settings<'env, 'cc> {
