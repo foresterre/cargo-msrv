@@ -103,7 +103,7 @@ pub struct VerifyFailed {
 impl From<RustVersion> for VerifyFailed {
     fn from(value: RustVersion) -> Self {
         VerifyFailed {
-            rust_version: value.rust_version,
+            rust_version: value.bare_version,
             source: value.source,
         }
     }
@@ -113,14 +113,14 @@ impl From<RustVersion> for VerifyFailed {
 /// locate this version.
 #[derive(Clone, Debug)]
 pub struct RustVersion {
-    rust_version: BareVersion,
+    bare_version: BareVersion,
     source: RustVersionSource,
 }
 
 impl RustVersion {
     pub fn from_arg(rust_version: BareVersion) -> Self {
         Self {
-            rust_version,
+            bare_version: rust_version,
             source: RustVersionSource::Arg,
         }
     }
@@ -135,19 +135,19 @@ impl RustVersion {
             .minimum_rust_version()
             .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(manifest_path.clone()))
             .map(|v| RustVersion {
-                rust_version: v.clone(),
+                bare_version: v.clone(),
                 source: RustVersionSource::Manifest(manifest_path.clone()),
             })
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
     pub fn version(&self) -> &BareVersion {
-        &self.rust_version
+        &self.bare_version
     }
 
     /// Get the version and discard all else.
     pub fn into_version(self) -> BareVersion {
-        self.rust_version
+        self.bare_version
     }
 }
 
