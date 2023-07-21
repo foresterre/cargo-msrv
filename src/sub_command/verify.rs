@@ -12,57 +12,18 @@ use crate::manifest::CargoManifest;
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
-use crate::sub_command::SubCommand;
 use crate::toolchain::ToolchainSpec;
-
-/// Verifier which determines whether a given Rust version is deemed compatible or not.
-pub struct Verify<'index, C: Check> {
-    release_index: &'index ReleaseIndex,
-    runner: C,
-}
-
-impl<'index, C: Check> Verify<'index, C> {
-    /// Instantiate the verifier using a release index and a runner.
-    ///
-    /// The runner is used to determine whether a given Rust version will be deemed compatible or not.
-    pub fn new(release_index: &'index ReleaseIndex, runner: C) -> Self {
-        Self {
-            release_index,
-            runner,
-        }
-    }
-}
-
-impl<'index, C: Check> SubCommand for Verify<'index, C> {
-    type Context = VerifyContext;
-    type Output = ();
-
-    /// Run the verifier against a Rust version which is obtained from the config.
-    fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
-        // todo!
-        let rust_version = ctx.rust_version.clone();
-
-        verify_msrv(
-            reporter,
-            ctx,
-            self.release_index,
-            rust_version,
-            &self.runner,
-        )?;
-
-        Ok(())
-    }
-}
 
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
 /// for the (given or specified) `rust_version`.
-fn verify_msrv(
+pub fn verify_msrv(
     reporter: &impl Reporter,
     ctx: &VerifyContext,
     release_index: &ReleaseIndex,
-    rust_version: RustVersion,
     runner: &impl Check,
 ) -> TResult<()> {
+    let rust_version = ctx.rust_version.clone();
+
     let bare_version = rust_version.version();
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;

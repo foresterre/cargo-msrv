@@ -3,7 +3,7 @@
 /// Use case:
 ///
 /// * Run `cargo msrv verify` on the CI, to verify the crates MSRV is acceptable.
-pub use {find::Find, list::List, set::Set, show::Show, verify::Verify};
+pub use {find::Find, list::List, set::Set, show::Show};
 
 use crate::reporter::Reporter;
 use crate::TResult;

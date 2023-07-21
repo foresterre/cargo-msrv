@@ -21,7 +21,7 @@ extern crate tracing;
 
 pub use crate::context::{Context, OutputFormat, TracingOptions, TracingTargetOption};
 pub use crate::outcome::Outcome;
-pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
+pub use crate::sub_command::{verify::verify_msrv, Find, List, Set, Show, SubCommand};
 
 use crate::check::RustupToolchainCheck;
 use crate::context::ReleaseSource;
@@ -94,7 +94,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 &ctx.check_cmd,
             );
 
-            Verify::new(&index, runner).run(ctx, reporter)?;
+            verify_msrv(reporter, ctx, &index, &runner)?;
         }
     }
 
