@@ -1,5 +1,5 @@
 use camino::Utf8PathBuf;
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 
 use rust_releases::{Release, ReleaseIndex};
 
@@ -26,8 +26,8 @@ pub fn verify_msrv(
     shared_opts: SharedOpts,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
-    let toolchain: ToolchainContext = find_opts.toolchain_opts.try_into()?;
-    let environment = (&shared_opts).try_into()?;
+    let toolchain = ToolchainContext::try_from(find_opts.toolchain_opts)?;
+    let environment = EnvironmentContext::try_from(&shared_opts)?;
 
     let rust_version = match verify_opts.rust_version {
         Some(v) => RustVersion::from_arg(v),
