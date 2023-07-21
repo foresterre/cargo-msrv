@@ -38,8 +38,7 @@ pub fn verify_msrv(
         .bare_version
         .try_to_semver(release_index.releases().iter().map(Release::version))?;
 
-    let target = toolchain.target.as_str();
-    let toolchain = ToolchainSpec::new(version, target);
+    let toolchain = ToolchainSpec::new(version, &toolchain.target);
 
     let check_cmd = CheckCmd::from(find_opts.custom_check_opts);
 
