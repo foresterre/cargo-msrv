@@ -58,7 +58,7 @@ pub(crate) mod sub_command;
 pub(crate) mod typed_bool;
 pub(crate) mod writer;
 
-pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
+pub fn run_app(ctx: Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
     reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
@@ -72,22 +72,22 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 &ctx.environment,
                 &ctx.check_cmd,
             );
-            Find::new(&index, runner).run(ctx, reporter)?;
+            Find::new(&index, runner).run(&ctx, reporter)?;
         }
         Context::List(ctx) => {
-            List.run(ctx, reporter)?;
+            List.run(&ctx, reporter)?;
         }
         Context::Set(ctx) => {
             let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source).ok();
-            Set::new(index.as_ref()).run(ctx, reporter)?;
+            Set::new(index.as_ref()).run(&ctx, reporter)?;
         }
         Context::Show(ctx) => {
-            Show.run(ctx, reporter)?;
+            Show.run(&ctx, reporter)?;
         }
         Context::Verify(ctx) => {
             let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
 
-            verify_msrv(reporter, ctx, &index)?;
+            verify_msrv(reporter, &ctx, &index)?;
         }
     }
 

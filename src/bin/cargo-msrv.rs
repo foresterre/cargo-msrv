@@ -54,10 +54,10 @@ fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     }
 
     let context = Context::try_from(opts).map_err(InstanceError::CargoMsrv)?;
-    init_and_run(&context).map(|exit_code| (guard, exit_code))
+    init_and_run(context).map(|exit_code| (guard, exit_code))
 }
 
-fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
+fn init_and_run(ctx: Context) -> Result<ExitCode, InstanceError> {
     tracing::info!(
         cargo_msrv_version = env!("CARGO_PKG_VERSION"),
         "initializing"
