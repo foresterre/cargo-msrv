@@ -13,6 +13,7 @@ use crate::cli::toolchain_opts::ToolchainOpts;
 
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
 use crate::manifest::bare_version::BareVersion;
+use crate::sub_command::verify::VerifyContext;
 use camino::{Utf8Path, Utf8PathBuf};
 use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
@@ -24,7 +25,6 @@ pub mod find;
 pub mod list;
 pub mod set;
 pub mod show;
-pub mod verify;
 
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
@@ -34,7 +34,6 @@ pub use find::FindContext;
 pub use list::ListContext;
 pub use set::SetContext;
 pub use show::ShowContext;
-pub use verify::VerifyContext;
 
 /// Using sub-contexts allows us to write `From` implementations,
 /// for each sub-command, where each only contains the relevant portion of
