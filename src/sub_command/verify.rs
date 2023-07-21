@@ -7,9 +7,7 @@ use crate::check::{Check, RustupToolchainCheck};
 use crate::cli::find_opts::FindOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::VerifyOpts;
-use crate::context::{
-    CheckCmdContext, EnvironmentContext, OutputFormat, ToolchainContext, UserOutputContext,
-};
+use crate::context::{CheckCmdContext, EnvironmentContext, OutputFormat, ToolchainContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
@@ -18,30 +16,6 @@ use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
 use crate::toolchain::ToolchainSpec;
-
-#[derive(Debug)]
-struct VerifyContext {
-    /// The resolved Rust version, to check against for toolchain compatibility.
-    pub rust_version: RustVersion,
-
-    /// Ignore the lockfile for the MSRV verification
-    pub ignore_lockfile: bool,
-
-    /// Don't print the result of compatibility check
-    pub no_check_feedback: bool,
-
-    /// The context for Rust toolchains
-    pub toolchain: ToolchainContext,
-
-    /// The context for custom checks to be used with rustup
-    pub check_cmd: CheckCmdContext,
-
-    /// Resolved environment options
-    pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
-}
 
 /// Verify whether a Cargo project is compatible with a `rustup run` command,
 /// for the (given or specified) `rust_version`.
@@ -52,7 +26,7 @@ pub fn verify_msrv(
     shared_opts: SharedOpts,
     release_index: &ReleaseIndex,
 ) -> TResult<()> {
-    let toolchain = find_opts.toolchain_opts.try_into()?;
+    let toolchain: ToolchainContext = find_opts.toolchain_opts.try_into()?;
     let environment = (&shared_opts).try_into()?;
 
     let rust_version = match verify_opts.rust_version {
@@ -60,36 +34,26 @@ pub fn verify_msrv(
         None => RustVersion::try_from_environment(&environment)?,
     };
 
-    let ctx = VerifyContext {
-        rust_version,
-        ignore_lockfile: find_opts.ignore_lockfile,
-        no_check_feedback: find_opts.no_check_feedback,
-        toolchain,
-        check_cmd: find_opts.custom_check_opts.into(),
-        environment,
-        user_output: shared_opts.user_output_opts.into(),
-    };
-
-    let rust_version = ctx.rust_version.clone();
-
     let bare_version = rust_version.version();
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
-    let target = ctx.toolchain.target.as_str();
+    let target = toolchain.target.as_str();
     let toolchain = ToolchainSpec::new(version, target);
+
+    let check_cmd_context = CheckCmdContext::from(find_opts.custom_check_opts);
 
     let runner = RustupToolchainCheck::new(
         reporter,
-        ctx.ignore_lockfile,
-        ctx.no_check_feedback,
-        &ctx.environment,
-        &ctx.check_cmd,
+        find_opts.ignore_lockfile,
+        find_opts.no_check_feedback,
+        &environment,
+        &check_cmd_context,
     );
 
     match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),
-        Outcome::Failure(_) if ctx.user_output.output_format == OutputFormat::None => {
+        Outcome::Failure(_) if shared_opts.user_output_opts.output_format == OutputFormat::None => {
             failure(reporter, toolchain, rust_version, None)
         }
         Outcome::Failure(f) => failure(reporter, toolchain, rust_version, Some(f.error_message)),
