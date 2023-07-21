@@ -4,7 +4,9 @@ use std::convert::{TryFrom, TryInto};
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
-use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::cli::find_opts::FindOpts;
+use crate::cli::shared_opts::SharedOpts;
+use crate::cli::VerifyOpts;
 use crate::context::{
     CheckCmdContext, EnvironmentContext, OutputFormat, RustReleasesContext, ToolchainContext,
     UserOutputContext,
@@ -111,25 +113,16 @@ pub struct VerifyFailed {
     source: RustVersionSource,
 }
 
-impl TryFrom<CargoMsrvOpts> for VerifyContext {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
-        let CargoMsrvOpts {
-            find_opts,
-            shared_opts,
-            subcommand,
-        } = opts;
-
-        let subcommand = match subcommand {
-            Some(SubCommand::Verify(opts)) => opts,
-            _ => unreachable!("This should never happen. The subcommand is not `verify`!"),
-        };
-
+impl VerifyContext {
+    pub(crate) fn new(
+        verify_opts: VerifyOpts,
+        shared_opts: SharedOpts,
+        find_opts: FindOpts,
+    ) -> Result<Self, CargoMSRVError> {
         let toolchain = find_opts.toolchain_opts.try_into()?;
         let environment = (&shared_opts).try_into()?;
 
-        let rust_version = match subcommand.rust_version {
+        let rust_version = match verify_opts.rust_version {
             Some(v) => RustVersion::from_arg(v),
             None => RustVersion::try_from_environment(&environment)?,
         };
