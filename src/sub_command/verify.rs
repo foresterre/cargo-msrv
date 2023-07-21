@@ -34,9 +34,9 @@ pub fn verify_msrv(
         None => RustVersion::try_from_environment(&environment)?,
     };
 
-    let bare_version = rust_version.version();
-    let version =
-        bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
+    let version = rust_version
+        .bare_version
+        .try_to_semver(release_index.releases().iter().map(Release::version))?;
 
     let target = toolchain.target.as_str();
     let toolchain = ToolchainSpec::new(version, target);
@@ -112,7 +112,7 @@ impl From<RustVersion> for VerifyFailed {
 /// A combination of a bare (two- or three component) Rust version and the source which was used to
 /// locate this version.
 #[derive(Clone, Debug)]
-pub struct RustVersion {
+struct RustVersion {
     bare_version: BareVersion,
     source: RustVersionSource,
 }
@@ -138,16 +138,6 @@ impl RustVersion {
                 bare_version: v.clone(),
                 source: RustVersionSource::Manifest(manifest_path.clone()),
             })
-    }
-
-    /// Get the bare (two- or three component) version specifying the Rust version.
-    pub fn version(&self) -> &BareVersion {
-        &self.bare_version
-    }
-
-    /// Get the version and discard all else.
-    pub fn into_version(self) -> BareVersion {
-        self.bare_version
     }
 }
 
