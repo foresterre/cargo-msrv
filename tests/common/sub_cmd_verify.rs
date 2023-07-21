@@ -1,5 +1,4 @@
 use crate::common::reporter::EventTestDevice;
-use cargo_msrv::check::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::{verify_msrv, Context};
@@ -25,19 +24,6 @@ where
 
     let device = EventTestDevice::default();
 
-    let ignore_toolchain = verify_ctx.ignore_lockfile;
-    let no_check_feedback = verify_ctx.no_check_feedback;
-    let env = &verify_ctx.environment;
-    let check_cmd = &verify_ctx.check_cmd;
-
-    let runner = RustupToolchainCheck::new(
-        device.reporter(),
-        ignore_toolchain,
-        no_check_feedback,
-        env,
-        check_cmd,
-    );
-
     // Determine the MSRV from the index of available releases.
-    verify_msrv(device.reporter(), &verify_ctx, &available_versions, &runner)
+    verify_msrv(device.reporter(), &verify_ctx, &available_versions)
 }

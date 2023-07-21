@@ -3,7 +3,7 @@ use std::convert::{TryFrom, TryInto};
 
 use rust_releases::{Release, ReleaseIndex};
 
-use crate::check::Check;
+use crate::check::{Check, RustupToolchainCheck};
 use crate::cli::find_opts::FindOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::VerifyOpts;
@@ -53,7 +53,6 @@ pub fn verify_msrv(
     reporter: &impl Reporter,
     ctx: &VerifyContext,
     release_index: &ReleaseIndex,
-    runner: &impl Check,
 ) -> TResult<()> {
     let rust_version = ctx.rust_version.clone();
 
@@ -63,6 +62,14 @@ pub fn verify_msrv(
 
     let target = ctx.toolchain.target.as_str();
     let toolchain = ToolchainSpec::new(version, target);
+
+    let runner = RustupToolchainCheck::new(
+        reporter,
+        ctx.ignore_lockfile,
+        ctx.no_check_feedback,
+        &ctx.environment,
+        &ctx.check_cmd,
+    );
 
     match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),
