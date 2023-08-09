@@ -24,7 +24,7 @@ camino = "1.1" # utf-8 paths
 cargo_metadata = "0.15.4" # resolving Cargo manifest metadata (consider `guppy`!)
 clap = { version = "4.3.21", features = ["derive"] } # parse CLI arguments
 dirs = "5.0.1" # common directories
-indicatif = "=0.17.5" # UI
+indicatif = "=0.17.6" # UI
 once_cell = "1.18.0" # lazy data structures and thunking
 owo-colors = "3.5.0" # color support for the terminal
 petgraph = "0.6.3" # graph data structures
