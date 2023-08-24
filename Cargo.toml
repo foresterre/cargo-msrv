@@ -28,7 +28,7 @@ indicatif = "=0.17.6" # UI
 once_cell = "1.18.0" # lazy data structures and thunking
 owo-colors = "3.5.0" # color support for the terminal
 petgraph = "0.6.4" # graph data structures
-rust-releases = { version = "0.26.0", default-features = false, features = ["rust-changelog"]  } # get the available rust versions
+rust-releases = { version = "0.27.0", default-features = false, features = ["rust-changelog"]  } # get the available rust versions
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
 serde_json = "1.0.105"  # JSON serialization and deserialization
 storyteller = "0.8.1" # minimal multi user output architecture
