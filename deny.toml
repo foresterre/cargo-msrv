@@ -39,4 +39,4 @@ license-files = [
 vulnerability = "deny"
 unmaintained = "deny"
 notice = "deny"
-ignore = ["RUSTSEC-2023-0052"]
+ignore = []
