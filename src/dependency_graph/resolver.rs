@@ -33,11 +33,7 @@ impl DependencyResolver for CargoMetadataResolver {
             let node_alloc = dependencies.nodes.len();
             let mut graph = DependencyGraph::with_capacity(our_crate, node_alloc);
 
-            build_package_graph(
-                &mut graph,
-                result.packages.into_iter(),
-                dependencies.nodes.into_iter(),
-            );
+            build_package_graph(&mut graph, result.packages, dependencies.nodes);
 
             Ok(graph)
         } else {
