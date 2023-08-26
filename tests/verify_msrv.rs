@@ -1,3 +1,5 @@
+#![allow(clippy::items_after_test_module)]
+
 use cargo_msrv::exit_code::ExitCode;
 use parameterized::parameterized;
 use rust_releases::{semver, Release};
