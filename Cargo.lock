@@ -590,7 +590,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.16.0-beta.14"
+version = "0.16.0-beta.15"
 dependencies = [
  "bisector",
  "camino",
