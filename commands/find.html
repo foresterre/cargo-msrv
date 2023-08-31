@@ -149,7 +149,7 @@
 toolchains will be tested, and the amount of tests ran, depends on the search strategy, the amount of toolchains
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
-is <code>cargo check --all</code>.</p>
+is <code>cargo check</code>.</p>
 <p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in a
 most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
 toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
@@ -238,7 +238,7 @@ See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-fil
 <p>Prints cargo-msrv version information</p>
 <p><strong><code>--</code> ...cmd</strong> </p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
-<code>cargo check --all</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
+<code>cargo check</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
 <h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
 <ol>
 <li>Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.</li>

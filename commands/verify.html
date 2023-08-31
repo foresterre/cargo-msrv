@@ -168,7 +168,7 @@ rust-version = &quot;1.56.0&quot;
     println!(&quot;Hello world&quot;);
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key. 
 Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
 and the program returns a with exit code 0 (success).</p>
@@ -190,7 +190,7 @@ rust-version = &quot;1.56.0&quot;
     assert_eq!(cmd.get_program(), &quot;ls&quot;); // will fail because Command::get_program was introduced in 1.57, which is greater than 1.56 (the MSRV)
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key.
 Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
 and the program returns a with a non-zero exit code (failure).</p>

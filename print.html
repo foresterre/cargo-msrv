@@ -263,7 +263,7 @@ as the <code>check_cmd</code>.</p>
    // The toolchain that will be used
   &quot;toolchain&quot;:&quot;x86_64-unknown-linux-gnu&quot;,
   // Command used to check a version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;:&quot;cargo check --all&quot;
+  &quot;check_cmd&quot;:&quot;cargo check&quot;
 }
 </code></pre>
 <p>Examples of messages which replace the information reported by the v0.15 <code>mode</code> message:</p>
@@ -290,7 +290,7 @@ latter has been replaced by the <code>check_toolchain</code> event. Reporting ab
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>And now, you instead receive these events:</p>
@@ -323,7 +323,7 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>And now, you instead receive these events, if the toolchain is compatible:</p>
@@ -357,7 +357,7 @@ description of output per command.</p>
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>Below, you can find an example of the new output when finding the MSRV, where one is found:</p>
@@ -881,7 +881,7 @@ altogether. Disabling the user output may be achieved by providing the <code>--n
 toolchains will be tested, and the amount of tests ran, depends on the search strategy, the amount of toolchains
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
-is <code>cargo check --all</code>.</p>
+is <code>cargo check</code>.</p>
 <p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in a
 most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
 toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
@@ -970,7 +970,7 @@ See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-fil
 <p>Prints cargo-msrv version information</p>
 <p><strong><code>--</code> ...cmd</strong> </p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
-<code>cargo check --all</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
+<code>cargo check</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
 <h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
 <ol>
 <li>Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.</li>
@@ -1199,7 +1199,7 @@ rust-version = &quot;1.56.0&quot;
     println!(&quot;Hello world&quot;);
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key. 
 Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
 and the program returns a with exit code 0 (success).</p>
@@ -1221,7 +1221,7 @@ rust-version = &quot;1.56.0&quot;
     assert_eq!(cmd.get_program(), &quot;ls&quot;); // will fail because Command::get_program was introduced in 1.57, which is greater than 1.56 (the MSRV)
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check --all</code>, can be satisfied.
+<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key.
 Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
 and the program returns a with a non-zero exit code (failure).</p>

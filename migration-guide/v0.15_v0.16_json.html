@@ -167,7 +167,7 @@ as the <code>check_cmd</code>.</p>
    // The toolchain that will be used
   &quot;toolchain&quot;:&quot;x86_64-unknown-linux-gnu&quot;,
   // Command used to check a version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;:&quot;cargo check --all&quot;
+  &quot;check_cmd&quot;:&quot;cargo check&quot;
 }
 </code></pre>
 <p>Examples of messages which replace the information reported by the v0.15 <code>mode</code> message:</p>
@@ -194,7 +194,7 @@ latter has been replaced by the <code>check_toolchain</code> event. Reporting ab
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>And now, you instead receive these events:</p>
@@ -227,7 +227,7 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>And now, you instead receive these events, if the toolchain is compatible:</p>
@@ -261,7 +261,7 @@ description of output per command.</p>
   // The toolchain that is being used
   &quot;toolchain&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
   // The command used to check each version. The key will be absent for mode 'list'
-  &quot;check_cmd&quot;: &quot;cargo check --all&quot;
+  &quot;check_cmd&quot;: &quot;cargo check&quot;
 }
 </code></pre>
 <p>Below, you can find an example of the new output when finding the MSRV, where one is found:</p>
