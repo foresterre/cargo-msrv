@@ -44,7 +44,7 @@ fn main() {
 }
 ```
 
-We check whether the MSRV's  check command, in this case the default `cargo check --all`, can be satisfied.
+We check whether the MSRV's  check command, in this case the default `cargo check`, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the `package.rust-version` key. 
 Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
 and the program returns a with exit code 0 (success).
@@ -74,7 +74,7 @@ fn main() {
 }
 ```
 
-We check whether the MSRV's  check command, in this case the default `cargo check --all`, can be satisfied.
+We check whether the MSRV's  check command, in this case the default `cargo check`, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the `package.rust-version` key.
 Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
 and the program returns a with a non-zero exit code (failure).

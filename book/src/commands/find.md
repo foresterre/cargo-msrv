@@ -13,7 +13,7 @@ This command will test your project by running various Rust toolchains against y
 toolchains will be tested, and the amount of tests ran, depends on the search strategy, the amount of toolchains
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv _check_. By default, the check command, the command used to test whether toolchain passes or fails a check,
-is `cargo check --all`.
+is `cargo check`.
 
 There are currently two search strategies: _linear_ (default) and _bisect_. Linear tests projects against toolchains in a
 most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
@@ -153,7 +153,7 @@ Prints cargo-msrv version information
 **`--` ...cmd** 
 
 When provided, the trailing command (`cmd`) will be used as the _cargo-msrv check_ command, instead of the default
-`cargo check --all`. This `cmd` must be runnable by `rustup` through `rustup run <toolchain> <cmd>`.
+`cargo check`. This `cmd` must be runnable by `rustup` through `rustup run <toolchain> <cmd>`.
 
 
 ## EXAMPLES
