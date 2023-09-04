@@ -17,7 +17,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout_repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
       - name: install_cargo_msrv
@@ -38,7 +38,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout_repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
       - uses: taiki-e/install-action@v2
@@ -62,7 +62,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout_repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
       - name: install_cargo_msrv
