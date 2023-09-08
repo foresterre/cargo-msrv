@@ -9,7 +9,7 @@ jobs:
       CARGO_TERM_COLOR: always
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install_rust_nightly
         uses: dtolnay/rust-toolchain@nightly
