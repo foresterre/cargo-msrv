@@ -35,7 +35,7 @@ storyteller = "0.8.1" # minimal multi user output architecture
 tabled = { version = "0.10.0", features = ["color"] } # pretty print tables
 terminal_size = "0.3.0" # determine the terminal size
 thiserror = "1.0.49" # error handling
-toml_edit = "0.20.1" # read and write the Cargo.toml
+toml_edit = "0.20.2" # read and write the Cargo.toml
 tracing = "0.1" # tracing
 tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
