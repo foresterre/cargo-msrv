@@ -38,6 +38,7 @@ pub mod io;
 pub mod reporter;
 pub mod toolchain;
 
+mod actions;
 pub(crate) mod combinators;
 pub(crate) mod command;
 mod context;
