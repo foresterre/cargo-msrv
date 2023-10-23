@@ -12,7 +12,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                               |
 |-------------|-----------|-------------------------------------------------------|
 | stable      | 💚        | `$ cargo install cargo-msrv`                          |
-| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.14` |
+| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.15` |
 | development | ❌        |                                                       |
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
