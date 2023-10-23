@@ -2736,22 +2736,22 @@ checksum = "4d25c75bf9ea12c4040a97f829154768bbbce366287e2dc044af160cd79a13fd"
 
 [[package]]
 name = "yare"
-version = "1.0.2"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df119f412cd2150ab3e88ebee015a615b00140ff81acd07746262df4a4678c47"
+checksum = "d84be877e6a6cde26dd843583544f46e193a5b324b585c4914167a47ee3245ab"
 dependencies = [
  "yare-macro",
 ]
 
 [[package]]
 name = "yare-macro"
-version = "1.0.1"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9467ac0aa6668b663fa80addde47e40ac364dc9d9a243b4df26ba647e4605633"
+checksum = "74e7573777bff194739148d7ffe000c9c652f1db6dafbb7d3b8475551bd4189d"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.37",
 ]
 
 [[package]]
