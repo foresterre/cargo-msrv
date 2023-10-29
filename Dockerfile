@@ -11,7 +11,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --verbose --locked --release
 
-FROM rust:slim-bullseye AS runtime
+FROM rust:slim-bookworm AS runtime
 WORKDIR app
 COPY --from=builder /app/target/release/cargo-msrv /usr/local/bin
 ENTRYPOINT ["cargo-msrv", "msrv"]
