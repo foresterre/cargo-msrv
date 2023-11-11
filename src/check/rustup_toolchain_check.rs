@@ -87,6 +87,8 @@ impl<'reporter, 'env, 'cc, R: Reporter> RustupToolchainCheck<'reporter, 'env, 'c
         dir: &Utf8Path,
         check: impl Iterator<Item = &'arg str>,
     ) -> TResult<Outcome> {
+        // TODO(#824): Check MSRV against compilation target instead of build machine target
+
         let mut cmd: Vec<&str> = vec![toolchain.spec()];
         cmd.extend(check);
 
