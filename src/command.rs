@@ -56,6 +56,10 @@ impl RustupCommand {
         self.execute(OsStr::new("show"))
     }
 
+    pub fn target(self) -> TResult<RustupOutput> {
+        self.execute(OsStr::new("target"))
+    }
+
     /// Execute a given `rustup` command.
     ///
     /// See also:

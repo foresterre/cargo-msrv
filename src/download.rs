@@ -26,28 +26,62 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
 
         self.reporter
             .run_scoped_event(SetupToolchain::new(toolchain.to_owned()), || {
-                let rustup = RustupCommand::new()
-                    .with_stdout()
-                    .with_stderr()
-                    .with_args(["--profile", "minimal", toolchain.spec()])
-                    .install()?;
-
-                let status = rustup.exit_status();
-
-                if !status.success() {
-                    error!(
-                        toolchain = toolchain.spec(),
-                        stdout = rustup.stdout(),
-                        stderr = rustup.stderr(),
-                        "rustup failed to install toolchain"
-                    );
-
-                    return Err(CargoMSRVError::RustupInstallFailed(
-                        RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-                    ));
-                }
-
-                Ok(())
+                install_toolchain(toolchain).and_then(|_| add_target(toolchain))
             })
     }
+}
+
+fn install_toolchain(toolchain: &ToolchainSpec) -> TResult<()> {
+    let rustup = RustupCommand::new()
+        .with_stdout()
+        .with_stderr()
+        .with_args(["--profile", "minimal", &format!("{}", toolchain.version())])
+        .install()?;
+
+    let status = rustup.exit_status();
+
+    if !status.success() {
+        error!(
+            toolchain = toolchain.spec(),
+            stdout = rustup.stdout(),
+            stderr = rustup.stderr(),
+            "rustup failed to install toolchain"
+        );
+
+        return Err(CargoMSRVError::RustupInstallFailed(
+            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
+        ));
+    }
+
+    Ok(())
+}
+
+fn add_target(toolchain: &ToolchainSpec) -> TResult<()> {
+    let rustup = RustupCommand::new()
+        .with_stdout()
+        .with_stderr()
+        .with_args([
+            "add",
+            "--toolchain",
+            &format!("{}", toolchain.version()),
+            toolchain.target(),
+        ])
+        .target()?;
+
+    let status = rustup.exit_status();
+
+    if !status.success() {
+        error!(
+            toolchain = toolchain.spec(),
+            stdout = rustup.stdout(),
+            stderr = rustup.stderr(),
+            "rustup failed to add target to toolchain"
+        );
+
+        return Err(CargoMSRVError::RustupInstallFailed(
+            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
+        ));
+    }
+
+    Ok(())
 }

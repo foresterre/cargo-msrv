@@ -6,7 +6,6 @@
 //!
 //! Unlike the opts, the context is top down, not bottom up.
 
-use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::{SharedOpts, UserOutputOpts};
 use crate::cli::toolchain_opts::ToolchainOpts;
@@ -26,6 +25,7 @@ pub mod set;
 pub mod show;
 pub mod verify;
 
+use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::default_target::default_target;
@@ -193,24 +193,14 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
 #[derive(Debug)]
 pub struct CheckCmdContext {
     /// The custom `Rustup` command to invoke for a toolchain.
-    pub rustup_command: Vec<String>,
+    pub rustup_command: Option<Vec<String>>,
 }
 
 impl From<CustomCheckOpts> for CheckCmdContext {
     fn from(opts: CustomCheckOpts) -> Self {
-        let rustup_command = if opts.custom_check_command.is_empty() {
-            vec!["cargo".to_string(), "check".to_string()]
-        } else {
-            opts.custom_check_command
-        };
-
-        Self { rustup_command }
-    }
-}
-
-impl CheckCmdContext {
-    pub fn custom_rustup_command(&self) -> &[String] {
-        &self.rustup_command
+        Self {
+            rustup_command: opts.custom_check_command,
+        }
     }
 }
 

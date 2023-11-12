@@ -50,7 +50,7 @@ fn find_msrv(
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: ctx.check_cmd.custom_rustup_command().join(" "),
+                command: ctx.run_command().components().join(" "),
             })
         }
         MinimumSupportedRustVersion::Toolchain { toolchain } => {

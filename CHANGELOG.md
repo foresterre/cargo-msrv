@@ -30,7 +30,6 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * `cargo-msrv` now requires paths to be UTF-8.
 * `--write-msrv` now writes two, instead of three component version numbers .
 
-
 #### Infra
 
 * Changed release artifact name of `cargo-msrv` packages on Github, such that they can be installed with `cargo-binstall` out of the box.
@@ -41,6 +40,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * The program will no longer return an unformatted message when a command failed and the output format was set to json.
 * Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
 * Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
+* Use compilation target instead of build machine target for MSRV checks
 
 ### Removed
 
@@ -70,7 +70,7 @@ This release does not contain user-facing changes, hence the lack of changelog e
 ### Changed
 
 * ⚠️ Breaking change: Changed default cargo-msrv (find) check command from `cargo check --all` to `cargo check`.
-  * Revert to the old behaviour by running cargo-msrv with a custom check command: `cargo msrv -- cargo check --all`.
+  * To revert to the old behaviour, run cargo-msrv with the following custom check command: `cargo msrv -- cargo check --all`.
 
 ### Removed
 

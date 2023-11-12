@@ -69,14 +69,13 @@ pub fn find_msrv_with_releases<
     let ignore_toolchain = find_ctx.ignore_lockfile;
     let no_check_feedback = find_ctx.no_check_feedback;
     let env = &find_ctx.environment;
-    let check_cmd = &find_ctx.check_cmd;
 
     let runner = RustupToolchainCheck::new(
         device.reporter(),
         ignore_toolchain,
         no_check_feedback,
         env,
-        check_cmd,
+        find_ctx.run_command(),
     );
 
     // Determine the MSRV from the index of available releases.

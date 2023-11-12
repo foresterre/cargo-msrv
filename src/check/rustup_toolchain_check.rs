@@ -1,6 +1,6 @@
 use crate::check::Check;
 use crate::command::RustupCommand;
-use crate::context::{CheckCmdContext, EnvironmentContext};
+use crate::context::EnvironmentContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::LockfileHandler;
@@ -9,12 +9,32 @@ use crate::toolchain::ToolchainSpec;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
 
-pub struct RustupToolchainCheck<'reporter, 'env, 'cc, R: Reporter> {
+pub struct RustupToolchainCheck<'reporter, 'env, R: Reporter> {
     reporter: &'reporter R,
-    settings: Settings<'env, 'cc>,
+    settings: Settings<'env>,
 }
 
-impl<'reporter, 'env, 'cc, R: Reporter> Check for RustupToolchainCheck<'reporter, 'env, 'cc, R> {
+impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
+    pub fn new(
+        reporter: &'reporter R,
+        ignore_lockfile: bool,
+        no_check_feedback: bool,
+        environment: &'env EnvironmentContext,
+        run_command: RunCommand,
+    ) -> Self {
+        Self {
+            reporter,
+            settings: Settings {
+                ignore_lockfile,
+                no_check_feedback,
+                environment,
+                check_cmd: run_command,
+            },
+        }
+    }
+}
+
+impl<'reporter, 'env, R: Reporter> Check for RustupToolchainCheck<'reporter, 'env, R> {
     fn check(&self, toolchain: &ToolchainSpec) -> TResult<Outcome> {
         let settings = &self.settings;
 
@@ -28,22 +48,24 @@ impl<'reporter, 'env, 'cc, R: Reporter> Check for RustupToolchainCheck<'reporter
                     .map(|handle| handle.move_lockfile())
                     .transpose()?;
 
-                self.setup_toolchain(toolchain)?;
+                setup_toolchain(self.reporter, toolchain)?;
 
                 if handle_wrap.is_some() {
                     remove_lockfile(&settings.lockfile_path())?;
                 }
 
                 let crate_root = settings.crate_root_path();
+                let cmd = &self.settings.check_cmd;
 
-                let outcome = self.run_check_command_via_rustup(
+                let outcome = run_check_command_via_rustup(
+                    self.reporter,
                     toolchain,
                     crate_root,
-                    settings.check_cmd.rustup_command.iter().map(|s| s.as_str()),
+                    cmd.components(),
                 )?;
 
                 // report outcome to UI
-                self.report_outcome(&outcome, settings.no_check_feedback())?;
+                report_outcome(self.reporter, &outcome, settings.no_check_feedback())?;
 
                 // move the lockfile back
                 if let Some(handle) = handle_wrap {
@@ -55,103 +77,87 @@ impl<'reporter, 'env, 'cc, R: Reporter> Check for RustupToolchainCheck<'reporter
     }
 }
 
-impl<'reporter, 'env, 'cc, R: Reporter> RustupToolchainCheck<'reporter, 'env, 'cc, R> {
-    pub fn new(
-        reporter: &'reporter R,
-        ignore_lockfile: bool,
-        no_check_feedback: bool,
-        environment: &'env EnvironmentContext,
-        check_cmd: &'cc CheckCmdContext,
-    ) -> Self {
-        Self {
-            reporter,
-            settings: Settings {
-                ignore_lockfile,
-                no_check_feedback,
-                environment,
-                check_cmd,
-            },
-        }
-    }
+fn setup_toolchain(reporter: &impl Reporter, toolchain: &ToolchainSpec) -> TResult<()> {
+    let downloader = ToolchainDownloader::new(reporter);
+    downloader.download(toolchain)?;
 
-    fn setup_toolchain(&self, toolchain: &ToolchainSpec) -> TResult<()> {
-        let downloader = ToolchainDownloader::new(self.reporter);
-        downloader.download(toolchain)?;
+    Ok(())
+}
 
-        Ok(())
-    }
+fn run_check_command_via_rustup(
+    reporter: &impl Reporter,
+    toolchain: &ToolchainSpec,
+    dir: &Utf8Path,
+    check: &[String],
+) -> TResult<Outcome> {
+    let version = format!("{}", toolchain.version());
+    let mut cmd = vec![version.as_str()];
+    cmd.extend(check.iter().map(|s| s.as_str()));
 
-    fn run_check_command_via_rustup<'arg>(
-        &self,
-        toolchain: &'arg ToolchainSpec,
-        dir: &Utf8Path,
-        check: impl Iterator<Item = &'arg str>,
-    ) -> TResult<Outcome> {
-        let mut cmd: Vec<&str> = vec![toolchain.spec()];
-        cmd.extend(check);
+    reporter.report_event(CheckMethod::new(
+        toolchain.to_owned(),
+        Method::rustup_run(&cmd, dir),
+    ))?;
 
-        self.reporter.report_event(CheckMethod::new(
+    let rustup_output = RustupCommand::new()
+        .with_args(cmd.iter())
+        .with_dir(dir)
+        .with_stderr()
+        .run()
+        .map_err(|_| CargoMSRVError::UnableToRunCheck {
+            command: cmd[1..].join(" "),
+            cwd: dir.to_path_buf(),
+        })?;
+
+    let status = rustup_output.exit_status();
+
+    if status.success() {
+        Ok(Outcome::new_success(toolchain.to_owned()))
+    } else {
+        let stderr = rustup_output.stderr();
+        let command = cmd.join(" ");
+
+        info!(
+            ?toolchain,
+            stderr,
+            cmd = command.as_str(),
+            "try_building run failed"
+        );
+
+        Ok(Outcome::new_failure(
             toolchain.to_owned(),
-            Method::rustup_run(&cmd, dir),
-        ))?;
+            stderr.to_string(),
+        ))
+    }
+}
 
-        let rustup_output = RustupCommand::new()
-            .with_args(cmd.iter())
-            .with_dir(dir)
-            .with_stderr()
-            .run()
-            .map_err(|_| CargoMSRVError::UnableToRunCheck {
-                command: cmd[1..].join(" "),
-                cwd: dir.to_path_buf(),
-            })?;
-
-        let status = rustup_output.exit_status();
-
-        if status.success() {
-            Ok(Outcome::new_success(toolchain.to_owned()))
-        } else {
-            let stderr = rustup_output.stderr();
-            let command = cmd.join(" ");
-
-            info!(
-                ?toolchain,
-                stderr,
-                cmd = command.as_str(),
-                "try_building run failed"
-            );
-
-            Ok(Outcome::new_failure(
-                toolchain.to_owned(),
-                stderr.to_string(),
-            ))
+fn report_outcome(
+    reporter: &impl Reporter,
+    outcome: &Outcome,
+    no_error_report: bool,
+) -> TResult<()> {
+    match outcome {
+        Outcome::Success(outcome) => {
+            // report compatibility with this toolchain
+            reporter.report_event(CheckResult::compatible(outcome.toolchain_spec.to_owned()))?
         }
-    }
+        Outcome::Failure(outcome) if no_error_report => {
+            // report incompatibility with this toolchain
+            reporter.report_event(CheckResult::incompatible(
+                outcome.toolchain_spec.to_owned(),
+                None,
+            ))?
+        }
+        Outcome::Failure(outcome) => {
+            // report incompatibility with this toolchain
+            reporter.report_event(CheckResult::incompatible(
+                outcome.toolchain_spec.to_owned(),
+                Some(outcome.error_message.clone()),
+            ))?
+        }
+    };
 
-    fn report_outcome(&self, outcome: &Outcome, no_error_report: bool) -> TResult<()> {
-        match outcome {
-            Outcome::Success(outcome) => {
-                // report compatibility with this toolchain
-                self.reporter
-                    .report_event(CheckResult::compatible(outcome.toolchain_spec.to_owned()))?
-            }
-            Outcome::Failure(outcome) if no_error_report => {
-                // report incompatibility with this toolchain
-                self.reporter.report_event(CheckResult::incompatible(
-                    outcome.toolchain_spec.to_owned(),
-                    None,
-                ))?
-            }
-            Outcome::Failure(outcome) => {
-                // report incompatibility with this toolchain
-                self.reporter.report_event(CheckResult::incompatible(
-                    outcome.toolchain_spec.to_owned(),
-                    Some(outcome.error_message.clone()),
-                ))?
-            }
-        };
-
-        Ok(())
-    }
+    Ok(())
 }
 
 /// Creates a lockfile handle, iff the lockfile exists and the user opted
@@ -177,15 +183,15 @@ fn remove_lockfile(lock_file: &Utf8Path) -> TResult<()> {
     Ok(())
 }
 
-struct Settings<'env, 'cc> {
+struct Settings<'env> {
     ignore_lockfile: bool,
     no_check_feedback: bool,
 
     environment: &'env EnvironmentContext,
-    check_cmd: &'cc CheckCmdContext,
+    check_cmd: RunCommand,
 }
 
-impl<'env, 'cc> Settings<'env, 'cc> {
+impl<'env> Settings<'env> {
     pub fn ignore_lockfile(&self) -> bool {
         self.ignore_lockfile
     }
@@ -200,5 +206,30 @@ impl<'env, 'cc> Settings<'env, 'cc> {
 
     pub fn lockfile_path(&self) -> Utf8PathBuf {
         self.environment.lock()
+    }
+}
+
+pub struct RunCommand {
+    command: Vec<String>,
+}
+
+impl RunCommand {
+    pub fn default(target: impl ToString) -> Self {
+        let command = vec![
+            "cargo".to_string(),
+            "check".to_string(),
+            "--target".to_string(),
+            target.to_string(),
+        ];
+
+        Self { command }
+    }
+
+    pub fn custom(command: Vec<String>) -> Self {
+        Self { command }
+    }
+
+    pub fn components(&self) -> &[String] {
+        self.command.as_ref()
     }
 }

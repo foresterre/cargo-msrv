@@ -248,7 +248,7 @@ fn create_test_context() -> FindContext {
             target: "x".to_string(),
         },
         check_cmd: CheckCmdContext {
-            rustup_command: vec![],
+            rustup_command: None,
         },
         environment: EnvironmentContext {
             crate_path: Utf8PathBuf::new(),
