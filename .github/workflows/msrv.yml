@@ -45,7 +45,7 @@ jobs:
         with:
           tool: cargo-binstall
       - name: install_cargo_msrv_bin
-        run: cargo binstall --version 0.16.0-beta.15 --no-confirm cargo-msrv
+        run: cargo binstall --version 0.16.0-beta.16 --no-confirm cargo-msrv
       - name: version_of_cargo_msrv
         run: cargo msrv --version
       - name: run_cargo_msrv
