@@ -62,7 +62,9 @@ jobs:
 
       - name: install_cargo_about
         shell: bash
-        run: cargo install cargo-about
+        # Tempory workaround for cargo-about issue https://github.com/EmbarkStudios/cargo-about/issues/237, which has been fixed, but where
+        # the fix has not been released yet.
+        run: cargo install cargo-about --git https://github.com/EmbarkStudios/cargo-about.git --rev a4296450258de52c728ddfb33fd8769be91d31e7
 
       - name: generate_dep_licenses_file
         shell: bash
