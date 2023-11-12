@@ -3,6 +3,7 @@ use crate::context::{
     CheckCmdContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
 };
 
+use crate::check::RunCommand;
 use crate::error::CargoMSRVError;
 use crate::sub_command::verify::RustVersion;
 use std::convert::{TryFrom, TryInto};
@@ -67,5 +68,15 @@ impl TryFrom<CargoMsrvOpts> for VerifyContext {
             environment,
             user_output: shared_opts.user_output_opts.into(),
         })
+    }
+}
+
+impl VerifyContext {
+    pub fn run_command(&self) -> RunCommand {
+        if let Some(custom) = &self.check_cmd.rustup_command {
+            RunCommand::custom(custom.clone())
+        } else {
+            RunCommand::default(self.toolchain.target.clone())
+        }
     }
 }

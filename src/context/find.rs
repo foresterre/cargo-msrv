@@ -1,3 +1,4 @@
+use crate::check::RunCommand;
 use crate::cli::CargoMsrvOpts;
 use crate::context::{
     CheckCmdContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
@@ -68,5 +69,15 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
             environment,
             user_output: shared_opts.user_output_opts.into(),
         })
+    }
+}
+
+impl FindContext {
+    pub fn run_command(&self) -> RunCommand {
+        if let Some(custom) = &self.check_cmd.rustup_command {
+            RunCommand::custom(custom.clone())
+        } else {
+            RunCommand::default(self.toolchain.target.clone())
+        }
     }
 }
