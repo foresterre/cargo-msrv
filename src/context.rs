@@ -25,7 +25,7 @@ pub mod set;
 pub mod show;
 pub mod verify;
 
-use crate::cli::custom_check_opts::CustomCheckOpts;
+use crate::cli::custom_check_opts::CargoCheckOpts;
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::default_target::default_target;
@@ -196,8 +196,8 @@ pub struct CheckCmdContext {
     pub rustup_command: Option<Vec<String>>,
 }
 
-impl From<CustomCheckOpts> for CheckCmdContext {
-    fn from(opts: CustomCheckOpts) -> Self {
+impl From<CargoCheckOpts> for CheckCmdContext {
+    fn from(opts: CargoCheckOpts) -> Self {
         Self {
             rustup_command: opts.custom_check_command,
         }
