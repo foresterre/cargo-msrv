@@ -39,7 +39,6 @@ pub mod reporter;
 pub mod toolchain;
 
 pub(crate) mod combinators;
-pub(crate) mod command;
 mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
@@ -53,6 +52,7 @@ pub(crate) mod outcome;
 mod release_index;
 pub(crate) mod releases_filter;
 mod rust_release;
+pub(crate) mod rustup_command;
 pub(crate) mod search_method;
 pub(crate) mod sub_command;
 pub(crate) mod typed_bool;

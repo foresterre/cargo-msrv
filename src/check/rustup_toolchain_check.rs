@@ -1,10 +1,10 @@
 use crate::check::Check;
-use crate::command::RustupCommand;
 use crate::context::EnvironmentContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::LockfileHandler;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
+use crate::rustup_command::RustupCommand;
 use crate::toolchain::ToolchainSpec;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};

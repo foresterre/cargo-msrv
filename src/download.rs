@@ -1,6 +1,6 @@
-use crate::command::RustupCommand;
 use crate::error::RustupInstallFailed;
 use crate::reporter::event::SetupToolchain;
+use crate::rustup_command::RustupCommand;
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, Reporter, TResult};
 

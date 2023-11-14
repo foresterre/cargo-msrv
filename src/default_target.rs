@@ -1,5 +1,5 @@
-use crate::command::RustupCommand;
 use crate::error::{CargoMSRVError, TResult};
+use crate::rustup_command::RustupCommand;
 
 /// Uses the `.rustup/settings.toml` file to determine the default target (aka the
 /// `default_host_triple`) if not set by a user.
