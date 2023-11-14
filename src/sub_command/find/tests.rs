@@ -248,6 +248,9 @@ fn create_test_context() -> FindContext {
             target: "x".to_string(),
         },
         check_cmd: CargoCheckContext {
+            cargo_features: None,
+            cargo_all_features: false,
+            cargo_no_default_features: false,
             rustup_command: None,
         },
         environment: EnvironmentContext {
