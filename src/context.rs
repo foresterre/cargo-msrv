@@ -191,12 +191,12 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
 }
 
 #[derive(Debug)]
-pub struct CheckCmdContext {
+pub struct CargoCheckContext {
     /// The custom `Rustup` command to invoke for a toolchain.
     pub rustup_command: Option<Vec<String>>,
 }
 
-impl From<CargoCheckOpts> for CheckCmdContext {
+impl From<CargoCheckOpts> for CargoCheckContext {
     fn from(opts: CargoCheckOpts) -> Self {
         Self {
             rustup_command: opts.custom_check_command,

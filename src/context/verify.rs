@@ -1,6 +1,6 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{
-    CheckCmdContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
+    CargoCheckContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
 };
 
 use crate::check::RunCommand;
@@ -26,7 +26,7 @@ pub struct VerifyContext {
     pub toolchain: ToolchainContext,
 
     /// The context for custom checks to be used with rustup
-    pub check_cmd: CheckCmdContext,
+    pub check_cmd: CargoCheckContext,
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
