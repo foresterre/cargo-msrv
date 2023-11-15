@@ -1,10 +1,11 @@
 use crate::check::Check;
+use crate::command::cargo_command::CargoCommand;
+use crate::command::rustup_command::RustupCommand;
 use crate::context::EnvironmentContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::lockfile::LockfileHandler;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
-use crate::rustup_command::RustupCommand;
 use crate::toolchain::ToolchainSpec;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -214,15 +215,10 @@ pub struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn default(target: impl ToString) -> Self {
-        let command = vec![
-            "cargo".to_string(),
-            "check".to_string(),
-            "--target".to_string(),
-            target.to_string(),
-        ];
-
-        Self { command }
+    pub fn default(cargo_command: CargoCommand) -> Self {
+        Self {
+            command: cargo_command.into_args(),
+        }
     }
 
     pub fn custom(command: Vec<String>) -> Self {

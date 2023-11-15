@@ -1,7 +1,8 @@
 use crate::check::RunCommand;
 use crate::cli::CargoMsrvOpts;
+use crate::command::cargo_command::CargoCommand;
 use crate::context::{
-    CargoCheckContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
+    CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
     UserOutputContext,
 };
 use crate::error::CargoMSRVError;
@@ -31,7 +32,7 @@ pub struct FindContext {
     pub toolchain: ToolchainContext,
 
     /// The context for checks to be used with rustup
-    pub check_cmd: CargoCheckContext,
+    pub check_cmd: CheckCommandContext,
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
@@ -77,7 +78,13 @@ impl FindContext {
         if let Some(custom) = &self.check_cmd.rustup_command {
             RunCommand::custom(custom.clone())
         } else {
-            RunCommand::default(self.toolchain.target.clone())
+            let cargo_command = CargoCommand::default()
+                .target(Some(self.toolchain.target.clone()))
+                .features(self.check_cmd.cargo_features.clone())
+                .all_features(self.check_cmd.cargo_all_features)
+                .no_default_features(self.check_cmd.cargo_no_default_features);
+
+            RunCommand::default(cargo_command)
         }
     }
 }
