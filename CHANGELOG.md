@@ -16,6 +16,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
 * Added option to refer to a specific crate using its Cargo manifest (with `--manifest-path`) instead of its path (with `--path`)
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
+* Added --features option, --all-features flag and --no-default-features flag, which are forwarded to the default compatibility check command
 
 ### Changed
 
