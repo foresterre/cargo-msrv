@@ -7,9 +7,6 @@ pub use scope::{Marker, Scope, ScopeCounter, ScopeGenerator, SupplyScopeGenerato
 #[cfg(test)]
 pub use scope::TestScopeGenerator;
 
-// shared
-pub use shared::compatibility::Compatibility;
-
 // events
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
