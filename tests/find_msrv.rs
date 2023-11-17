@@ -284,3 +284,100 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
 
     assert_eq!(actual_version, &expected_version);
 }
+
+#[test]
+fn cargo_features_option() {
+    let folder = fixtures_path().join("cargo-feature-required");
+
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--features",
+        "required_feature",
+        "--path",
+        folder.to_str().unwrap(),
+    ];
+
+    let versions = vec![
+        Release::new_stable(semver::Version::new(1, 58, 1)),
+        Release::new_stable(semver::Version::new(1, 56, 1)),
+    ];
+
+    let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+
+    let version = test_result.msrv().unwrap();
+
+    assert_eq!(version.major, 1);
+    assert_eq!(version.minor, 56);
+    assert_eq!(
+        test_result.successful_checks(),
+        &[
+            semver::Version::new(1, 58, 1),
+            semver::Version::new(1, 56, 1)
+        ]
+    );
+}
+
+#[test]
+fn cargo_all_features_flag() {
+    let folder = fixtures_path().join("cargo-feature-required");
+
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--all-features",
+        "--path",
+        folder.to_str().unwrap(),
+    ];
+
+    let versions = vec![
+        Release::new_stable(semver::Version::new(1, 58, 1)),
+        Release::new_stable(semver::Version::new(1, 56, 1)),
+    ];
+
+    let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+
+    let version = test_result.msrv().unwrap();
+
+    assert_eq!(version.major, 1);
+    assert_eq!(version.minor, 56);
+    assert_eq!(
+        test_result.successful_checks(),
+        &[
+            semver::Version::new(1, 58, 1),
+            semver::Version::new(1, 56, 1)
+        ]
+    );
+}
+
+#[test]
+fn cargo_no_default_features_flag() {
+    let folder = fixtures_path().join("cargo-feature-requires-none");
+
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--no-default-features",
+        "--path",
+        folder.to_str().unwrap(),
+    ];
+
+    let versions = vec![
+        Release::new_stable(semver::Version::new(1, 58, 1)),
+        Release::new_stable(semver::Version::new(1, 56, 1)),
+    ];
+
+    let test_result = find_msrv_with_releases(with_args, versions).unwrap();
+
+    let version = test_result.msrv().unwrap();
+
+    assert_eq!(version.major, 1);
+    assert_eq!(version.minor, 56);
+    assert_eq!(
+        test_result.successful_checks(),
+        &[
+            semver::Version::new(1, 58, 1),
+            semver::Version::new(1, 56, 1)
+        ]
+    );
+}

@@ -32,6 +32,7 @@ use rust_releases::semver;
 
 pub mod check;
 pub mod cli;
+
 pub mod error;
 pub mod exit_code;
 pub mod io;
@@ -39,7 +40,8 @@ pub mod reporter;
 pub mod toolchain;
 
 pub(crate) mod combinators;
-pub(crate) mod command;
+
+mod command;
 mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;

@@ -1,5 +1,6 @@
 use crate::check::Check;
-use crate::command::RustupCommand;
+use crate::command::cargo_command::CargoCommand;
+use crate::command::rustup_command::RustupCommand;
 use crate::context::EnvironmentContext;
 use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
@@ -214,15 +215,10 @@ pub struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn default(target: impl ToString) -> Self {
-        let command = vec![
-            "cargo".to_string(),
-            "check".to_string(),
-            "--target".to_string(),
-            target.to_string(),
-        ];
-
-        Self { command }
+    pub fn default(cargo_command: CargoCommand) -> Self {
+        Self {
+            command: cargo_command.into_args(),
+        }
     }
 
     pub fn custom(command: Vec<String>) -> Self {

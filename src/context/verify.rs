@@ -1,9 +1,11 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{
-    CheckCmdContext, EnvironmentContext, RustReleasesContext, ToolchainContext, UserOutputContext,
+    CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
+    UserOutputContext,
 };
 
 use crate::check::RunCommand;
+use crate::command::cargo_command::CargoCommand;
 use crate::error::CargoMSRVError;
 use crate::sub_command::verify::RustVersion;
 use std::convert::{TryFrom, TryInto};
@@ -26,7 +28,7 @@ pub struct VerifyContext {
     pub toolchain: ToolchainContext,
 
     /// The context for custom checks to be used with rustup
-    pub check_cmd: CheckCmdContext,
+    pub check_cmd: CheckCommandContext,
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
@@ -76,7 +78,13 @@ impl VerifyContext {
         if let Some(custom) = &self.check_cmd.rustup_command {
             RunCommand::custom(custom.clone())
         } else {
-            RunCommand::default(self.toolchain.target.clone())
+            let cargo_command = CargoCommand::default()
+                .target(Some(self.toolchain.target.clone()))
+                .features(self.check_cmd.cargo_features.clone())
+                .all_features(self.check_cmd.cargo_all_features)
+                .no_default_features(self.check_cmd.cargo_no_default_features);
+
+            RunCommand::default(cargo_command)
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::command::RustupCommand;
+use crate::command::rustup_command::RustupCommand;
 use crate::error::{CargoMSRVError, TResult};
 
 /// Uses the `.rustup/settings.toml` file to determine the default target (aka the

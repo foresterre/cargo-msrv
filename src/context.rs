@@ -25,7 +25,7 @@ pub mod set;
 pub mod show;
 pub mod verify;
 
-use crate::cli::custom_check_opts::CustomCheckOpts;
+use crate::cli::custom_check_opts::CheckCommandOpts;
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::default_target::default_target;
@@ -191,14 +191,23 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
 }
 
 #[derive(Debug)]
-pub struct CheckCmdContext {
+pub struct CheckCommandContext {
+    pub cargo_features: Option<Vec<String>>,
+
+    pub cargo_all_features: bool,
+
+    pub cargo_no_default_features: bool,
+
     /// The custom `Rustup` command to invoke for a toolchain.
     pub rustup_command: Option<Vec<String>>,
 }
 
-impl From<CustomCheckOpts> for CheckCmdContext {
-    fn from(opts: CustomCheckOpts) -> Self {
+impl From<CheckCommandOpts> for CheckCommandContext {
+    fn from(opts: CheckCommandOpts) -> Self {
         Self {
+            cargo_features: opts.features,
+            cargo_all_features: opts.all_features,
+            cargo_no_default_features: opts.no_default_features,
             rustup_command: opts.custom_check_command,
         }
     }

@@ -1,4 +1,4 @@
-use crate::command::RustupCommand;
+use crate::command::rustup_command::RustupCommand;
 use crate::error::RustupInstallFailed;
 use crate::reporter::event::SetupToolchain;
 use crate::toolchain::ToolchainSpec;
