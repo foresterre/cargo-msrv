@@ -10,14 +10,6 @@ pub fn package_msrv(package: &Package) -> Option<semver::Version> {
     package
         .rust_version
         .clone()
-        .map(|req| {
-            let comparator = &req.comparators[0];
-            crate::semver::Version::new(
-                comparator.major,
-                comparator.minor.unwrap_or_default(),
-                comparator.patch.unwrap_or_default(),
-            )
-        })
         .or_else(|| get_package_metadata_msrv(package))
         .or_else(|| parse_manifest_workaround(package.manifest_path.as_path())) // todo: add last one as option to config
 }

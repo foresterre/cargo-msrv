@@ -1,3 +1,5 @@
+#![allow(clippy::items_after_test_module)]
+
 extern crate cargo_msrv;
 
 use cargo_msrv::error::CargoMSRVError;
