@@ -36,6 +36,7 @@ mod tests {
         let event = CheckToolchain::new(ToolchainSpec::new(
             semver::Version::new(1, 2, 3),
             "test_target",
+            &[],
         ));
 
         reporter.get().report_event(event.clone()).unwrap();

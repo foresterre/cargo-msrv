@@ -65,7 +65,7 @@ mod tests {
     fn reported_event(method: Method) {
         let reporter = TestReporterWrapper::default();
         let event = CheckMethod::new(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             method,
         );
 

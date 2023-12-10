@@ -244,7 +244,10 @@ fn create_test_context() -> FindContext {
             consider_patch_releases: false,
             release_source: ReleaseSource::RustChangelog,
         },
-        toolchain: ToolchainContext { target: "x" },
+        toolchain: ToolchainContext {
+            target: "x",
+            components: &[],
+        },
         check_cmd: CheckCommandContext {
             cargo_features: None,
             cargo_all_features: false,

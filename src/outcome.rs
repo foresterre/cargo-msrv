@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn success_outcome() {
         let version = semver::Version::new(1, 2, 3);
-        let toolchain = ToolchainSpec::new(version, "x");
+        let toolchain = ToolchainSpec::new(version, "x", &[]);
 
         let outcome = Outcome::new_success(toolchain.clone());
 
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn failure_outcome() {
         let version = semver::Version::new(1, 2, 3);
-        let toolchain = ToolchainSpec::new(version, "x");
+        let toolchain = ToolchainSpec::new(version, "x", &[]);
 
         let outcome = Outcome::new_failure(toolchain.clone(), "msg".to_string());
 

@@ -324,7 +324,7 @@ mod tests {
 
         let search_space = search_space
             .iter()
-            .map(|r| RustRelease::new(r.clone(), "x"))
+            .map(|r| RustRelease::new(r.clone(), "x", &[]))
             .collect::<Vec<_>>();
 
         let result = bisect

@@ -48,8 +48,11 @@ mod tests {
     #[test]
     fn accept() {
         let version = semver::Version::new(1, 2, 3);
-        let rust_release =
-            RustRelease::new(rust_releases::Release::new_stable(version.clone()), "x");
+        let rust_release = RustRelease::new(
+            rust_releases::Release::new_stable(version.clone()),
+            "x",
+            &[],
+        );
         let msrv = MinimumSupportedRustVersion::toolchain(&rust_release);
 
         assert!(matches!(
@@ -60,8 +63,11 @@ mod tests {
     #[test]
     fn accept_from_option() {
         let version = semver::Version::new(1, 2, 3);
-        let rust_release =
-            RustRelease::new(rust_releases::Release::new_stable(version.clone()), "x");
+        let rust_release = RustRelease::new(
+            rust_releases::Release::new_stable(version.clone()),
+            "x",
+            &[],
+        );
         let msrv = MinimumSupportedRustVersion::from_option(Some(&rust_release));
 
         assert!(matches!(

@@ -27,10 +27,11 @@ impl Check for TestRunner {
             Ok(Outcome::new_success(ToolchainSpec::new(
                 v.clone(),
                 self.target,
+                &[],
             )))
         } else {
             Ok(Outcome::new_failure(
-                ToolchainSpec::new(v.clone(), self.target),
+                ToolchainSpec::new(v.clone(), self.target, &[]),
                 "f".to_string(),
             ))
         }

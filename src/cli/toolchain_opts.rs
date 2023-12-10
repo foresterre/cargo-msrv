@@ -8,4 +8,10 @@ pub struct ToolchainOpts {
     /// Check against a custom target (instead of the rustup default)
     #[arg(long, value_name = "TARGET")]
     pub target: Option<String>,
+
+    /// Components be added to the toolchain
+    ///
+    /// Can be supplied multiple times to add multiple components.
+    #[arg(long, value_name = "COMPONENT")]
+    pub add_component: Vec<String>,
 }
