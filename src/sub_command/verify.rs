@@ -67,8 +67,8 @@ fn verify_msrv(
     let version =
         bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
 
-    let target = ctx.toolchain.target.as_str();
-    let toolchain = ToolchainSpec::new(version, target);
+    let target = ctx.toolchain.target;
+    let toolchain = ToolchainSpec::new(version.clone(), target);
 
     match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),

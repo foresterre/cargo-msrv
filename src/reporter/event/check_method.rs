@@ -1,17 +1,17 @@
 use crate::reporter::event::Message;
-use crate::toolchain::OwnedToolchainSpec;
+use crate::toolchain::ToolchainSpec;
 use crate::Event;
 use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct CheckMethod {
-    toolchain: OwnedToolchainSpec,
+    toolchain: ToolchainSpec,
     method: Method,
 }
 
 impl CheckMethod {
-    pub fn new(toolchain: impl Into<OwnedToolchainSpec>, method: Method) -> Self {
+    pub fn new(toolchain: impl Into<ToolchainSpec>, method: Method) -> Self {
         Self {
             toolchain: toolchain.into(),
             method,
@@ -65,7 +65,7 @@ mod tests {
     fn reported_event(method: Method) {
         let reporter = TestReporterWrapper::default();
         let event = CheckMethod::new(
-            OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
             method,
         );
 

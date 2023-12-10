@@ -112,7 +112,7 @@ mod tests {
     };
     use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
     use crate::semver;
-    use crate::toolchain::OwnedToolchainSpec;
+    use crate::toolchain::ToolchainSpec;
     use camino::Utf8Path;
     use cargo_metadata::PackageId;
     use storyteller::EventHandler;
@@ -232,8 +232,8 @@ mod tests {
 
     #[test]
     fn verify_true() {
-        let event = VerifyResult::compatible(OwnedToolchainSpec::new(
-            &semver::Version::new(1, 2, 3),
+        let event = VerifyResult::compatible(ToolchainSpec::new(
+            semver::Version::new(1, 2, 3),
             "test_target",
         ));
 
@@ -254,7 +254,7 @@ mod tests {
     #[test]
     fn verify_false_no_error_message() {
         let event = VerifyResult::incompatible(
-            OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
             None,
         );
 
@@ -275,7 +275,7 @@ mod tests {
     #[test]
     fn verify_false_with_error_message() {
         let event = VerifyResult::incompatible(
-            OwnedToolchainSpec::new(&semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
             Some("error message".to_string()),
         );
 

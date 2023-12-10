@@ -79,7 +79,7 @@ impl VerifyContext {
             RunCommand::custom(custom.clone())
         } else {
             let cargo_command = CargoCommand::default()
-                .target(Some(self.toolchain.target.clone()))
+                .target(Some(self.toolchain.target))
                 .features(self.check_cmd.cargo_features.clone())
                 .all_features(self.check_cmd.cargo_all_features)
                 .no_default_features(self.check_cmd.cargo_no_default_features);

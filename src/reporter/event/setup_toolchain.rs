@@ -1,15 +1,15 @@
 use crate::reporter::event::Message;
-use crate::toolchain::OwnedToolchainSpec;
+use crate::toolchain::ToolchainSpec;
 use crate::Event;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct SetupToolchain {
-    toolchain: OwnedToolchainSpec,
+    toolchain: ToolchainSpec,
 }
 
 impl SetupToolchain {
-    pub fn new(toolchain: impl Into<OwnedToolchainSpec>) -> Self {
+    pub fn new(toolchain: impl Into<ToolchainSpec>) -> Self {
         Self {
             toolchain: toolchain.into(),
         }
@@ -33,8 +33,8 @@ mod tests {
     #[test]
     fn reported_event() {
         let reporter = TestReporterWrapper::default();
-        let event = SetupToolchain::new(OwnedToolchainSpec::new(
-            &semver::Version::new(1, 2, 3),
+        let event = SetupToolchain::new(ToolchainSpec::new(
+            semver::Version::new(1, 2, 3),
             "test_target",
         ));
 

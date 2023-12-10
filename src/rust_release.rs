@@ -6,20 +6,18 @@ use crate::toolchain::ToolchainSpec;
 #[derive(Clone, Debug, PartialEq)]
 pub struct RustRelease {
     release: rust_releases::Release,
-    target: String,
+    target: &'static str,
 }
 
 impl RustRelease {
-    pub fn new(release: rust_releases::Release, target: impl Into<String>) -> Self {
-        Self {
-            release,
-            target: target.into(),
-        }
+    pub fn new(release: rust_releases::Release, target: &'static str) -> Self {
+        Self { release, target }
     }
 
     /// Get the [`ToolchainSpec`] for the given Rust release.
-    pub fn as_toolchain_spec(&self) -> ToolchainSpec {
-        ToolchainSpec::new(self.release.version(), &self.target)
+    pub fn to_toolchain_spec(&self) -> ToolchainSpec {
+        let version = self.release.version();
+        ToolchainSpec::new(version.clone(), self.target)
     }
 }
 
@@ -34,9 +32,9 @@ mod tests {
         let version = semver::Version::new(1, 2, 3);
         let rust_release =
             RustRelease::new(rust_releases::Release::new_stable(version.clone()), "x");
-        let spec = rust_release.as_toolchain_spec();
+        let spec = rust_release.to_toolchain_spec();
 
-        let expected = ToolchainSpec::new(&version, "x");
+        let expected = ToolchainSpec::new(version, "x");
         assert_eq!(spec, expected);
     }
 }
