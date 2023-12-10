@@ -58,6 +58,7 @@ mod tests {
         let event = VerifyResult::compatible(ToolchainSpec::new(
             semver::Version::new(1, 2, 3),
             "test_target",
+            &[],
         ));
 
         reporter.get().report_event(event.clone()).unwrap();
@@ -77,7 +78,7 @@ mod tests {
     fn reported_incompatible_toolchain(error_message: Option<String>) {
         let reporter = TestReporterWrapper::default();
         let event = VerifyResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             error_message,
         );
 

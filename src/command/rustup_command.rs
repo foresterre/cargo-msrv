@@ -60,6 +60,10 @@ impl RustupCommand {
         self.execute(OsStr::new("target"))
     }
 
+    pub fn component(self) -> TResult<RustupOutput> {
+        self.execute(OsStr::new("component"))
+    }
+
     /// Execute a given `rustup` command.
     ///
     /// See also:

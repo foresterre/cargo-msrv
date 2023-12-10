@@ -174,6 +174,9 @@ impl RustReleasesContext {
 pub struct ToolchainContext {
     /// The target of the toolchain
     pub target: &'static str,
+
+    /// Components to be installed for the toolchain
+    pub components: &'static [&'static str],
 }
 
 impl TryFrom<ToolchainOpts> for ToolchainContext {
@@ -188,7 +191,17 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
 
         let target: &'static str = String::leak(target);
 
-        Ok(Self { target })
+        let components: &'static [&'static str] = Vec::leak(
+            opts.add_component
+                .into_iter()
+                .map(|s| {
+                    let s: &'static str = String::leak(s);
+                    s
+                })
+                .collect(),
+        );
+
+        Ok(Self { target, components })
     }
 }
 

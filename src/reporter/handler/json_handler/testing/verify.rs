@@ -9,6 +9,7 @@ fn handler_success() {
     let event = VerifyResult::compatible(ToolchainSpec::new(
         semver::Version::new(1, 2, 3),
         "my-target",
+        &[],
     ));
 
     let writer = Vec::new();
@@ -25,6 +26,7 @@ fn handler_success() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": true,
         }
@@ -38,6 +40,7 @@ fn event_success() {
     let event = VerifyResult::compatible(ToolchainSpec::new(
         semver::Version::new(1, 2, 3),
         "my-target",
+        &[],
     ));
 
     let expected = serde_json::json!({
@@ -45,6 +48,7 @@ fn event_success() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": true,
         }
@@ -57,7 +61,7 @@ fn event_success() {
 #[test]
 fn handler_failure_with_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target"),
+        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         Some("Hello World".to_string()),
     );
 
@@ -75,6 +79,7 @@ fn handler_failure_with_message() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": false,
             "error": "Hello World",
@@ -87,7 +92,7 @@ fn handler_failure_with_message() {
 #[test]
 fn event_failure_with_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target"),
+        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         Some("Hello World".to_string()),
     );
 
@@ -96,6 +101,7 @@ fn event_failure_with_message() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": false,
             "error": "Hello World",
@@ -109,7 +115,7 @@ fn event_failure_with_message() {
 #[test]
 fn handler_failure_without_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target"),
+        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         None,
     );
 
@@ -127,6 +133,7 @@ fn handler_failure_without_message() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": false,
         }
@@ -138,7 +145,7 @@ fn handler_failure_without_message() {
 #[test]
 fn event_failure_without_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target"),
+        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         None,
     );
 
@@ -147,6 +154,7 @@ fn event_failure_without_message() {
             "toolchain": {
                 "target": "my-target",
                 "version": "1.2.3",
+                "components": [],
             },
             "is_compatible": false,
         }

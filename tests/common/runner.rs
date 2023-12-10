@@ -27,16 +27,18 @@ impl TestRunner {
 
 impl Check for TestRunner {
     fn check(&self, toolchain: &ToolchainSpec) -> Result<Outcome, CargoMSRVError> {
-        let v = toolchain.version();
+        let version = toolchain.version();
+        let components = toolchain.components();
 
         if self.accept_versions.contains(toolchain.version()) {
             Ok(Outcome::new_success(ToolchainSpec::new(
-                v.clone(),
+                version.clone(),
                 self.target,
+                components,
             )))
         } else {
             Ok(Outcome::new_failure(
-                ToolchainSpec::new(v.clone(), self.target),
+                ToolchainSpec::new(version.clone(), self.target, components),
                 "f".to_string(),
             ))
         }

@@ -75,7 +75,7 @@ mod tests {
 
     fn to_rust_releases<'r>(iter: impl IntoIterator<Item = &'r Release>) -> Vec<RustRelease> {
         iter.into_iter()
-            .map(|r| RustRelease::new(r.clone(), "x"))
+            .map(|r| RustRelease::new(r.clone(), "x", &[]))
             .collect()
     }
 
@@ -123,7 +123,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: ToolchainSpec::new(semver::Version::new(1, 54, 0), "x"),
+            toolchain: ToolchainSpec::new(semver::Version::new(1, 54, 0), "x", &[]),
         };
 
         assert_eq!(actual, expected);
@@ -152,7 +152,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: ToolchainSpec::new(semver::Version::new(1, 56, 0), "x"),
+            toolchain: ToolchainSpec::new(semver::Version::new(1, 56, 0), "x", &[]),
         };
 
         assert_eq!(actual, expected);

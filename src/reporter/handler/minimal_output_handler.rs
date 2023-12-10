@@ -235,6 +235,7 @@ mod tests {
         let event = VerifyResult::compatible(ToolchainSpec::new(
             semver::Version::new(1, 2, 3),
             "test_target",
+            &[],
         ));
 
         let s = Vec::new();
@@ -254,7 +255,7 @@ mod tests {
     #[test]
     fn verify_false_no_error_message() {
         let event = VerifyResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             None,
         );
 
@@ -275,7 +276,7 @@ mod tests {
     #[test]
     fn verify_false_with_error_message() {
         let event = VerifyResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target"),
+            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             Some("error message".to_string()),
         );
 
