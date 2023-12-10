@@ -25,7 +25,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         release: &RustRelease,
         _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
-        let toolchain = release.as_toolchain_spec();
+        let toolchain = release.to_toolchain_spec();
 
         match runner.check(&toolchain) {
             Ok(outcome) => match outcome {

@@ -173,7 +173,7 @@ impl RustReleasesContext {
 #[derive(Debug)]
 pub struct ToolchainContext {
     /// The target of the toolchain
-    pub target: String,
+    pub target: &'static str,
 }
 
 impl TryFrom<ToolchainOpts> for ToolchainContext {
@@ -185,6 +185,8 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
         } else {
             default_target()?
         };
+
+        let target: &'static str = String::leak(target);
 
         Ok(Self { target })
     }

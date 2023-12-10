@@ -19,7 +19,7 @@ impl<'runner, R: Check> Linear<'runner, R> {
     }
 
     fn run_check(runner: &R, release: &RustRelease, _reporter: &impl Reporter) -> TResult<Outcome> {
-        let toolchain = release.as_toolchain_spec();
+        let toolchain = release.to_toolchain_spec();
         runner.check(&toolchain)
     }
 }
@@ -69,7 +69,7 @@ mod tests {
     use crate::check::TestRunner;
     use crate::reporter::TestReporterWrapper;
     use crate::semver;
-    use crate::toolchain::OwnedToolchainSpec;
+    use crate::toolchain::ToolchainSpec;
     use rust_releases::{Release, ReleaseIndex};
     use std::iter::FromIterator;
 
@@ -123,7 +123,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: OwnedToolchainSpec::new(&semver::Version::new(1, 54, 0), "x"),
+            toolchain: ToolchainSpec::new(semver::Version::new(1, 54, 0), "x"),
         };
 
         assert_eq!(actual, expected);
@@ -152,7 +152,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: OwnedToolchainSpec::new(&semver::Version::new(1, 56, 0), "x"),
+            toolchain: ToolchainSpec::new(semver::Version::new(1, 56, 0), "x"),
         };
 
         assert_eq!(actual, expected);

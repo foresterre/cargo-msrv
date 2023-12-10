@@ -137,7 +137,7 @@ fn run_searcher(
 ) -> TResult<MinimumSupportedRustVersion> {
     let searchable_releases = releases
         .iter()
-        .map(|r| RustRelease::new(r.clone(), &ctx.toolchain.target))
+        .map(|r| RustRelease::new(r.clone(), ctx.toolchain.target))
         .collect::<Vec<_>>();
     let minimum_capable = method
         .find_toolchain(&searchable_releases, reporter)
@@ -178,7 +178,7 @@ fn report_outcome(
         .clone()
         .unwrap_or(max);
 
-    let target = ctx.toolchain.target.as_str();
+    let target = ctx.toolchain.target;
     let search_method = ctx.search_method;
 
     match minimum_capable {

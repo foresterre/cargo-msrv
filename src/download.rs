@@ -27,6 +27,7 @@ impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter
         self.reporter
             .run_scoped_event(SetupToolchain::new(toolchain.to_owned()), || {
                 install_toolchain(toolchain).and_then(|_| add_target(toolchain))
+                // .and_then(|_| add_components(toolchain))
             })
     }
 }
