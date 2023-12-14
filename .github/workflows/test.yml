@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ubuntu-stable, macos-stable, win-gnu-stable, win-msvc-stable, ubuntu-beta]
+        build: [ubuntu-stable, macos-stable, win-msvc-stable, ubuntu-beta] # win-gnu-stable
         include:
           - build: ubuntu-stable
             os: ubuntu-latest
@@ -27,9 +27,12 @@ jobs:
             os: macOS-latest
             rust: stable
 
-          - build: win-gnu-stable
-            os: windows-latest
-            rust: stable-x86_64-gnu
+           # FIXME: This is currently broken, see below.
+           # * https://github.com/foresterre/cargo-msrv/pull/842
+           # * https://github.com/rust-lang/rust/issues/112368
+#          - build: win-gnu-stable
+#            os: windows-latest
+#            rust: stable-x86_64-gnu
 
           - build: win-msvc-stable
             os: windows-latest
