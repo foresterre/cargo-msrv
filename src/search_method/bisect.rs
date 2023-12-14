@@ -122,7 +122,6 @@ mod tests {
     use crate::rust_release::RustRelease;
     use crate::search_method::FindMinimalSupportedRustVersion;
     use crate::semver;
-    use crate::semver::Version;
 
     use super::Bisect;
 
@@ -137,7 +136,7 @@ mod tests {
                 semver::Version::new(1, 57, 0),
                 semver::Version::new(1, 56, 1),
             ],
-            Version::new(1, 56, 1)
+            semver::Version::new(1, 56, 1)
         },
         one_option = {
             &[
@@ -180,7 +179,7 @@ mod tests {
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
             ],
-            Version::new(1, 57, 0)
+            semver::Version::new(1, 57, 0)
         },
         search_space_of_2_most_recent_one_succeeds = {
             &[
@@ -189,7 +188,7 @@ mod tests {
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
-            Version::new(1, 58, 0)
+            semver::Version::new(1, 58, 0)
         },
         search_space_of_4_all_succeed = {
             &[
@@ -203,7 +202,7 @@ mod tests {
                 semver::Version::new(1, 56, 0),
                 semver::Version::new(1, 55, 0),
             ],
-            Version::new(1, 55, 0)
+            semver::Version::new(1, 55, 0)
         },
         search_space_of_4_most_recent_three_succeed = {
             &[
@@ -216,7 +215,7 @@ mod tests {
                 semver::Version::new(1, 57, 0),
                 semver::Version::new(1, 56, 0),
             ],
-            Version::new(1, 56, 0)
+            semver::Version::new(1, 56, 0)
         },
         search_space_of_4_most_recent_two_succeed = {
             &[
@@ -228,7 +227,7 @@ mod tests {
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
             ],
-            Version::new(1, 57, 0)
+            semver::Version::new(1, 57, 0)
         },
         search_space_of_4_most_recent_one_succeeds = {
             &[
@@ -239,7 +238,7 @@ mod tests {
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
-            Version::new(1, 58, 0)
+            semver::Version::new(1, 58, 0)
         },
         search_space_of_5_all_succeed = {
             &[
@@ -255,7 +254,7 @@ mod tests {
                 semver::Version::new(1, 55, 0),
                 semver::Version::new(1, 54, 0),
             ],
-            Version::new(1, 54, 0)
+            semver::Version::new(1, 54, 0)
         },
         search_space_of_5_most_recent_four_succeed = {
             &[
@@ -270,7 +269,7 @@ mod tests {
                 semver::Version::new(1, 56, 0),
                 semver::Version::new(1, 55, 0),
             ],
-            Version::new(1, 55, 0)
+            semver::Version::new(1, 55, 0)
         },
         search_space_of_5_most_recent_three_succeed = {
             &[
@@ -284,7 +283,7 @@ mod tests {
                 semver::Version::new(1, 57, 0),
                 semver::Version::new(1, 56, 0),
             ],
-            Version::new(1, 56, 0)
+            semver::Version::new(1, 56, 0)
         },
         search_space_of_5_most_recent_two_succeed = {
             &[
@@ -297,7 +296,7 @@ mod tests {
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
             ],
-            Version::new(1, 57, 0)
+            semver::Version::new(1, 57, 0)
         },
         search_space_of_5_most_recent_one_succeeds = {
             &[
@@ -309,13 +308,13 @@ mod tests {
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
-            Version::new(1, 58, 0)
+            semver::Version::new(1, 58, 0)
         },
     )]
     fn find_toolchain_with_bisect(
         search_space: &[Release],
-        accept: &[Version],
-        expected_msrv: Version,
+        accept: &[semver::Version],
+        expected_msrv: semver::Version,
     ) {
         let runner = TestRunner::with_ok("x", accept);
         let bisect = Bisect::new(&runner);
