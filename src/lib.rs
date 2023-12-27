@@ -46,7 +46,6 @@ pub(crate) mod dependency_graph;
 pub(crate) mod download;
 pub(crate) mod formatting;
 pub(crate) mod lockfile;
-pub(crate) mod log_level;
 pub(crate) mod manifest;
 pub(crate) mod msrv;
 pub(crate) mod outcome;

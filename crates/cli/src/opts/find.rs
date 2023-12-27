@@ -1,6 +1,6 @@
-use crate::cli::custom_check_opts::CustomCheckOpts;
-use crate::cli::rust_releases_opts::RustReleasesOpts;
-use crate::cli::toolchain_opts::ToolchainOpts;
+use crate::opts::custom_check::CustomCheckOpts;
+use crate::opts::rust_releases::RustReleasesOpts;
+use crate::opts::toolchain::ToolchainOpts;
 use clap::Args;
 
 // Cli Options for top-level cargo-msrv (find) command

@@ -1,4 +1,4 @@
-use crate::semver;
+use semver;
 
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};

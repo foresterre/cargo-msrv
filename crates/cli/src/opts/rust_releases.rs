@@ -1,8 +1,8 @@
-use crate::manifest::bare_version;
-use crate::manifest::bare_version::BareVersion;
-use crate::ReleaseSource;
 use clap::Args;
 use std::str::FromStr;
+use types::bare_version;
+use types::bare_version::BareVersion;
+use types::release_source::ReleaseSource;
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Rust releases options")]

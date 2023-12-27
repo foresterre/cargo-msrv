@@ -2,20 +2,21 @@ use crate::manifest::bare_version;
 use crate::semver;
 use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
+use types::bare_version::BareVersion;
 
 /// Filter releases based on the given configuration.
 pub struct ReleasesFilter<'ctx> {
     include_all_patch_releases: bool,
-    minimum_version: Option<&'ctx bare_version::BareVersion>,
-    maximum_version: Option<&'ctx bare_version::BareVersion>,
+    minimum_version: Option<&'ctx BareVersion>,
+    maximum_version: Option<&'ctx BareVersion>,
 }
 
 impl<'ctx> ReleasesFilter<'ctx> {
     /// Initiate a new filter
     pub fn new(
         include_all_patch_releases: bool,
-        minimum_version: Option<&'ctx bare_version::BareVersion>,
-        maximum_version: Option<&'ctx bare_version::BareVersion>,
+        minimum_version: Option<&'ctx BareVersion>,
+        maximum_version: Option<&'ctx BareVersion>,
     ) -> Self {
         Self {
             include_all_patch_releases,
@@ -48,8 +49,8 @@ impl<'ctx> ReleasesFilter<'ctx> {
 
 fn include_version(
     current: &semver::Version,
-    min_version: Option<&bare_version::BareVersion>,
-    max_version: Option<&bare_version::BareVersion>,
+    min_version: Option<&BareVersion>,
+    max_version: Option<&BareVersion>,
 ) -> bool {
     match (min_version, &max_version) {
         (Some(min), Some(max)) => min.is_at_least(current) && max.is_at_most(current),
@@ -61,7 +62,6 @@ fn include_version(
 
 #[cfg(test)]
 mod tests {
-    use crate::manifest::bare_version::BareVersion;
     use parameterized::{ide, parameterized};
     use rust_releases::semver::Version;
 

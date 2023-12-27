@@ -1,0 +1,15 @@
+[package]
+name = "types"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+semver = "1"
+thiserror = "1"
+serde = "1"
+
+[features]
+default = ["rust-releases-dist-source"]
+rust-releases-dist-source = []

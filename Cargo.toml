@@ -40,9 +40,12 @@ tracing = "0.1" # tracing
 tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
 
+cli = { path = "crates/cli" }
+types = { path = "crates/types" }
+
 [features]
 default = ["rust-releases-dist-source"]
-rust-releases-dist-source = ["rust-releases/rust-dist"]
+rust-releases-dist-source = ["rust-releases/rust-dist", "types/rust-releases-dist-source"]
 
 [dev-dependencies]
 parameterized = "1.1.0"
@@ -56,3 +59,15 @@ vergen = { version = "8.2.5", default-features = false, features = ["build", "ca
 [profile.release]
 lto = true
 codegen-units = 1
+
+[workspace]
+members = [
+    "crates/cli",
+    "crates/events",
+    "crates/msrv",
+    "crates/reporter-human",
+    "crates/reporter-json",
+    "crates/reporter-minimal",
+    "crates/tracing",
+    "crates/types",
+]

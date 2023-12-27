@@ -1,18 +1,12 @@
-use crate::cli::custom_check_opts::CustomCheckOpts;
-use crate::cli::find_opts::FindOpts;
-use crate::cli::rust_releases_opts::RustReleasesOpts;
-use crate::cli::shared_opts::SharedOpts;
-use crate::cli::toolchain_opts::ToolchainOpts;
-use crate::context::list::ListMsrvVariant;
-use crate::manifest::bare_version::BareVersion;
+use crate::opts::custom_check::CustomCheckOpts;
+use crate::opts::find::FindOpts;
+use crate::opts::rust_releases::RustReleasesOpts;
+use crate::opts::shared::SharedOpts;
+use crate::opts::toolchain::ToolchainOpts;
 use clap::{Args, Parser, Subcommand};
 use std::ffi::{OsStr, OsString};
 
-pub(crate) mod custom_check_opts;
-pub(crate) mod find_opts;
-pub(crate) mod rust_releases_opts;
-pub(crate) mod shared_opts;
-pub(crate) mod toolchain_opts;
+mod opts;
 
 #[derive(Debug, Parser)]
 #[command(version, name = "cargo", bin_name = "cargo", max_term_width = 120)]

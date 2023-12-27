@@ -1,5 +1,3 @@
-use crate::context::{OutputFormat, TracingTargetOption};
-use crate::log_level::LogLevel;
 use clap::{ArgGroup, Args, ValueHint};
 use std::path::PathBuf;
 
