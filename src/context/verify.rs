@@ -5,8 +5,8 @@ use crate::context::{
 };
 
 use crate::check::RunCommand;
-use crate::command::cargo_command::CargoCommand;
 use crate::error::CargoMSRVError;
+use crate::external_command::cargo_command::CargoCommand;
 use crate::sub_command::verify::RustVersion;
 use std::convert::{TryFrom, TryInto};
 
