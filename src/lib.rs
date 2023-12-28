@@ -41,11 +41,11 @@ pub mod toolchain;
 
 pub(crate) mod combinators;
 
-mod command;
 mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 pub(crate) mod download;
+mod external_command;
 pub(crate) mod formatting;
 pub(crate) mod lockfile;
 pub(crate) mod log_level;

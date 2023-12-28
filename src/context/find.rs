@@ -1,11 +1,11 @@
 use crate::check::RunCommand;
 use crate::cli::CargoMsrvOpts;
-use crate::command::cargo_command::CargoCommand;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
     UserOutputContext,
 };
 use crate::error::CargoMSRVError;
+use crate::external_command::cargo_command::CargoCommand;
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]
