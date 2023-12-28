@@ -39,8 +39,6 @@ pub mod io;
 pub mod reporter;
 pub mod toolchain;
 
-pub(crate) mod combinators;
-
 mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
