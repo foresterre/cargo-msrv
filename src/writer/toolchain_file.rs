@@ -1,4 +1,3 @@
-use crate::combinators::ThenSome;
 use crate::error::{IoError, IoErrorSource};
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
@@ -40,12 +39,12 @@ pub fn write_toolchain_file(
 fn toolchain_file(path: &Utf8Path) -> Utf8PathBuf {
     fn without_extension(path: &Utf8Path) -> Option<Utf8PathBuf> {
         let file = path.join(TOOLCHAIN_FILE);
-        ThenSome::then_some(file.exists(), file)
+        file.exists().then_some(file)
     }
 
     fn with_extension(path: &Utf8Path) -> Option<Utf8PathBuf> {
         let file = path.join(TOOLCHAIN_FILE_TOML);
-        ThenSome::then_some(file.exists(), file)
+        file.exists().then_some(file)
     }
 
     // Without extension variant has precedence over with extension variant
