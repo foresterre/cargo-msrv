@@ -12,7 +12,8 @@
 #![allow(
     clippy::upper_case_acronyms,
     clippy::unnecessary_wraps,
-    clippy::uninlined_format_args
+    clippy::uninlined_format_args,
+    clippy::items_after_test_module
 )]
 
 extern crate core;
