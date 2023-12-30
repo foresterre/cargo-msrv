@@ -40,6 +40,8 @@ pub mod io;
 pub mod reporter;
 pub mod toolchain;
 
+pub mod cargo_msrv;
+
 mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
