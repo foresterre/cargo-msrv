@@ -9,7 +9,6 @@ use std::string::FromUtf8Error;
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::log_level::ParseLogLevelError;
 use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
-use crate::manifest::reader::ManifestReaderError;
 use crate::manifest::ManifestParseError;
 use rust_releases::Release;
 
@@ -51,9 +50,6 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     ManifestParseError(#[from] ManifestParseError),
-
-    #[error(transparent)]
-    ManifestReaderError(#[from] ManifestReaderError),
 
     #[error("No crate root found for given crate")]
     NoCrateRootFound,

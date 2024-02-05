@@ -1,10 +1,9 @@
 use crate::manifest::bare_version::BareVersion;
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
+use crate::manifest::CargoManifest;
 use crate::semver;
-use cargo_metadata::Package;
+use cargo_metadata::{MetadataCommand, Package};
 use std::convert::TryFrom;
 use std::path::Path;
-use toml_edit::Document;
 
 pub fn package_msrv(package: &Package) -> Option<semver::Version> {
     package
@@ -22,10 +21,11 @@ pub fn format_version(version: Option<&semver::Version>) -> Option<String> {
 //  rust-version
 pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semver::Version> {
     fn parse(path: &Path) -> Option<semver::Version> {
-        std::fs::read_to_string(path)
+        MetadataCommand::new()
+            .manifest_path(path)
+            .exec()
             .ok()
-            .and_then(|contents| CargoManifestParser.parse::<Document>(&contents).ok())
-            .and_then(|map| CargoManifest::try_from(map).ok())
+            .and_then(|metadata| CargoManifest::try_from(metadata).ok())
             .and_then(|manifest| manifest.minimum_rust_version().map(ToOwned::to_owned))
             .map(|version: BareVersion| version.to_semver_version())
     }
