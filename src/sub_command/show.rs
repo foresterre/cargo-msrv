@@ -1,12 +1,11 @@
 use camino::Utf8PathBuf;
+use cargo_metadata::MetadataCommand;
 use std::convert::TryFrom;
 
-use toml_edit::Document;
-
 use crate::context::ShowContext;
-use crate::error::{IoError, IoErrorSource, TResult};
+use crate::error::TResult;
 
-use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
+use crate::manifest::CargoManifest;
 use crate::reporter::event::ShowResult;
 use crate::reporter::Reporter;
 use crate::SubCommand;
@@ -26,13 +25,8 @@ impl SubCommand for Show {
 fn show_msrv(ctx: &ShowContext, reporter: &impl Reporter) -> TResult<()> {
     let cargo_toml = ctx.environment.manifest();
 
-    let contents = std::fs::read_to_string(&cargo_toml).map_err(|error| IoError {
-        error,
-        source: IoErrorSource::ReadFile(cargo_toml.to_path_buf()),
-    })?;
-
-    let manifest = CargoManifestParser.parse::<Document>(&contents)?;
-    let manifest = CargoManifest::try_from(manifest)?;
+    let metadata = MetadataCommand::new().manifest_path(&cargo_toml).exec()?;
+    let manifest = CargoManifest::try_from(metadata)?;
 
     let msrv = manifest
         .minimum_rust_version()

@@ -1,9 +1,9 @@
 use crate::manifest::bare_version::BareVersion;
+use cargo_metadata::{semver, Metadata};
 use std::convert::TryFrom;
-use toml_edit::{Document, Item, TomlError};
+use toml_edit::{Document, TomlError};
 
 pub(crate) mod bare_version;
-pub mod reader;
 
 pub trait TomlParser {
     type Error;
@@ -65,11 +65,11 @@ impl From<bare_version::Error> for ManifestParseError {
     }
 }
 
-impl TryFrom<Document> for CargoManifest {
+impl TryFrom<Metadata> for CargoManifest {
     type Error = ManifestParseError;
 
-    fn try_from(map: Document) -> Result<Self, Self::Error> {
-        let minimum_rust_version = minimum_rust_version(&map)?;
+    fn try_from(metadata: Metadata) -> Result<Self, Self::Error> {
+        let minimum_rust_version = find_minimum_rust_version(&metadata)?;
 
         Ok(Self {
             minimum_rust_version,
@@ -77,113 +77,96 @@ impl TryFrom<Document> for CargoManifest {
     }
 }
 
-fn minimum_rust_version(value: &Document) -> Result<Option<BareVersion>, bare_version::Error> {
-    let version = match find_minimum_rust_version(value) {
-        Some(version) => version,
-        None => return Ok(None),
-    };
-
-    Ok(Some(version.parse()?))
-}
-
-/// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` manifest data.
-fn find_minimum_rust_version(document: &Document) -> Option<&str> {
+/// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` metadata.
+fn find_minimum_rust_version(
+    metadata: &Metadata,
+) -> Result<Option<BareVersion>, bare_version::Error> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-    fn find_rust_version(document: &Document) -> Option<&str> {
-        document
-            .as_table()
-            .get("package")
-            .and_then(Item::as_table)
-            .and_then(|package| package.get("rust-version"))
-            .and_then(Item::as_str)
+    fn find_rust_version(metadata: &Metadata) -> Option<&semver::Version> {
+        metadata.root_package()?.rust_version.as_ref()
     }
 
     /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
     /// 1.56.0
-    fn find_metadata_msrv(document: &Document) -> Option<&str> {
-        document
-            .as_table()
-            .get("package")
-            .and_then(Item::as_table)
-            .and_then(|package| package.get("metadata"))
-            .and_then(Item::as_table_like)
-            .and_then(|metadata| metadata.get("msrv"))
-            .and_then(Item::as_str)
+    fn find_metadata_msrv(metadata: &Metadata) -> Option<&str> {
+        metadata
+            .root_package()?
+            .metadata
+            .as_object()?
+            .get("msrv")?
+            .as_str()
     }
 
     // Parse the MSRV from the `package.rust-version` key if it exists,
     // and try to fallback to our own `package.metadata.msrv` if it doesn't
-    find_rust_version(document).or_else(|| find_metadata_msrv(document))
+    match find_rust_version(metadata) {
+        Some(version) => Ok(Some(BareVersion::from(version))),
+        None => find_metadata_msrv(metadata)
+            .map(BareVersion::try_from)
+            .transpose(),
+    }
 }
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::manifest::bare_version::Error;
-    use crate::manifest::{
-        BareVersion, CargoManifest, CargoManifestParser, ManifestParseError, TomlParser,
-    };
+    use crate::manifest::{BareVersion, CargoManifest};
+    use cargo_metadata::Metadata;
     use std::convert::TryFrom;
-    use toml_edit::Document;
 
-    #[test]
-    fn parse_toml() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-"#;
-
-        assert!(CargoManifestParser.parse::<Document>(contents).is_ok());
-    }
-
-    #[test]
-    fn parse_invalid_toml() {
-        let contents = r#"-[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-"#;
-
-        assert!(CargoManifestParser.parse::<Document>(contents).is_err());
+    fn metadata_json(rust_version: Option<&str>, metadata: Option<&str>) -> String {
+        let rust_version = match rust_version {
+            Some(rust_version) => format!(r#""rust_version": "{}","#, rust_version),
+            None => "".to_string(),
+        };
+        let metadata = match metadata {
+            Some(metadata) => format!(r#""metadata": {},"#, metadata),
+            None => "".to_string(),
+        };
+        format!(
+            r#"{{
+  "packages": [
+    {{
+      "name": "some",
+      "version": "0.1.0",
+      "id": "some 0.1.0 (path+file:///some)",
+      "manifest_path": "/some/Cargo.toml",
+      {}
+      {}
+      "dependencies": [],
+      "targets": [],
+      "features": {{}},
+      "edition": "2018"
+    }}
+  ],
+  "workspace_members": [
+    "some 0.1.0 (path+file:///some)"
+  ],
+  "target_directory": "/some/target",
+  "version": 1,
+  "workspace_root": "/some"
+}}"#,
+            rust_version, metadata
+        )
     }
 
     #[test]
     fn parse_no_minimum_rust_version() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
+        let metadata = metadata_json(None, None);
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let manifest = CargoManifest::try_from(metadata).unwrap();
 
         assert!(manifest.minimum_rust_version.is_none());
     }
 
     #[test]
     fn parse_rust_version_three_components() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-rust-version = "1.56.0"
+        let metadata = metadata_json(Some("1.56.0"), None);
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
         assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
@@ -191,89 +174,33 @@ rust-version = "1.56.0"
 
     #[test]
     fn parse_rust_version_three_components_with_pre_release() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-rust-version = "1.56.0-nightly"
-
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let parse_err = CargoManifest::try_from(manifest).unwrap_err();
-
-        let ManifestParseError { inner } = parse_err;
-        assert_eq!(inner, Error::PreReleaseModifierNotAllowed);
+        let metadata = metadata_json(Some("1.56.0-nightly"), None);
+        // cargo_metadata will check this is invalid for us
+        let err = serde_json::from_str::<Metadata>(&metadata).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "pre-release identifiers are not supported in rust-version at line 8 column 38"
+        );
     }
 
     #[test]
     fn parse_rust_version_two_components() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-rust-version = "1.56"
+        let metadata = metadata_json(Some("1.56"), None);
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, BareVersion::TwoComponents(1, 56));
-    }
-
-    #[yare::parameterized(
-        empty = {""},
-        one_component = {"1"},
-        one_component_dot = {"1."},
-        two_components_dot = {"1.1."},
-        three_components_dot = {"1.1.1."},
-        two_components_with_pre_release = {"1.1-nightly"},
-        two_components_not_a_number = {"1.x"},
-        three_components_not_a_number = {"1.1.x"},
-        too_many_components = {"1.1.0.0"},
-    )]
-    fn parse_rust_version_faulty_versions(version: &str) {
-        let contents = format!(
-            r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-rust-version = "{}"
-
-[dependencies]
-"#,
-            version
-        );
-
-        let manifest = CargoManifestParser.parse::<Document>(&contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest);
-
-        assert!(manifest.is_err());
+        // going through cargo_metadata means it gets turned into 3 components
+        assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
     }
 
     #[test]
     fn parse_metadata_msrv_three_components() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
+        let metadata = metadata_json(None, Some(r#"{"msrv": "1.51.0"}"#));
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[package.metadata]
-msrv = "1.51.0"
-
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
         assert_eq!(version, BareVersion::ThreeComponents(1, 51, 0));
@@ -281,46 +208,10 @@ msrv = "1.51.0"
 
     #[test]
     fn parse_metadata_msrv_two_components() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
+        let metadata = metadata_json(None, Some(r#"{"msrv": "1.51"}"#));
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[package.metadata]
-msrv = "1.51"
-
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
-        let version = manifest.minimum_rust_version.unwrap();
-
-        assert_eq!(version, BareVersion::TwoComponents(1, 51));
-    }
-
-    // While uncommon, seems not to be against Cargo manifest spec; i.e. it just states Table,
-    // not specifying whether only the regular or also the inline variant. This is similar to
-    // [dependencies] which also accept 'Table' items for each dependency, and where inline tables
-    // are more regular (and clearly supported!)
-    //
-    // NB: when using an inline metadata table, you won't be able to add another [metadata] table,
-    //     you must use the same inline table
-    #[test]
-    fn parse_metadata_msrv_inline() {
-        let contents = r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
-metadata = { msrv = "1.51" }
-
-[dependencies]
-"#;
-
-        let manifest = CargoManifestParser.parse::<Document>(contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest).unwrap();
+        let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
         assert_eq!(version, BareVersion::TwoComponents(1, 51));
@@ -338,23 +229,11 @@ metadata = { msrv = "1.51" }
         too_many_components = {"1.1.0.0"},
     )]
     fn parse_metadata_msrv_faulty_versions(version: &str) {
-        let contents = format!(
-            r#"[package]
-name = "some"
-version = "0.1.0"
-edition = "2018"
+        let msrv = format!(r#"{{"msrv": "{}"}}"#, version);
+        let metadata = metadata_json(None, Some(&msrv));
+        let metadata: Metadata = serde_json::from_str(&metadata).unwrap();
 
-[package.metadata]
-msrv = "{}"
-
-[dependencies]
-"#,
-            version
-        );
-
-        let manifest = CargoManifestParser.parse::<Document>(&contents).unwrap();
-
-        let manifest = CargoManifest::try_from(manifest);
+        let manifest = CargoManifest::try_from(metadata);
 
         assert!(manifest.is_err());
     }

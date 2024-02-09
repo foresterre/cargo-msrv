@@ -1,4 +1,5 @@
 use camino::Utf8PathBuf;
+use cargo_metadata::MetadataCommand;
 use std::convert::TryFrom;
 
 use rust_releases::{Release, ReleaseIndex};
@@ -7,7 +8,6 @@ use crate::check::Check;
 use crate::context::{EnvironmentContext, OutputFormat, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
-use crate::manifest::reader::{DocumentReader, TomlDocumentReader};
 use crate::manifest::CargoManifest;
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
@@ -147,10 +147,10 @@ impl RustVersion {
     pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
         let manifest_path = env.manifest();
 
-        let document = TomlDocumentReader::read_document(&manifest_path)?;
-        let manifest = CargoManifest::try_from(document)?;
-
-        manifest
+        let metadata = MetadataCommand::new()
+            .manifest_path(&manifest_path)
+            .exec()?;
+        CargoManifest::try_from(metadata)?
             .minimum_rust_version()
             .ok_or_else(|| CargoMSRVError::NoMSRVKeyInCargoToml(manifest_path.clone()))
             .map(|v| RustVersion {

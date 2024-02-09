@@ -44,6 +44,36 @@ fn verify(folder: &str) {
 
 #[parameterized(
     folder = {
+        "workspace-inheritance/a",
+        "workspace-inheritance/b",
+        "workspace-inheritance/c",
+    }
+)]
+fn verify_workspace_inheritance(folder: &str) {
+    let folder = fixtures_path().join(folder);
+    let with_args = vec![
+        "cargo",
+        "msrv",
+        "--path",
+        folder.to_str().unwrap(),
+        "--no-user-output",
+        "verify",
+    ];
+
+    let result = run_verify(
+        with_args,
+        vec![
+            // only stabilized in 1.64.0
+            Release::new_stable(semver::Version::new(1, 64, 0)),
+            Release::new_stable(semver::Version::new(1, 66, 0)),
+        ],
+    );
+
+    assert!(result.is_ok());
+}
+
+#[parameterized(
+    folder = {
         "1.37.0",
         "1.38.0",
     }

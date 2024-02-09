@@ -669,12 +669,10 @@ metadata = { msrv = "1.15", other = 1 }
 
 #[cfg(test)]
 mod insert_new_msrv_tests {
-    use std::convert::TryInto;
-
-    use toml_edit::Document;
+    use toml_edit::{Document, Item};
 
     use crate::manifest::bare_version::BareVersion;
-    use crate::manifest::{CargoManifest, CargoManifestParser, TomlParser};
+    use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::insert_new_msrv;
 
     #[test]
@@ -901,13 +899,19 @@ edition = "2021"
         insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
         let output = manifest.to_string();
-        let new_manifest: CargoManifest = CargoManifestParser
-            .parse::<Document>(&output)
-            .unwrap()
-            .try_into()
+        let document = CargoManifestParser.parse::<Document>(&output).unwrap();
+
+        let msrv = document
+            .as_table()
+            .get("package")
+            .and_then(Item::as_table)
+            .and_then(|package| package.get("metadata"))
+            .and_then(Item::as_table_like)
+            .and_then(|metadata| metadata.get("msrv"))
+            .and_then(Item::as_str)
             .unwrap();
 
-        assert_eq!(new_manifest.minimum_rust_version().unwrap(), &METADATA_MSRV)
+        assert_eq!(msrv, &METADATA_MSRV.to_string());
     }
 }
 

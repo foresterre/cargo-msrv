@@ -1,0 +1,16 @@
+[package]
+name = "c"
+version = "0.1.0"
+edition = "2021"
+# While uncommon, seems not to be against Cargo manifest spec; i.e. it just states Table,
+# not specifying whether only the regular or also the inline variant. This is similar to
+# [dependencies] which also accept 'Table' items for each dependency, and where inline tables
+# are more regular (and clearly supported!)
+#
+# NB: when using an inline metadata table, you won't be able to add another [metadata] table,
+#     you must use the same inline table
+metadata = { msrv = "1.64" }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
