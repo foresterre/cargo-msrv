@@ -18,6 +18,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
 * Added `--features` option, `--all-features` flag and `--no-default-features` flag, which are forwarded to the default compatibility check command
 * Added `--add-component` option, which can be used to add a Rust component to a toolchain.
+* `cargo msrv verify` now supports Cargo [workspace inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), and will now correctly inherit the MSRV (i.e. `package.rust-version`) defined by a workspace
 
 ### Changed
 
@@ -30,7 +31,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
 * Updated user output formatting to be more consistent between output formats.
 * `cargo-msrv` now requires paths to be UTF-8.
-* `--write-msrv` now writes two, instead of three component version numbers .
+* `--write-msrv` now writes two, instead of three component version numbers
 
 #### Infra
 
