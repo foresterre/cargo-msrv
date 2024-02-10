@@ -251,7 +251,7 @@ impl TracingTarget {
 }
 
 enum TracingGuard {
-    NonBlockingGuard(tracing_appender::non_blocking::WorkerGuard),
+    NonBlockingGuard(#[allow(dead_code)] tracing_appender::non_blocking::WorkerGuard),
     None,
 }
 
