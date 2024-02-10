@@ -12,7 +12,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: install_rust_nightly
-        uses: dtolnay/rust-toolchain@nightly-2024-02-01 # pinned because of https://github.com/tkaitchuck/aHash/issues/200#issuecomment-1936283358
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2024-02-01 # pinned because of https://github.com/tkaitchuck/aHash/issues/200#issuecomment-1936283358
 
       - name: install_code_coverage_tool
         uses: taiki-e/install-action@cargo-llvm-cov
