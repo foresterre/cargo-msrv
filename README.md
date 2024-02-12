@@ -12,7 +12,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                               |
 |-------------|-----------|-------------------------------------------------------|
 | stable      | 💚        | `$ cargo install cargo-msrv`                          |
-| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.19` |
+| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.20` |
 | development | ❌        |                                                       |
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
@@ -20,7 +20,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                                                                               |
 |-------------|-----------|-------------------------------------------------------------------------------------------------------|
 | stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1` cargo-msrv         |
-| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.19` cargo-msrv |
+| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.20` cargo-msrv |
 | development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv                       |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
@@ -28,7 +28,7 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                                             |
 |-------------|-----------|---------------------------------------------------------------------|
 | stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`         |
-| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.18 --no-confirm cargo-msrv` |
+| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.20 --no-confirm cargo-msrv` |
 | development | ❌        |                                                                     |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
