@@ -13,7 +13,7 @@ pub fn find_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
 ) -> Result<Option<semver::Version>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_thirty_four_to_one_thirty_eight())
-        .map(|res| res.msrv().map(Clone::clone))
+        .map(|res| res.msrv().cloned())
 }
 
 pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
@@ -23,7 +23,7 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
     with_args: I,
 ) -> Result<Option<semver::Version>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_twenty_eight_to_one_thirty_nine())
-        .map(|res| res.msrv().map(Clone::clone))
+        .map(|res| res.msrv().cloned())
 }
 
 fn releases_one_thirty_four_to_one_thirty_eight() -> Vec<Release> {
@@ -95,7 +95,7 @@ pub fn find_msrv_with_releases<
                 test_result.add_failure(res.toolchain().version().clone());
             }
             Message::SubcommandResult(SubcommandResult::Find(res)) => {
-                test_result.set_msrv(res.msrv().map(Clone::clone))
+                test_result.set_msrv(res.msrv().cloned())
             }
             _ => {}
         }

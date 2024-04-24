@@ -272,7 +272,7 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
 
     let base_command = vec!["cargo", "msrv", "--path", folder, "--"];
     let custom_check_command = command.split_ascii_whitespace().collect::<Vec<_>>();
-    let command = vec![base_command, custom_check_command];
+    let command = [base_command, custom_check_command];
 
     let with_args = command.iter().flatten().collect::<Vec<_>>();
 

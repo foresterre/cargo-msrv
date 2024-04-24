@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use rust_releases::{semver, Release, ReleaseIndex};
-use toml_edit::{table, value, Document, Item, Value};
+use toml_edit::{table, value, DocumentMut, Item, Value};
 
 use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
@@ -76,7 +76,7 @@ fn set_msrv(ctx: &SetContext, reporter: &impl Reporter, msrv: &BareVersion) -> T
     })?;
 
     // Parse the Cargo manifest contents, in particular the MSRV value
-    let mut manifest = CargoManifestParser.parse::<Document>(&contents)?;
+    let mut manifest = CargoManifestParser.parse::<DocumentMut>(&contents)?;
     check_workspace(&manifest)?;
 
     // Set the MSRV
@@ -109,7 +109,7 @@ fn set_msrv(ctx: &SetContext, reporter: &impl Reporter, msrv: &BareVersion) -> T
     Ok(())
 }
 
-fn check_workspace(manifest: &Document) -> TResult<()> {
+fn check_workspace(manifest: &DocumentMut) -> TResult<()> {
     if manifest.as_table().get("package").is_none()
         && manifest.as_table().get("workspace").is_some()
     {
@@ -120,7 +120,7 @@ fn check_workspace(manifest: &Document) -> TResult<()> {
 }
 
 /// Override MSRV if it is already set, otherwise, simply set it
-fn set_or_override_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+fn set_or_override_msrv(manifest: &mut DocumentMut, msrv: &BareVersion) -> TResult<()> {
     // NB: As a consequence of scrubbing the current MSRV, if the MSRV is the only value in the
     //     [package.metadata] table, and the table is an inline table, then the inline table will
     //     be removed and replaced with a regular table (normally we try to keep the same table type
@@ -135,13 +135,13 @@ fn set_or_override_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<
     insert_new_msrv(manifest, msrv)
 }
 
-fn insert_new_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
-    fn insert_rust_version(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+fn insert_new_msrv(manifest: &mut DocumentMut, msrv: &BareVersion) -> TResult<()> {
+    fn insert_rust_version(manifest: &mut DocumentMut, msrv: &BareVersion) -> TResult<()> {
         manifest["package"]["rust-version"] = value(msrv.to_string());
         Ok(())
     }
 
-    fn insert_package_metadata_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
+    fn insert_package_metadata_msrv(manifest: &mut DocumentMut, msrv: &BareVersion) -> TResult<()> {
         let metadata_item = &mut manifest["package"]["metadata"];
 
         match metadata_item {
@@ -171,12 +171,12 @@ fn insert_new_msrv(manifest: &mut Document, msrv: &BareVersion) -> TResult<()> {
 }
 
 /// Removes the minimum supported Rust version (MSRV) from `Cargo.toml` manifest, if it exists
-fn discard_current_msrv(document: &mut Document) {
-    fn get_package(document: &mut Document) -> Option<&mut Item> {
+fn discard_current_msrv(document: &mut DocumentMut) {
+    fn get_package(document: &mut DocumentMut) -> Option<&mut Item> {
         document.as_table_mut().get_mut("package")
     }
 
-    fn get_metadata(document: &Document) -> Option<&Item> {
+    fn get_metadata(document: &DocumentMut) -> Option<&Item> {
         document
             .as_table()
             .get("package")
@@ -186,7 +186,7 @@ fn discard_current_msrv(document: &mut Document) {
     /// Removes the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-    fn remove_rust_version(document: &mut Document) {
+    fn remove_rust_version(document: &mut DocumentMut) {
         get_package(document)
             .and_then(Item::as_table_like_mut)
             .and_then(|package| package.remove("rust-version"));
@@ -194,7 +194,7 @@ fn discard_current_msrv(document: &mut Document) {
 
     /// Removes the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
     /// 1.56.0
-    fn remove_metadata_msrv(document: &mut Document) {
+    fn remove_metadata_msrv(document: &mut DocumentMut) {
         get_package(document)
             .and_then(|package| package.get_mut("metadata"))
             .and_then(Item::as_table_like_mut)
@@ -220,7 +220,7 @@ fn discard_current_msrv(document: &mut Document) {
 
 #[cfg(test)]
 mod set_or_override_msrv_tests {
-    use toml_edit::Document;
+    use toml_edit::DocumentMut;
 
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
@@ -236,7 +236,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -256,7 +256,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
@@ -277,7 +277,7 @@ rust-version = "1.58.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -300,7 +300,7 @@ msrv = "1.58.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -329,7 +329,7 @@ other = 1
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         set_or_override_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -362,7 +362,7 @@ msrv = "1.11.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -388,7 +388,7 @@ rust-version = "1.58"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["rust-version"].as_str().unwrap(),
@@ -423,7 +423,7 @@ other = 1
 
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -456,7 +456,7 @@ metadata = { msrv = "1.15" }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         assert_eq!(
             manifest["package"]["metadata"]["msrv"].as_str().unwrap(),
@@ -479,7 +479,7 @@ metadata = { msrv = "1.15" }
 
 #[cfg(test)]
 mod discard_current_msrv_tests {
-    use toml_edit::Document;
+    use toml_edit::DocumentMut;
 
     use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::discard_current_msrv;
@@ -494,7 +494,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         let expected = manifest.clone();
 
@@ -514,7 +514,7 @@ rust-version = "1.56.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -543,7 +543,7 @@ msrv = "1.56.0"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -576,7 +576,7 @@ other = 7
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -615,7 +615,7 @@ metadata = { msrv = "1.15" }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -644,7 +644,7 @@ metadata = { msrv = "1.15", other = 1 }
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         // pre
         assert_eq!(
@@ -669,7 +669,7 @@ metadata = { msrv = "1.15", other = 1 }
 
 #[cfg(test)]
 mod insert_new_msrv_tests {
-    use toml_edit::{Document, Item};
+    use toml_edit::{DocumentMut, Item};
 
     use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
@@ -685,7 +685,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 56)).unwrap();
 
@@ -705,7 +705,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 56, 1)).unwrap();
 
@@ -725,7 +725,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::TwoComponents(1, 10)).unwrap();
 
@@ -745,7 +745,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &BareVersion::ThreeComponents(1, 10, 1)).unwrap();
 
@@ -759,7 +759,7 @@ edition = "2021"
     // TOML items are used, such as inline tables and regular tables.
     // Only applicable to the [package.manifest] msrv = "..." fallback variant MSRV
     mod insert_package_manifest_msrv_correct_table_type {
-        use toml_edit::{Document, Item, Value};
+        use toml_edit::{DocumentMut, Item, Value};
 
         use crate::manifest::bare_version::BareVersion;
         use crate::manifest::{CargoManifestParser, TomlParser};
@@ -777,7 +777,7 @@ edition = "2021"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+            let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -799,7 +799,7 @@ rust-version = "1.56"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+            let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -823,7 +823,7 @@ msrv = "1.54"
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+            let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -845,7 +845,7 @@ metadata = { msrv = "1.54" }
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+            let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -867,7 +867,7 @@ metadata = { k = "1.54" }
 [dependencies]
 "#;
 
-            let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+            let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
             insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
@@ -894,12 +894,12 @@ edition = "2021"
 [dependencies]
 "#;
 
-        let mut manifest = CargoManifestParser.parse::<Document>(input).unwrap();
+        let mut manifest = CargoManifestParser.parse::<DocumentMut>(input).unwrap();
 
         insert_new_msrv(&mut manifest, &METADATA_MSRV).unwrap();
 
         let output = manifest.to_string();
-        let document = CargoManifestParser.parse::<Document>(&output).unwrap();
+        let document = CargoManifestParser.parse::<DocumentMut>(&output).unwrap();
 
         let msrv = document
             .as_table()

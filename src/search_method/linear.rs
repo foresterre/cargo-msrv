@@ -133,7 +133,7 @@ mod tests {
     fn most_recent_only() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 56, 0))];
+        let supported_releases = [Release::new_stable(semver::Version::new(1, 56, 0))];
 
         let index_of_releases = vec![
             Release::new_stable(semver::Version::new(1, 56, 0)),
@@ -162,7 +162,7 @@ mod tests {
     fn least_recent_only_expects_rust_backwards_compat() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 54, 0))];
+        let supported_releases = [Release::new_stable(semver::Version::new(1, 54, 0))];
 
         let index_of_releases = vec![
             Release::new_stable(semver::Version::new(1, 56, 0)),
@@ -191,9 +191,9 @@ mod tests {
     fn middle_one_only_expects_rust_backwards_compat() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = vec![Release::new_stable(semver::Version::new(1, 55, 0))];
+        let supported_releases = [Release::new_stable(semver::Version::new(1, 55, 0))];
 
-        let index_of_releases = vec![
+        let index_of_releases = [
             Release::new_stable(semver::Version::new(1, 56, 0)),
             Release::new_stable(semver::Version::new(1, 55, 0)),
             Release::new_stable(semver::Version::new(1, 54, 0)),

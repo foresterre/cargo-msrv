@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ubuntu-stable, macos-stable, win-msvc-stable, ubuntu-beta] # win-gnu-stable
+        build: [ ubuntu-stable, macos-stable, win-msvc-stable ] # win-gnu-stable
         include:
           - build: ubuntu-stable
             os: ubuntu-latest
@@ -27,20 +27,16 @@ jobs:
             os: macOS-latest
             rust: stable
 
-           # FIXME: This is currently broken, see below.
-           # * https://github.com/foresterre/cargo-msrv/pull/842
-           # * https://github.com/rust-lang/rust/issues/112368
-#          - build: win-gnu-stable
-#            os: windows-latest
-#            rust: stable-x86_64-gnu
+          # FIXME: This is currently broken, see below.
+          # * https://github.com/foresterre/cargo-msrv/pull/842
+          # * https://github.com/rust-lang/rust/issues/112368
+          #          - build: win-gnu-stable
+          #            os: windows-latest
+          #            rust: stable-x86_64-gnu
 
           - build: win-msvc-stable
             os: windows-latest
             rust: stable
-
-          - build: ubuntu-beta
-            os: ubuntu-latest
-            rust: beta
 
     steps:
       - name: checkout_repository

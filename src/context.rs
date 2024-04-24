@@ -151,7 +151,7 @@ impl RustReleasesContext {
         })?;
 
         let document = contents
-            .parse::<toml_edit::Document>()
+            .parse::<toml_edit::DocumentMut>()
             .map_err(CargoMSRVError::ParseToml)?;
 
         if let Some(edition) = document
