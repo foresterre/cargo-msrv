@@ -1,17 +1,19 @@
 [licenses]
-unlicensed = "deny"
-copyleft = "deny"
+version = 2
 confidence-threshold = 0.925
 allow = [
+    "0BSD",
     "Apache-2.0",
     "BSD-3-Clause",
     "ISC",
     "MIT",
-    "MPL-2.0",
     "OpenSSL",
+    "Unicode-DFS-2016",
     "Zlib",
-    "0BSD",
-    "Unicode-DFS-2016"
+]
+exceptions = [
+    { allow = ["MPL-2.0"], name = "webpki-roots", version = "*" },
+    { allow = ["MPL-2.0"], name = "option-ext", version = "*" },
 ]
 
 [[licenses.clarify]]
@@ -36,7 +38,5 @@ license-files = [
 ]
 
 [advisories]
-vulnerability = "deny"
-unmaintained = "deny"
-notice = "deny"
+version = 2
 ignore = []
