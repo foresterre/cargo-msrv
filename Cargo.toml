@@ -45,7 +45,7 @@ default = ["rust-releases-dist-source"]
 rust-releases-dist-source = ["rust-releases/rust-dist"]
 
 [dev-dependencies]
-parameterized = "1.1.0"
+parameterized = "2.0.0"
 yare = "3.0.0"
 phenomenon = "~1.0.0"
 test_dir = "0.2.0"

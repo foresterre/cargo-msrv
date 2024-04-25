@@ -1550,23 +1550,23 @@ dependencies = [
 
 [[package]]
 name = "parameterized"
-version = "1.1.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3033e5499e963aa291be03b370b1157e1236b9ae1418b48b5ce02a53e5343d20"
+checksum = "194bf497674dda552d4f1bd24d325f828f425876c9d522fcb1810cd527e0bd4e"
 dependencies = [
  "parameterized-macro",
 ]
 
 [[package]]
 name = "parameterized-macro"
-version = "1.1.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89ffb3b6d5b7b60a8e39e74d9459163cdc7ead5a0b155e4606bff4a421576395"
+checksum = "1374bca5edab7a317c4ffbc9df1e239ceb7dcf5426b6b403474408442a9777ac"
 dependencies = [
  "indexmap 1.9.3",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.60",
 ]
 
 [[package]]
