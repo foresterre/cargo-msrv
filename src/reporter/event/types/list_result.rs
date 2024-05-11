@@ -2,6 +2,8 @@ use crate::dependency_graph::DependencyGraph;
 use crate::reporter::event::Message;
 use crate::Event;
 use std::borrow::Cow;
+use std::fmt;
+use std::fmt::Formatter;
 
 use crate::context::list::ListMsrvVariant;
 use crate::reporter::event::subcommand_result::SubcommandResult;
@@ -26,9 +28,9 @@ impl ListResult {
     }
 }
 
-impl ToString for ListResult {
-    fn to_string(&self) -> String {
-        self.result.to_string()
+impl fmt::Display for ListResult {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.result))
     }
 }
 
@@ -50,11 +52,15 @@ struct ResultDetails {
     graph: DependencyGraph,
 }
 
-impl ToString for ResultDetails {
-    fn to_string(&self) -> String {
+impl fmt::Display for ResultDetails {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self.variant {
-            ListMsrvVariant::DirectDeps => DirectDepsFormatter::new(&self.graph).to_string(),
-            ListMsrvVariant::OrderedByMSRV => OrderedByMsrvFormatter::new(&self.graph).to_string(),
+            ListMsrvVariant::DirectDeps => {
+                f.write_fmt(format_args!("{}", DirectDepsFormatter::new(&self.graph)))
+            }
+            ListMsrvVariant::OrderedByMSRV => {
+                f.write_fmt(format_args!("{}", OrderedByMsrvFormatter::new(&self.graph)))
+            }
         }
     }
 }

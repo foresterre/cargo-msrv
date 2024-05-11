@@ -8,11 +8,6 @@ pub(crate) mod bare_version;
 pub trait TomlParser {
     type Error;
 
-    fn try_parse<T: TryFrom<DocumentMut, Error = Self::Error>>(
-        &self,
-        contents: &str,
-    ) -> Result<T, Self::Error>;
-
     fn parse<T: From<DocumentMut>>(&self, contents: &str) -> Result<T, Self::Error>;
 }
 
@@ -40,13 +35,6 @@ impl Default for CargoManifestParser {
 
 impl TomlParser for CargoManifestParser {
     type Error = TomlError;
-
-    fn try_parse<T: TryFrom<DocumentMut, Error = Self::Error>>(
-        &self,
-        contents: &str,
-    ) -> Result<T, Self::Error> {
-        contents.parse::<DocumentMut>().and_then(TryFrom::try_from)
-    }
 
     fn parse<T: From<DocumentMut>>(&self, contents: &str) -> Result<T, Self::Error> {
         contents.parse().map(From::from)
