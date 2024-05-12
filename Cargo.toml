@@ -30,7 +30,7 @@ owo-colors = "4.0.0" # color support for the terminal
 petgraph = "0.6.5" # graph data structures
 rust-releases = { version = "0.28.0", default-features = false, features = ["rust-changelog"]  } # get the available rust versions
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
-serde_json = "1.0.114"  # JSON serialization and deserialization
+serde_json = "1.0.117"  # JSON serialization and deserialization
 storyteller = "0.8.1" # minimal multi user output architecture
 tabled = { version = "0.10.0", features = ["color"] } # pretty print tables
 terminal_size = "0.3.0" # determine the terminal size
