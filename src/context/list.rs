@@ -44,11 +44,6 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct ListCmdConfig {
-    pub variant: ListMsrvVariant,
-}
-
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
 pub enum ListMsrvVariant {
     DirectDeps,

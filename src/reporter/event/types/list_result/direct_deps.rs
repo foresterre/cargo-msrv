@@ -4,6 +4,8 @@ use super::metadata::*;
 use crate::context::list::DIRECT_DEPS;
 use crate::dependency_graph::DependencyGraph;
 use crate::formatting::table;
+use std::fmt;
+use std::fmt::Formatter;
 use tabled::{Style, Tabled};
 
 pub struct DirectDepsFormatter<'g> {
@@ -16,11 +18,11 @@ impl<'g> DirectDepsFormatter<'g> {
     }
 }
 
-impl ToString for DirectDepsFormatter<'_> {
-    fn to_string(&self) -> String {
+impl fmt::Display for DirectDepsFormatter<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let values = dependencies(self.graph);
 
-        table(values).with(Style::modern()).to_string()
+        f.write_fmt(format_args!("{}", table(values).with(Style::modern())))
     }
 }
 

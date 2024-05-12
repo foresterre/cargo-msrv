@@ -8,6 +8,8 @@ use crate::semver;
 use cargo_metadata::Package;
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
+use std::fmt;
+use std::fmt::Formatter;
 use tabled::{Style, Tabled};
 
 pub struct OrderedByMsrvFormatter<'g> {
@@ -20,11 +22,11 @@ impl<'g> OrderedByMsrvFormatter<'g> {
     }
 }
 
-impl ToString for OrderedByMsrvFormatter<'_> {
-    fn to_string(&self) -> String {
+impl fmt::Display for OrderedByMsrvFormatter<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let values = dependencies(self.graph);
 
-        table(values).with(Style::modern()).to_string()
+        f.write_fmt(format_args!("{}", table(values).with(Style::modern())))
     }
 }
 
