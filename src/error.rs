@@ -272,6 +272,9 @@ impl RustupInstallFailed {
 
 #[derive(Debug, thiserror::Error)]
 pub enum PathError {
+    #[error("'{}' does not exist", .0.display())]
+    DoesNotExist(PathBuf),
+
     #[error("No parent directory for '{}'", .0.display())]
     NoParent(PathBuf),
 
