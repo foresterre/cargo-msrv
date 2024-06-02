@@ -15,7 +15,7 @@ jobs:
             archive_ext: tgz
 
           - target: x86_64-apple-darwin
-            os: macos-latest
+            os: macos-13
             archive_ext: tgz
 
           - target: x86_64-pc-windows-msvc
@@ -41,18 +41,18 @@ jobs:
         run: |
           echo "Archive: '${{ steps.set_output.outputs.archive }}'"
           echo "Subfolder: '${{ steps.set_output.outputs.subfolder }}'"
-      
+
       - name: create_pkg_subfolder
         shell: bash
         run: mkdir ${{ steps.set_output.outputs.subfolder }}
-            
+
       - name: copy_files_to_pkg_subfolder
         shell: bash
         run: |
           cp LICENSE-APACHE ${{ steps.set_output.outputs.subfolder }}
           cp LICENSE-MIT ${{ steps.set_output.outputs.subfolder }}
           cp README.md ${{ steps.set_output.outputs.subfolder }}
-      
+
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -71,7 +71,7 @@ jobs:
         run: cargo about generate --output-file "${{ steps.set_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-13'
         shell: bash
         run: |
           cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
