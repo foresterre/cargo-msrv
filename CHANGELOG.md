@@ -11,8 +11,8 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 ### Added
 
-* Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument, 
-  which can be used to check for a crate's compatibility against a specific Rust version. 
+* Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument,
+  which can be used to check for a crate's compatibility against a specific Rust version.
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
 * Added option to refer to a specific crate using its Cargo manifest (with `--manifest-path`) instead of its path (with `--path`)
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
@@ -44,6 +44,7 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
 * Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
 * Use compilation target instead of build machine target for MSRV checks
+* Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path
 
 ### Removed
 
@@ -109,7 +110,7 @@ This release does not contain user-facing changes, hence the lack of changelog e
 
 ## [0.13.0] - 2021-12-25
 
-* Fixed: Help text of the list subcommand will now be shown correctly .  
+* Fixed: Help text of the list subcommand will now be shown correctly .
 * Fixed: The json output of the list subcommand will now also report when it's done.
 * Changed: Renamed list subcommand option "type" to "variant".
 * Added: Subcommand "show" which shows the MSRV for the crate in your current working directory.
@@ -135,7 +136,7 @@ but are planned to._
 
 ## [0.11.1] - 2021-10-28
 
-This release is equal to `v0.11.0`, except that the automated 'release build and packaging' task was fixed.  
+This release is equal to `v0.11.0`, except that the automated 'release build and packaging' task was fixed.
 
 [0.11.1]: https://github.com/foresterre/cargo-msrv/compare/v0.11.0...v0.11.1
 
