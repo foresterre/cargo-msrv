@@ -18,6 +18,10 @@ jobs:
             os: macos-13
             archive_ext: tgz
 
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive_ext: tgz
+
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             archive_ext: zip
@@ -71,7 +75,7 @@ jobs:
         run: cargo about generate --output-file "${{ steps.set_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-latest'
         shell: bash
         run: |
           cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
