@@ -45,7 +45,7 @@ impl HumanProgressHandler {
             indicatif::ProgressStyle::default_spinner()
                 .template("{spinner} {msg:<16} Elapsed {elapsed}")
                 .unwrap()
-                .tick_chars("◐◓◑◒"),
+                .tick_chars("◜◠◝◞◡◟"),
         );
         pb.finish_and_clear(); // Hide the spinner on startup
         pb
