@@ -9,6 +9,8 @@ use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::toolchain::ToolchainSpec;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
+use std::fmt;
+use std::fmt::Formatter;
 
 pub struct RustupToolchainCheck<'reporter, 'env, R: Reporter> {
     reporter: &'reporter R,
@@ -75,6 +77,12 @@ impl<'reporter, 'env, R: Reporter> Check for RustupToolchainCheck<'reporter, 'en
 
                 Ok(outcome)
             })
+    }
+}
+
+impl<R: Reporter> fmt::Debug for RustupToolchainCheck<'_, '_, R> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.settings))
     }
 }
 
@@ -184,6 +192,7 @@ fn remove_lockfile(lock_file: &Utf8Path) -> TResult<()> {
     Ok(())
 }
 
+#[derive(Debug)]
 struct Settings<'env> {
     ignore_lockfile: bool,
     no_check_feedback: bool,
@@ -210,6 +219,7 @@ impl<'env> Settings<'env> {
     }
 }
 
+#[derive(Debug)]
 pub struct RunCommand {
     command: Vec<String>,
 }
