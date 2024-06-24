@@ -5,7 +5,8 @@ used to find the Minimum Supported Rust Version (MSRV) of your projects.
 This changelog is aimed at users, and only contains user-relevant changes.
 
 If you found an issue, have a suggestion or want to provide feedback or insights, please feel free to open an issue on
-the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a topic in the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
+the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a topic in
+the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## [Unreleased]
 
@@ -14,20 +15,27 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument,
   which can be used to check for a crate's compatibility against a specific Rust version.
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
-* Added option to refer to a specific crate using its Cargo manifest (with `--manifest-path`) instead of its path (with `--path`)
+* Added option to refer to a specific crate using its Cargo manifest (with `--manifest-path`) instead of its path (
+  with `--path`)
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
-* Added `--features` option, `--all-features` flag and `--no-default-features` flag, which are forwarded to the default compatibility check command
+* Added `--features` option, `--all-features` flag and `--no-default-features` flag, which are forwarded to the default
+  compatibility check command
 * Added `--add-component` option, which can be used to add a Rust component to a toolchain.
-* `cargo msrv verify` now supports Cargo [workspace inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), and will now correctly inherit the MSRV (i.e. `package.rust-version`) defined by a workspace
+* `cargo msrv verify` now supports
+  Cargo [workspace inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), and will
+  now correctly inherit the MSRV (i.e. `package.rust-version`) defined by a workspace
 
 ### Changed
 
 * CLI options are now grouped.
-* Option `--min <version>` now also accepts two component semver `major.minor` versions, in addition to full three component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
-* Option `--max <version>` now also accepts two component semver `major.minor` versions, in addition to full three component (strict) SemVer versions.
+* Option `--min <version>` now also accepts two component semver `major.minor` versions, in addition to full three
+  component (strict) SemVer versions, and edition specifiers like "2015", "2018" and "2021".
+* Option `--max <version>` now also accepts two component semver `major.minor` versions, in addition to full three
+  component (strict) SemVer versions.
 * The rust-releases index is now only fetched for subcommands which depend on it.
 * Renamed `--toolchain-file` to `--write-toolchain-file` to emphasise that the toolchain-file is an output.
-* Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value, instead of an inline table.
+* Subcommand `cargo msrv set` will now default to writing a regular TOML table for the metadata MSRV fallback value,
+  instead of an inline table.
 * The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
 * Updated user output formatting to be more consistent between output formats.
 * `cargo-msrv` now requires paths to be UTF-8.
@@ -35,7 +43,8 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 
 #### Infra
 
-* Changed release artifact name of `cargo-msrv` packages on Github, such that they can be installed with `cargo-binstall` out of the box.
+* Changed release artifact name of `cargo-msrv` packages on Github, such that they can be installed
+  with `cargo-binstall` out of the box.
 
 ### Fixed
 
@@ -45,11 +54,13 @@ the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a 
 * Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
 * Use compilation target instead of build machine target for MSRV checks
 * Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path
+* Supply provided components to `verify` subcommand
 
 ### Removed
 
 * Removed deprecated option `cargo msrv --verify`. Use `cargo msrv verify` instead.
-* Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo manifest, `--no-read-min-edition`.
+* Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo
+  manifest, `--no-read-min-edition`.
 
 [Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
 
@@ -74,14 +85,14 @@ This release does not contain user-facing changes, hence the lack of changelog e
 ### Changed
 
 * ⚠️ Breaking change: Changed default cargo-msrv (find) check command from `cargo check --all` to `cargo check`.
-  * To revert to the old behaviour, run cargo-msrv with the following custom check command: `cargo msrv -- cargo check --all`.
+    * To revert to the old behaviour, run cargo-msrv with the following custom check
+      command: `cargo msrv -- cargo check --all`.
 
 ### Removed
 
 * ⚠️ Breaking change: Value `void` was removed as a valid format for the `--output-format` option.
 
 [0.15.0]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...0.15.0
-
 
 ## [0.14.2] - 2022-02-09
 
@@ -91,7 +102,8 @@ This release does not contain user-facing changes, hence the lack of changelog e
 
 ## [0.14.1] - 2022-02-02
 
-* Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the algorithm would stop one step too early.
+* Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the algorithm would stop one step
+  too early.
 
 [0.14.1]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...v0.14.1
 
@@ -100,11 +112,11 @@ This release does not contain user-facing changes, hence the lack of changelog e
 * Added: Verify as a subcommand
 * Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand.
 * Changed: Changed terminology from 'Determine MSRV' to 'Find MSRV' for top level cargo-msrv command.
-* Added: Flag `--linear` to the top cargo-msrv command ('find msrv') to choose explicitly for the `linear` search strategy.
+* Added: Flag `--linear` to the top cargo-msrv command ('find msrv') to choose explicitly for the `linear` search
+  strategy.
 * Changed: The default search method is now `bisect` instead of `linear`. ⚠
 * Added: Feedback messages printed after each check, allowing users to see why certain Rust versions are not compatible.
 * Added: Flag `--no-check-feedback` which disables the feedback messages printed after each check.
-
 
 [0.14.0]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...v0.14.0
 
@@ -126,10 +138,12 @@ This release does not contain user-facing changes, hence the lack of changelog e
 
 ## [0.12.0] - 2021-11-01
 
-* Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version key.
+* Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version
+  key.
 * You can now also simply run cargo-msrv standalone, i.e. `cargo-msrv` instead of `cargo msrv`.
 
-_Only list available as a subcommand. The determine-msrv and verify-msrv commands have not been ported to subcommands yet,
+_Only list available as a subcommand. The determine-msrv and verify-msrv commands have not been ported to subcommands
+yet,
 but are planned to._
 
 [0.12.0]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...v0.12.0
@@ -146,7 +160,7 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 * A message is now shown to inform users when the index is being updated.
 * Verify can now also read and use the `package.rust-version` MSRV key in the `Cargo.toml` manifest.
 * When the `package.edition` is set, the first release supporting this edition will now be set as the minimum version.
-This behaviour can be disabled by providing the `--no-read-min-edition` flag.
+  This behaviour can be disabled by providing the `--no-read-min-edition` flag.
 
 [0.11.0]: https://github.com/foresterre/cargo-msrv/compare/v0.10.0...v0.11.0
 
