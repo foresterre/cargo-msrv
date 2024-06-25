@@ -36,7 +36,22 @@ pub use set::SetContext;
 pub use show::ShowContext;
 pub use verify::VerifyContext;
 
-/// Using sub-contexts allows us to write `From` implementations,
+/// A `context` in `cargo-msrv`, is a definitive and flattened set of options,
+/// required for the program (and its selected sub-command) to function.
+///
+/// Where various `[...]Opts` structs are used to present an interface to the user,
+/// these contexts are used to present an interface to the program.
+/// These `[...]Opts` structs commonly have a tree structure, whereas the contexts
+/// are intended to be at most 1 level of indirection deep.
+/// In addition, the `[...]Opts` structs are used to present a CLI interface
+/// using `clap` as an argument parser, but may be just one way to provide user
+/// input. Alternative user interfaces may be provided, such as one which parses
+/// environment variables and another which reads inputs from a configuration
+/// file. If multiple inputs are provided, they should be merged with a specified
+/// precedence. The final, flattened result shall be used as the program's internal
+/// interface, i.e. this `context`.
+///
+/// Using sub-contexts allows us to write `TryFrom` implementations,
 /// for each sub-command, where each only contains the relevant portion of
 /// data.
 #[derive(Debug)]
