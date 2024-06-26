@@ -88,3 +88,38 @@ impl VerifyContext {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    mod issue_936_target {
+        use crate::cli::CargoCli;
+        use crate::context::VerifyContext;
+        use std::convert::TryFrom;
+
+        #[test]
+        fn target_at_top_level() {
+            let opts = CargoCli::parse_args(["cargo", "msrv", "--target", "x", "verify"]);
+            let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
+
+            assert_eq!(context.toolchain.target, "x");
+        }
+
+        #[test]
+        fn target_at_subcommand_level() {
+            let opts = CargoCli::parse_args(["cargo", "msrv", "verify", "--target", "x"]);
+            let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
+
+            assert_eq!(context.toolchain.target, "x");
+        }
+
+        // The subcommand takes precedence over the top-level (I would have preferred for Clap to reject the presence on both, since the num args is 0..1 with Option<T>)
+        #[test]
+        fn target_at_top_level_and_subcommand_level() {
+            let opts =
+                CargoCli::parse_args(["cargo", "msrv", "--target", "x", "verify", "--target", "y"]);
+            let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
+
+            assert_eq!(context.toolchain.target, "y");
+        }
+    }
+}

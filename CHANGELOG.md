@@ -39,7 +39,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
 * Updated user output formatting to be more consistent between output formats.
 * `cargo-msrv` now requires paths to be UTF-8.
-* `--write-msrv` now writes two, instead of three component version numbers
+* `--write-msrv` now writes two, instead of three component version numbers.
 
 #### Infra
 
@@ -51,10 +51,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Subcommand `cargo msrv set` will now return an error when the Cargo manifest solely consists of a virtual workspace.
 * The program will no longer return an unformatted message when a command failed and the output format was set to json.
 * Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
-* Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
-* Use compilation target instead of build machine target for MSRV checks
-* Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path
+* Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty.
+* Use compilation target instead of build machine target for MSRV checks.
+* Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path.
 * Supply provided components to `verify` subcommand
+* The CLI arguments `--target` and `--add-component` were previously inadvertently ignored when provided
+  to `cargo msrv verify`.
 
 ### Removed
 
