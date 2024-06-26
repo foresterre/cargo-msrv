@@ -12,15 +12,15 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                               |
 |-------------|-----------|-------------------------------------------------------|
 | stable      | 💚        | `$ cargo install cargo-msrv`                          |
-| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.22` |
-| development | ❌        |                                                       |
+| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.23` |
+| development | ❌         |                                                       |
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
 
 | cargo       | supported | command                                                                                               |
 |-------------|-----------|-------------------------------------------------------------------------------------------------------|
 | stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1` cargo-msrv         |
-| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.20` cargo-msrv |
+| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.23` cargo-msrv |
 | development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv                       |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
@@ -28,8 +28,8 @@ In this readme you'll find everything to get you started. You can find more deta
 | cargo       | supported | command                                                             |
 |-------------|-----------|---------------------------------------------------------------------|
 | stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`         |
-| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.20 --no-confirm cargo-msrv` |
-| development | ❌        |                                                                     |
+| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.23 --no-confirm cargo-msrv` |
+| development | ❌         |                                                                     |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
 
@@ -54,23 +54,31 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
 
 ### Usage
 
-* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html) or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in your current working directory.
-* [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo project in the `<dir>` directory.
-* [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the compatibility check which decides whether a Rust version is
+* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html)
+  or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo
+  project in your current working directory.
+* [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo
+  project in the `<dir>` directory.
+* [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the
+  compatibility check which decides whether a Rust version is
   compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
-  * Example: `cargo msrv -- cargo check --tests`.
-* [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/verify.html)  to verify the MSRV as specified by a crate author\
-  * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv` key
-    in the 'Cargo.toml' manifest. See the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
-    for a more detailed description.
-* [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your dependencies as specified by their authors
+    * Example: `cargo msrv -- cargo check --tests`.
+* [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/verify.html)  to verify the MSRV as specified
+  by a crate author\
+    * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv`
+      key
+      in the 'Cargo.toml' manifest. See
+      the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
+      for a more detailed description.
+* [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your
+  dependencies as specified by their authors
 * [`cargo msrv show`](https://foresterre.github.io/cargo-msrv/commands/show.html) to show the currently specified MSRV
 
 Please refer to the [commands](https://foresterre.github.io/cargo-msrv/commands/index.html) chapter in the cargo-msrv
 book for more detailed descriptions of the supported (sub) commands.
 
-
 **Options**
+
 ```
 Find your Minimum Supported Rust Version!
 
