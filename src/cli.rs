@@ -1,4 +1,4 @@
-use crate::cli::custom_check_opts::CheckCommandOpts;
+use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::find_opts::FindOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
@@ -150,7 +150,7 @@ pub struct VerifyOpts {
     pub toolchain_opts: ToolchainOpts,
 
     #[command(flatten)]
-    pub cargo_check_opts: CheckCommandOpts,
+    pub custom_check_opts: CustomCheckOpts,
 
     /// The Rust version, to check against for toolchain compatibility
     ///

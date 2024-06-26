@@ -2,7 +2,7 @@ use clap::Args;
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Custom check options")]
-pub struct CheckCommandOpts {
+pub struct CustomCheckOpts {
     /// Forwards the provided features to cargo, when running cargo-msrv with the default compatibility
     /// check command.
     ///
@@ -26,5 +26,5 @@ pub struct CheckCommandOpts {
 
     /// Supply a custom `check` command to be used by cargo msrv
     #[arg(last = true)]
-    pub custom_check_command: Option<Vec<String>>,
+    pub custom_check_opts: Option<Vec<String>>,
 }
