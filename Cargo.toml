@@ -4,7 +4,7 @@ version = "0.16.0-beta.25"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0 OR MIT"
-edition = "2018"
+edition = "2021"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
