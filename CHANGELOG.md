@@ -8,7 +8,7 @@ If you found an issue, have a suggestion or want to provide feedback or insights
 the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a topic in
 the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
-## [Unreleased]
+## Unreleased
 
 ### Added
 
@@ -62,7 +62,21 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo
   manifest, `--no-read-min-edition`.
 
-[Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
+### Known issues
+
+* The CLI
+  arguments `--features`, `--all-features`, `--no-default-features`, `--min`, `--max`, `--include-all-patch-releases`
+  and `--release-source` are ignored when provided to the `verify` subcommand. Workaround: supply these arguments
+  directly to the top-level command, e.g. `cargo msrv --all-features verify`.
+* The CLI arguments `--target` and `--add-component` can be provided to both the top-level `cargo msrv` command, and
+  the `cargo msrv verify` subcommand, however if they're provided to both, then only the arguments of the subcommand are
+  considered.
+  Example: `cargo msrv --target x --add-component a --add-component b verify --target y --add-component c --add-component d`
+  does not reject or collect the `--target x --add-component a --add-component b` portion; the program will only be
+  aware of the `--target y --add-component c --add-component d` arguments.
+* The CLI arguments `--target` and `--add-component` are shown to be available globally (i.e. both at the top
+  level `cargo msrv` command and at the subcommand level, e.g. `cargo msrv verify`), even for subcommands which do not
+  consume these arguments like `cargo msrv list`.
 
 ## [0.15.1] - 2022-02-24
 
