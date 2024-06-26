@@ -2,7 +2,6 @@ use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::find_opts::FindOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
-use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::context::list::ListMsrvVariant;
 use crate::manifest::bare_version::BareVersion;
 use clap::{Args, Parser, Subcommand};
@@ -145,9 +144,6 @@ pub struct SetOpts {
 pub struct VerifyOpts {
     #[command(flatten)]
     pub rust_releases_opts: RustReleasesOpts,
-
-    #[command(flatten)]
-    pub toolchain_opts: ToolchainOpts,
 
     #[command(flatten)]
     pub custom_check_opts: CustomCheckOpts,

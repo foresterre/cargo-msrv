@@ -8,7 +8,7 @@ If you found an issue, have a suggestion or want to provide feedback or insights
 the [issue tracker](https://github.com/foresterre/cargo-msrv/issues), or open a topic in
 the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
-## [Unreleased]
+## Unreleased
 
 ### Added
 
@@ -39,7 +39,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * The rust-toolchain file will now be overwritten if a rust-toolchain file was already present.
 * Updated user output formatting to be more consistent between output formats.
 * `cargo-msrv` now requires paths to be UTF-8.
-* `--write-msrv` now writes two, instead of three component version numbers
+* `--write-msrv` now writes two, instead of three component version numbers.
 
 #### Infra
 
@@ -51,10 +51,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Subcommand `cargo msrv set` will now return an error when the Cargo manifest solely consists of a virtual workspace.
 * The program will no longer return an unformatted message when a command failed and the output format was set to json.
 * Fix issue where reading the fallback MSRV from a TOML inline table was not possible.
-* Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty
-* Use compilation target instead of build machine target for MSRV checks
-* Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path
+* Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty.
+* Use compilation target instead of build machine target for MSRV checks.
+* Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path.
 * Supply provided components to `verify` subcommand
+* The CLI arguments `--target` and `--add-component` were previously inadvertently ignored when provided
+  to `cargo msrv verify`.
 
 ### Removed
 
@@ -62,7 +64,21 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo
   manifest, `--no-read-min-edition`.
 
-[Unreleased]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...HEAD
+### Known issues
+
+* The CLI
+  arguments `--features`, `--all-features`, `--no-default-features`, `--min`, `--max`, `--include-all-patch-releases`
+  and `--release-source` are ignored when provided to the `verify` subcommand. Workaround: supply these arguments
+  directly to the top-level command, e.g. `cargo msrv --all-features verify`.
+* The CLI arguments `--target` and `--add-component` can be provided to both the top-level `cargo msrv` command, and
+  the `cargo msrv verify` subcommand, however if they're provided to both, then only the arguments of the subcommand are
+  considered.
+  Example: `cargo msrv --target x --add-component a --add-component b verify --target y --add-component c --add-component d`
+  does not reject or collect the `--target x --add-component a --add-component b` portion; the program will only be
+  aware of the `--target y --add-component c --add-component d` arguments.
+* The CLI arguments `--target` and `--add-component` are shown to be available globally (i.e. both at the top
+  level `cargo msrv` command and at the subcommand level, e.g. `cargo msrv verify`), even for subcommands which do not
+  consume these arguments like `cargo msrv list`.
 
 ## [0.15.1] - 2022-02-24
 
