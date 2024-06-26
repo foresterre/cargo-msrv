@@ -1,9 +1,42 @@
-/// Allows users to check whether the MSRV of a crate is proper.
+/// Find the MSRV of a Rust package.
 ///
-/// Use case:
+/// # Example (CLI)
 ///
-/// * Run `cargo msrv verify` on the CI, to verify the crates MSRV is acceptable.
-pub use {find::Find, list::List, set::Set, show::Show, verify::Verify};
+/// `cargo msrv`
+pub use find::Find;
+
+/// List the MSRV's of libraries you depend on.
+///
+/// # Example (CLI)
+///
+/// `cargo msrv list`
+pub use list::List;
+
+/// Check whether the MSRV of a crate is valid as an MSRV.
+///
+/// # Use case
+///
+/// - Integrate into a continuous integration (CI) pipeline, to check that your
+///   crate fulfills its promised minimally supported Rust version.
+///
+/// # Example (CLI)
+///
+/// `cargo msrv verify`
+pub use verify::Verify;
+
+/// Write a given MSRV to a Cargo manifest
+///
+/// # Example (CLI)
+///
+/// `cargo msrv set 1.50`
+pub use set::Set;
+
+/// Show the MSRV present in the Cargo manifest
+///
+/// # Example (CLI)
+///
+/// `cargo msrv show`
+pub use show::Show;
 
 use crate::reporter::Reporter;
 use crate::TResult;
