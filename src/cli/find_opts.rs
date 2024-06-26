@@ -1,4 +1,4 @@
-use crate::cli::custom_check_opts::CheckCommandOpts;
+use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use clap::Args;
@@ -59,5 +59,5 @@ pub struct FindOpts {
     pub toolchain_opts: ToolchainOpts,
 
     #[command(flatten)]
-    pub custom_check_opts: CheckCommandOpts,
+    pub custom_check_opts: CustomCheckOpts,
 }
