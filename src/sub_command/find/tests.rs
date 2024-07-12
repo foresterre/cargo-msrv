@@ -41,6 +41,9 @@ fn bisect_find_only_last() {
     let cmd = Find::new(&index, runner);
     let mut context = create_test_context();
     context.search_method = SearchMethod::Bisect;
+    // necessary currently, otherwise our own cargo manifest edition is used (ugh),
+    // which now is 2021, i.e. >= 1.56, and that breaks the tests
+    context.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 37, 0));
 
     let found = cmd.run(&context, reporter.get()).unwrap();
     assert_eq!(found, semver::Version::new(1, 56, 0));
@@ -83,6 +86,9 @@ fn bisect_find_all_compatible() {
     let cmd = Find::new(&index, runner);
     let mut ctx = create_test_context();
     ctx.search_method = SearchMethod::Bisect;
+    // necessary currently, otherwise our own cargo manifest edition is used (ugh),
+    // which now is 2021, i.e. >= 1.56, and that breaks the tests
+    ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 52, 0));
 
     let found = cmd.run(&ctx, reporter.get()).unwrap();
     assert_eq!(found, semver::Version::new(1, 52, 0));
@@ -116,6 +122,9 @@ fn bisect_none_compatible() {
     let cmd = Find::new(&index, runner);
     let mut ctx = create_test_context();
     ctx.search_method = SearchMethod::Bisect;
+    // necessary currently, otherwise our own cargo manifest edition is used (ugh),
+    // which now is 2021, i.e. >= 1.56, and that breaks the tests
+    ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 52, 0));
 
     let result = cmd.run(&ctx, reporter.get());
     assert!(result.is_err());
