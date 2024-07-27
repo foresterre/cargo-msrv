@@ -64,16 +64,6 @@ pub enum Context {
 }
 
 impl Context {
-    pub fn output_format(&self) -> OutputFormat {
-        match self {
-            Context::Find(ctx) => ctx.user_output.output_format,
-            Context::List(ctx) => ctx.user_output.output_format,
-            Context::Set(ctx) => ctx.user_output.output_format,
-            Context::Show(ctx) => ctx.user_output.output_format,
-            Context::Verify(ctx) => ctx.user_output.output_format,
-        }
-    }
-
     pub fn reporting_name(&self) -> &'static str {
         match self {
             Context::Find(_) => "find",
