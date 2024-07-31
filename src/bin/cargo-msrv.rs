@@ -7,7 +7,7 @@ use std::sync::Arc;
 use storyteller::{EventHandler, EventListener, FinishProcessing};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
-use cargo_msrv::cli::CargoCli;
+use cargo_msrv::cli::{CargoCli, CargoMsrvOpts};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
@@ -17,11 +17,16 @@ use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
 use cargo_msrv::{run_app, Context, OutputFormat, TracingOptions, TracingTargetOption};
 
 fn main() {
+    let opts = parse_opts(std::env::args_os);
+    let output_format = opts.shared_opts.user_output_opts.output_format;
+
     std::process::exit(
-        match _main(std::env::args_os) {
+        match _main(opts) {
             Ok((_guard, exit_code)) => exit_code,
             Err(err) => {
-                tracing::error!("{}", err);
+                // Can't use tracing::error! here, because it may not have been initialized!
+                report_init_err(err, output_format);
+
                 ExitCode::Failure
             }
         }
@@ -29,12 +34,33 @@ fn main() {
     );
 }
 
-fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
+fn report_init_err(err: InstanceError, output_format: OutputFormat) {
+    match output_format {
+        OutputFormat::Human => eprintln!("{}", err),
+        OutputFormat::Minimal => eprintln!("error\n{}", err),
+        OutputFormat::Json => {
+            eprintln!(
+                "{}",
+                serde_json::json!({
+                    "type": "init",
+                    "failure": format!("{}", err),
+                })
+            );
+        }
+        OutputFormat::None => {}
+    }
+}
+
+fn parse_opts<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     args: F,
-) -> Result<(Option<TracingGuard>, ExitCode), InstanceError> {
+) -> CargoMsrvOpts {
     let matches = CargoCli::parse_args(args());
     let opts = matches.to_cargo_msrv_cli().to_opts();
 
+    opts
+}
+
+fn _main(opts: CargoMsrvOpts) -> Result<(Option<TracingGuard>, ExitCode), InstanceError> {
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
     // long as the lifetime of the worker guard. If we don't do this, the guard would be dropped after
     // the scope of `if !config.no_tracing() { ... }` ended, and as a result, anything logged in
