@@ -1,5 +1,5 @@
 use crate::cli::CargoMsrvOpts;
-use crate::context::{EnvironmentContext, UserOutputContext};
+use crate::context::EnvironmentContext;
 use crate::error::CargoMSRVError;
 use std::convert::{TryFrom, TryInto};
 
@@ -7,9 +7,6 @@ use std::convert::{TryFrom, TryInto};
 pub struct ShowContext {
     /// Resolved environment options
     pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
 }
 
 impl TryFrom<CargoMsrvOpts> for ShowContext {
@@ -20,7 +17,6 @@ impl TryFrom<CargoMsrvOpts> for ShowContext {
 
         Ok(Self {
             environment: (&shared_opts).try_into().unwrap(), // todo!
-            user_output: shared_opts.user_output_opts.into(),
         })
     }
 }

@@ -2,11 +2,10 @@ use super::*;
 use crate::check::TestRunner;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
-    UserOutputContext,
 };
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::TestReporterWrapper;
-use crate::{Event, OutputFormat};
+use crate::Event;
 use camino::Utf8PathBuf;
 use rust_releases::semver;
 use std::iter::FromIterator;
@@ -256,9 +255,6 @@ fn create_test_context() -> FindContext {
         },
         environment: EnvironmentContext {
             crate_path: Utf8PathBuf::new(),
-        },
-        user_output: UserOutputContext {
-            output_format: OutputFormat::None,
         },
     }
 }

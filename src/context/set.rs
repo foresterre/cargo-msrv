@@ -1,5 +1,5 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::context::{EnvironmentContext, RustReleasesContext, UserOutputContext};
+use crate::context::{EnvironmentContext, RustReleasesContext};
 use crate::error::CargoMSRVError;
 use crate::manifest::bare_version::BareVersion;
 use std::convert::{TryFrom, TryInto};
@@ -14,9 +14,6 @@ pub struct SetContext {
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
 }
 
 impl TryFrom<CargoMsrvOpts> for SetContext {
@@ -41,7 +38,6 @@ impl TryFrom<CargoMsrvOpts> for SetContext {
             msrv: subcommand.msrv,
             rust_releases: find_opts.rust_releases_opts.into(),
             environment,
-            user_output: shared_opts.user_output_opts.into(),
         })
     }
 }
