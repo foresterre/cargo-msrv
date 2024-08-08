@@ -71,7 +71,7 @@ fn setup_reporter(opts: CargoMsrvOpts) -> Result<ExitCode, SetupError> {
 
     tracing::info!("storyteller channel created");
 
-    let output_format = opts.shared_opts.user_output_opts.output_format;
+    let output_format = opts.shared_opts.user_output_opts.effective_output_format();
     let handler = WrappingHandler::from(output_format);
     let finalizer = listener.run_handler(Arc::new(handler));
     tracing::info!("storyteller started handler");

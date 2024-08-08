@@ -33,11 +33,21 @@ pub struct UserOutputOpts {
         value_name = "FORMAT",
         global = true
     )]
-    pub output_format: OutputFormat,
+    output_format: OutputFormat,
 
     /// Disable user output
     #[arg(long, global = true)]
-    pub no_user_output: bool,
+    no_user_output: bool,
+}
+
+impl UserOutputOpts {
+    pub fn effective_output_format(&self) -> OutputFormat {
+        if self.no_user_output {
+            OutputFormat::None
+        } else {
+            self.output_format
+        }
+    }
 }
 
 #[derive(Debug, Args)]

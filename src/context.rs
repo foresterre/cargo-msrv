@@ -305,14 +305,8 @@ pub struct UserOutputContext {
 
 impl From<UserOutputOpts> for UserOutputContext {
     fn from(opts: UserOutputOpts) -> Self {
-        if opts.no_user_output {
-            Self {
-                output_format: OutputFormat::None,
-            }
-        } else {
-            Self {
-                output_format: opts.output_format,
-            }
+        Self {
+            output_format: opts.effective_output_format(),
         }
     }
 }
