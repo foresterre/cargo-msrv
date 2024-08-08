@@ -7,7 +7,7 @@ use std::sync::Arc;
 use storyteller::{EventHandler, EventListener, FinishProcessing};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
-use cargo_msrv::cli::CargoCli;
+use cargo_msrv::cli::{CargoCli, CargoMsrvOpts};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
@@ -18,10 +18,14 @@ use cargo_msrv::{run_app, Context, OutputFormat, TracingOptions, TracingTargetOp
 
 fn main() {
     std::process::exit(
-        match _main(std::env::args_os) {
+        match setup_opts_and_tracing(std::env::args_os) {
             Ok((_guard, exit_code)) => exit_code,
             Err(err) => {
-                tracing::error!("{}", err);
+                // Don't use `tracing::error!` here because maybe an issue with `tracing` setup is what
+                // caused this error in the first place
+                // Additionally `tracing::error!` would not print to console by default, so user would not
+                // know what went wrong
+                eprintln!("Setup error: {}", err);
                 ExitCode::Failure
             }
         }
@@ -29,9 +33,9 @@ fn main() {
     );
 }
 
-fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
+fn setup_opts_and_tracing<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
     args: F,
-) -> Result<(Option<TracingGuard>, ExitCode), InstanceError> {
+) -> Result<(Option<TracingGuard>, ExitCode), SetupError> {
     let matches = CargoCli::parse_args(args());
     let opts = matches.to_cargo_msrv_cli().to_opts();
 
@@ -53,11 +57,10 @@ fn _main<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + Clone>(
         guard = Some(init_tracing(&tracing_config)?);
     }
 
-    let context = Context::try_from(opts).map_err(InstanceError::CargoMsrv)?;
-    init_and_run(&context).map(|exit_code| (guard, exit_code))
+    setup_reporter(opts).map(|exit_code| (guard, exit_code))
 }
 
-fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
+fn setup_reporter(opts: CargoMsrvOpts) -> Result<ExitCode, SetupError> {
     tracing::info!(
         cargo_msrv_version = env!("CARGO_PKG_VERSION"),
         "initializing"
@@ -68,15 +71,15 @@ fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
 
     tracing::info!("storyteller channel created");
 
-    let output_format = ctx.output_format();
+    let output_format = opts.shared_opts.user_output_opts.effective_output_format();
     let handler = WrappingHandler::from(output_format);
     let finalizer = listener.run_handler(Arc::new(handler));
     tracing::info!("storyteller started handler");
-    tracing::info!("start run_app");
+    tracing::info!("starting execution");
 
-    let res = run_app(ctx, &reporter);
+    let res = setup_context_and_run(opts, &reporter);
 
-    tracing::info!("finished run_app");
+    tracing::info!("finished execution");
 
     let exit_code = get_exit_code(res, &reporter)?;
     disconnect_reporter(reporter)?;
@@ -85,17 +88,25 @@ fn init_and_run(ctx: &Context) -> Result<ExitCode, InstanceError> {
     Ok(exit_code)
 }
 
+fn setup_context_and_run(
+    opts: CargoMsrvOpts,
+    reporter: &impl Reporter,
+) -> Result<(), CargoMSRVError> {
+    let context = Context::try_from(opts)?;
+    run_app(&context, reporter)
+}
+
 /// Get the exit code from the result of the program's main work unit.
 fn get_exit_code(
     result: Result<(), CargoMSRVError>,
     reporter: &impl Reporter,
-) -> Result<ExitCode, InstanceError> {
+) -> Result<ExitCode, SetupError> {
     Ok(match result {
         Ok(_) => ExitCode::Success,
         Err(err) => {
             reporter
                 .report_event(TerminateWithFailure::new(err))
-                .map_err(|_| InstanceError::StorytellerSend)?;
+                .map_err(|_| SetupError::StorytellerSend)?;
 
             ExitCode::Failure
         }
@@ -150,10 +161,10 @@ impl From<OutputFormat> for WrappingHandler {
 
 /// Disconnect the reporter, signalling that the program is finished, and we can now finish
 /// up processing the last user output events.
-fn disconnect_reporter(reporter: impl Reporter) -> Result<(), InstanceError> {
+fn disconnect_reporter(reporter: impl Reporter) -> Result<(), SetupError> {
     reporter
         .disconnect()
-        .map_err(|_| InstanceError::StorytellerDisconnect)?;
+        .map_err(|_| SetupError::StorytellerDisconnect)?;
 
     tracing::info!("disconnected reporter");
 
@@ -161,17 +172,17 @@ fn disconnect_reporter(reporter: impl Reporter) -> Result<(), InstanceError> {
 }
 
 /// Wait for the user output processing to finish up it's queue of events by blocking.
-fn wait_for_user_output(finalizer: impl FinishProcessing) -> Result<(), InstanceError> {
+fn wait_for_user_output(finalizer: impl FinishProcessing) -> Result<(), SetupError> {
     finalizer
         .finish_processing()
-        .map_err(|_| InstanceError::StorytellerFinishEventProcessing)?;
+        .map_err(|_| SetupError::StorytellerFinishEventProcessing)?;
 
     tracing::info!("finished processing unprocessed events");
 
     Ok(())
 }
 
-fn init_tracing(tracing_config: &TracingConfig) -> Result<TracingGuard, InstanceError> {
+fn init_tracing(tracing_config: &TracingConfig) -> Result<TracingGuard, SetupError> {
     let level = tracing_config.level;
 
     match &tracing_config.target {
@@ -192,7 +203,7 @@ fn init_tracing(tracing_config: &TracingConfig) -> Result<TracingGuard, Instance
 fn init_tracing_to_file(
     log_folder: impl AsRef<Path>,
     level: tracing::Level,
-) -> Result<TracingGuard, InstanceError> {
+) -> Result<TracingGuard, SetupError> {
     let file_appender = RollingFileAppender::new(Rotation::DAILY, log_folder, "cargo-msrv-log");
     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
 
@@ -203,16 +214,16 @@ fn init_tracing_to_file(
         .finish();
 
     tracing::subscriber::set_global_default(subscriber)
-        .map_err(|_| InstanceError::UnableToInitTracing)?;
+        .map_err(|_| SetupError::UnableToInitTracing)?;
 
     Ok(TracingGuard::NonBlockingGuard(guard))
 }
 
-fn init_tracing_to_stdout(level: tracing::Level) -> Result<TracingGuard, InstanceError> {
+fn init_tracing_to_stdout(level: tracing::Level) -> Result<TracingGuard, SetupError> {
     let subscriber = tracing_subscriber::fmt().with_max_level(level).finish();
 
     tracing::subscriber::set_global_default(subscriber)
-        .map_err(|_| InstanceError::UnableToInitTracing)?;
+        .map_err(|_| SetupError::UnableToInitTracing)?;
 
     Ok(TracingGuard::None)
 }
@@ -223,7 +234,7 @@ struct TracingConfig {
 }
 
 impl TracingConfig {
-    fn try_from_options(config: &TracingOptions) -> Result<Self, InstanceError> {
+    fn try_from_options(config: &TracingOptions) -> Result<Self, SetupError> {
         let target = TracingTarget::try_from_option(config.target())?;
 
         Ok(Self {
@@ -239,7 +250,7 @@ enum TracingTarget {
 }
 
 impl TracingTarget {
-    fn try_from_option(option: &TracingTargetOption) -> Result<Self, InstanceError> {
+    fn try_from_option(option: &TracingTargetOption) -> Result<Self, SetupError> {
         match option {
             TracingTargetOption::File => {
                 let folder = log_folder()?;
@@ -255,21 +266,16 @@ enum TracingGuard {
     None,
 }
 
-fn log_folder() -> Result<PathBuf, InstanceError> {
+fn log_folder() -> Result<PathBuf, SetupError> {
     dirs::data_local_dir()
         .map(|path| path.join("cargo-msrv"))
-        .ok_or(InstanceError::UnableToAccessLogFolder)
+        .ok_or(SetupError::UnableToAccessLogFolder)
 }
 
+/// Error which occurred during setting up the program or shutting it down.
+/// Does not cover errors which occur during execution.
 #[derive(Debug, thiserror::Error)]
-enum InstanceError {
-    // Only for compat. with `Context::try_from`, which is not as easily converted to this Error type
-    // of the bin crate.
-    // For that reason, we do not derive `#[from] CargoMSRVError`, so we don't silently miss calls
-    // which may produce an `Err(CargoMSRVError)` where we do not want it.
-    #[error("{0}")]
-    CargoMsrv(CargoMSRVError),
-
+enum SetupError {
     #[error("Unable to init logger, run with --no-log to try again without logging.")]
     UnableToInitTracing,
 
