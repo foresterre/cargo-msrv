@@ -82,6 +82,37 @@ impl RustupCommand {
         self.command.stdout(self.stdout);
         self.command.stderr(self.stderr);
 
+        // todo:
+        //     cwd: Some(
+        //         "/home/a/cargo-msrv/tests/fixtures/1.35.0",
+        //     ),
+        // however:
+        //     error: failed to parse manifest at `/home/a/cargo-msrv/Cargo.toml
+        // whaaat?
+        // -> Turns out, if I copy the fixtures outside of cargo-msrv it works fine
+        // -> For some reason, the cwd is getting overwritten.
+        // -> I checked the edition notes, but they do not mention a change
+        //
+        // It happens in all these places:
+        // - running cargo test (in some integration tests in the tests directory, ... where edition of test crate < cargo-msrv's (or top level Cargo.toml)
+        // - running cargo run -- msrv --manifest-path tests/fixtures/1.35.0, ... where edition of test crate < cargo-msrv's (or top level Cargo.toml)
+        // - running cargo msrv (after installing the version which uses edition 2021), ... where edition crate < cargo-msrv's (or top level Cargo.toml)
+        // -> ... where edition crate < cargo-msrv's (or top level Cargo.toml)
+        // -> -> Running rustup run <toolchain> <cargo cmd> with cwd = (an inner crate within an outer crate) just reads the outer crate it seems
+        // -> -> But this only seems to happen from edition 2021 forward
+        // -> -> Didn't see anything about this in the Cargo changelog or edition notes...
+        //
+        // Whether it is a smart thing to add crates within crates (which aren't part of the workspace), 🤷
+        // But it used to work...
+        //
+        // -> Confirmed with 'cargo new --lib outer && cd outer && cargo new --lib inner' and setting inner edition to 2018
+        // -> Then running cargo msrv inside 'inner'
+        //
+        // When using cargo-msrv 0.15.1 (latest on crates.io), and testing the above, it seems like it
+        // used to work for tests, not normal runs...?
+        // TODO: remove dbg
+        dbg!(&self.command);
+
         let child = self.command.spawn().map_err(|error| IoError {
             error,
             source: IoErrorSource::SpawnProcess(cmd.to_owned()),
