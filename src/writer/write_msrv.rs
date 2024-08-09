@@ -1,4 +1,4 @@
-use crate::context::{EnvironmentContext, RustReleasesContext, SetContext, UserOutputContext};
+use crate::context::{EnvironmentContext, RustReleasesContext, SetContext};
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::Reporter;
 use crate::{Set, SubCommand, TResult};
@@ -12,13 +12,11 @@ pub fn write_msrv(
     msrv: BareVersion,
     release_index: Option<&ReleaseIndex>,
     environment: EnvironmentContext,
-    user_output: UserOutputContext,
     rust_releases: RustReleasesContext,
 ) -> TResult<()> {
     let context = SetContext {
         msrv,
         environment,
-        user_output,
         rust_releases,
     };
 
@@ -29,12 +27,11 @@ pub fn write_msrv(
 
 #[cfg(test)]
 mod tests {
-    use crate::context::{EnvironmentContext, RustReleasesContext, UserOutputContext};
+    use crate::context::{EnvironmentContext, RustReleasesContext};
     use crate::error::CargoMSRVError;
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::FakeTestReporter;
     use crate::writer::write_msrv::write_msrv;
-    use crate::OutputFormat;
     use camino::Utf8Path;
     use rust_releases::{semver, ReleaseIndex};
     use std::iter::FromIterator;
@@ -56,10 +53,6 @@ mod tests {
             crate_path: root.to_path_buf(),
         };
 
-        let user_output = UserOutputContext {
-            output_format: OutputFormat::None,
-        };
-
         let index = ReleaseIndex::from_iter(vec![rust_releases::Release::new_stable(
             semver::Version::new(2, 0, 5),
         )]);
@@ -69,7 +62,6 @@ mod tests {
             version,
             Some(&index),
             env,
-            user_output,
             RustReleasesContext::default(),
         )
         .unwrap();
@@ -94,10 +86,6 @@ mod tests {
             crate_path: root.to_path_buf(),
         };
 
-        let user_output = UserOutputContext {
-            output_format: OutputFormat::None,
-        };
-
         let index = ReleaseIndex::from_iter(vec![]);
 
         let err = write_msrv(
@@ -105,7 +93,6 @@ mod tests {
             version,
             Some(&index),
             env,
-            user_output,
             RustReleasesContext::default(),
         )
         .unwrap_err();
@@ -129,16 +116,11 @@ mod tests {
             crate_path: root.to_path_buf(),
         };
 
-        let user_output = UserOutputContext {
-            output_format: OutputFormat::None,
-        };
-
         write_msrv(
             &fake_reporter,
             version,
             None,
             env,
-            user_output,
             RustReleasesContext::default(),
         )
         .unwrap();

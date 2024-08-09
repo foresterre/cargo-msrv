@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 use rust_releases::{Release, ReleaseIndex};
 
 use crate::check::Check;
-use crate::context::{EnvironmentContext, OutputFormat, VerifyContext};
+use crate::context::{EnvironmentContext, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::CargoManifest;
@@ -73,9 +73,6 @@ fn verify_msrv(
 
     match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),
-        Outcome::Failure(_) if ctx.user_output.output_format == OutputFormat::None => {
-            failure(reporter, toolchain, rust_version, None)
-        }
         Outcome::Failure(f) => failure(reporter, toolchain, rust_version, Some(f.error_message)),
     }
 }

@@ -1,7 +1,6 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
-    UserOutputContext,
 };
 
 use crate::check::RunCommand;
@@ -32,9 +31,6 @@ pub struct VerifyContext {
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
 }
 
 impl TryFrom<CargoMsrvOpts> for VerifyContext {
@@ -68,7 +64,6 @@ impl TryFrom<CargoMsrvOpts> for VerifyContext {
             toolchain,
             check_cmd: find_opts.custom_check_opts.into(),
             environment,
-            user_output: shared_opts.user_output_opts.into(),
         })
     }
 }

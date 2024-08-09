@@ -1,5 +1,5 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::context::{EnvironmentContext, UserOutputContext};
+use crate::context::EnvironmentContext;
 use crate::error::CargoMSRVError;
 use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
@@ -14,9 +14,6 @@ pub struct ListContext {
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
 }
 
 impl TryFrom<CargoMsrvOpts> for ListContext {
@@ -39,7 +36,6 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
         Ok(Self {
             variant: subcommand.variant,
             environment,
-            user_output: shared_opts.user_output_opts.into(),
         })
     }
 }

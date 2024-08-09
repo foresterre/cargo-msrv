@@ -7,7 +7,7 @@
 //! Unlike the opts, the context is top down, not bottom up.
 
 use crate::cli::rust_releases_opts::RustReleasesOpts;
-use crate::cli::shared_opts::{SharedOpts, UserOutputOpts};
+use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
@@ -293,21 +293,6 @@ impl EnvironmentContext {
     /// The path to the Cargo lock file
     pub fn lock(&self) -> Utf8PathBuf {
         self.crate_path.join("Cargo.lock")
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct UserOutputContext {
-    /// The output format to use, or `None` if
-    /// no user output should be presented to the user.
-    pub output_format: OutputFormat,
-}
-
-impl From<UserOutputOpts> for UserOutputContext {
-    fn from(opts: UserOutputOpts) -> Self {
-        Self {
-            output_format: opts.effective_output_format(),
-        }
     }
 }
 

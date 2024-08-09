@@ -2,7 +2,6 @@ use crate::check::RunCommand;
 use crate::cli::CargoMsrvOpts;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
-    UserOutputContext,
 };
 use crate::error::CargoMSRVError;
 use crate::external_command::cargo_command::CargoCommand;
@@ -36,9 +35,6 @@ pub struct FindContext {
 
     /// Resolved environment options
     pub environment: EnvironmentContext,
-
-    /// User output options
-    pub user_output: UserOutputContext,
 }
 
 impl TryFrom<CargoMsrvOpts> for FindContext {
@@ -68,7 +64,6 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
             toolchain,
             check_cmd: find_opts.custom_check_opts.into(),
             environment,
-            user_output: shared_opts.user_output_opts.into(),
         })
     }
 }

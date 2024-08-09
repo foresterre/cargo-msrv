@@ -69,7 +69,6 @@ fn find_msrv(
 
             if ctx.write_msrv {
                 let environment_ctx = ctx.environment.clone();
-                let user_output_ctx = ctx.user_output.clone();
                 let rust_releases_ctx = ctx.rust_releases.clone();
 
                 write_msrv(
@@ -77,7 +76,6 @@ fn find_msrv(
                     BareVersion::two_component_from_semver(toolchain.version()),
                     Some(release_index), // Re-use the already obtained index
                     environment_ctx,
-                    user_output_ctx,
                     rust_releases_ctx,
                 )?;
             }
