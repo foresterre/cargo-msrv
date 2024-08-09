@@ -54,9 +54,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Fix an index out-of-bounds panic which occurred if the filtered Rust releases search space was empty.
 * Use compilation target instead of build machine target for MSRV checks.
 * Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path.
-* Supply provided components to `verify` subcommand
+* Supply provided components to `verify` subcommand.
 * The CLI arguments `--target` and `--add-component` were previously inadvertently ignored when provided
   to `cargo msrv verify`.
+* Fixed issue where some errors were not being reported (e.g. `cargo msrv verify` did not print an error if it wasn't possible to resolve the MSRV to check against).
 
 ### Removed
 
