@@ -1,4 +1,6 @@
-use crate::error::RustupInstallFailed;
+use crate::error::{
+    RustupAddComponentError, RustupAddTargetError, RustupError, RustupInstallError,
+};
 use crate::external_command::rustup_command::RustupCommand;
 use crate::reporter::event::SetupToolchain;
 use crate::toolchain::ToolchainSpec;
@@ -57,9 +59,12 @@ fn install_toolchain(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to install toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::Install(
+            RustupInstallError {
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())
@@ -94,9 +99,13 @@ fn add_target(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to add target to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::AddTarget(
+            RustupAddTargetError {
+                targets: toolchain.target().to_string(),
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())
@@ -135,9 +144,13 @@ fn add_components(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to add component(s) to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::AddComponent(
+            RustupAddComponentError {
+                components: toolchain.components().join(", "),
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())
