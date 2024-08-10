@@ -5,6 +5,7 @@ to be understandable, while not requiring elaborate parsers like the `json` outp
 a minimal human-readable format.
 
 This output format can be summarized by the following two statements:
+
 * If the command was successful, it prints the commands final result and exits with a zero exit code. Output is printed
   to `stdout`.
 * If the command was unsuccessful, it prints an error message, and exits with a non-zero exit code. Output is printed  
@@ -22,10 +23,10 @@ If it could not be found, we report `none` instead, and write this value to `std
 
 ### Example 1
 
-If the MSRV is `1.60.0`, the output will be just `1.60.0`. 
+If the MSRV is `1.60.0`, the output will be just `1.60.0`.
 
 ```shell
-$ cargo msrv --output-format minimal
+$ cargo msrv find --output-format minimal
 # stdout
 1.60.0
 ```
@@ -33,10 +34,10 @@ $ cargo msrv --output-format minimal
 ### Example 2
 
 If the MSRV can't be found, for example if your project requires a nightly compiler feature
-or has incorrect syntax, the output will be `none`. 
+or has incorrect syntax, the output will be `none`.
 
 ```shell
-$ cargo msrv --output-format minimal
+$ cargo msrv find --output-format minimal
 # stderr
 none
 ```
@@ -45,7 +46,6 @@ none
 
 The `list` subcommand is not supported by the `minimal` output format, and "unsupported" will be printed.
 Support may be added in the future.
-
 
 ## \# cargo msrv set
 
@@ -56,7 +56,7 @@ The `set` subcommand prints the version set as MSRV.
 If we set our MSRV to be `1.31`, the output will be `1.31`.
 
 ```shell
-cargo msrv --output-format minimal set 1.31
+cargo msrv find --output-format minimal set 1.31
 # stdout
 1.31
 ```
@@ -79,7 +79,7 @@ rust-version = "1.60"
 **Shell**
 
 ```shell
-$ cargo msrv --output-format minimal show
+$ cargo msrv find --output-format minimal show
 # stdout
 1.60
 ```
@@ -87,7 +87,8 @@ $ cargo msrv --output-format minimal show
 ### Example 2
 
 Assuming our Cargo manifest lists the MSRV in the `package.metadata.msrv` field, `cargo-msrv` will print `1.21.0`.
-The `package.rust-version` field has precedence over the `package.metadata.msrv`. You may see the `package.metadata.msrv`
+The `package.rust-version` field has precedence over the `package.metadata.msrv`. You may see the
+`package.metadata.msrv`
 key for crates which use a Cargo version which does not yet support the `package.rust-version` field. `cargo-msrv`
 supports both fields.
 
@@ -101,7 +102,7 @@ msrv = "1.21.0"
 **Shell**
 
 ```shell
-$ cargo msrv --output-format minimal show
+$ cargo msrv find --output-format minimal show
 # stdout
 1.21.0
 ```
@@ -124,7 +125,7 @@ msrv = "1.31"
 **Shell**
 
 ```shell
-$ cargo msrv --output-format minimal verify
+$ cargo msrv find --output-format minimal verify
 # stdout
 true
 ```
@@ -136,7 +137,7 @@ Assuming the given crate is incompatibility with the given MSRV:
 **Shell**
 
 ```shell
-$ cargo msrv --output-format minimal verify --rust-version 1.31
+$ cargo msrv find --output-format minimal verify --rust-version 1.31
 # stderr
 false
 ```

@@ -26,15 +26,15 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
             ..
         } = opts;
 
-        let subcommand = match subcommand {
-            Some(SubCommand::List(opts)) => opts,
+        let list_opts = match subcommand {
+            SubCommand::List(opts) => opts,
             _ => unreachable!("This should never happen. The subcommand is not `list`!"),
         };
 
         let environment = (&shared_opts).try_into()?;
 
         Ok(Self {
-            variant: subcommand.variant,
+            variant: list_opts.variant,
             environment,
         })
     }

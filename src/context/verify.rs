@@ -38,31 +38,30 @@ impl TryFrom<CargoMsrvOpts> for VerifyContext {
 
     fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
-            find_opts,
             shared_opts,
             subcommand,
         } = opts;
 
-        let subcommand = match subcommand {
-            Some(SubCommand::Verify(opts)) => opts,
+        let verify_opts = match subcommand {
+            SubCommand::Verify(opts) => opts,
             _ => unreachable!("This should never happen. The subcommand is not `verify`!"),
         };
 
-        let toolchain = find_opts.toolchain_opts.try_into()?;
+        let toolchain = verify_opts.toolchain_opts.try_into()?;
         let environment = (&shared_opts).try_into()?;
 
-        let rust_version = match subcommand.rust_version {
+        let rust_version = match verify_opts.rust_version {
             Some(v) => RustVersion::from_arg(v),
             None => RustVersion::try_from_environment(&environment)?,
         };
 
         Ok(Self {
             rust_version,
-            ignore_lockfile: find_opts.ignore_lockfile,
-            no_check_feedback: find_opts.no_check_feedback,
-            rust_releases: find_opts.rust_releases_opts.into(),
+            ignore_lockfile: verify_opts.ignore_lockfile,
+            no_check_feedback: verify_opts.no_check_feedback,
+            rust_releases: verify_opts.rust_releases_opts.into(),
             toolchain,
-            check_cmd: find_opts.custom_check_opts.into(),
+            check_cmd: verify_opts.custom_check_opts.into(),
             environment,
         })
     }
@@ -92,29 +91,11 @@ mod tests {
         use std::convert::TryFrom;
 
         #[test]
-        fn target_at_top_level() {
-            let opts = CargoCli::parse_args(["cargo", "msrv", "--target", "x", "verify"]);
-            let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
-
-            assert_eq!(context.toolchain.target, "x");
-        }
-
-        #[test]
         fn target_at_subcommand_level() {
             let opts = CargoCli::parse_args(["cargo", "msrv", "verify", "--target", "x"]);
             let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
 
             assert_eq!(context.toolchain.target, "x");
-        }
-
-        // The subcommand takes precedence over the top-level (I would have preferred for Clap to reject the presence on both, since the num args is 0..1 with Option<T>)
-        #[test]
-        fn target_at_top_level_and_subcommand_level() {
-            let opts =
-                CargoCli::parse_args(["cargo", "msrv", "--target", "x", "verify", "--target", "y"]);
-            let context = VerifyContext::try_from(opts.to_cargo_msrv_cli().to_opts()).unwrap();
-
-            assert_eq!(context.toolchain.target, "y");
         }
     }
 }

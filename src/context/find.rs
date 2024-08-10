@@ -1,5 +1,5 @@
 use crate::check::RunCommand;
-use crate::cli::CargoMsrvOpts;
+use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
 };
@@ -42,10 +42,14 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
 
     fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let CargoMsrvOpts {
-            find_opts,
             shared_opts,
-            ..
+            subcommand,
         } = opts;
+
+        let find_opts = match subcommand {
+            SubCommand::Find(opts) => opts,
+            _ => unreachable!("This should never happen. The subcommand is not `find`!"),
+        };
 
         let toolchain = find_opts.toolchain_opts.try_into()?;
         let environment = (&shared_opts).try_into()?;
