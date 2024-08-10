@@ -35,6 +35,7 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--linear",
         "--path",
         folder.to_str().unwrap(),
@@ -66,6 +67,7 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--bisect",
         "--path",
         folder.to_str().unwrap(),
@@ -81,7 +83,7 @@ fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
 fn msrv_unsupported() {
     let folder = fixtures_path().join("unbuildable");
 
-    let with_args = vec!["cargo", "msrv", "--path", folder.to_str().unwrap()];
+    let with_args = vec!["cargo", "msrv", "find", "--path", folder.to_str().unwrap()];
 
     let result = find_msrv(with_args);
 
@@ -111,6 +113,7 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--linear",
         "--path",
         folder.to_str().unwrap(),
@@ -145,6 +148,7 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--linear",
         "--release-source",
         release_source,
@@ -168,6 +172,7 @@ fn msrv_with_old_lockfile() {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--linear",
         "--path",
         folder.to_str().unwrap(),
@@ -191,6 +196,7 @@ mod minimum_from_edition {
         let with_args = vec![
             "cargo",
             "msrv",
+            "find",
             "--linear",
             "--path",
             folder.to_str().unwrap(),
@@ -233,7 +239,7 @@ fn msrv_in_a_virtual_workspace_default_check_command(
     let folder = fixtures_path().join("virtual-workspace").join(package);
     let folder = folder.to_str().unwrap();
 
-    let with_args = vec!["cargo", "msrv", "--path", folder];
+    let with_args = vec!["cargo", "msrv", "find", "--path", folder];
 
     let versions = vec![
         Release::new_stable(semver::Version::new(1, 58, 1)),
@@ -270,7 +276,7 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
     let folder = fixtures_path().join("virtual-workspace").join(package);
     let folder = folder.to_str().unwrap();
 
-    let base_command = vec!["cargo", "msrv", "--path", folder, "--"];
+    let base_command = vec!["cargo", "msrv", "find", "--path", folder, "--"];
     let custom_check_command = command.split_ascii_whitespace().collect::<Vec<_>>();
     let command = [base_command, custom_check_command];
 
@@ -294,6 +300,7 @@ fn cargo_features_option() {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--features",
         "required_feature",
         "--path",
@@ -327,6 +334,7 @@ fn cargo_all_features_flag() {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--all-features",
         "--path",
         folder.to_str().unwrap(),
@@ -359,6 +367,7 @@ fn cargo_no_default_features_flag() {
     let with_args = vec![
         "cargo",
         "msrv",
+        "find",
         "--no-default-features",
         "--path",
         folder.to_str().unwrap(),

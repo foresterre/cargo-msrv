@@ -97,12 +97,12 @@ impl TryFrom<CargoMsrvOpts> for Context {
     type Error = CargoMSRVError;
 
     fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
-        let ctx = match opts.subcommand.as_ref() {
-            None => Self::Find(FindContext::try_from(opts)?),
-            Some(SubCommand::List(_)) => Self::List(ListContext::try_from(opts)?),
-            Some(SubCommand::Set(_)) => Self::Set(SetContext::try_from(opts)?),
-            Some(SubCommand::Show) => Self::Show(ShowContext::try_from(opts)?),
-            Some(SubCommand::Verify(_)) => Self::Verify(VerifyContext::try_from(opts)?),
+        let ctx = match opts.subcommand {
+            SubCommand::Find(_) => Self::Find(FindContext::try_from(opts)?),
+            SubCommand::List(_) => Self::List(ListContext::try_from(opts)?),
+            SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),
+            SubCommand::Show => Self::Show(ShowContext::try_from(opts)?),
+            SubCommand::Verify(_) => Self::Verify(VerifyContext::try_from(opts)?),
         };
 
         Ok(ctx)

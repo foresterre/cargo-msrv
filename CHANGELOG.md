@@ -12,6 +12,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Added
 
+* **Added `cargo msrv find` subcommand to determine the MSRV (this subcommand was moved from the top level `cargo msrv`
+  command to its own subcommand)**
+* **Added
+  options `--ignore-lockfile`,  `--no-check-feedback`, `--target`, `--component`, `--features`, `--all-features`,
+  `--no-default-features` and the last argument "custom compatibility check command", which were previously available
+  from the top level `cargo msrv` command to the `cargo msrv verify` subcommand.**
 * Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument,
   which can be used to check for a crate's compatibility against a specific Rust version.
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
@@ -65,23 +71,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Removed deprecated option `cargo msrv --verify`. Use `cargo msrv verify` instead.
 * Removed option to disable filtering the Rust releases search space by the Rust edition in from the Cargo
   manifest, `--no-read-min-edition`.
-
-### Known issues
-
-* The CLI
-  arguments `--features`, `--all-features`, `--no-default-features`, `--min`, `--max`, `--include-all-patch-releases`
-  and `--release-source` are ignored when provided to the `verify` subcommand. Workaround: supply these arguments
-  directly to the top-level command, e.g. `cargo msrv --all-features verify`.
-* The CLI arguments `--target` and `--component` can be provided to both the top-level `cargo msrv` command, and
-  the `cargo msrv verify` subcommand, however if they're provided to both, then only the arguments of the subcommand are
-  considered.
-  Example:
-  `cargo msrv --target x --component a --component b verify --target y --component c --component d`
-  does not reject or collect the `--target x --component a --component b` portion; the program will only be
-  aware of the `--target y --component c --component d` arguments.
-* The CLI arguments `--target` and `--component` are shown to be available globally (i.e. both at the top
-  level `cargo msrv` command and at the subcommand level, e.g. `cargo msrv verify`), even for subcommands which do not
-  consume these arguments like `cargo msrv list`.
+* Moved the top level `cargo msrv` "find the MSRV" action to the `cargo msrv find` subcommand, which removed several
+  options and flags from the top level command which had previously no effect on other subcommands.
 
 ## [0.15.1] - 2022-02-24
 

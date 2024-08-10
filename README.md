@@ -54,15 +54,17 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
 
 ### Usage
 
-* [`cargo msrv`](https://foresterre.github.io/cargo-msrv/commands/find.html)
-  or [`cargo msrv --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo
+* [`cargo msrv find`](https://foresterre.github.io/cargo-msrv/commands/find.html)
+  or [`cargo msrv find --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
+  Cargo
   project in your current working directory.
-* [`cargo msrv --path <dir>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a Cargo
+* [`cargo msrv --path <dir> find`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
+  Cargo
   project in the `<dir>` directory.
-* [`cargo msrv -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the
+* [`cargo msrv find -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the
   compatibility check which decides whether a Rust version is
   compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
-    * Example: `cargo msrv -- cargo check --tests`.
+    * Example: `cargo msrv find -- cargo check --tests`.
 * [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/verify.html)  to verify the MSRV as specified
   by a crate author\
     * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv`
@@ -82,91 +84,28 @@ book for more detailed descriptions of the supported (sub) commands.
 ```
 Find your Minimum Supported Rust Version!
 
-Usage: cargo msrv [OPTIONS] [-- <CUSTOM_CHECK_COMMAND>...] [COMMAND]
+Usage: cargo msrv [OPTIONS] <COMMAND>
 
 Commands:
-  list
-          Display the MSRV's of dependencies
-  set
-          Set the MSRV of the current crate to a given Rust version
-  show
-          Show the MSRV of your crate, as specified in the Cargo manifest
-  verify
-          Verify whether the MSRV is satisfiable. The MSRV must be specified using the 'package.rust-version' or 'package.metadata.msrv' key in the Cargo.toml manifest
-  help
-          Print this message or the help of the given subcommand(s)
+  find    Find the MSRV
+  list    Display the MSRV's of dependencies
+  set     Set the MSRV of the current crate to a given Rust version
+  show    Show the MSRV of your crate, as specified in the Cargo manifest
+  verify  Verify whether the MSRV is satisfiable
+  help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help
-          Print help (see a summary with '-h')
-
-  -V, --version
-          Print version
-
-Find MSRV options:
-      --bisect
-          Use a binary search to find the MSRV (default)
-
-          When the search space is sufficiently large, which is common, this is much faster than a linear search. A binary search will approximately halve the search space for each Rust version checked for compatibility.
-
-      --linear
-          Use a linear search to find the MSRV
-
-          This method checks toolchain from the most recent release to the earliest.
-
-      --write-toolchain-file
-          Pin the MSRV by writing the version to a rust-toolchain file
-
-          The toolchain file will pin the Rust version for this crate. See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
-
-      --ignore-lockfile
-          Temporarily remove the lockfile, so it will not interfere with the building process
-
-          This is important when testing against older Rust versions such as Cargo versions prior to Rust 1.38.0, for which Cargo does not recognize the newer lockfile formats.
-
-      --no-check-feedback
-          Don't print the result of compatibility checks
-
-          The feedback of a compatibility check can be useful to determine why a certain Rust version is not compatible. Rust usually prints very detailed error messages. While most often very useful, in some cases they may be too noisy or lengthy. If this flag is given, the result messages will not be printed.
-
-      --write-msrv
-          Write the MSRV to the Cargo manifest
-
-          For toolchains which include a Cargo version which supports the rust-version field, the `package.rust-version` field will be written. For older Rust toolchains, the `package.metadata.msrv` field will be written instead.
-
-Rust releases options:
-      --min <VERSION_SPEC or EDITION>
-          Least recent version or edition to take into account
-
-          Given version must match a valid Rust toolchain, and be semver compatible, be a two component `major.minor` version. or match a Rust edition alias.
-
-          For example, the edition alias "2018" would match Rust version `1.31.0`, since that's the first version which added support for the Rust 2018 edition.
-
-      --max <VERSION_SPEC>
-          Most recent version to take into account
-
-          Given version must match a valid Rust toolchain, and be semver compatible, or be a two component `major.minor` version.
-
-      --include-all-patch-releases
-          Include all patch releases, instead of only the last
-
-      --release-source <SOURCE>
-          [default: rust-changelog]
-          [possible values: rust-changelog, rust-dist]
-
-Toolchain options:
-      --target <TARGET>
-          Check against a custom target (instead of the rustup default)
-
-Custom check options:
       --path <Crate Directory>
           Path to cargo project directory
 
       --manifest-path <Cargo Manifest>
           Path to cargo manifest file
 
-  [CUSTOM_CHECK_COMMAND]...
-          Supply a custom `check` command to be used by cargo msrv
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
 
 User output options:
       --output-format <FORMAT>
@@ -175,12 +114,9 @@ User output options:
           [default: human]
 
           Possible values:
-          - human:
-            Progress bar rendered to stderr
-          - json:
-            Json status updates printed to stdout
-          - minimal:
-            Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
+          - human:   Progress bar rendered to stderr
+          - json:    Json status updates printed to stdout
+          - minimal: Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
 
       --no-user-output
           Disable user output

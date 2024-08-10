@@ -4,13 +4,12 @@ The `json` output format is intended to be used as a machine-readable output, to
 humans may also use it, as it provides the most detailed output of all supported output formats.
 
 As described on the [output-formats](index.md) page, `cargo-msrv` reports the status of the program via
-events. A processor transforms these events into their output-format. In case of the `json` output format, 
+events. A processor transforms these events into their output-format. In case of the `json` output format,
 events are almost 1-on-1 serialized to json (there are a few exceptions), and then printed to `stderr`.
-Each json serialized event ends with a newline. Each line thus represents a single serialized event. 
+Each json serialized event ends with a newline. Each line thus represents a single serialized event.
 
-To use the `json` output format, run `cargo-msrv` with the `--output-format json` option. 
-For example, if you want to find the MSRV, you could run `cargo msrv --output-format json`.
-
+To use the `json` output format, run `cargo-msrv` with the `--output-format json` option.
+For example, if you want to find the MSRV, you could run `cargo msrv find --output-format json`.
 
 In the next section, you can find a description of the common fields of events.
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.
@@ -35,7 +34,8 @@ been completed).
 
 The **type** field can be used to identify a specific event.
 
-The **scope** field is only present for scoped events. The `start` value (on the `marker` subfield) marks the start of a scoped event, while `end`
+The **scope** field is only present for scoped events. The `start` value (on the `marker` subfield) marks the start of a
+scoped event, while `end`
 marks the end of a scoped event.
 
 # List of events
@@ -60,28 +60,44 @@ marks the end of a scoped event.
 **example:**
 
 ```json lines
-{"type":"meta","instance":"cargo-msrv","version":"0.15.1","sha_short":"79582b6","target_triple":"x86_64-pc-windows-msvc","cargo_features":"default,rust_releases_dist_source","rustc":"1.62.0"}
+{
+  "type": "meta",
+  "instance": "cargo-msrv",
+  "version": "0.15.1",
+  "sha_short": "79582b6",
+  "target_triple": "x86_64-pc-windows-msvc",
+  "cargo_features": "default,rust_releases_dist_source",
+  "rustc": "1.62.0"
+}
 ```
 
 ## Event: `FetchIndex`
 
 **type:** fetch_index
 
-**description:** Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
+**description:** Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available.
 We obtain those using the [rust-releases](https://crates.io/crates/rust-releases) library. The `FetchIndex` event
-reports that the index is being fetched, and details which source is used. 
+reports that the index is being fetched, and details which source is used.
 
 **fields:**
 
-| name           | description                                               |
-|----------------|-----------------------------------------------------------|
-| source         | Place from where the available Rust releases are obtained |
+| name   | description                                               |
+|--------|-----------------------------------------------------------|
+| source | Place from where the available Rust releases are obtained |
 
 **example:**
 
 ```json lines
-{"type":"fetch_index","source":"rust_changelog","scope":"start"}
-{"type":"fetch_index","source":"rust_changelog","scope":"end"}
+{
+  "type": "fetch_index",
+  "source": "rust_changelog",
+  "scope": "start"
+}
+{
+  "type": "fetch_index",
+  "source": "rust_changelog",
+  "scope": "end"
+}
 ```
 
 ## Event: `CheckToolchain`
@@ -92,7 +108,7 @@ reports that the index is being fetched, and details which source is used.
 crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
 `CheckToolchain` event is wrapped around this process and notifies you about the start and end of this process.
 This event is called as a scoped event, and within it's scope, you'll find the following events: `setup_toolchain`,
-`check_method` and `check_result`, which are described in more detail below. 
+`check_method` and `check_result`, which are described in more detail below.
 
 **fields:**
 
@@ -105,8 +121,22 @@ This event is called as a scoped event, and within it's scope, you'll find the f
 **example:**
 
 ```json lines
-{"type":"check_toolchain","toolchain":{"version":"1.35.0","target":"x86_64-pc-windows-msvc"},"scope":"start"}
-{"type":"check_toolchain","toolchain":{"version":"1.35.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
+{
+  "type": "check_toolchain",
+  "toolchain": {
+    "version": "1.35.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "scope": "start"
+}
+{
+  "type": "check_toolchain",
+  "toolchain": {
+    "version": "1.35.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "scope": "end"
+}
 ```
 
 ## Event: `SetupToolchain`
@@ -128,8 +158,22 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 **example:**
 
 ```json lines
-{"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"start"}
-{"type":"setup_toolchain","toolchain":{"version":"1.47.0","target":"x86_64-pc-windows-msvc"},"scope":"end"}
+{
+  "type": "setup_toolchain",
+  "toolchain": {
+    "version": "1.47.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "scope": "start"
+}
+{
+  "type": "setup_toolchain",
+  "toolchain": {
+    "version": "1.47.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "scope": "end"
+}
 ```
 
 ## Event: `CheckMethod`
@@ -150,11 +194,26 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 | method.args       | no       | method.type = `rustup_run` | The arguments provided to rustup           |
 | method.path       | yes      | method.type = `rustup_run` | The path provided to rustup, if any        |
 
-
 **example:**
 
 ```json lines
-{"type":"check_method","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"method":{"rustup_run":{"args":["1.37.0-x86_64-pc-windows-msvc","cargo","check"],"path":"..\\air3\\"}}}
+{
+  "type": "check_method",
+  "toolchain": {
+    "version": "1.37.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "method": {
+    "rustup_run": {
+      "args": [
+        "1.37.0-x86_64-pc-windows-msvc",
+        "cargo",
+        "check"
+      ],
+      "path": "..\\air3\\"
+    }
+  }
+}
 ```
 
 ## Event: `CheckResult`
@@ -176,11 +235,26 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 **example:**
 
 ```json lines
-{"type":"check_result","toolchain":{"version":"1.38.0","target":"x86_64-pc-windows-msvc"},"is_compatible":true}
+{
+  "type": "check_result",
+  "toolchain": {
+    "version": "1.38.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "is_compatible": true
+}
 ```
 
 ```json lines
-{"type":"check_result","toolchain":{"version":"1.37.0","target":"x86_64-pc-windows-msvc"},"is_compatible":false,"error":"error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n"}
+{
+  "type": "check_result",
+  "toolchain": {
+    "version": "1.37.0",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "is_compatible": false,
+  "error": "error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n"
+}
 ```
 
 ## Event: `AuxiliaryOutput`
@@ -203,18 +277,27 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 | item.kind        | no       | if item.type = `msrv`           | To which field the MSRV was written in the Cargo manifest, "rust-version" or "metadata_fallback" |
 | item.kind        | no       | if item.type = `toolchain_file` | Which toolchain file kind was written, "legacy" or "toml"                                        |
 
-
 **example:**
 
 ```json lines
-{"type":"auxiliary_output","destination":{"type":"file","path":"..\\air3\\Cargo.toml"},"item":{"type":"msrv","kind":"rust_version"}}
+{
+  "type": "auxiliary_output",
+  "destination": {
+    "type": "file",
+    "path": "..\\air3\\Cargo.toml"
+  },
+  "item": {
+    "type": "msrv",
+    "kind": "rust_version"
+  }
+}
 ```
 
 ## Event: `Progress`
 
 **type:** progress
 
-**description:** Reports on the progress of an ongoing MSRV search. 
+**description:** Reports on the progress of an ongoing MSRV search.
 
 **fields:**
 
@@ -226,7 +309,6 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 
 <!-- Future: add length of reduced set size -->
 
-
 ## Event: `SubcommandInit`
 
 **type:** subcommand_init
@@ -235,10 +317,9 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 
 **fields:**
 
-| name              | optional | condition | description                       |
-|-------------------|----------|-----------|-----------------------------------|
-| subcommand_id     | no       |           | A name identifying the subcommand |
-
+| name          | optional | condition | description                       |
+|---------------|----------|-----------|-----------------------------------|
+| subcommand_id | no       |           | A name identifying the subcommand |
 
 ## Event: `SubcommandResult`
 
@@ -285,13 +366,40 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 **example 1: find**
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"find","result":{"version":"1.38.0","success":true}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "find",
+  "result": {
+    "version": "1.38.0",
+    "success": true
+  }
+}
 ```
 
 **example 2: list with direct-deps**
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"list","result":{"variant":"direct-deps","list":[{"name":"crossbeam-channel","version": "0.5.4","msrv":"1.36.0","dependencies":["cfg-if","crossbeam-utils","num_cpus","rand","signal-hook"]}]}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "list",
+  "result": {
+    "variant": "direct-deps",
+    "list": [
+      {
+        "name": "crossbeam-channel",
+        "version": "0.5.4",
+        "msrv": "1.36.0",
+        "dependencies": [
+          "cfg-if",
+          "crossbeam-utils",
+          "num_cpus",
+          "rand",
+          "signal-hook"
+        ]
+      }
+    ]
+  }
+}
 ```
 
 Formatted:
@@ -323,7 +431,35 @@ Formatted:
 **example 3: list with ordered-by-msrv**
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"list","result":{"variant":"ordered-by-msrv","list":[{"msrv":"1.38.0","dependencies":["storyteller"]},{"msrv":"1.36.0","dependencies":["crossbeam-channel","crossbeam-utils"]},{"msrv":null,"dependencies":["cfg-if","lazy_static"]}]}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "list",
+  "result": {
+    "variant": "ordered-by-msrv",
+    "list": [
+      {
+        "msrv": "1.38.0",
+        "dependencies": [
+          "storyteller"
+        ]
+      },
+      {
+        "msrv": "1.36.0",
+        "dependencies": [
+          "crossbeam-channel",
+          "crossbeam-utils"
+        ]
+      },
+      {
+        "msrv": null,
+        "dependencies": [
+          "cfg-if",
+          "lazy_static"
+        ]
+      }
+    ]
+  }
+}
 ```
 
 Formatted:
@@ -363,19 +499,43 @@ Formatted:
 **example 5: set**:
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"set","result":{"version":"1.38.0","manifest_path":"..\\air3\\Cargo.toml"}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "set",
+  "result": {
+    "version": "1.38.0",
+    "manifest_path": "..\\air3\\Cargo.toml"
+  }
+}
 ```
 
 **example 6: show**:
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"show","result":{"version":"1.38.0","manifest_path":"..\\air3\\Cargo.toml"}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "show",
+  "result": {
+    "version": "1.38.0",
+    "manifest_path": "..\\air3\\Cargo.toml"
+  }
+}
 ```
 
 **example 7: verify**:
 
 ```json lines
-{"type":"subcommand_result","subcommand_id":"verify","result":{"toolchain":{"version":"1.38.0","target":"x86_64-pc-windows-msvc"},"is_compatible":true}}
+{
+  "type": "subcommand_result",
+  "subcommand_id": "verify",
+  "result": {
+    "toolchain": {
+      "version": "1.38.0",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "is_compatible": true
+  }
+}
 ```
 
 ## Event: `TerminateWithFailure`
@@ -394,5 +554,10 @@ Formatted:
 **example:**
 
 ```json lines
-{"type":"terminate_with_failure","reason":{"description":"MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'"}}
+{
+  "type": "terminate_with_failure",
+  "reason": {
+    "description": "MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'"
+  }
+}
 ```
