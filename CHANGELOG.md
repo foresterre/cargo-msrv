@@ -20,7 +20,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
 * Added `--features` option, `--all-features` flag and `--no-default-features` flag, which are forwarded to the default
   compatibility check command
-* Added `--add-component` option, which can be used to add a Rust component to a toolchain.
+* Added `--component` option, which can be used to add one or more Rust components to a toolchain.
 * `cargo msrv verify` now supports
   Cargo [workspace inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), and will
   now correctly inherit the MSRV (i.e. `package.rust-version`) defined by a workspace
@@ -55,9 +55,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Use compilation target instead of build machine target for MSRV checks.
 * Fix issue where `--manifest-path Cargo.toml` would yield an empty manifest path.
 * Supply provided components to `verify` subcommand.
-* The CLI arguments `--target` and `--add-component` were previously inadvertently ignored when provided
+* The CLI arguments `--target` and `--component` were previously inadvertently ignored when provided
   to `cargo msrv verify`.
-* Fixed issue where some errors were not being reported (e.g. `cargo msrv verify` did not print an error if it wasn't possible to resolve the MSRV to check against).
+* Fixed issue where some errors were not being reported (e.g. `cargo msrv verify` did not print an error if it wasn't
+  possible to resolve the MSRV to check against).
 
 ### Removed
 
@@ -71,13 +72,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
   arguments `--features`, `--all-features`, `--no-default-features`, `--min`, `--max`, `--include-all-patch-releases`
   and `--release-source` are ignored when provided to the `verify` subcommand. Workaround: supply these arguments
   directly to the top-level command, e.g. `cargo msrv --all-features verify`.
-* The CLI arguments `--target` and `--add-component` can be provided to both the top-level `cargo msrv` command, and
+* The CLI arguments `--target` and `--component` can be provided to both the top-level `cargo msrv` command, and
   the `cargo msrv verify` subcommand, however if they're provided to both, then only the arguments of the subcommand are
   considered.
-  Example: `cargo msrv --target x --add-component a --add-component b verify --target y --add-component c --add-component d`
-  does not reject or collect the `--target x --add-component a --add-component b` portion; the program will only be
-  aware of the `--target y --add-component c --add-component d` arguments.
-* The CLI arguments `--target` and `--add-component` are shown to be available globally (i.e. both at the top
+  Example:
+  `cargo msrv --target x --component a --component b verify --target y --component c --component d`
+  does not reject or collect the `--target x --component a --component b` portion; the program will only be
+  aware of the `--target y --component c --component d` arguments.
+* The CLI arguments `--target` and `--component` are shown to be available globally (i.e. both at the top
   level `cargo msrv` command and at the subcommand level, e.g. `cargo msrv verify`), even for subcommands which do not
   consume these arguments like `cargo msrv list`.
 

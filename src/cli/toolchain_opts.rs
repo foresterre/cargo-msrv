@@ -13,6 +13,8 @@ pub struct ToolchainOpts {
     /// Components be added to the toolchain
     ///
     /// Can be supplied multiple times to add multiple components.
+    ///
+    /// For example: --component rustc --component cargo
     #[arg(long, value_name = "COMPONENT", global = true)]
-    pub add_component: Vec<String>,
+    pub component: Vec<String>,
 }
