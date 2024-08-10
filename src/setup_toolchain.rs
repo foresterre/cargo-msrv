@@ -1,29 +1,31 @@
-use crate::error::RustupInstallFailed;
+use crate::error::{
+    RustupAddComponentError, RustupAddTargetError, RustupError, RustupInstallError,
+};
 use crate::external_command::rustup_command::RustupCommand;
-use crate::reporter::event::SetupToolchain;
+use crate::reporter::event::SetupToolchain as SetupToolchainEvent;
 use crate::toolchain::ToolchainSpec;
 use crate::{CargoMSRVError, Reporter, TResult};
 
-pub trait DownloadToolchain {
+pub trait SetupToolchain {
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()>;
 }
 
 #[derive(Debug)]
-pub struct ToolchainDownloader<'reporter, R: Reporter> {
+pub struct SetupRustupToolchain<'reporter, R: Reporter> {
     reporter: &'reporter R,
 }
 
-impl<'reporter, R: Reporter> ToolchainDownloader<'reporter, R> {
+impl<'reporter, R: Reporter> SetupRustupToolchain<'reporter, R> {
     pub fn new(reporter: &'reporter R) -> Self {
         Self { reporter }
     }
 }
 
-impl<'reporter, R: Reporter> DownloadToolchain for ToolchainDownloader<'reporter, R> {
+impl<'reporter, R: Reporter> SetupToolchain for SetupRustupToolchain<'reporter, R> {
     #[instrument(skip(self, toolchain))]
     fn download(&self, toolchain: &ToolchainSpec) -> TResult<()> {
         self.reporter
-            .run_scoped_event(SetupToolchain::new(toolchain.to_owned()), || {
+            .run_scoped_event(SetupToolchainEvent::new(toolchain.to_owned()), || {
                 install_toolchain(toolchain)
                     .and_then(|_| add_target(toolchain))
                     .and_then(|_| {
@@ -57,9 +59,12 @@ fn install_toolchain(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to install toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::Install(
+            RustupInstallError {
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())
@@ -94,9 +99,13 @@ fn add_target(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to add target to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::AddTarget(
+            RustupAddTargetError {
+                targets: toolchain.target().to_string(),
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())
@@ -135,9 +144,13 @@ fn add_components(toolchain: &ToolchainSpec) -> TResult<()> {
             "rustup failed to add component(s) to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupInstallFailed(
-            RustupInstallFailed::new(toolchain.spec(), rustup.stderr()),
-        ));
+        return Err(CargoMSRVError::RustupError(RustupError::AddComponent(
+            RustupAddComponentError {
+                components: toolchain.components().join(", "),
+                toolchain_spec: toolchain.spec().to_string(),
+                stderr: rustup.stderr().to_string(),
+            },
+        )));
     }
 
     Ok(())

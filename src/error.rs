@@ -92,7 +92,7 @@ pub enum CargoMSRVError {
     RustReleasesEmptyReleaseSet,
 
     #[error(transparent)]
-    RustupInstallFailed(#[from] RustupInstallFailed),
+    RustupError(#[from] RustupError),
 
     #[error("Check toolchain (with `rustup run <toolchain> <command>`) failed.")]
     RustupRunWithCommandFailed,
@@ -251,23 +251,48 @@ impl<T> From<storyteller::EventReporterError<T>> for CargoMSRVError {
 }
 
 #[derive(Debug, thiserror::Error)]
+#[error(transparent)]
+pub enum RustupError {
+    Install(#[from] RustupInstallError),
+    AddComponent(#[from] RustupAddComponentError),
+    AddTarget(#[from] RustupAddTargetError),
+}
+
+#[derive(Debug, thiserror::Error)]
 #[error(
     "Unable to install toolchain '{}', rustup reported:\n    {}",
     toolchain_spec,
     stderr.trim_end().lines().collect::<Vec<_>>().join("\n    ").dimmed()
 )]
-pub struct RustupInstallFailed {
-    pub(crate) toolchain_spec: String,
-    pub(crate) stderr: String,
+pub struct RustupInstallError {
+    pub toolchain_spec: String,
+    pub stderr: String,
 }
 
-impl RustupInstallFailed {
-    pub fn new(toolchain_spec: impl Into<String>, stderr: impl Into<String>) -> Self {
-        Self {
-            toolchain_spec: toolchain_spec.into(),
-            stderr: stderr.into(),
-        }
-    }
+#[derive(Debug, thiserror::Error)]
+#[error(
+    "Unable to add components '{}' to toolchain '{}', rustup reported:\n    {}",
+    components,
+    toolchain_spec,
+    stderr.trim_end().lines().collect::<Vec<_>>().join("\n    ").dimmed()
+)]
+pub struct RustupAddComponentError {
+    pub components: String,
+    pub toolchain_spec: String,
+    pub stderr: String,
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error(
+    "Unable to add target '{}' to toolchain '{}', rustup reported:\n    {}",
+    targets,
+    toolchain_spec,
+    stderr.trim_end().lines().collect::<Vec<_>>().join("\n    ").dimmed()
+)]
+pub struct RustupAddTargetError {
+    pub targets: String,
+    pub toolchain_spec: String,
+    pub stderr: String,
 }
 
 #[derive(Debug, thiserror::Error)]

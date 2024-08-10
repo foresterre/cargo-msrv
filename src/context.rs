@@ -197,7 +197,7 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
         let target: &'static str = String::leak(target);
 
         let components: &'static [&'static str] = Vec::leak(
-            opts.add_component
+            opts.component
                 .into_iter()
                 .map(|s| {
                     let s: &'static str = String::leak(s);
