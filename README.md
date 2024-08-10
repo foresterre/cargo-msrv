@@ -152,7 +152,7 @@ Debug output options:
 
 ### JSON format
 
-JSON output may be enabled by providing the `--output-format json` flag: `cargo msrv --output-format json`.
+JSON output may be enabled by providing the `--output-format json` flag: `cargo msrv find --output-format json`.
 Events are printed as json lines. The event type is indicated by the `type` key.
 
 Please see the [Output formats](https://foresterre.github.io/cargo-msrv/output-formats/index.html) and
