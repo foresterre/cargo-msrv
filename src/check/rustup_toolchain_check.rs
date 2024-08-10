@@ -1,11 +1,11 @@
 use crate::check::Check;
 use crate::context::EnvironmentContext;
-use crate::download::{DownloadToolchain, ToolchainDownloader};
 use crate::error::{IoError, IoErrorSource};
 use crate::external_command::cargo_command::CargoCommand;
 use crate::external_command::rustup_command::RustupCommand;
 use crate::lockfile::LockfileHandler;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
+use crate::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
 use crate::toolchain::ToolchainSpec;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -87,7 +87,7 @@ impl<R: Reporter> fmt::Debug for RustupToolchainCheck<'_, '_, R> {
 }
 
 fn setup_toolchain(reporter: &impl Reporter, toolchain: &ToolchainSpec) -> TResult<()> {
-    let downloader = ToolchainDownloader::new(reporter);
+    let downloader = SetupRustupToolchain::new(reporter);
     downloader.download(toolchain)?;
 
     Ok(())
