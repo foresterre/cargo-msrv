@@ -28,7 +28,7 @@ jobs:
         run: cargo msrv --output-format json verify -- cargo check
       - name: run_cargo_msrv_on_verify_failure
         if: ${{ failure() }}
-        run: cargo msrv --output-format json -- cargo check
+        run: cargo find msrv --output-format json -- cargo check
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
   # We don't use --all-features here!
@@ -52,7 +52,8 @@ jobs:
         run: cargo msrv --output-format json verify
       # Unlike the 'msrv' job, we always run cargo-msrv's find command
       - name: run_cargo_msrv_on_verify_failure
-        run: cargo msrv --output-format json
+        if: ${{ failure() }}
+        run: cargo msrv find --output-format json
 
   # The same as the 'msrv' job, except it takes the latest development branch, as a form of test
   # we don't use --all-features here!
@@ -73,4 +74,5 @@ jobs:
         run: cargo msrv --output-format json verify
       # Unlike the 'msrv' job, we always run cargo-msrv's find command, as a form of test
       - name: run_cargo_msrv_on_verify_failure
-        run: cargo msrv --output-format json
+        if: ${{ failure() }}
+        run: cargo msrv find --output-format json
