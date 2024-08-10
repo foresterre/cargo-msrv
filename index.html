@@ -138,16 +138,19 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-introduction"><a class="header" href="#-introduction">✨ Introduction</a></h1>
-<p><code>cargo-msrv</code> is a program which can help you find, set, show or verify the MSRV for a Rust crate. You can also list the MSRV's of dependencies.</p>
+<p><code>cargo-msrv</code> is a program which can help you find, set, show or verify the MSRV for a Rust crate. You can also list the
+MSRV's of dependencies.</p>
 <p>MSRV stands for 'Minimum Supported Rust Version', which is exactly what it says on the tin: the earliest
 Rust release which a given Rust crate promises to support. Most often support for earlier Rust versions is
 limited by newly introduced Rust language features, library functions or Rust editions.</p>
 <p>For example, if you want to use const generics and be generic over integers, bool's or char's, you must use a Rust
-compiler which supports the const generics MVP. This feature was introduced in <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp">Rust 1.51</a>.
+compiler which supports the const generics MVP. This feature was introduced
+in <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp">Rust 1.51</a>.
 If you do not have any other code, or configuration, which requires an even newer Rust release, your MSRV would
 be '1.51'.</p>
 <p>While the MSRV has been a well-known concept within the Rust community for a long time, it was also introduced to the
-Cargo build tool and package manager, as the <code>rust-version</code> in <a href="https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-156-2021-10-21">Cargo 1.56</a>,
+Cargo build tool and package manager, as the <code>rust-version</code>
+in <a href="https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-156-2021-10-21">Cargo 1.56</a>,
 which is part of the <a href="https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html#cargo-rust-version">Rust 1.56</a> release
 distribution.</p>
 <p>In the <a href="./commands/index.html">commands</a> section for more.</p>
@@ -157,14 +160,19 @@ toolchains will be tested, and the amount of tests ran, depends on the search st
 and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is <code>cargo check</code>.</p>
-<p>There are currently two search strategies: <em>linear</em> and <em>bisect</em> (default). When using the linear strategy, your crate will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by default.</p>
+<p>There are currently two search strategies: <em>linear</em> and <em>bisect</em> (default). When using the linear strategy, your crate
+will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any)
+version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses
+a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by
+default.</p>
 <p>In addition to these two strategies, you can inspect the MSRV's set by the crate authors on which your project depends.
 This is achieved by resolving the dependency graph of your crate, and querying each crate for its author specified MSRV.
-Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may give
+Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may
+give
 you an indication of what your MSRV will be like. You can supply the highest listed version
 as the <code>--min &lt;version&gt;</code> option: <code>cargo msrv --min &lt;version&gt;</code>. This will reduce the possible search space, and speed
 up the search for the MSRV of your crate.</p>
-<p>See <a href="./commands/find.html">cargo-msrv (find)</a> and <a href="./commands/list.html">cargo-msrv list</a> for more.</p>
+<p>See <a href="./commands/find.html">cargo-msrv find</a> and <a href="./commands/list.html">cargo-msrv list</a> for more.</p>
 <h1 id="-thanks"><a class="header" href="#-thanks">🥰 Thanks</a></h1>
 <p>Thanks for using cargo-msrv! If you found an issue, or have an issue request, or any other question, feel free to open
 an issue at our GitHub <a href="https://github.com/foresterre/cargo-msrv/issues">repository</a>.</p>

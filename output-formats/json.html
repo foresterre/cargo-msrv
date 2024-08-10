@@ -141,11 +141,11 @@
 <p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, although
 humans may also use it, as it provides the most detailed output of all supported output formats.</p>
 <p>As described on the <a href="index.html">output-formats</a> page, <code>cargo-msrv</code> reports the status of the program via
-events. A processor transforms these events into their output-format. In case of the <code>json</code> output format, 
+events. A processor transforms these events into their output-format. In case of the <code>json</code> output format,
 events are almost 1-on-1 serialized to json (there are a few exceptions), and then printed to <code>stderr</code>.
-Each json serialized event ends with a newline. Each line thus represents a single serialized event. </p>
-<p>To use the <code>json</code> output format, run <code>cargo-msrv</code> with the <code>--output-format json</code> option. 
-For example, if you want to find the MSRV, you could run <code>cargo msrv --output-format json</code>.</p>
+Each json serialized event ends with a newline. Each line thus represents a single serialized event.</p>
+<p>To use the <code>json</code> output format, run <code>cargo-msrv</code> with the <code>--output-format json</code> option.
+For example, if you want to find the MSRV, you could run <code>cargo msrv find --output-format json</code>.</p>
 <p>In the next section, you can find a description of the common fields of events.
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.</p>
 <h1 id="events-and-scope"><a class="header" href="#events-and-scope">Events and scope</a></h1>
@@ -162,7 +162,8 @@ been completed).</p>
 <tr><td>scope.marker</td><td>no</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Whether the event marks the beginning or the end of the action</td></tr>
 </tbody></table>
 <p>The <strong>type</strong> field can be used to identify a specific event.</p>
-<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the <code>marker</code> subfield) marks the start of a scoped event, while <code>end</code>
+<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the <code>marker</code> subfield) marks the start of a
+scoped event, while <code>end</code>
 marks the end of a scoped event.</p>
 <h1 id="list-of-events"><a class="header" href="#list-of-events">List of events</a></h1>
 <h2 id="event-meta"><a class="header" href="#event-meta">Event: <code>Meta</code></a></h2>
@@ -178,20 +179,36 @@ marks the end of a scoped event.</p>
 <tr><td>rustc</td><td>Version of <code>rustc</code> used to compile <code>cargo-msrv</code>.</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;meta&quot;,
+  &quot;instance&quot;: &quot;cargo-msrv&quot;,
+  &quot;version&quot;: &quot;0.15.1&quot;,
+  &quot;sha_short&quot;: &quot;79582b6&quot;,
+  &quot;target_triple&quot;: &quot;x86_64-pc-windows-msvc&quot;,
+  &quot;cargo_features&quot;: &quot;default,rust_releases_dist_source&quot;,
+  &quot;rustc&quot;: &quot;1.62.0&quot;
+}
 </code></pre>
 <h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: <code>FetchIndex</code></a></h2>
 <p><strong>type:</strong> fetch_index</p>
-<p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
+<p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available.
 We obtain those using the <a href="https://crates.io/crates/rust-releases">rust-releases</a> library. The <code>FetchIndex</code> event
-reports that the index is being fetched, and details which source is used. </p>
+reports that the index is being fetched, and details which source is used.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
 <tr><td>source</td><td>Place from where the available Rust releases are obtained</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;fetch_index&quot;,
+  &quot;source&quot;: &quot;rust_changelog&quot;,
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;fetch_index&quot;,
+  &quot;source&quot;: &quot;rust_changelog&quot;,
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: <code>CheckToolchain</code></a></h2>
 <p><strong>type:</strong> check_toolchain</p>
@@ -199,7 +216,7 @@ reports that the index is being fetched, and details which source is used. </p>
 crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
 <code>CheckToolchain</code> event is wrapped around this process and notifies you about the start and end of this process.
 This event is called as a scoped event, and within it's scope, you'll find the following events: <code>setup_toolchain</code>,
-<code>check_method</code> and <code>check_result</code>, which are described in more detail below. </p>
+<code>check_method</code> and <code>check_result</code>, which are described in more detail below.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
 <tr><td>toolchain</td><td>The toolchain to be located or installed</td></tr>
@@ -207,8 +224,22 @@ This event is called as a scoped event, and within it's scope, you'll find the f
 <tr><td>toolchain.target</td><td>The target-triple of the toolchain</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.35.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.35.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: <code>SetupToolchain</code></a></h2>
 <p><strong>type:</strong> setup_toolchain</p>
@@ -222,8 +253,22 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>toolchain.target</td><td>The target-triple of the toolchain</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.47.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.47.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: <code>CheckMethod</code></a></h2>
 <p><strong>type:</strong> check_method</p>
@@ -239,7 +284,23 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>method.path</td><td>yes</td><td>method.type = <code>rustup_run</code></td><td>The path provided to rustup, if any</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;rustup_run&quot;:{&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3\\&quot;}}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;rustup_run&quot;: {
+      &quot;args&quot;: [
+        &quot;1.37.0-x86_64-pc-windows-msvc&quot;,
+        &quot;cargo&quot;,
+        &quot;check&quot;
+      ],
+      &quot;path&quot;: &quot;..\\air3\\&quot;
+    }
+  }
+}
 </code></pre>
 <h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: <code>CheckResult</code></a></h2>
 <p><strong>type:</strong> check_result</p>
@@ -253,9 +314,24 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>error</td><td>yes</td><td>is_compatible = <code>false</code></td><td>Error message of a failed compatibility check, if any</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: true
+}
 </code></pre>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: false,
+  &quot;error&quot;: &quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;
+}
 </code></pre>
 <h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: <code>AuxiliaryOutput</code></a></h2>
 <p><strong>type:</strong> auxiliary_output</p>
@@ -273,11 +349,21 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>item.kind</td><td>no</td><td>if item.type = <code>toolchain_file</code></td><td>Which toolchain file kind was written, &quot;legacy&quot; or &quot;toml&quot;</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;auxiliary_output&quot;,&quot;destination&quot;:{&quot;type&quot;:&quot;file&quot;,&quot;path&quot;:&quot;..\\air3\\Cargo.toml&quot;},&quot;item&quot;:{&quot;type&quot;:&quot;msrv&quot;,&quot;kind&quot;:&quot;rust_version&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;auxiliary_output&quot;,
+  &quot;destination&quot;: {
+    &quot;type&quot;: &quot;file&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
+  &quot;item&quot;: {
+    &quot;type&quot;: &quot;msrv&quot;,
+    &quot;kind&quot;: &quot;rust_version&quot;
+  }
+}
 </code></pre>
 <h2 id="event-progress"><a class="header" href="#event-progress">Event: <code>Progress</code></a></h2>
 <p><strong>type:</strong> progress</p>
-<p><strong>description:</strong> Reports on the progress of an ongoing MSRV search. </p>
+<p><strong>description:</strong> Reports on the progress of an ongoing MSRV search.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>current</td><td>no</td><td></td><td>Index of the currently running check into the sorted search space. Starts at <code>0</code>.</td></tr>
@@ -330,10 +416,37 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>result.error</td><td>yes</td><td>subcommand_id = <code>verify</code> and result.is_compatible = <code>false</code></td><td>Error message of a failed verify check, if any</td></tr>
 </tbody></table>
 <p><strong>example 1: find</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;success&quot;: true
+  }
+}
 </code></pre>
 <p><strong>example 2: list with direct-deps</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;: &quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;direct-deps&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;crossbeam-channel&quot;,
+        &quot;version&quot;: &quot;0.5.4&quot;,
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;crossbeam-utils&quot;,
+          &quot;num_cpus&quot;,
+          &quot;rand&quot;,
+          &quot;signal-hook&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>Formatted:</p>
 <pre><code class="language-json">{
@@ -359,7 +472,35 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 }
 </code></pre>
 <p><strong>example 3: list with ordered-by-msrv</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;msrv&quot;: &quot;1.38.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;storyteller&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;crossbeam-channel&quot;,
+          &quot;crossbeam-utils&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: null,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;lazy_static&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>Formatted:</p>
 <pre><code class="language-json">{
@@ -393,13 +534,37 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 }
 </code></pre>
 <p><strong>example 5: set</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;set&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;set&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;manifest_path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  }
+}
 </code></pre>
 <p><strong>example 6: show</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;show&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;show&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;manifest_path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  }
+}
 </code></pre>
 <p><strong>example 7: verify</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;verify&quot;,
+  &quot;result&quot;: {
+    &quot;toolchain&quot;: {
+      &quot;version&quot;: &quot;1.38.0&quot;,
+      &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+    },
+    &quot;is_compatible&quot;: true
+  }
+}
 </code></pre>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: <code>TerminateWithFailure</code></a></h2>
 <p><strong>type:</strong> terminate_with_failure</p>
@@ -410,7 +575,12 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>reason.description</td><td>no</td><td>Describes why cargo-msrv will terminate with a non-zero exit code</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;terminate_with_failure&quot;,&quot;reason&quot;:{&quot;description&quot;:&quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;terminate_with_failure&quot;,
+  &quot;reason&quot;: {
+    &quot;description&quot;: &quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;
+  }
+}
 </code></pre>
 
                     </main>

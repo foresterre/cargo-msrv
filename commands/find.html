@@ -140,8 +140,8 @@
                         <h1 id="cargo-msrv"><a class="header" href="#cargo-msrv">cargo-msrv</a></h1>
 <h1 id="command"><a class="header" href="#command">COMMAND</a></h1>
 <ul>
-<li>Standalone: <code>cargo-msrv [options]</code></li>
-<li>Through Cargo: <code>cargo msrv [options]</code></li>
+<li>Standalone: <code>cargo-msrv find [options]</code></li>
+<li>Through Cargo: <code>cargo msrv find [options]</code></li>
 </ul>
 <h2 id="description"><a class="header" href="#description">DESCRIPTION</a></h2>
 <p>Find the MSRV for your project.</p>
@@ -150,25 +150,29 @@ toolchains will be tested, and the amount of tests ran, depends on the search st
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is <code>cargo check</code>.</p>
-<p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in a
-most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
-toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
-so it's usually advisable to enable it by default. </p>
+<p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in
+a
+most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e.
+the highest still
+toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly
+faster,
+so it's usually advisable to enable it by default.</p>
 <h3 id="why-run-against-complete-toolchains"><a class="header" href="#why-run-against-complete-toolchains">Why run against complete toolchains?</a></h3>
-<p>Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST, and
-(conditionally) tag each AST node with a supported from version (or query it, as library functions already have an 'available
-from' Rust version)? </p>
-<p>Earlier we developed a prototype to do exactly this, and we may still add it as an optional strategy in the future, however
+<p>Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST,
+and
+(conditionally) tag each AST node with a supported from version (or query it, as library functions already have an '
+available
+from' Rust version)?</p>
+<p>Earlier we developed a prototype to do exactly this, and we may still add it as an optional strategy in the future,
+however
 we found that the selection of the MSRV of a toolchain is not just limited by the source code itself. External factors
 such as Rust editions or knobs in the Cargo manifest also impact the MSRV for a crate. As such, the running a complete
 toolchain helps us to be more precise<sup>1</sup>.</p>
 <h3 id="future-work"><a class="header" href="#future-work">Future work</a></h3>
-<p><em>1. Currently, the 'Find your MSRV' action is defined at as the top-level <code>cargo-msrv</code> command. We hope to move it to its own subcommand
-at some point in the future, e.g. <code>cargo-msrv find</code> (subcommand name subject to change).</em></p>
-<p><em>2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
+<p><em>1. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition.</em></p>
-<p><em>3. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
-implementation. If you don't know where to start, create a new issue, we're happy to help!</em> </p>
+<p><em>2. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
+implementation. If you don't know where to start, create a new issue, we're happy to help!</em></p>
 <h2 id="options"><a class="header" href="#options">OPTIONS</a></h2>
 <p><strong><code>--bisect</code></strong></p>
 <p>Use a binary search to find the MSRV. This is usually faster than using a linear search.
@@ -180,17 +184,19 @@ The linear search strategy was the default prior to <code>cargo-msrv v0.14.0</co
 <p>Prints help information</p>
 <p><strong><code>--include-all-patch-releases</code></strong></p>
 <p>Include all patch releases, instead of only the last. By default, after the list of Rust releases has been fetched, we<br />
-only keep the highest minor version for each Rust release. Say the list of Rust releases would be <code>[&quot;1.31.1&quot;, &quot;1.31.0&quot;, &quot;1.30.0]</code>,
-then we discard Rust <code>1.31.0</code>, as you would usually not depend on the non-bugfixed compiler releases, and the patch version
+only keep the highest minor version for each Rust release. Say the list of Rust releases would be
+<code>[&quot;1.31.1&quot;, &quot;1.31.0&quot;, &quot;1.30.0]</code>,
+then we discard Rust <code>1.31.0</code>, as you would usually not depend on the non-bugfixed compiler releases, and the patch
+version
 does not contain new features, thus no features to impact the MSRV. When you provide this flag however, these additional
 patch versions will be included in the search space.</p>
 <p><strong><code>--ignore-lockfile</code></strong></p>
 <p>Temporarily (re)moves the lockfile, so it will not interfere with the building process. This is important when
 testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile (<code>Cargo.lock</code>),
-or some crates which use the even newer v3 lockfile. </p>
+or some crates which use the even newer v3 lockfile.</p>
 <p><strong><code>--log-level</code> level</strong></p>
 <p>Specify the severity of debug logs which the program will write to the log output.
-Possible values are: <code>error</code>, <code>warn</code>, <code>info</code> (default), <code>debug</code> and <code>trace</code>. 
+Possible values are: <code>error</code>, <code>warn</code>, <code>info</code> (default), <code>debug</code> and <code>trace</code>.
 Lower severities include messages of higher severities.
 When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--log-target</code> log_target</strong></p>
@@ -199,15 +205,19 @@ Possible values are <code>file</code> (default) and <code>stdout</code>.
 The log output of <code>stdout</code> may interfere with user output. We would suggest to use <code>--no-user-output</code> in tandem
 with <code>--log-target stdout</code>. When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--max</code> version</strong></p>
-<p>Latest (most recent) version to take into account. The version must match a valid three component Rust toolchain version, 
-and be semver compatible. An example of an acceptable versions is &quot;1.35.0&quot;, while &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot; are not valid.</p>
+<p>Latest (most recent) version to take into account. The version must match a valid three component Rust toolchain
+version,
+and be semver compatible. An example of an acceptable versions is &quot;1.35.0&quot;, while &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot;
+are not valid.</p>
 <p><strong><code>--min</code> version</strong></p>
-<p>Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain version,
+<p>Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain
+version,
 and be semver compatible. Edition aliases may also be used. An example of an acceptable versions is &quot;1.35.0&quot;, while
 &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot; are not valid. Editions map to the first version in which they were introduced, so
 for example &quot;1.56.0&quot; for edition &quot;2021&quot;.</p>
 <p><strong><code>--no-check-feedback</code></strong></p>
-<p>If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in which
+<p>If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in
+which
 checks ran, and their results. This is especially useful if you want to know why a certain Rust version was deemed to be
 incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.</p>
 <p><strong><code>--no-log</code></strong></p>
@@ -223,35 +233,38 @@ format. When this option is absent, human-readable output will be printed. Diagn
 using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
 <p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code> and <code>rust-dist</code>.
-The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will index
+The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will
+index
 the Rust S3 distribution bucket.</p>
 <p><strong><code>--path</code> directory-path</strong></p>
 <p>Path to the cargo project directory. This directory should contain a Cargo manifest (i.e. <code>Cargo.toml</code>) file. The given
-path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like <code>/home/user/project/Cargo.toml</code>
+path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like
+<code>/home/user/project/Cargo.toml</code>
 is incorrect.</p>
 <p><strong><code>--target</code> target</strong></p>
 <p>Supply a custom target triplet to use as Rust distribution. If absent, the rustup default toolchain is used.</p>
 <p><strong><code>--write-toolchain-file</code></strong></p>
-<p>Output a rust-toolchain file with the determined MSRV as toolchain. The toolchain file will pin the Rust version for this crate. 
+<p>Output a rust-toolchain file with the determined MSRV as toolchain. The toolchain file will pin the Rust version for
+this crate.
 See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file">here</a> for more about the toolchain-file.</p>
 <p><strong><code>-V, --version</code></strong></p>
 <p>Prints cargo-msrv version information</p>
-<p><strong><code>--</code> ...cmd</strong> </p>
+<p><strong><code>--</code> ...cmd</strong></p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
 <code>cargo check</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
 <h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
 <ol>
 <li>Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --bisect
+<pre><code class="language-shell">cargo msrv find --bisect
 </code></pre>
 <p>or (from cargo-msrv <code>v0.14.0</code>, <code>bisect</code> is the default search method):</p>
-<pre><code class="language-shell">cargo msrv
+<pre><code class="language-shell">cargo msrv find
 </code></pre>
 <ol start="2">
 <li>Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --linear
+<pre><code class="language-shell">cargo msrv find --linear
 </code></pre>
 <p>NB: Prior to cargo-msrv <code>v0.14.0</code>, <code>linear</code> was the default search strategy, and no flag was available explicitly
 use this search strategy.</p>
@@ -259,17 +272,17 @@ use this search strategy.</p>
 <li>Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
 <code>cargo test</code>.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv -- cargo test
+<pre><code class="language-shell">cargo msrv find -- cargo test
 </code></pre>
 <ol start="4">
 <li>Try to determine the MSRV for the crate in your current working directory, but use the JSON machine-readable output
 format.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --output-format json
+<pre><code class="language-shell">cargo msrv find --output-format json
 </code></pre>
 <h2 id="footnotes"><a class="header" href="#footnotes">FOOTNOTES</a></h2>
 <p><sup>1</sup> Precision is of course a debatable concept. In this case we note that &quot;a toolchain must be able
-to pass the cargo-msrv check command for a crate&quot; (in its broadest sense).</p>
+to pass the cargo-msrv compatibility check command for a crate&quot; (in its broadest sense).</p>
 
                     </main>
 

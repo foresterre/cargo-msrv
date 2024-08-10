@@ -155,15 +155,15 @@ exit code, and how different errors are categorised.</p>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
 If it could not be found, we report <code>none</code> instead, and write this value to <code>stderr</code>.</p>
 <h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
-<p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>. </p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal
+<p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>.</p>
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal
 # stdout
 1.60.0
 </code></pre>
 <h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
 <p>If the MSRV can't be found, for example if your project requires a nightly compiler feature
-or has incorrect syntax, the output will be <code>none</code>. </p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal
+or has incorrect syntax, the output will be <code>none</code>.</p>
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal
 # stderr
 none
 </code></pre>
@@ -174,7 +174,7 @@ Support may be added in the future.</p>
 <p>The <code>set</code> subcommand prints the version set as MSRV.</p>
 <h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
 <p>If we set our MSRV to be <code>1.31</code>, the output will be <code>1.31</code>.</p>
-<pre><code class="language-shell">cargo msrv --output-format minimal set 1.31
+<pre><code class="language-shell">cargo msrv find --output-format minimal set 1.31
 # stdout
 1.31
 </code></pre>
@@ -187,13 +187,14 @@ Support may be added in the future.</p>
 rust-version = &quot;1.60&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal show
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal show
 # stdout
 1.60
 </code></pre>
 <h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
 <p>Assuming our Cargo manifest lists the MSRV in the <code>package.metadata.msrv</code> field, <code>cargo-msrv</code> will print <code>1.21.0</code>.
-The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the <code>package.metadata.msrv</code>
+The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the
+<code>package.metadata.msrv</code>
 key for crates which use a Cargo version which does not yet support the <code>package.rust-version</code> field. <code>cargo-msrv</code>
 supports both fields.</p>
 <p><strong>Cargo.toml</strong></p>
@@ -201,7 +202,7 @@ supports both fields.</p>
 msrv = &quot;1.21.0&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal show
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal show
 # stdout
 1.21.0
 </code></pre>
@@ -215,14 +216,14 @@ and the compatibility check succeeds:</p>
 msrv = &quot;1.31&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal verify
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal verify
 # stdout
 true
 </code></pre>
 <h3 id="example-2-2"><a class="header" href="#example-2-2">Example 2</a></h3>
 <p>Assuming the given crate is incompatibility with the given MSRV:</p>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal verify --rust-version 1.31
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal verify --rust-version 1.31
 # stderr
 false
 </code></pre>

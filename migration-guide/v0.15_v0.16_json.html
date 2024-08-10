@@ -140,10 +140,13 @@
                         <h1 id="migration-guide-v015-to-v016-with-the-json-output-format"><a class="header" href="#migration-guide-v015-to-v016-with-the-json-output-format">Migration Guide: v0.15 to v0.16 with the JSON output format</a></h1>
 <h2 id="enabling-json-output"><a class="header" href="#enabling-json-output">Enabling json output</a></h2>
 <p>In v0.15, json lines output could be enabled by providing the <code>--output-format json</code> option as part of
-the top level <code>cargo msrv</code> command. <code>cargo msrv --output-format json verify</code> was a valid way to specify
+the top level <code>cargo msrv</code> (find) command. <code>cargo msrv find --output-format json verify</code> was a valid way to specify
 the output-format option, while <code>cargo msrv verify --output-format json</code> would not work (because <code>--output-format</code> was
 not defined for the subcommand, <code>verify</code> in this example).</p>
-<p>This is no longer required; <code>--output-format</code> is now a global option, so in the above examples, both cases will now work.</p>
+<p>This is no longer required; <code>--output-format</code> is now a global option, so in the above examples, both cases will now
+work.</p>
+<p>NB: To determine the MSRV for a project, you should now run <code>cargo msrv find</code> instead of just <code>cargo msrv</code>. The top
+level command was moved to its own subcommand for consistency and more correct CLI argument parsing.</p>
 <h2 id="message-type-tag"><a class="header" href="#message-type-tag">Message type tag</a></h2>
 <p>In v0.15, json messages were tagged using a field named <code>reason</code>. From v0.16 onwards, this field has been renamed
 to <code>type</code> instead. Please refer to the <a href="../output-formats/json.html">JSON output format</a> page for a list of supported
@@ -155,8 +158,8 @@ messages.</p>
 message. The v0.15 <code>mode</code> message also reported about the toolchain used, and which rustup run command was used
 to check for compatibility. These however are only relevant when running a command which checks for compatibility.
 Since we now also have command which do not check for compatibility, such as <code>cargo msrv show</code> and <code>cargo msrv set</code>,
-this was a good moment to move these fields out of this type of message. The new <code>check_method</code> message can tell you both
-about the toolchain used for compatibility checks, and about the compatibility check method via its <code>method</code> field.
+this was a good moment to move these fields out of this type of message. The new <code>check_method</code> message can tell you
+both about the toolchain used for compatibility checks, and about the compatibility check method via its <code>method</code> field.
 If this method has type <code>rustup_run</code>, then the args will contain the compatibility check arguments, previously known
 as the <code>check_cmd</code>.</p>
 <p>The v0.15 <code>mode</code> message consisted of:</p>
@@ -172,9 +175,27 @@ as the <code>check_cmd</code>.</p>
 </code></pre>
 <p>Examples of messages which replace the information reported by the v0.15 <code>mode</code> message:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;subcommand_init&quot;,&quot;subcommand_id&quot;:&quot;find&quot;}
+{
+  &quot;type&quot;: &quot;subcommand_init&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.38.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.38.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
 </code></pre>
 <h4 id="installing-and-checking"><a class="header" href="#installing-and-checking">Installing and Checking</a></h4>
@@ -199,13 +220,58 @@ latter has been replaced by the <code>check_toolchain</code> event. Reporting ab
 </code></pre>
 <p>And now, you instead receive these events:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:25,&quot;search_space_size&quot;:34,&quot;iteration&quot;:2}
+{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 25,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 2
+}
 ...
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:2,&quot;marker&quot;:&quot;start&quot;}}
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:2,&quot;marker&quot;:&quot;end&quot;}}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 2,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 2,
+    &quot;marker&quot;: &quot;end&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:4,&quot;marker&quot;:&quot;start&quot;}}
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:4,&quot;marker&quot;:&quot;end&quot;}}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.39.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 4,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.39.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 4,
+    &quot;marker&quot;: &quot;end&quot;
+  }
+}
 </code></pre>
 <h4 id="check-complete"><a class="header" href="#check-complete">Check complete</a></h4>
 <p>The <code>check-complete</code> message would be reported when a check, which determined whether the toolchain version under test
@@ -232,26 +298,83 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
 </code></pre>
 <p>And now, you instead receive these events, if the toolchain is compatible:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:26,&quot;search_space_size&quot;:34,&quot;iteration&quot;:27}
+{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 26,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 27
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.38.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.38.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: true
+}
 </code></pre>
 <p>Or, if the toolchain is deemed incompatible:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:27,&quot;search_space_size&quot;:34,&quot;iteration&quot;:28}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 27,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 28
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.37.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}
+{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: false,
+  &quot;error&quot;: &quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;
+}
 </code></pre>
 <h4 id="msrv-completed"><a class="header" href="#msrv-completed">MSRV completed</a></h4>
 <p>When the find msrv command or the verify command would be completed, they would report about their result.
-The success field would respectively be used to report whether an MSRV had been found, or whether the MSRV being verified
-was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the <code>subcommand_result</code>
+The success field would respectively be used to report whether an MSRV had been found, or whether the MSRV being
+verified
+was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the
+<code>subcommand_result</code>
 event. Please refer to the <a href="../output-formats/json.html#event-subcommandresult">subcommand_result</a> event for the complete
 description of output per command.</p>
-<p>The v0.15 output had the following format: </p>
+<p>The v0.15 output had the following format:</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;msrv-complete&quot; /* OR */ &quot;reason&quot;: &quot;verify-complete&quot;,
   // true if a msrv was found
@@ -265,17 +388,37 @@ description of output per command.</p>
 }
 </code></pre>
 <p>Below, you can find an example of the new output when finding the MSRV, where one is found:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;success&quot;: true
+  }
+}
 </code></pre>
 <p>And another example for the output of the verify command, where the verification failed:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.60.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;verify&quot;,
+  &quot;result&quot;: {
+    &quot;toolchain&quot;: {
+      &quot;version&quot;: &quot;1.60.0&quot;,
+      &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+    },
+    &quot;is_compatible&quot;: false,
+    &quot;error&quot;: &quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;
+  }
+}
 </code></pre>
 <h4 id="list-msrvs-specified-by-crate-authors"><a class="header" href="#list-msrvs-specified-by-crate-authors">List MSRV's specified by crate authors</a></h4>
-<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given crate.
+<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given
+crate.
 The exact output depends on which variant is used, either <code>ordered-by-msrv</code> (default) or <code>direct-deps</code>.</p>
 <p>The output of the list command is almost the same as it was before. The event is no longer called <code>list</code>; instead
 the output is given via the <code>subcommand_result</code> event, where the value of <code>subcommand_id</code> is <code>list</code>. The output of the
-command (<code>variant</code> and <code>list</code> fields) can now be found as part of the <code>result</code> field. The <code>success</code> field has been removed.</p>
+command (<code>variant</code> and <code>list</code> fields) can now be found as part of the <code>result</code> field. The <code>success</code> field has been
+removed.</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;list&quot;,
   // output variant
@@ -300,10 +443,58 @@ command (<code>variant</code> and <code>list</code> fields) can now be found as 
 }
 </code></pre>
 <p>An example of the <code>ordered-by-msrv</code> variant:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;msrv&quot;: &quot;1.38.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;storyteller&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;crossbeam-channel&quot;,
+          &quot;crossbeam-utils&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: null,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;lazy_static&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>An example of the <code>direct-deps</code> variant:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;:&quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;direct-deps&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;crossbeam-channel&quot;,
+        &quot;version&quot;: &quot;0.5.4&quot;,
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;crossbeam-utils&quot;,
+          &quot;num_cpus&quot;,
+          &quot;rand&quot;,
+          &quot;signal-hook&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 
                     </main>

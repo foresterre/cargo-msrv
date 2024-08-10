@@ -139,16 +139,19 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="-introduction"><a class="header" href="#-introduction">✨ Introduction</a></h1>
-<p><code>cargo-msrv</code> is a program which can help you find, set, show or verify the MSRV for a Rust crate. You can also list the MSRV's of dependencies.</p>
+<p><code>cargo-msrv</code> is a program which can help you find, set, show or verify the MSRV for a Rust crate. You can also list the
+MSRV's of dependencies.</p>
 <p>MSRV stands for 'Minimum Supported Rust Version', which is exactly what it says on the tin: the earliest
 Rust release which a given Rust crate promises to support. Most often support for earlier Rust versions is
 limited by newly introduced Rust language features, library functions or Rust editions.</p>
 <p>For example, if you want to use const generics and be generic over integers, bool's or char's, you must use a Rust
-compiler which supports the const generics MVP. This feature was introduced in <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp">Rust 1.51</a>.
+compiler which supports the const generics MVP. This feature was introduced
+in <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#const-generics-mvp">Rust 1.51</a>.
 If you do not have any other code, or configuration, which requires an even newer Rust release, your MSRV would
 be '1.51'.</p>
 <p>While the MSRV has been a well-known concept within the Rust community for a long time, it was also introduced to the
-Cargo build tool and package manager, as the <code>rust-version</code> in <a href="https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-156-2021-10-21">Cargo 1.56</a>,
+Cargo build tool and package manager, as the <code>rust-version</code>
+in <a href="https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-156-2021-10-21">Cargo 1.56</a>,
 which is part of the <a href="https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html#cargo-rust-version">Rust 1.56</a> release
 distribution.</p>
 <p>In the <a href="./commands/index.html">commands</a> section for more.</p>
@@ -158,14 +161,19 @@ toolchains will be tested, and the amount of tests ran, depends on the search st
 and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is <code>cargo check</code>.</p>
-<p>There are currently two search strategies: <em>linear</em> and <em>bisect</em> (default). When using the linear strategy, your crate will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by default.</p>
+<p>There are currently two search strategies: <em>linear</em> and <em>bisect</em> (default). When using the linear strategy, your crate
+will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any)
+version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses
+a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by
+default.</p>
 <p>In addition to these two strategies, you can inspect the MSRV's set by the crate authors on which your project depends.
 This is achieved by resolving the dependency graph of your crate, and querying each crate for its author specified MSRV.
-Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may give
+Resolving the dependency graph is usually much quicker than running a toolchain command against your project, and may
+give
 you an indication of what your MSRV will be like. You can supply the highest listed version
 as the <code>--min &lt;version&gt;</code> option: <code>cargo msrv --min &lt;version&gt;</code>. This will reduce the possible search space, and speed
 up the search for the MSRV of your crate.</p>
-<p>See <a href="./commands/find.html">cargo-msrv (find)</a> and <a href="./commands/list.html">cargo-msrv list</a> for more.</p>
+<p>See <a href="./commands/find.html">cargo-msrv find</a> and <a href="./commands/list.html">cargo-msrv list</a> for more.</p>
 <h1 id="-thanks"><a class="header" href="#-thanks">🥰 Thanks</a></h1>
 <p>Thanks for using cargo-msrv! If you found an issue, or have an issue request, or any other question, feel free to open
 an issue at our GitHub <a href="https://github.com/foresterre/cargo-msrv/issues">repository</a>.</p>
@@ -223,10 +231,10 @@ cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./tar
 <p>You may find additional installation options in the <a href="https://github.com/foresterre/cargo-msrv#install">README</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="-quick-start"><a class="header" href="#-quick-start">⏱️ Quick start</a></h3>
 <p>If all you want to do is find the MSRV for your package, you can run:</p>
-<pre><code class="language-shell">cargo msrv
+<pre><code class="language-shell">cargo msrv find
 </code></pre>
 <p>This command will attempt to determine the MSRV by doing a binary search on
-acceptable Rust releases. If you require additional options, please refer to the 
+acceptable Rust releases. If you require additional options, please refer to the
 <a href="getting-started/../commands/index.html"><code>cargo-msrv commands</code></a> section, or run <code>cargo msrv help</code> to view the program's help
 output.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="migration-guide"><a class="header" href="#migration-guide">Migration Guide</a></h1>
@@ -236,10 +244,13 @@ output.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="migration-guide-v015-to-v016-with-the-json-output-format"><a class="header" href="#migration-guide-v015-to-v016-with-the-json-output-format">Migration Guide: v0.15 to v0.16 with the JSON output format</a></h1>
 <h2 id="enabling-json-output"><a class="header" href="#enabling-json-output">Enabling json output</a></h2>
 <p>In v0.15, json lines output could be enabled by providing the <code>--output-format json</code> option as part of
-the top level <code>cargo msrv</code> command. <code>cargo msrv --output-format json verify</code> was a valid way to specify
+the top level <code>cargo msrv</code> (find) command. <code>cargo msrv find --output-format json verify</code> was a valid way to specify
 the output-format option, while <code>cargo msrv verify --output-format json</code> would not work (because <code>--output-format</code> was
 not defined for the subcommand, <code>verify</code> in this example).</p>
-<p>This is no longer required; <code>--output-format</code> is now a global option, so in the above examples, both cases will now work.</p>
+<p>This is no longer required; <code>--output-format</code> is now a global option, so in the above examples, both cases will now
+work.</p>
+<p>NB: To determine the MSRV for a project, you should now run <code>cargo msrv find</code> instead of just <code>cargo msrv</code>. The top
+level command was moved to its own subcommand for consistency and more correct CLI argument parsing.</p>
 <h2 id="message-type-tag"><a class="header" href="#message-type-tag">Message type tag</a></h2>
 <p>In v0.15, json messages were tagged using a field named <code>reason</code>. From v0.16 onwards, this field has been renamed
 to <code>type</code> instead. Please refer to the <a href="migration-guide/../output-formats/json.html">JSON output format</a> page for a list of supported
@@ -251,8 +262,8 @@ messages.</p>
 message. The v0.15 <code>mode</code> message also reported about the toolchain used, and which rustup run command was used
 to check for compatibility. These however are only relevant when running a command which checks for compatibility.
 Since we now also have command which do not check for compatibility, such as <code>cargo msrv show</code> and <code>cargo msrv set</code>,
-this was a good moment to move these fields out of this type of message. The new <code>check_method</code> message can tell you both
-about the toolchain used for compatibility checks, and about the compatibility check method via its <code>method</code> field.
+this was a good moment to move these fields out of this type of message. The new <code>check_method</code> message can tell you
+both about the toolchain used for compatibility checks, and about the compatibility check method via its <code>method</code> field.
 If this method has type <code>rustup_run</code>, then the args will contain the compatibility check arguments, previously known
 as the <code>check_cmd</code>.</p>
 <p>The v0.15 <code>mode</code> message consisted of:</p>
@@ -268,9 +279,27 @@ as the <code>check_cmd</code>.</p>
 </code></pre>
 <p>Examples of messages which replace the information reported by the v0.15 <code>mode</code> message:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;subcommand_init&quot;,&quot;subcommand_id&quot;:&quot;find&quot;}
+{
+  &quot;type&quot;: &quot;subcommand_init&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.38.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.38.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
 </code></pre>
 <h4 id="installing-and-checking"><a class="header" href="#installing-and-checking">Installing and Checking</a></h4>
@@ -295,13 +324,58 @@ latter has been replaced by the <code>check_toolchain</code> event. Reporting ab
 </code></pre>
 <p>And now, you instead receive these events:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:25,&quot;search_space_size&quot;:34,&quot;iteration&quot;:2}
+{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 25,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 2
+}
 ...
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:2,&quot;marker&quot;:&quot;start&quot;}}
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:2,&quot;marker&quot;:&quot;end&quot;}}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 2,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 2,
+    &quot;marker&quot;: &quot;end&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:4,&quot;marker&quot;:&quot;start&quot;}}
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.39.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:{&quot;id&quot;:4,&quot;marker&quot;:&quot;end&quot;}}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.39.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 4,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.39.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 4,
+    &quot;marker&quot;: &quot;end&quot;
+  }
+}
 </code></pre>
 <h4 id="check-complete"><a class="header" href="#check-complete">Check complete</a></h4>
 <p>The <code>check-complete</code> message would be reported when a check, which determined whether the toolchain version under test
@@ -328,26 +402,83 @@ assuming that the <code>rustup_run</code> method (<code>method.type</code>) is u
 </code></pre>
 <p>And now, you instead receive these events, if the toolchain is compatible:</p>
 <pre><code class="language-json lines">...
-{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:26,&quot;search_space_size&quot;:34,&quot;iteration&quot;:27}
+{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 26,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 27
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.38.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.38.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: true
+}
 </code></pre>
 <p>Or, if the toolchain is deemed incompatible:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;progress&quot;,&quot;current&quot;:27,&quot;search_space_size&quot;:34,&quot;iteration&quot;:28}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;progress&quot;,
+  &quot;current&quot;: 27,
+  &quot;search_space_size&quot;: 34,
+  &quot;iteration&quot;: 28
+}
 ...
-{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;type&quot;:&quot;rustup_run&quot;,&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3&quot;}}
+{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;type&quot;: &quot;rustup_run&quot;,
+    &quot;args&quot;: [
+      &quot;1.37.0-x86_64-pc-windows-msvc&quot;,
+      &quot;cargo&quot;,
+      &quot;check&quot;
+    ],
+    &quot;path&quot;: &quot;..\\air3&quot;
+  }
+}
 ...
-{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;}
+{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: false,
+  &quot;error&quot;: &quot;error: failed to parse lock file at: ..\\air3\\Cargo.lock\n\nCaused by:\n  invalid serialized PackageId for key `package.dependencies`\n&quot;
+}
 </code></pre>
 <h4 id="msrv-completed"><a class="header" href="#msrv-completed">MSRV completed</a></h4>
 <p>When the find msrv command or the verify command would be completed, they would report about their result.
-The success field would respectively be used to report whether an MSRV had been found, or whether the MSRV being verified
-was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the <code>subcommand_result</code>
+The success field would respectively be used to report whether an MSRV had been found, or whether the MSRV being
+verified
+was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the
+<code>subcommand_result</code>
 event. Please refer to the <a href="migration-guide/../output-formats/json.html#event-subcommandresult">subcommand_result</a> event for the complete
 description of output per command.</p>
-<p>The v0.15 output had the following format: </p>
+<p>The v0.15 output had the following format:</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;msrv-complete&quot; /* OR */ &quot;reason&quot;: &quot;verify-complete&quot;,
   // true if a msrv was found
@@ -361,17 +492,37 @@ description of output per command.</p>
 }
 </code></pre>
 <p>Below, you can find an example of the new output when finding the MSRV, where one is found:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;success&quot;: true
+  }
+}
 </code></pre>
 <p>And another example for the output of the verify command, where the verification failed:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.60.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;verify&quot;,
+  &quot;result&quot;: {
+    &quot;toolchain&quot;: {
+      &quot;version&quot;: &quot;1.60.0&quot;,
+      &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+    },
+    &quot;is_compatible&quot;: false,
+    &quot;error&quot;: &quot;    Checking air v0.0.0 (..\\air)\nerror: expected one of `:`, `&lt;`, `=`, `where`, or `{`, found `&lt;eof&gt;`\n  --&gt; src\\lib.rs:24:11\n   |\n24 | pub trait DisplayEvent\n   |           ^^^^^^^^^^^^ expected one of `:`, `&lt;`, `=`, `where`, or `{`\n\nerror: could not compile `air` due to previous error\n&quot;
+  }
+}
 </code></pre>
 <h4 id="list-msrvs-specified-by-crate-authors"><a class="header" href="#list-msrvs-specified-by-crate-authors">List MSRV's specified by crate authors</a></h4>
-<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given crate.
+<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given
+crate.
 The exact output depends on which variant is used, either <code>ordered-by-msrv</code> (default) or <code>direct-deps</code>.</p>
 <p>The output of the list command is almost the same as it was before. The event is no longer called <code>list</code>; instead
 the output is given via the <code>subcommand_result</code> event, where the value of <code>subcommand_id</code> is <code>list</code>. The output of the
-command (<code>variant</code> and <code>list</code> fields) can now be found as part of the <code>result</code> field. The <code>success</code> field has been removed.</p>
+command (<code>variant</code> and <code>list</code> fields) can now be found as part of the <code>result</code> field. The <code>success</code> field has been
+removed.</p>
 <pre><code class="language-jsonc">{
   &quot;reason&quot;: &quot;list&quot;,
   // output variant
@@ -396,10 +547,58 @@ command (<code>variant</code> and <code>list</code> fields) can now be found as 
 }
 </code></pre>
 <p>An example of the <code>ordered-by-msrv</code> variant:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;msrv&quot;: &quot;1.38.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;storyteller&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;crossbeam-channel&quot;,
+          &quot;crossbeam-utils&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: null,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;lazy_static&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>An example of the <code>direct-deps</code> variant:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;:&quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;direct-deps&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;crossbeam-channel&quot;,
+        &quot;version&quot;: &quot;0.5.4&quot;,
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;crossbeam-utils&quot;,
+          &quot;num_cpus&quot;,
+          &quot;rand&quot;,
+          &quot;signal-hook&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
 <h1 id="-concepts"><a class="header" href="#-concepts">🌱 Concepts</a></h1>
@@ -442,7 +641,7 @@ printing debug (i.e. developer) output only, so the debug output is not overwrit
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-human"><a class="header" href="#output-format-human">Output format: human</a></h1>
 <p>This is the default output format. It can also be specified using the <code>--output-format human</code> option.</p>
 <p>The output of the 'human' output format is intended to be interpreted by humans. It uses colour and custom printed
-layouts to convey its information to the user. </p>
+layouts to convey its information to the user.</p>
 <p>In the next section, examples are given for each subcommand and a specific use case. You may run <code>cargo msrv help</code> to
 review all flags and options available.</p>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
@@ -454,23 +653,24 @@ review all flags and options available.</p>
 If a toolchain is not compatible, a reason is printed which may help you discover why it is not deemed compatible.</p>
 <p>cargo-msrv will show a summary after the search completes. The summary consists of the search space considered,
 the search method used, the compiler target and of course the MSRV.</p>
-<p>It is also possible that no MSRV could be found, for example if the program is not valid Rust code (i.e. would not compile).</p>
+<p>It is also possible that no MSRV could be found, for example if the program is not valid Rust code (i.e. would not
+compile).</p>
 <p><strong>I want to find the MSRV and write the result to the Cargo manifest</strong></p>
-<p>Use the <code>--write-msrv</code> flag: <code>cargo msrv --write-msrv</code></p>
+<p>Use the <code>--write-msrv</code> flag: <code>cargo msrv find --write-msrv</code></p>
 <p><a href="https://asciinema.org/a/530521"><img src="https://asciinema.org/a/530521.svg" alt="Screencast: find the MSRV and write the result to the Cargo manifest" /></a></p>
 <p>The output is the same as for <code>cargo msrv</code>, plus an additional message which states that the MSRV has been written to
 the Cargo manifest.</p>
-<p><em>Support for also writing to the clippy config is tracked in 
+<p><em>Support for also writing to the clippy config is tracked in
 <a href="https://github.com/foresterre/cargo-msrv/issues/529">issue 529</a></em>.</p>
 <p><strong>I want to find the MSRV and limit or increase the search space</strong></p>
-<p>Use the <code>--min</code> and/or <code>--max</code> options: <code>cargo msrv --min &lt;Rust version or edition&gt; --max &lt;Rust version&gt;</code></p>
+<p>Use the <code>--min</code> and/or <code>--max</code> options: <code>cargo msrv find --min &lt;Rust version or edition&gt; --max &lt;Rust version&gt;</code></p>
 <p><a href="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV"><img src="https://asciinema.org/a/SEqHCRxI5xe0eizaBbIraHZcV.svg" alt="Sceencast: find the MSRV with a customized search space" /></a></p>
 <p>By default, the search space is limited by the edition specified in the Cargo manifest. You may use the above
 options to override the limits of the search space. The output will be the same as otherwise running <code>cargo msrv</code>.</p>
 <p>In the example we specified the minimal version by specifying a Rust edition. We also could've specified a Rust version
 instead, e.g. <code>1.10</code> or <code>1.20.0</code>. It is not possible for the maximum considered version to specify an edition.</p>
 <p><strong>I want to find the MSRV, but use a linear search</strong></p>
-<p>Use the <code>--linear</code> flag: <code>cargo msrv --linear</code></p>
+<p>Use the <code>--linear</code> flag: <code>cargo msrv find --linear</code></p>
 <p><a href="https://asciinema.org/a/530645"><img src="https://asciinema.org/a/530645.svg" alt="Screencast: find the MSRV using a linear search" /></a></p>
 <p>We use the bisection search method to speed up the search for the MSRV considerably, but sometimes a linear search
 can be useful, for example if the search space is very small. The output will be the same as otherwise running
@@ -494,11 +694,11 @@ can be useful, for example if the search space is very small. The output will be
 <p>The <code>json</code> output format is intended to be used as a machine-readable output, to be interpreted by tooling, although
 humans may also use it, as it provides the most detailed output of all supported output formats.</p>
 <p>As described on the <a href="output-formats/index.html">output-formats</a> page, <code>cargo-msrv</code> reports the status of the program via
-events. A processor transforms these events into their output-format. In case of the <code>json</code> output format, 
+events. A processor transforms these events into their output-format. In case of the <code>json</code> output format,
 events are almost 1-on-1 serialized to json (there are a few exceptions), and then printed to <code>stderr</code>.
-Each json serialized event ends with a newline. Each line thus represents a single serialized event. </p>
-<p>To use the <code>json</code> output format, run <code>cargo-msrv</code> with the <code>--output-format json</code> option. 
-For example, if you want to find the MSRV, you could run <code>cargo msrv --output-format json</code>.</p>
+Each json serialized event ends with a newline. Each line thus represents a single serialized event.</p>
+<p>To use the <code>json</code> output format, run <code>cargo-msrv</code> with the <code>--output-format json</code> option.
+For example, if you want to find the MSRV, you could run <code>cargo msrv find --output-format json</code>.</p>
 <p>In the next section, you can find a description of the common fields of events.
 The section thereafter gives an overview of each of the supported events, with for each event its event specific fields.</p>
 <h1 id="events-and-scope"><a class="header" href="#events-and-scope">Events and scope</a></h1>
@@ -515,7 +715,8 @@ been completed).</p>
 <tr><td>scope.marker</td><td>no</td><td>&quot;start&quot; or &quot;end&quot;</td><td>Whether the event marks the beginning or the end of the action</td></tr>
 </tbody></table>
 <p>The <strong>type</strong> field can be used to identify a specific event.</p>
-<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the <code>marker</code> subfield) marks the start of a scoped event, while <code>end</code>
+<p>The <strong>scope</strong> field is only present for scoped events. The <code>start</code> value (on the <code>marker</code> subfield) marks the start of a
+scoped event, while <code>end</code>
 marks the end of a scoped event.</p>
 <h1 id="list-of-events"><a class="header" href="#list-of-events">List of events</a></h1>
 <h2 id="event-meta"><a class="header" href="#event-meta">Event: <code>Meta</code></a></h2>
@@ -531,20 +732,36 @@ marks the end of a scoped event.</p>
 <tr><td>rustc</td><td>Version of <code>rustc</code> used to compile <code>cargo-msrv</code>.</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;meta&quot;,&quot;instance&quot;:&quot;cargo-msrv&quot;,&quot;version&quot;:&quot;0.15.1&quot;,&quot;sha_short&quot;:&quot;79582b6&quot;,&quot;target_triple&quot;:&quot;x86_64-pc-windows-msvc&quot;,&quot;cargo_features&quot;:&quot;default,rust_releases_dist_source&quot;,&quot;rustc&quot;:&quot;1.62.0&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;meta&quot;,
+  &quot;instance&quot;: &quot;cargo-msrv&quot;,
+  &quot;version&quot;: &quot;0.15.1&quot;,
+  &quot;sha_short&quot;: &quot;79582b6&quot;,
+  &quot;target_triple&quot;: &quot;x86_64-pc-windows-msvc&quot;,
+  &quot;cargo_features&quot;: &quot;default,rust_releases_dist_source&quot;,
+  &quot;rustc&quot;: &quot;1.62.0&quot;
+}
 </code></pre>
 <h2 id="event-fetchindex"><a class="header" href="#event-fetchindex">Event: <code>FetchIndex</code></a></h2>
 <p><strong>type:</strong> fetch_index</p>
-<p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available. 
+<p><strong>description:</strong> Prior to determining the MSRV of a crate, we have to figure out which Rust versions are available.
 We obtain those using the <a href="https://crates.io/crates/rust-releases">rust-releases</a> library. The <code>FetchIndex</code> event
-reports that the index is being fetched, and details which source is used. </p>
+reports that the index is being fetched, and details which source is used.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
 <tr><td>source</td><td>Place from where the available Rust releases are obtained</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;fetch_index&quot;,&quot;source&quot;:&quot;rust_changelog&quot;,&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;fetch_index&quot;,
+  &quot;source&quot;: &quot;rust_changelog&quot;,
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;fetch_index&quot;,
+  &quot;source&quot;: &quot;rust_changelog&quot;,
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: <code>CheckToolchain</code></a></h2>
 <p><strong>type:</strong> check_toolchain</p>
@@ -552,7 +769,7 @@ reports that the index is being fetched, and details which source is used. </p>
 crate, is by installing a toolchain and using it to check a crate for compatibility with this toolchain. The
 <code>CheckToolchain</code> event is wrapped around this process and notifies you about the start and end of this process.
 This event is called as a scoped event, and within it's scope, you'll find the following events: <code>setup_toolchain</code>,
-<code>check_method</code> and <code>check_result</code>, which are described in more detail below. </p>
+<code>check_method</code> and <code>check_result</code>, which are described in more detail below.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
 <tr><td>toolchain</td><td>The toolchain to be located or installed</td></tr>
@@ -560,8 +777,22 @@ This event is called as a scoped event, and within it's scope, you'll find the f
 <tr><td>toolchain.target</td><td>The target-triple of the toolchain</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;check_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.35.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.35.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;check_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.35.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-setuptoolchain"><a class="header" href="#event-setuptoolchain">Event: <code>SetupToolchain</code></a></h2>
 <p><strong>type:</strong> setup_toolchain</p>
@@ -575,8 +806,22 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>toolchain.target</td><td>The target-triple of the toolchain</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;start&quot;}
-{&quot;type&quot;:&quot;setup_toolchain&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.47.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;scope&quot;:&quot;end&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.47.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;start&quot;
+}
+{
+  &quot;type&quot;: &quot;setup_toolchain&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.47.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;scope&quot;: &quot;end&quot;
+}
 </code></pre>
 <h2 id="event-checkmethod"><a class="header" href="#event-checkmethod">Event: <code>CheckMethod</code></a></h2>
 <p><strong>type:</strong> check_method</p>
@@ -592,7 +837,23 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>method.path</td><td>yes</td><td>method.type = <code>rustup_run</code></td><td>The path provided to rustup, if any</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_method&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;method&quot;:{&quot;rustup_run&quot;:{&quot;args&quot;:[&quot;1.37.0-x86_64-pc-windows-msvc&quot;,&quot;cargo&quot;,&quot;check&quot;],&quot;path&quot;:&quot;..\\air3\\&quot;}}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_method&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;method&quot;: {
+    &quot;rustup_run&quot;: {
+      &quot;args&quot;: [
+        &quot;1.37.0-x86_64-pc-windows-msvc&quot;,
+        &quot;cargo&quot;,
+        &quot;check&quot;
+      ],
+      &quot;path&quot;: &quot;..\\air3\\&quot;
+    }
+  }
+}
 </code></pre>
 <h2 id="event-checkresult"><a class="header" href="#event-checkresult">Event: <code>CheckResult</code></a></h2>
 <p><strong>type:</strong> check_result</p>
@@ -606,9 +867,24 @@ crate, is by installing a toolchain and using it to check a crate for compatibil
 <tr><td>error</td><td>yes</td><td>is_compatible = <code>false</code></td><td>Error message of a failed compatibility check, if any</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: true
+}
 </code></pre>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;check_result&quot;,&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.37.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:false,&quot;error&quot;:&quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_result&quot;,
+  &quot;toolchain&quot;: {
+    &quot;version&quot;: &quot;1.37.0&quot;,
+    &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+  },
+  &quot;is_compatible&quot;: false,
+  &quot;error&quot;: &quot;error: failed to parse lock file at: .\\air3\\Cargo.lock\n\nCaused by:\ninvalid serialized PackageId for key `package.dependencies`\n&quot;
+}
 </code></pre>
 <h2 id="event-auxiliaryoutput"><a class="header" href="#event-auxiliaryoutput">Event: <code>AuxiliaryOutput</code></a></h2>
 <p><strong>type:</strong> auxiliary_output</p>
@@ -626,11 +902,21 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>item.kind</td><td>no</td><td>if item.type = <code>toolchain_file</code></td><td>Which toolchain file kind was written, &quot;legacy&quot; or &quot;toml&quot;</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;auxiliary_output&quot;,&quot;destination&quot;:{&quot;type&quot;:&quot;file&quot;,&quot;path&quot;:&quot;..\\air3\\Cargo.toml&quot;},&quot;item&quot;:{&quot;type&quot;:&quot;msrv&quot;,&quot;kind&quot;:&quot;rust_version&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;auxiliary_output&quot;,
+  &quot;destination&quot;: {
+    &quot;type&quot;: &quot;file&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
+  &quot;item&quot;: {
+    &quot;type&quot;: &quot;msrv&quot;,
+    &quot;kind&quot;: &quot;rust_version&quot;
+  }
+}
 </code></pre>
 <h2 id="event-progress"><a class="header" href="#event-progress">Event: <code>Progress</code></a></h2>
 <p><strong>type:</strong> progress</p>
-<p><strong>description:</strong> Reports on the progress of an ongoing MSRV search. </p>
+<p><strong>description:</strong> Reports on the progress of an ongoing MSRV search.</p>
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>current</td><td>no</td><td></td><td>Index of the currently running check into the sorted search space. Starts at <code>0</code>.</td></tr>
@@ -683,10 +969,37 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>result.error</td><td>yes</td><td>subcommand_id = <code>verify</code> and result.is_compatible = <code>false</code></td><td>Error message of a failed verify check, if any</td></tr>
 </tbody></table>
 <p><strong>example 1: find</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;find&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;success&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;find&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;success&quot;: true
+  }
+}
 </code></pre>
 <p><strong>example 2: list with direct-deps</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;direct-deps&quot;,&quot;list&quot;:[{&quot;name&quot;:&quot;crossbeam-channel&quot;,&quot;version&quot;: &quot;0.5.4&quot;,&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;crossbeam-utils&quot;,&quot;num_cpus&quot;,&quot;rand&quot;,&quot;signal-hook&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;direct-deps&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;crossbeam-channel&quot;,
+        &quot;version&quot;: &quot;0.5.4&quot;,
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;crossbeam-utils&quot;,
+          &quot;num_cpus&quot;,
+          &quot;rand&quot;,
+          &quot;signal-hook&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>Formatted:</p>
 <pre><code class="language-json">{
@@ -712,7 +1025,35 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 }
 </code></pre>
 <p><strong>example 3: list with ordered-by-msrv</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;list&quot;,&quot;result&quot;:{&quot;variant&quot;:&quot;ordered-by-msrv&quot;,&quot;list&quot;:[{&quot;msrv&quot;:&quot;1.38.0&quot;,&quot;dependencies&quot;:[&quot;storyteller&quot;]},{&quot;msrv&quot;:&quot;1.36.0&quot;,&quot;dependencies&quot;:[&quot;crossbeam-channel&quot;,&quot;crossbeam-utils&quot;]},{&quot;msrv&quot;:null,&quot;dependencies&quot;:[&quot;cfg-if&quot;,&quot;lazy_static&quot;]}]}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;result&quot;: {
+    &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
+    &quot;list&quot;: [
+      {
+        &quot;msrv&quot;: &quot;1.38.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;storyteller&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: &quot;1.36.0&quot;,
+        &quot;dependencies&quot;: [
+          &quot;crossbeam-channel&quot;,
+          &quot;crossbeam-utils&quot;
+        ]
+      },
+      {
+        &quot;msrv&quot;: null,
+        &quot;dependencies&quot;: [
+          &quot;cfg-if&quot;,
+          &quot;lazy_static&quot;
+        ]
+      }
+    ]
+  }
+}
 </code></pre>
 <p>Formatted:</p>
 <pre><code class="language-json">{
@@ -746,13 +1087,37 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 }
 </code></pre>
 <p><strong>example 5: set</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;set&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;set&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;manifest_path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  }
+}
 </code></pre>
 <p><strong>example 6: show</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;show&quot;,&quot;result&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;manifest_path&quot;:&quot;..\\air3\\Cargo.toml&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;show&quot;,
+  &quot;result&quot;: {
+    &quot;version&quot;: &quot;1.38.0&quot;,
+    &quot;manifest_path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  }
+}
 </code></pre>
 <p><strong>example 7: verify</strong>:</p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;subcommand_result&quot;,&quot;subcommand_id&quot;:&quot;verify&quot;,&quot;result&quot;:{&quot;toolchain&quot;:{&quot;version&quot;:&quot;1.38.0&quot;,&quot;target&quot;:&quot;x86_64-pc-windows-msvc&quot;},&quot;is_compatible&quot;:true}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;subcommand_result&quot;,
+  &quot;subcommand_id&quot;: &quot;verify&quot;,
+  &quot;result&quot;: {
+    &quot;toolchain&quot;: {
+      &quot;version&quot;: &quot;1.38.0&quot;,
+      &quot;target&quot;: &quot;x86_64-pc-windows-msvc&quot;
+    },
+    &quot;is_compatible&quot;: true
+  }
+}
 </code></pre>
 <h2 id="event-terminatewithfailure"><a class="header" href="#event-terminatewithfailure">Event: <code>TerminateWithFailure</code></a></h2>
 <p><strong>type:</strong> terminate_with_failure</p>
@@ -763,7 +1128,12 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td>reason.description</td><td>no</td><td>Describes why cargo-msrv will terminate with a non-zero exit code</td></tr>
 </tbody></table>
 <p><strong>example:</strong></p>
-<pre><code class="language-json lines">{&quot;type&quot;:&quot;terminate_with_failure&quot;,&quot;reason&quot;:{&quot;description&quot;:&quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;}}
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;terminate_with_failure&quot;,
+  &quot;reason&quot;: {
+    &quot;description&quot;: &quot;MSRV was not specified in Cargo manifest at '..\\air\\Cargo.toml'&quot;
+  }
+}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="output-format-minimal"><a class="header" href="#output-format-minimal">Output format: minimal</a></h1>
 <p>The purpose of the <code>minimal</code> output format option is to provide just enough output for a machine (or shell script!)
@@ -783,15 +1153,15 @@ exit code, and how different errors are categorised.</p>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
 If it could not be found, we report <code>none</code> instead, and write this value to <code>stderr</code>.</p>
 <h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
-<p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>. </p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal
+<p>If the MSRV is <code>1.60.0</code>, the output will be just <code>1.60.0</code>.</p>
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal
 # stdout
 1.60.0
 </code></pre>
 <h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
 <p>If the MSRV can't be found, for example if your project requires a nightly compiler feature
-or has incorrect syntax, the output will be <code>none</code>. </p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal
+or has incorrect syntax, the output will be <code>none</code>.</p>
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal
 # stderr
 none
 </code></pre>
@@ -802,7 +1172,7 @@ Support may be added in the future.</p>
 <p>The <code>set</code> subcommand prints the version set as MSRV.</p>
 <h3 id="example-1-1"><a class="header" href="#example-1-1">Example 1</a></h3>
 <p>If we set our MSRV to be <code>1.31</code>, the output will be <code>1.31</code>.</p>
-<pre><code class="language-shell">cargo msrv --output-format minimal set 1.31
+<pre><code class="language-shell">cargo msrv find --output-format minimal set 1.31
 # stdout
 1.31
 </code></pre>
@@ -815,13 +1185,14 @@ Support may be added in the future.</p>
 rust-version = &quot;1.60&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal show
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal show
 # stdout
 1.60
 </code></pre>
 <h3 id="example-2-1"><a class="header" href="#example-2-1">Example 2</a></h3>
 <p>Assuming our Cargo manifest lists the MSRV in the <code>package.metadata.msrv</code> field, <code>cargo-msrv</code> will print <code>1.21.0</code>.
-The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the <code>package.metadata.msrv</code>
+The <code>package.rust-version</code> field has precedence over the <code>package.metadata.msrv</code>. You may see the
+<code>package.metadata.msrv</code>
 key for crates which use a Cargo version which does not yet support the <code>package.rust-version</code> field. <code>cargo-msrv</code>
 supports both fields.</p>
 <p><strong>Cargo.toml</strong></p>
@@ -829,7 +1200,7 @@ supports both fields.</p>
 msrv = &quot;1.21.0&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal show
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal show
 # stdout
 1.21.0
 </code></pre>
@@ -843,14 +1214,14 @@ and the compatibility check succeeds:</p>
 msrv = &quot;1.31&quot;
 </code></pre>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal verify
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal verify
 # stdout
 true
 </code></pre>
 <h3 id="example-2-2"><a class="header" href="#example-2-2">Example 2</a></h3>
 <p>Assuming the given crate is incompatibility with the given MSRV:</p>
 <p><strong>Shell</strong></p>
-<pre><code class="language-shell">$ cargo msrv --output-format minimal verify --rust-version 1.31
+<pre><code class="language-shell">$ cargo msrv find --output-format minimal verify --rust-version 1.31
 # stderr
 false
 </code></pre>
@@ -860,20 +1231,22 @@ altogether. Disabling the user output may be achieved by providing the <code>--n
 <div style="break-before: page; page-break-before: always;"></div><p>🚧 Section is work-in-progress.</p>
 <h1 id="-cargo-msrv-commands"><a class="header" href="#-cargo-msrv-commands">🕹️ cargo-msrv commands</a></h1>
 <ul>
-<li><a href="commands/./find.html">cargo-msrv</a> (<code>find</code>): The top level command is used to find the MSRV for your crate.</li>
-<li><a href="commands/./help.html">cargo-msrv help</a>: The <code>help</code> subcommand is used to learn more about the usage and the knobs and handles of the application.</li>
-<li><a href="commands/./list.html">cargo-msrv list</a>: The <code>list</code> subcommand is used to list the known MSRV's of the dependencies of your crate.</li>
+<li><a href="commands/./find.html">cargo-msrv find</a>: The <code>find</code> subcommand is used to find the MSRV for your crate.</li>
+<li><a href="commands/./help.html">cargo-msrv help</a>: The <code>help</code> subcommand is used to learn more about the usage and the knobs and handles of
+the application.</li>
+<li><a href="commands/./list.html">cargo-msrv list</a>: The <code>list</code> subcommand is used to list the known MSRV's of the dependencies of your
+crate.</li>
 <li><a href="commands/./set.html">cargo-msrv set</a>: The <code>set</code> subcommand is used to quickly set the MSRV of a crate.</li>
 <li><a href="commands/./show.html">cargo-msrv show</a>: The <code>show</code> subcommand is used to quickly show the MSRV of a crate.</li>
-<li><a href="commands/./verify.html">cargo-msrv verify</a>: The <code>verify</code> subcommand is used to check whether the pinned MSRV is acceptable. </li>
+<li><a href="commands/./verify.html">cargo-msrv verify</a>: The <code>verify</code> subcommand is used to check whether the pinned MSRV is acceptable.</li>
 </ul>
 <h1 id="program-wide-options"><a class="header" href="#program-wide-options">Program wide options</a></h1>
 <p>⚠ work-in-progress.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv"><a class="header" href="#cargo-msrv">cargo-msrv</a></h1>
 <h1 id="command"><a class="header" href="#command">COMMAND</a></h1>
 <ul>
-<li>Standalone: <code>cargo-msrv [options]</code></li>
-<li>Through Cargo: <code>cargo msrv [options]</code></li>
+<li>Standalone: <code>cargo-msrv find [options]</code></li>
+<li>Through Cargo: <code>cargo msrv find [options]</code></li>
 </ul>
 <h2 id="description"><a class="header" href="#description">DESCRIPTION</a></h2>
 <p>Find the MSRV for your project.</p>
@@ -882,25 +1255,29 @@ toolchains will be tested, and the amount of tests ran, depends on the search st
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is <code>cargo check</code>.</p>
-<p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in a
-most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e. the highest still
-toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly faster,
-so it's usually advisable to enable it by default. </p>
+<p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in
+a
+most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e.
+the highest still
+toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly
+faster,
+so it's usually advisable to enable it by default.</p>
 <h3 id="why-run-against-complete-toolchains"><a class="header" href="#why-run-against-complete-toolchains">Why run against complete toolchains?</a></h3>
-<p>Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST, and
-(conditionally) tag each AST node with a supported from version (or query it, as library functions already have an 'available
-from' Rust version)? </p>
-<p>Earlier we developed a prototype to do exactly this, and we may still add it as an optional strategy in the future, however
+<p>Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST,
+and
+(conditionally) tag each AST node with a supported from version (or query it, as library functions already have an '
+available
+from' Rust version)?</p>
+<p>Earlier we developed a prototype to do exactly this, and we may still add it as an optional strategy in the future,
+however
 we found that the selection of the MSRV of a toolchain is not just limited by the source code itself. External factors
 such as Rust editions or knobs in the Cargo manifest also impact the MSRV for a crate. As such, the running a complete
 toolchain helps us to be more precise<sup>1</sup>.</p>
 <h3 id="future-work"><a class="header" href="#future-work">Future work</a></h3>
-<p><em>1. Currently, the 'Find your MSRV' action is defined at as the top-level <code>cargo-msrv</code> command. We hope to move it to its own subcommand
-at some point in the future, e.g. <code>cargo-msrv find</code> (subcommand name subject to change).</em></p>
-<p><em>2. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
+<p><em>1. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition.</em></p>
-<p><em>3. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
-implementation. If you don't know where to start, create a new issue, we're happy to help!</em> </p>
+<p><em>2. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
+implementation. If you don't know where to start, create a new issue, we're happy to help!</em></p>
 <h2 id="options"><a class="header" href="#options">OPTIONS</a></h2>
 <p><strong><code>--bisect</code></strong></p>
 <p>Use a binary search to find the MSRV. This is usually faster than using a linear search.
@@ -912,17 +1289,19 @@ The linear search strategy was the default prior to <code>cargo-msrv v0.14.0</co
 <p>Prints help information</p>
 <p><strong><code>--include-all-patch-releases</code></strong></p>
 <p>Include all patch releases, instead of only the last. By default, after the list of Rust releases has been fetched, we<br />
-only keep the highest minor version for each Rust release. Say the list of Rust releases would be <code>[&quot;1.31.1&quot;, &quot;1.31.0&quot;, &quot;1.30.0]</code>,
-then we discard Rust <code>1.31.0</code>, as you would usually not depend on the non-bugfixed compiler releases, and the patch version
+only keep the highest minor version for each Rust release. Say the list of Rust releases would be
+<code>[&quot;1.31.1&quot;, &quot;1.31.0&quot;, &quot;1.30.0]</code>,
+then we discard Rust <code>1.31.0</code>, as you would usually not depend on the non-bugfixed compiler releases, and the patch
+version
 does not contain new features, thus no features to impact the MSRV. When you provide this flag however, these additional
 patch versions will be included in the search space.</p>
 <p><strong><code>--ignore-lockfile</code></strong></p>
 <p>Temporarily (re)moves the lockfile, so it will not interfere with the building process. This is important when
 testing against Rust versions prior to 1.38.0, for which Cargo does not recognize the new v2 lockfile (<code>Cargo.lock</code>),
-or some crates which use the even newer v3 lockfile. </p>
+or some crates which use the even newer v3 lockfile.</p>
 <p><strong><code>--log-level</code> level</strong></p>
 <p>Specify the severity of debug logs which the program will write to the log output.
-Possible values are: <code>error</code>, <code>warn</code>, <code>info</code> (default), <code>debug</code> and <code>trace</code>. 
+Possible values are: <code>error</code>, <code>warn</code>, <code>info</code> (default), <code>debug</code> and <code>trace</code>.
 Lower severities include messages of higher severities.
 When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--log-target</code> log_target</strong></p>
@@ -931,15 +1310,19 @@ Possible values are <code>file</code> (default) and <code>stdout</code>.
 The log output of <code>stdout</code> may interfere with user output. We would suggest to use <code>--no-user-output</code> in tandem
 with <code>--log-target stdout</code>. When <code>--no-log</code> is present, this option will be ignored.</p>
 <p><strong><code>--max</code> version</strong></p>
-<p>Latest (most recent) version to take into account. The version must match a valid three component Rust toolchain version, 
-and be semver compatible. An example of an acceptable versions is &quot;1.35.0&quot;, while &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot; are not valid.</p>
+<p>Latest (most recent) version to take into account. The version must match a valid three component Rust toolchain
+version,
+and be semver compatible. An example of an acceptable versions is &quot;1.35.0&quot;, while &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot;
+are not valid.</p>
 <p><strong><code>--min</code> version</strong></p>
-<p>Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain version,
+<p>Earliest (least recent) version to take into account. The version must match a valid three component Rust toolchain
+version,
 and be semver compatible. Edition aliases may also be used. An example of an acceptable versions is &quot;1.35.0&quot;, while
 &quot;1.35&quot;, &quot;^1.35.0&quot; and &quot;1.35.0-beta&quot; are not valid. Editions map to the first version in which they were introduced, so
 for example &quot;1.56.0&quot; for edition &quot;2021&quot;.</p>
 <p><strong><code>--no-check-feedback</code></strong></p>
-<p>If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in which
+<p>If provided, the outcome of individual checks will not be printed. These prints provide feedback, about the order in
+which
 checks ran, and their results. This is especially useful if you want to know why a certain Rust version was deemed to be
 incompatible, for example, so you can identify Rust features which require a certain minimum Rust version.</p>
 <p><strong><code>--no-log</code></strong></p>
@@ -955,35 +1338,38 @@ format. When this option is absent, human-readable output will be printed. Diagn
 using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
 <p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code> and <code>rust-dist</code>.
-The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will index
+The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will
+index
 the Rust S3 distribution bucket.</p>
 <p><strong><code>--path</code> directory-path</strong></p>
 <p>Path to the cargo project directory. This directory should contain a Cargo manifest (i.e. <code>Cargo.toml</code>) file. The given
-path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like <code>/home/user/project/Cargo.toml</code>
+path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like
+<code>/home/user/project/Cargo.toml</code>
 is incorrect.</p>
 <p><strong><code>--target</code> target</strong></p>
 <p>Supply a custom target triplet to use as Rust distribution. If absent, the rustup default toolchain is used.</p>
 <p><strong><code>--write-toolchain-file</code></strong></p>
-<p>Output a rust-toolchain file with the determined MSRV as toolchain. The toolchain file will pin the Rust version for this crate. 
+<p>Output a rust-toolchain file with the determined MSRV as toolchain. The toolchain file will pin the Rust version for
+this crate.
 See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file">here</a> for more about the toolchain-file.</p>
 <p><strong><code>-V, --version</code></strong></p>
 <p>Prints cargo-msrv version information</p>
-<p><strong><code>--</code> ...cmd</strong> </p>
+<p><strong><code>--</code> ...cmd</strong></p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
 <code>cargo check</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
 <h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
 <ol>
 <li>Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --bisect
+<pre><code class="language-shell">cargo msrv find --bisect
 </code></pre>
 <p>or (from cargo-msrv <code>v0.14.0</code>, <code>bisect</code> is the default search method):</p>
-<pre><code class="language-shell">cargo msrv
+<pre><code class="language-shell">cargo msrv find
 </code></pre>
 <ol start="2">
 <li>Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --linear
+<pre><code class="language-shell">cargo msrv find --linear
 </code></pre>
 <p>NB: Prior to cargo-msrv <code>v0.14.0</code>, <code>linear</code> was the default search strategy, and no flag was available explicitly
 use this search strategy.</p>
@@ -991,17 +1377,17 @@ use this search strategy.</p>
 <li>Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
 <code>cargo test</code>.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv -- cargo test
+<pre><code class="language-shell">cargo msrv find -- cargo test
 </code></pre>
 <ol start="4">
 <li>Try to determine the MSRV for the crate in your current working directory, but use the JSON machine-readable output
 format.</li>
 </ol>
-<pre><code class="language-shell">cargo msrv --output-format json
+<pre><code class="language-shell">cargo msrv find --output-format json
 </code></pre>
 <h2 id="footnotes"><a class="header" href="#footnotes">FOOTNOTES</a></h2>
 <p><sup>1</sup> Precision is of course a debatable concept. In this case we note that &quot;a toolchain must be able
-to pass the cargo-msrv check command for a crate&quot; (in its broadest sense).</p>
+to pass the cargo-msrv compatibility check command for a crate&quot; (in its broadest sense).</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-help"><a class="header" href="#cargo-msrv-help">cargo-msrv help</a></h1>
 <h1 id="command-1"><a class="header" href="#command-1">COMMAND</a></h1>
 <ul>
