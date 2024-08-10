@@ -36,7 +36,7 @@ pub struct UserOutputOpts {
     output_format: OutputFormat,
 
     /// Disable user output
-    #[arg(long, global = true)]
+    #[arg(long, global = true, conflicts_with = "output_format")]
     no_user_output: bool,
 }
 
