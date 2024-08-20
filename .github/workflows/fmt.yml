@@ -5,8 +5,6 @@ on:
     branches:
       - master
       - main
-      - staging # for Bors
-      - trying # for Bors
   merge_group:
 jobs:
   fmt:
