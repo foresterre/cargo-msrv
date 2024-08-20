@@ -1,5 +1,7 @@
+[advisories]
+ignore = []
+
 [licenses]
-version = 2
 confidence-threshold = 0.925
 allow = [
     "0BSD",
@@ -36,7 +38,3 @@ expression = "ISC"
 license-files = [
     { path = "LICENSE", hash = 0x001c7e6c }
 ]
-
-[advisories]
-version = 2
-ignore = []
