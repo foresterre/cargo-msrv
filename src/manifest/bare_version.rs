@@ -342,7 +342,7 @@ fn parse_bare_version(input: &str) -> Result<BareVersion, Error> {
 
     // Like Cargo, we disallow pre-release modifiers.
     // https://github.com/rust-lang/cargo/blob/ec38c84ab1d257c9d0129bd9cf7eade1d511a8d2/src/cargo/util/toml/mod.rs#L1117-L1132
-    if input[parsed_tokens..].starts_with(&[b'-']) {
+    if input[parsed_tokens..].starts_with(b"-") {
         return Err(Error::PreReleaseModifierNotAllowed);
     }
 
