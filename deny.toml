@@ -1,5 +1,7 @@
 [advisories]
-ignore = []
+ignore = [
+    "RUSTSEC-2024-0370" # proc-macro-error is unmaintained (via tabled > tabled_derive)
+]
 
 [licenses]
 confidence-threshold = 0.925
