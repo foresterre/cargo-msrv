@@ -76,19 +76,18 @@ mod write_toolchain_file_tests {
     use crate::reporter::{FakeTestReporter, TestReporterWrapper};
     use crate::writer::toolchain_file::write_toolchain_file;
     use crate::{semver, CargoMSRVError, Event};
+    use assert_fs::prelude::*;
     use camino::{Utf8Path, Utf8PathBuf};
-    use test_dir::{DirBuilder, FileType, TestDir};
 
     #[test]
     fn no_toolchain_file_yet() {
-        let tmp = TestDir::temp();
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 22, 44);
 
-        let toolchain_file = tmp.path("rust-toolchain");
+        let toolchain_file = tmp.join("rust-toolchain");
         assert!(!toolchain_file.exists()); // should not exist yet
 
         write_toolchain_file(&fake_reporter, &version, root).unwrap();
@@ -100,20 +99,22 @@ channel = "1.22.44"
 "#;
         assert_eq!(&contents, expected);
 
-        let toolchain_file_toml = tmp.path("rust-toolchain.toml");
+        let toolchain_file_toml = tmp.join("rust-toolchain.toml");
         assert!(!toolchain_file_toml.exists()); // toml variant should not exist
     }
 
     #[test]
     fn pre_existing_without_extension() {
-        let tmp = TestDir::temp().create("rust-toolchain", FileType::EmptyFile);
-        let root = tmp.root();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain").touch().unwrap();
+
+        let root = tmp.path();
         let root = Utf8Path::from_path(root).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 33, 55);
 
-        let toolchain_file = tmp.path("rust-toolchain");
+        let toolchain_file = tmp.join("rust-toolchain");
         let metadata = std::fs::metadata(&toolchain_file).unwrap(); // panics if file does not exist
         assert_eq!(metadata.len(), 0); // created empty
 
@@ -126,20 +127,21 @@ channel = "1.33.55"
 "#;
         assert_eq!(&contents, expected);
 
-        let toolchain_file_toml = tmp.path("rust-toolchain.toml");
+        let toolchain_file_toml = tmp.join("rust-toolchain.toml");
         assert!(!toolchain_file_toml.exists()); // toml variant should not exist
     }
 
     #[test]
     fn pre_existing_with_extension() {
-        let tmp = TestDir::temp().create("rust-toolchain.toml", FileType::EmptyFile);
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain.toml").touch().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 44, 66);
 
-        let toolchain_file_toml = tmp.path("rust-toolchain.toml");
+        let toolchain_file_toml = tmp.join("rust-toolchain.toml");
         let metadata = std::fs::metadata(&toolchain_file_toml).unwrap(); // panics if file does not exist
         assert_eq!(metadata.len(), 0); // created empty
 
@@ -152,23 +154,23 @@ channel = "1.44.66"
 "#;
         assert_eq!(&contents, expected);
 
-        let toolchain_file = tmp.path("rust-toolchain");
+        let toolchain_file = tmp.join("rust-toolchain");
         assert!(!toolchain_file.exists()); // no ext variant should not exist
     }
 
     #[test]
     fn without_extension_takes_precedence() {
-        let tmp = TestDir::temp()
-            .create("rust-toolchain", FileType::EmptyFile)
-            .create("rust-toolchain.toml", FileType::EmptyFile);
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain").touch().unwrap();
+        tmp.child("rust-toolchain.toml").touch().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 55, 77);
 
-        let toolchain_file = tmp.path("rust-toolchain");
-        let toolchain_file_toml = tmp.path("rust-toolchain.toml");
+        let toolchain_file = tmp.join("rust-toolchain");
+        let toolchain_file_toml = tmp.join("rust-toolchain.toml");
 
         let metadata = std::fs::metadata(&toolchain_file).unwrap(); // panics if file does not exist
         let metadata_toml = std::fs::metadata(&toolchain_file_toml).unwrap(); // panics if file does not exist
@@ -193,9 +195,10 @@ channel = "1.55.77"
 
     #[test]
     fn check_reporter_event() {
-        let tmp = TestDir::temp();
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain").touch().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let test_reporter = TestReporterWrapper::default();
         let version = semver::Version::new(2, 0, 5);
@@ -204,7 +207,7 @@ channel = "1.55.77"
 
         let events = test_reporter.wait_for_events();
         let expected: Vec<Event> = vec![AuxiliaryOutput::new(
-            Destination::file(Utf8PathBuf::from_path_buf(tmp.path("rust-toolchain")).unwrap()),
+            Destination::file(Utf8PathBuf::from_path_buf(tmp.join("rust-toolchain")).unwrap()),
             AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
         )
         .into()];
@@ -214,15 +217,16 @@ channel = "1.55.77"
 
     #[test]
     fn write_failure() {
-        let tmp = TestDir::temp().create("rust-toolchain", FileType::Dir); // dir so write will fail
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain").create_dir_all().unwrap(); // dir so write will fail
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(2, 0, 5);
 
         let error = write_toolchain_file(&fake_reporter, &version, root).unwrap_err();
-        let expected_path = tmp.path("rust-toolchain");
+        let expected_path = tmp.join("rust-toolchain");
 
         assert!(matches!(
             error,
@@ -248,14 +252,15 @@ channel = "1.55.77"
 #[cfg(test)]
 mod toolchain_file_tests {
     use crate::writer::toolchain_file::toolchain_file;
+    use assert_fs::prelude::*;
     use camino::Utf8Path;
-    use test_dir::{DirBuilder, FileType, TestDir};
 
     #[test]
     fn without_extension() {
-        let tmp = TestDir::temp().create("rust-toolchain", FileType::EmptyFile);
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain").touch().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let toolchain_file = toolchain_file(root);
 
@@ -264,9 +269,10 @@ mod toolchain_file_tests {
 
     #[test]
     fn with_extension() {
-        let tmp = TestDir::temp().create("rust-toolchain.toml", FileType::EmptyFile);
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("rust-toolchain.toml").touch().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let toolchain_file = toolchain_file(root);
 
@@ -275,9 +281,9 @@ mod toolchain_file_tests {
 
     #[test]
     fn default() {
-        let tmp = TestDir::temp();
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let tmp = assert_fs::TempDir::new().unwrap();
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let toolchain_file = toolchain_file(root);
 

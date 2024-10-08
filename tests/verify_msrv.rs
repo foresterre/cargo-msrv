@@ -5,7 +5,7 @@ use parameterized::parameterized;
 use rust_releases::{semver, Release};
 use std::process::Command;
 
-use crate::common::{fixtures_path, sub_cmd_verify::run_verify};
+use crate::common::{sub_cmd_verify::run_verify, Fixture};
 
 mod common;
 
@@ -18,12 +18,12 @@ mod common;
     }
 )]
 fn verify(folder: &str) {
-    let folder = fixtures_path().join(folder);
+    let fixture = Fixture::new(folder);
     let with_args = vec![
         "cargo",
         "msrv",
         "--path",
-        folder.to_str().unwrap(),
+        fixture.to_str(),
         "--no-user-output",
         "verify",
     ];
@@ -42,20 +42,20 @@ fn verify(folder: &str) {
     assert!(result.is_ok());
 }
 
-#[parameterized(
-    folder = {
-        "workspace-inheritance/a",
-        "workspace-inheritance/b",
-        "workspace-inheritance/c",
-    }
+#[yare::parameterized(
+    a = {"workspace-inheritance", "a", },
+    b = { "workspace-inheritance", "b" },
+    c = { "workspace-inheritance", "c" },
 )]
-fn verify_workspace_inheritance(folder: &str) {
-    let folder = fixtures_path().join(folder);
+fn verify_workspace_inheritance(folder: &str, package: &str) {
+    let fixture = Fixture::new(folder);
+    let package = fixture.tmp_path(package);
+
     let with_args = vec![
         "cargo",
         "msrv",
         "--path",
-        folder.to_str().unwrap(),
+        package.to_str().unwrap(),
         "--no-user-output",
         "verify",
     ];
@@ -79,14 +79,8 @@ fn verify_workspace_inheritance(folder: &str) {
     }
 )]
 fn verify_failed_no_msrv_specified(folder: &str) {
-    let folder = fixtures_path().join(folder);
-    let with_args = vec![
-        "cargo",
-        "msrv",
-        "--path",
-        folder.to_str().unwrap(),
-        "verify",
-    ];
+    let fixture = Fixture::new(folder);
+    let with_args = vec!["cargo", "msrv", "--path", fixture.to_str(), "verify"];
 
     let result = run_verify(
         with_args,
@@ -110,7 +104,7 @@ fn verify_failed_no_msrv_specified(folder: &str) {
 fn verify_success_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
-    let test_subject = [cargo_msrv_dir, "tests", "fixtures", "1.56.0-edition-2021"].join("/");
+    let test_subject = Fixture::new("1.56.0-edition-2021");
 
     let mut process = Command::new("cargo")
         .args([
@@ -120,7 +114,7 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
             "--",
             "--no-user-output",
             "--path",
-            &test_subject,
+            test_subject.to_str(),
             verify_variant,
         ])
         .spawn()
@@ -144,8 +138,7 @@ fn verify_success_zero_exit_code(verify_variant: &str) {
 fn verify_failure_non_zero_exit_code(verify_variant: &str) {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
-
-    let test_subject = [cargo_msrv_dir, "tests", "fixtures", "unbuildable-with-msrv"].join("/");
+    let test_subject = Fixture::new("unbuildable-with-msrv");
 
     let mut process = Command::new("cargo")
         .args([
@@ -155,7 +148,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
             "--",
             "--no-user-output",
             "--path",
-            &test_subject,
+            test_subject.to_str(),
             verify_variant,
         ])
         .spawn()
@@ -175,7 +168,7 @@ fn verify_failure_non_zero_exit_code(verify_variant: &str) {
 fn verify_subcommand_success_with_custom_check_cmd() {
     let cargo_msrv_dir = env!("CARGO_MANIFEST_DIR");
     let cargo_msrv_manifest = [cargo_msrv_dir, "Cargo.toml"].join("/");
-    let test_subject = [cargo_msrv_dir, "tests", "fixtures", "1.56.0-edition-2021"].join("/");
+    let test_subject = Fixture::new("1.56.0-edition-2021");
 
     let mut process = Command::new("cargo")
         .args([
@@ -185,7 +178,7 @@ fn verify_subcommand_success_with_custom_check_cmd() {
             "--",
             "--no-user-output",
             "--path",
-            &test_subject,
+            test_subject.to_str(),
             "verify",
             "--",
             "cargo",
@@ -207,12 +200,13 @@ fn verify_subcommand_success_with_custom_check_cmd() {
 #[test]
 fn verify_with_rust_version_opt() {
     let version = "1.37.0";
-    let folder = fixtures_path().join(version);
+    let fixture = Fixture::new(version);
+
     let with_args = vec![
         "cargo",
         "msrv",
         "--path",
-        folder.to_str().unwrap(),
+        fixture.to_str(),
         "verify",
         "--rust-version",
         version,
@@ -228,13 +222,14 @@ fn verify_with_rust_version_opt() {
 
 #[test]
 fn manifest_path() {
-    let version = "1.36.0";
-    let folder = fixtures_path().join(version).join("Cargo.toml");
+    let fixture = Fixture::new("1.36.0");
+    let manifest = fixture.tmp_path("Cargo.toml");
+
     let with_args = vec![
         "cargo",
         "msrv",
         "--manifest-path",
-        folder.to_str().unwrap(),
+        manifest.to_str().unwrap(),
         "verify",
     ];
 

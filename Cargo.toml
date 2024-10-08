@@ -4,7 +4,7 @@ version = "0.16.0-beta.25"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0 OR MIT"
-edition = "2018"
+edition = "2021"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
@@ -48,7 +48,7 @@ rust-releases-dist-source = ["rust-releases/rust-dist"]
 parameterized = "2.0.0"
 yare = "3.0.0"
 phenomenon = "~1.0.0"
-test_dir = "0.2.0"
+assert_fs = "1.1.2"
 
 [build-dependencies]
 vergen = { version = "8.3.2", default-features = false, features = ["build", "cargo", "git", "gitcl", "rustc"] }
