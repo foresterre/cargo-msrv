@@ -203,4 +203,4 @@ cargo msrv find --output-format json
 ## FOOTNOTES
 
 <sup>1</sup> Precision is of course a debatable concept. In this case we note that "a toolchain must be able
-to pass the cargo-msrv compatibility check command for a crate" (in its broadest sense).
+to pass the cargo-msrv compatibility check command for a crate".
