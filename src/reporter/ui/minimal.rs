@@ -110,7 +110,7 @@ mod tests {
     use crate::reporter::event::{
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
-    use crate::reporter::handler::minimal_output_handler::MinimalOutputHandler;
+    use crate::reporter::ui::minimal::MinimalOutputHandler;
     use crate::semver;
     use crate::toolchain::ToolchainSpec;
     use camino::Utf8Path;

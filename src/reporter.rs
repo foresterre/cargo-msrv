@@ -3,10 +3,10 @@ use storyteller::{event_channel, ChannelEventListener, ChannelReporter, EventLis
 use crate::reporter::event::ScopeCounter;
 use crate::TResult;
 
-pub use handler::DiscardOutputHandler;
-pub use handler::HumanProgressHandler;
-pub use handler::JsonHandler;
-pub use handler::MinimalOutputHandler;
+pub use ui::DiscardOutputHandler;
+pub use ui::HumanProgressHandler;
+pub use ui::JsonHandler;
+pub use ui::MinimalOutputHandler;
 
 pub use event::{
     Event, Marker, Message, Scope, ScopeGenerator, SubcommandResult, SupplyScopeGenerator,
@@ -14,7 +14,7 @@ pub use event::{
 };
 
 pub(crate) mod event;
-pub(crate) mod handler;
+pub(crate) mod ui;
 
 mod formatting;
 
