@@ -2,15 +2,15 @@ use super::display_option;
 use super::display_vec;
 use crate::context::list::ORDERED_BY_MSRV;
 use crate::dependency_graph::DependencyGraph;
-use crate::formatting::table;
 use crate::reporter::event::types::list_result::metadata::{format_version, package_msrv};
+use crate::reporter::formatting::table;
 use crate::semver;
 use cargo_metadata::Package;
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::Formatter;
-use tabled::{Style, Tabled};
+use tabled::Tabled;
 
 pub struct OrderedByMsrvFormatter<'g> {
     graph: &'g DependencyGraph,
@@ -26,7 +26,7 @@ impl fmt::Display for OrderedByMsrvFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let values = dependencies(self.graph);
 
-        f.write_fmt(format_args!("{}", table(values).with(Style::modern())))
+        f.write_fmt(format_args!("{}", table(values)))
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::reporter::event::{ScopeCounter, SupplyScopeGenerator, TestScopeGenerator};
-use crate::reporter::handler::TestingHandler;
+use crate::reporter::ui::TestingHandler;
 use crate::{Event, Reporter};
 use std::sync::Arc;
 use storyteller::{
