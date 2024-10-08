@@ -32,19 +32,20 @@ mod tests {
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::FakeTestReporter;
     use crate::writer::write_msrv::write_msrv;
+    use assert_fs::prelude::*;
     use camino::Utf8Path;
     use rust_releases::{semver, ReleaseIndex};
     use std::iter::FromIterator;
-    use test_dir::{DirBuilder, FileType, TestDir};
 
     #[test]
     fn set_release_in_index() {
-        let tmp = TestDir::temp().create("Cargo.toml", FileType::EmptyFile);
-        let manifest = tmp.path("Cargo.toml");
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("Cargo.toml").touch().unwrap();
+
+        let manifest = tmp.join("Cargo.toml");
         std::fs::write(&manifest, "[package]").unwrap();
 
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = BareVersion::ThreeComponents(2, 0, 5);
@@ -72,12 +73,13 @@ mod tests {
 
     #[test]
     fn fail_to_set_release_not_in_index() {
-        let tmp = TestDir::temp().create("Cargo.toml", FileType::EmptyFile);
-        let manifest = tmp.path("Cargo.toml");
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("Cargo.toml").touch().unwrap();
+
+        let manifest = tmp.join("Cargo.toml");
         std::fs::write(manifest, "[package]").unwrap();
 
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = BareVersion::ThreeComponents(2, 0, 5);
@@ -102,12 +104,13 @@ mod tests {
 
     #[test]
     fn set_release_without_index_check() {
-        let tmp = TestDir::temp().create("Cargo.toml", FileType::EmptyFile);
-        let manifest = tmp.path("Cargo.toml");
+        let tmp = assert_fs::TempDir::new().unwrap();
+        tmp.child("Cargo.toml").touch().unwrap();
+
+        let manifest = tmp.join("Cargo.toml");
         std::fs::write(&manifest, "[package]").unwrap();
 
-        let root = tmp.root();
-        let root = Utf8Path::from_path(root).unwrap();
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
         let version = BareVersion::ThreeComponents(2, 0, 5);
