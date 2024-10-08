@@ -44,7 +44,6 @@ mod context;
 pub(crate) mod default_target;
 pub(crate) mod dependency_graph;
 mod external_command;
-pub(crate) mod formatting;
 pub(crate) mod lockfile;
 pub(crate) mod log_level;
 pub(crate) mod manifest;

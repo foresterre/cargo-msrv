@@ -1,7 +1,7 @@
-use crate::formatting::TermWidth;
 use crate::reporter::event::{
     CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit, SubcommandResult,
 };
+use crate::reporter::formatting::TermWidth;
 use crate::{semver, Event};
 use owo_colors::OwoColorize;
 use std::fmt::Display;

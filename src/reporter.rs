@@ -16,6 +16,8 @@ pub use event::{
 pub(crate) mod event;
 pub(crate) mod handler;
 
+mod formatting;
+
 #[cfg(test)]
 mod testing;
 

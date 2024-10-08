@@ -3,7 +3,7 @@ use super::display_vec;
 use super::metadata::*;
 use crate::context::list::DIRECT_DEPS;
 use crate::dependency_graph::DependencyGraph;
-use crate::formatting::table;
+use crate::reporter::formatting::table;
 use std::fmt;
 use std::fmt::Formatter;
 use tabled::{Style, Tabled};
