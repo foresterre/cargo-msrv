@@ -6,7 +6,7 @@ use crate::dependency_graph::DependencyGraph;
 use crate::reporter::formatting::table;
 use std::fmt;
 use std::fmt::Formatter;
-use tabled::{Style, Tabled};
+use tabled::Tabled;
 
 pub struct DirectDepsFormatter<'g> {
     graph: &'g DependencyGraph,
@@ -22,7 +22,7 @@ impl fmt::Display for DirectDepsFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let values = dependencies(self.graph);
 
-        f.write_fmt(format_args!("{}", table(values).with(Style::modern())))
+        f.write_fmt(format_args!("{}", table(values)))
     }
 }
 

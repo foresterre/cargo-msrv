@@ -1,16 +1,12 @@
 use crate::reporter::event::{
     CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit, SubcommandResult,
 };
-use crate::reporter::formatting::TermWidth;
-use crate::{semver, Event};
+use crate::{semver, table_settings, Event};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 use storyteller::EventHandler;
-use tabled::builder::Builder;
-use tabled::object::{Columns, Rows, Segment};
-use tabled::{Alignment, Disable, Margin, Modify, Style, Table, Width};
 
 pub struct HumanProgressHandler {
     pb: indicatif::ProgressBar,
@@ -186,34 +182,46 @@ impl Status {
 }
 
 fn status(lead: impl Display, message: impl Display) -> String {
+    use tabled::builder::Builder;
+    use tabled::settings::{object::Columns, Margin, Modify, Style, Width};
+
+    const MAX_LEAD_WIDTH: usize = 6;
+
     let mut builder = Builder::default();
-    builder.add_record([format!("{lead}"), format!("{message}")]);
+    builder.push_record([format!("{lead}"), format!("{message}")]);
 
     let mut table = builder.build();
 
     table
-        .with(Alignment::left())
-        .with(Modify::new(Columns::first()).with(Width::increase(6)))
-        .with(Width::wrap(TermWidth::width()))
         .with(Style::blank())
+        .with(Modify::new(Columns::first()).with(Width::increase(MAX_LEAD_WIDTH)))
+        .with(table_settings!())
         .with(Margin::new(1, 0, 0, 0))
         .to_string()
 }
 
 fn message_box(message: &str) -> String {
+    use tabled::builder::Builder;
+    use tabled::settings::{Margin, Style};
+
     let mut builder = Builder::default();
-    builder.add_record([format!("{}", message.dimmed())]);
+    builder.push_record([format!("{}", message.dimmed())]);
 
     let mut table = builder.build();
 
     table
-        .with(Width::wrap(TermWidth::width()))
-        .with(Style::rounded())
+        // The remove_{left, right} is a bit of a hack, because their formatting
+        // was often flaky (these vertical lines often had unaligned characters)
+        .with(Style::modern_rounded())
+        .with(table_settings!())
         .with(Margin::new(2, 0, 1, 1))
         .to_string()
 }
 
 fn result_table(result: &FindResult) -> String {
+    use tabled::settings::{object::Rows, Alignment, Disable, Margin, Style};
+    use tabled::Table;
+
     fn msrv(result: &FindResult) -> String {
         result
             .msrv()
@@ -245,9 +253,11 @@ fn result_table(result: &FindResult) -> String {
     ];
 
     Table::new(content)
-        .with(Disable::row(Rows::first())) // Disables the header
-        .with(Modify::new(Segment::all()).with(Alignment::left()))
-        .with(Style::blank())
+        .with(Disable::row(Rows::first()))
+        .with(Style::blank()) // Disables the header
+        .with(table_settings!())
+        .with(Alignment::left())
+        .with(Alignment::top())
         .with(Margin::new(2, 0, 0, 1))
         .to_string()
 }
