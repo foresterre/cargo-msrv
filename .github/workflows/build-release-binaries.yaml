@@ -14,6 +14,10 @@ jobs:
             os: ubuntu-latest
             archive_ext: tgz
 
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            archive_ext: tgz
+
           - target: x86_64-apple-darwin
             os: macos-13
             archive_ext: tgz
@@ -59,6 +63,13 @@ jobs:
 
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: install musl-gcc
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: musl-tools # provides musl-gcc
+          version: 1.0
 
       - name: build_${{ matrix.target }}_release_binary
         shell: bash

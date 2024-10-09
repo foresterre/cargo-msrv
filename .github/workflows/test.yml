@@ -7,7 +7,7 @@ on:
       - main
   merge_group:
   schedule:
-    - cron: '00 05 * * *'
+    - cron: "00 05 * * *"
 jobs:
   test:
     name: test
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ ubuntu-stable, macos-stable, win-msvc-stable ] # win-gnu-stable
+        build: [ubuntu-stable, macos-stable, win-msvc-stable] # win-gnu-stable
         include:
           - build: ubuntu-stable
             os: ubuntu-latest
@@ -51,12 +51,24 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
+          target: x86_64-unknown-linux-musl
 
       - name: fetch
         run: cargo fetch --verbose
 
       - name: build
         run: cargo build --verbose
+
+      - name: install musl-gcc
+        if: matrix.os == 'ubuntu-latest'
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: musl-tools # provides musl-gcc
+          version: 1.0
+
+      - name: build using musl
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo build --verbose --target=x86_64-unknown-linux-musl
 
       - name: test_all
         run: cargo test --verbose --all -- --test-threads=1
