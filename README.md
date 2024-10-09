@@ -5,7 +5,7 @@ This crate can assist you in finding the Minimum Supported Rust Version for a cr
 In this readme you'll find everything to get you started. You can find more detailed explanations in the
 [cargo-msrv book](https://foresterre.github.io/cargo-msrv/index.html).
 
-###   
+###    
 
 - 📜 [A short history](#a-short-history)
 - 💿 [Install](#install)
@@ -72,7 +72,7 @@ _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args
 >- `is_compatible(Rust 1.3.0)` returns `true` ✅
 >- `is_compatible(Rust 1.2.0)` returns `false` ❌ ("Duration is not stable")
 >- `is_compatible(Rust 1.1.0)` returns `false` ❌
->- `is_compatible(Rust 1.0.0)` returns false ❌
+>- `is_compatible(Rust 1.0.0)` returns `false` ❌
 >
 >Since we only care about the _minimal_ Rust version, you could have stopped searching after compiling Rust 1.2.0; Rust
 > 1.3.0 was the earliest released Rust version which worked.
@@ -101,14 +101,14 @@ _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args
 
 | cargo       | supported | command                                                                                       |
 |-------------|-----------|-----------------------------------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.1` cargo-msrv |
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.2` cargo-msrv |
 | development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv               |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
 | cargo       | supported | command                                                     |
 |-------------|-----------|-------------------------------------------------------------|
-| stable      | 💚        | `$ cargo binstall --version 0.16.1 --no-confirm cargo-msrv` |
+| stable      | 💚        | `$ cargo binstall --version 0.16.2 --no-confirm cargo-msrv` |
 | development | ❌         |                                                             |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
