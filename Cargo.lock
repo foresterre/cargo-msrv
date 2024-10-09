@@ -632,7 +632,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.16.0-beta.25"
+version = "0.16.0"
 dependencies = [
  "assert_fs",
  "bisector",
