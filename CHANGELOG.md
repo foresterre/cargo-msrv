@@ -10,6 +10,16 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## [0.16.2] - 2024-10-10
+
+### Fixed
+
+#### Infra
+
+* Fix release pipeline for `x86_64-unknown-linux-musl` binaries
+
+[0.16.2]: https://github.com/foresterre/cargo-msrv/compare/v0.16.1...v0.16.2
+
 ## [0.16.1] - 2024-10-09
 
 ### Added
