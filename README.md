@@ -5,6 +5,58 @@ This crate can assist you in finding the Minimum Supported Rust Version for a cr
 In this readme you'll find everything to get you started. You can find more detailed explanations in the
 [cargo-msrv book](https://foresterre.github.io/cargo-msrv/index.html).
 
+### 
+
+- 📜 [A short history](#a-short-history)
+- 💿 [Install](#install)
+- 🔩 [Prerequisites](#prerequisites)
+- ✨ [Preview](#preview)
+- ⭐ [Usage](#usage)
+- 🤖 [JSON output format](#json-format)
+- 🫶 [License](#license)
+
+### A short history
+
+_An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args-between-top-level-and-subcommand/)_
+
+> `cargo-msrv` was originally born out of a desire to find the MSRV for a Rust project (more specifically package). MSRV stands for "minimal supported Rust version" and is the earliest or oldest version supported by a Rust project. For different projects this may mean different things, but for this post I will consider "support" as "does compile with a Rust toolchain of a certain version".
+>
+> Fast forward a few years, and the MSRV has become somewhat more ubiquitous which can also be seen by its inclusion into Cargo as the [rust-version](https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field). Over time some  additional tools were added to `cargo-msrv`. One of these was the `cargo msrv verify` subcommand.
+>
+> This subcommand can be used to check whether a Rust project supports its defined MSRV (e.g. via this `rust-version` field in the Cargo manifest). For example, in a CI pipeline you can use this to check whether your project works for the version you promised to your users.
+>
+> Originally, I kept the `cargo msrv` top level command aside from the subcommands for backwards compatibility reasons. In hindsight I probably shouldn't have done that, but as is, their coexistence at least provides me with the opportunity to write this blog post 😅.
+>
+> **How cargo msrv works**
+>
+>I described the "support" from "minimal supported Rust version" (MSRV) above as the somewhat simplified "does compile with a Rust toolchain of a certain version".
+>
+>You may write that as a function like so:  `fn is_compatible(version) -> bool`. If you run this test for some Rust version, when the function produces the value `true`, then we consider the Rust version to be supported. If instead the function produces the value `false`, then the Rust version is not supported.
+>
+>`cargo msrv` specifically searches for the _minimal_ Rust version which is supported by a given Rust project. While there are some caveats, we build upon Rust's [stability promise](https://blog.rust-lang.org/2014/10/30/Stability.html#committing-to-stability) . In our case that is the idea that Rust versions are backwards compatible.
+>
+>For a simple example to determine an MSRV, you can linearly walk backwards from the most recent Rust version to the earliest. When your project doesn't compile for a specific Rust version, then the last version that did compile can be considered your MSRV.
+>
+>Let's make it a bit more concrete with an example. For this example, we assume that Rust the following Rust versions exist: `1.0.0` up to and including `1.5.0`.
+>
+>Consider a project which uses the [Duration](https://doc.rust-lang.org/std/time/struct.Duration.html#) API which was stabilised by [Rust 1.3.0](https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-130-2015-09-17) (and nothing more recent 😉). 
+>
+>Then, if you would compile this project with Rust version from most recent to least recent, you would expect the following to happen:
+>
+>- `is_compatible(Rust 1.5.0)` returns `true` ✅
+>- `is_compatible(Rust 1.4.0)` returns `true` ✅
+>- `is_compatible(Rust 1.3.0)` returns `true` ✅
+>- `is_compatible(Rust 1.2.0)` returns `false` ❌ ("Duration is not stable")
+>- `is_compatible(Rust 1.1.0)` returns `false` ❌
+>- `is_compatible(Rust 1.0.0)` returns false ❌
+>
+>Since we only care about the _minimal_ Rust version, you could have stopped searching after compiling Rust 1.2.0; Rust 1.3.0 was the earliest released Rust version which worked.
+>
+>In reality doing a linear search is quite slow (at the time of writing, there are 79 minor versions), so we primarily use a binary search instead to incrementally reduce the search space. 
+>
+>`cargo msrv verify` works quite similar to "finding the MSRV", but instead of running a search which produces as primary output the MSRV, in this case the MSRV is already known in advance. So given a `MSRV` of `1.3.0` we just run the `is_compatible(Rust 1.3.0)` function once. If it returns `true` we can say that the 1.3.0 is an acceptable MSRV (although not necessarily strictly so). More importantly, if it returns false, then the specified version is actually not supported, and thus can not be an MSRV).
+
+
 ### Install
 
 #### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
