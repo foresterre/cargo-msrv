@@ -10,14 +10,15 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## [0.16.0] - 2024-10-09
+
 ### Added
 
 * **Added `cargo msrv find` subcommand to determine the MSRV (this subcommand was moved from the top level `cargo msrv`
   command to its own subcommand)**
-* **Added
-  options `--ignore-lockfile`,  `--no-check-feedback`, `--target`, `--component`, `--features`, `--all-features`,
+* Added options `--ignore-lockfile`,  `--no-check-feedback`, `--target`, `--component`, `--features`, `--all-features`,
   `--no-default-features` and the last argument "custom compatibility check command", which were previously available
-  from the top level `cargo msrv` command to the `cargo msrv verify` subcommand.**
+  from the top level `cargo msrv` command to the `cargo msrv verify` subcommand.
 * Subcommand `cargo msrv verify` now supports setting a custom Rust version via the `--rust-version <VERSION>` argument,
   which can be used to check for a crate's compatibility against a specific Rust version.
 * Added flag `--write-msrv` to cargo msrv (find), which upon finding the MSRV writes its value to the Cargo manifest.
@@ -26,7 +27,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added a 'minimal' output option intended for machine-readable use when full json output is undesirable.
 * Added `--features` option, `--all-features` flag and `--no-default-features` flag, which are forwarded to the default
   compatibility check command
-* Added `--component` option, which can be used to add one or more Rust components to a toolchain.
+* Added `--component` option, which can be used to run cargo msrv find or verify with one or more Rust toolchain
+  components.
 * `cargo msrv verify` now supports
   Cargo [workspace inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), and will
   now correctly inherit the MSRV (i.e. `package.rust-version`) defined by a workspace
@@ -73,6 +75,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
   manifest, `--no-read-min-edition`.
 * Moved the top level `cargo msrv` "find the MSRV" action to the `cargo msrv find` subcommand, which removed several
   options and flags from the top level command which had previously no effect on other subcommands.
+
+[0.16.0]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...v0.16.0
 
 ## [0.15.1] - 2022-02-24
 
@@ -180,7 +184,7 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 
 [0.10.0]: https://github.com/foresterre/cargo-msrv/compare/v0.9.0...v0.10.0
 
-# [0.9.0] - 2021-09-06
+## [0.9.0] - 2021-09-06
 
 * cargo-msrv will no longer try to install upcoming, but unreleased, Rust releases.
 

@@ -5,7 +5,11 @@
 * Standalone: `cargo-msrv find [options]`
 * Through Cargo: `cargo msrv find [options]`
 
-## DESCRIPTION
+# PREVIEW
+
+[![asciicast](https://asciinema.org/a/679855.svg)](https://asciinema.org/a/679855)
+
+# DESCRIPTION
 
 Find the MSRV for your project.
 
@@ -23,7 +27,7 @@ toolchain for which a check command passes). Bisect tests projects using a binar
 faster,
 so it's usually advisable to enable it by default.
 
-### Why run against complete toolchains?
+## Why run against complete toolchains?
 
 Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST,
 and
@@ -37,7 +41,7 @@ we found that the selection of the MSRV of a toolchain is not just limited by th
 such as Rust editions or knobs in the Cargo manifest also impact the MSRV for a crate. As such, the running a complete
 toolchain helps us to be more precise<sup>1</sup>.
 
-### Future work
+## Future work
 
 _1. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition._
@@ -45,7 +49,7 @@ to a possibly more precise definition._
 _2. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
 implementation. If you don't know where to start, create a new issue, we're happy to help!_
 
-## OPTIONS
+# OPTIONS
 
 **`--bisect`**
 
@@ -163,7 +167,7 @@ Prints cargo-msrv version information
 When provided, the trailing command (`cmd`) will be used as the _cargo-msrv check_ command, instead of the default
 `cargo check`. This `cmd` must be runnable by `rustup` through `rustup run <toolchain> <cmd>`.
 
-## EXAMPLES
+# EXAMPLES
 
 1. Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.
 
@@ -200,7 +204,7 @@ cargo msrv find -- cargo test
 cargo msrv find --output-format json
 ```
 
-## FOOTNOTES
+# FOOTNOTES
 
 <sup>1</sup> Precision is of course a debatable concept. In this case we note that "a toolchain must be able
-to pass the cargo-msrv compatibility check command for a crate" (in its broadest sense).
+to pass the cargo-msrv compatibility check command for a crate".

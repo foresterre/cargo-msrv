@@ -13,4 +13,4 @@
 
 # Program wide options
 
-⚠ work-in-progress.
+See `cargo msrv --help` for a full list of program wide options.

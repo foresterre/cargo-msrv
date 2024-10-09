@@ -9,27 +9,24 @@ In this readme you'll find everything to get you started. You can find more deta
 
 #### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
 
-| cargo       | supported | command                                               |
-|-------------|-----------|-------------------------------------------------------|
-| stable      | 💚        | `$ cargo install cargo-msrv`                          |
-| beta        | 💚        | `$ cargo install cargo-msrv --version 0.16.0-beta.25` |
-| development | ❌         |                                                       |
+| cargo       | supported | command                               |
+|-------------|-----------|---------------------------------------|
+| stable      | 💚        | `$ cargo install cargo-msrv --locked` |
+| development | ❌         |                                       |
 
 #### cargo ([git source](https://github.com/foresterre/cargo-msrv))
 
-| cargo       | supported | command                                                                                               |
-|-------------|-----------|-------------------------------------------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.15.1` cargo-msrv         |
-| beta        | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0-beta.25` cargo-msrv |
-| development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv                       |
+| cargo       | supported | command                                                                                       |
+|-------------|-----------|-----------------------------------------------------------------------------------------------|
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.0` cargo-msrv |
+| development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv               |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
-| cargo       | supported | command                                                             |
-|-------------|-----------|---------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo binstall --version 0.15.1 --no-confirm cargo-msrv`         |
-| beta        | 💚        | `$ cargo binstall --version 0.16.0-beta.25 --no-confirm cargo-msrv` |
-| development | ❌         |                                                                     |
+| cargo       | supported | command                                                     |
+|-------------|-----------|-------------------------------------------------------------|
+| stable      | 💚        | `$ cargo binstall --version 0.16.0 --no-confirm cargo-msrv` |
+| development | ❌         |                                                             |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
 
@@ -50,17 +47,15 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
 
 ### Preview
 
-[![asciicast](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF.svg)](https://asciinema.org/a/mFs1cjmjhCDinQNepooGelnYF)
+[![asciicast](https://asciinema.org/a/679852.svg)](https://asciinema.org/a/679852)
 
 ### Usage
 
 * [`cargo msrv find`](https://foresterre.github.io/cargo-msrv/commands/find.html)
   or [`cargo msrv find --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
-  Cargo
-  project in your current working directory.
+  Cargo project in your current working directory.
 * [`cargo msrv --path <dir> find`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
-  Cargo
-  project in the `<dir>` directory.
+  Cargo project in the `<dir>` directory.
 * [`cargo msrv find -- <command>`](https://foresterre.github.io/cargo-msrv/commands/find.html) to use `<command>` as the
   compatibility check which decides whether a Rust version is
   compatible or not. This command should be runnable through rustup as `rustup run <toolchain> <command>`.
@@ -68,10 +63,9 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
 * [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/verify.html)  to verify the MSRV as specified
   by a crate author\
     * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv`
-      key
-      in the 'Cargo.toml' manifest. See
-      the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description)
-      for a more detailed description.
+      key in the 'Cargo.toml' manifest. See
+      the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description) for a more detailed
+      description.
 * [`cargo msrv list`](https://foresterre.github.io/cargo-msrv/commands/list.html) to list the MSRV's of your
   dependencies as specified by their authors
 * [`cargo msrv show`](https://foresterre.github.io/cargo-msrv/commands/show.html) to show the currently specified MSRV

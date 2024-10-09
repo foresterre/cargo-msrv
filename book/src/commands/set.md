@@ -5,11 +5,16 @@
 * Standalone: `cargo-msrv set`
 * Through Cargo: `cargo msrv set`
 
+# PREVIEW
+
+[![asciicast](https://asciinema.org/a/679858.svg)](https://asciinema.org/a/679858)
+
 # DESCRIPTION
 
 Set the MSRV in the Cargo manifest.
 
-This is either the `package.rust-version` field or the `package.metadata.msrv` field in the Cargo manifest (`Cargo.toml`).
+This is either the `package.rust-version` field or the `package.metadata.msrv` field in the Cargo manifest (
+`Cargo.toml`).
 
 <!-- # OPTIONS -->
 
