@@ -5,22 +5,25 @@
 * Standalone: `cargo-msrv verify`
 * Through Cargo: `cargo msrv verify`
 
+# PREVIEW
+
+[![asciicast](https://asciinema.org/a/679863.svg)](https://asciinema.org/a/679863)
+
 # DESCRIPTION
 
 Verify whether the MSRV can be satisfied.
 
-The MSRV can be specified in the Cargo manifest (`Cargo.toml`) using either the `package.rust-version` (Rust >=1.56, recommended), 
+The MSRV can be specified in the Cargo manifest (`Cargo.toml`) using either the `package.rust-version` (Rust >=1.56,
+recommended),
 or the `package.metadata.msrv` field.
 
 If the check fails, the program returns with a non-zero exit code.
 
-<!-- # OPTIONS -->
-
-## OPTIONS
+# OPTIONS
 
 **`--rust-version` version**
 
-Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility. 
+Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility.
 
 # EXAMPLES
 
@@ -44,8 +47,8 @@ fn main() {
 }
 ```
 
-We check whether the MSRV's  check command, in this case the default `cargo check`, can be satisfied.
-The crate author specified the MSRV in the Cargo.toml, using the `package.rust-version` key. 
+We check whether the MSRV's check command, in this case the default `cargo check`, can be satisfied.
+The crate author specified the MSRV in the Cargo.toml, using the `package.rust-version` key.
 Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
 and the program returns a with exit code 0 (success).
 
@@ -74,7 +77,7 @@ fn main() {
 }
 ```
 
-We check whether the MSRV's  check command, in this case the default `cargo check`, can be satisfied.
+We check whether the MSRV's check command, in this case the default `cargo check`, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the `package.rust-version` key.
 Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
 and the program returns a with a non-zero exit code (failure).
@@ -89,7 +92,8 @@ cargo msrv verify # Will fail, and return a non-zero exit code
 cargo msrv --path path/to/my/crate verify
 ```
 
-This example shows how to use arguments (in this case `--path`) shared between the default cargo-msrv command and verify.
+This example shows how to use arguments (in this case `--path`) shared between the default cargo-msrv command and
+verify.
 Note that shared arguments must be specified before the subcommand (here `verify`).
 
 4. Run the 'verify' subcommand using a self-determined Rust version.

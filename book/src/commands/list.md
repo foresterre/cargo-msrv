@@ -5,21 +5,26 @@
 * Standalone: `cargo-msrv list [options]`
 * Through Cargo: `cargo msrv list [options]`
 
+# PREVIEW
+
+[![asciicast](https://asciinema.org/a/679857.svg)](https://asciinema.org/a/679857)
+
 # DESCRIPTION
 
 List the author specified MSRV for each depended-upon package.
 
 Authors may specify the MSRV for their crate by adding the `package.rust-version` key to the `Cargo.toml` manifest.
-See the [Cargo book](https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field) for more. This value
-is supported from Rust 1.56 onwards. 
+See the [Cargo book](https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field) for more. This
+value is supported from Rust 1.56 onwards.
 
 ```toml
 [package]
 rust-version = "1.56"
 ```
 
-For crates which have an MSRV prior to Rust 1.56, you can use the `package.metadata.msrv` key in the `Cargo.toml` manifest
-instead. The `package.metadata` table exists specifically for tools like cargo-msrv, and within this table, 
+For crates which have an MSRV prior to Rust 1.56, you can use the `package.metadata.msrv` key in the `Cargo.toml`
+manifest
+instead. The `package.metadata` table exists specifically for tools like cargo-msrv, and within this table,
 Cargo will not warn about keys it does not understand. Note that the use of this key is tailored to cargo-msrv and may
 not be supported by other tools.
 
@@ -28,7 +33,8 @@ not be supported by other tools.
 msrv = "1.53.0"
 ```
 
-Both `package.rust-version` and `package.metadata.msrv` require a two or three component version number, without semver operators
+Both `package.rust-version` and `package.metadata.msrv` require a two or three component version number, without semver
+operators
 or pre-release identifiers. For example, `1.56` and `1.56.0` are both valid, while `^1.56.0` and `1.56.0-beta` are not.
 
 # OPTIONS
@@ -46,7 +52,6 @@ cell in the MSRV row will be empty.
 When the `variant` is `direct-deps`, the program will print a table which lists the following properties for each
 direct-dependency of the given crate: the name of the dependency, the version of the dependency, the MSRV (empty if not
 specified), it's dependencies.
-
 
 # EXAMPLES
 
@@ -96,8 +101,7 @@ Fetching index
 NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.
 
-
-2. List the MSRV's for your direct dependencies using 
+2. List the MSRV's for your direct dependencies using
 
 ```shell
 cargo msrv list --variant direct-deps

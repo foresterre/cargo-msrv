@@ -3,7 +3,11 @@
 # COMMAND
 
 * Standalone: `cargo-msrv help [subcommand]`
-* Through Cargo: `cargo msrv help [subcommand]` 
+* Through Cargo: `cargo msrv help [subcommand]`
+
+# PREVIEW
+
+[![asciicast](https://asciinema.org/a/lBKWtUonNo4lP9f5ecQHh36ss.svg)](https://asciinema.org/a/lBKWtUonNo4lP9f5ecQHh36ss)
 
 # DESCRIPTION
 
