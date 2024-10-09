@@ -4,7 +4,7 @@
 - [Getting Started](./getting-started/index.md)
     - [Installation](./getting-started/installation.md)
     - [Quick Start](./getting-started/quick-start.md)
-- [Migration Guide](releases/index.md)
+- [Releases](releases/index.md)
     - [v0.15 to v0.16](releases/v0.15_v0.16_highlights.md)
     - [v0.15 to v0.16 JSON](releases/v0.15_v0.16_json.md)
 - [Concepts](./concepts/index.md)
