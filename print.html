@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="migration-guide/index.html"><strong aria-hidden="true">3.</strong> Migration Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="migration-guide/v0.15_v0.16_json.html"><strong aria-hidden="true">3.1.</strong> v0.15 to v0.16 JSON</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">4.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="output-formats/index.html"><strong aria-hidden="true">5.</strong> Output Formats</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="output-formats/human.html"><strong aria-hidden="true">5.1.</strong> human</a></li><li class="chapter-item expanded "><a href="output-formats/json.html"><strong aria-hidden="true">5.2.</strong> json</a></li><li class="chapter-item expanded "><a href="output-formats/minimal.html"><strong aria-hidden="true">5.3.</strong> minimal</a></li><li class="chapter-item expanded "><a href="output-formats/no-user-output.html"><strong aria-hidden="true">5.4.</strong> no-user-output</a></li></ol></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">6.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/find.html"><strong aria-hidden="true">6.1.</strong> cargo-msrv find</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">6.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">6.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">6.4.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="commands/verify.html"><strong aria-hidden="true">6.5.</strong> cargo-msrv verify</a></li></ol></li><li class="chapter-item expanded "><a href="ci/index.html"><strong aria-hidden="true">7.</strong> Verification in CI</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ci/gitlab.html"><strong aria-hidden="true">7.1.</strong> GitLab</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/quick-start.html"><strong aria-hidden="true">2.2.</strong> Quick Start</a></li></ol></li><li class="chapter-item expanded "><a href="releases/index.html"><strong aria-hidden="true">3.</strong> Migration Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="releases/v0.15_v0.16_highlights.html"><strong aria-hidden="true">3.1.</strong> v0.15 to v0.16</a></li><li class="chapter-item expanded "><a href="releases/v0.15_v0.16_json.html"><strong aria-hidden="true">3.2.</strong> v0.15 to v0.16 JSON</a></li></ol></li><li class="chapter-item expanded "><a href="concepts/index.html"><strong aria-hidden="true">4.</strong> Concepts</a></li><li class="chapter-item expanded "><a href="output-formats/index.html"><strong aria-hidden="true">5.</strong> Output Formats</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="output-formats/human.html"><strong aria-hidden="true">5.1.</strong> human</a></li><li class="chapter-item expanded "><a href="output-formats/json.html"><strong aria-hidden="true">5.2.</strong> json</a></li><li class="chapter-item expanded "><a href="output-formats/minimal.html"><strong aria-hidden="true">5.3.</strong> minimal</a></li><li class="chapter-item expanded "><a href="output-formats/no-user-output.html"><strong aria-hidden="true">5.4.</strong> no-user-output</a></li></ol></li><li class="chapter-item expanded "><a href="commands/index.html"><strong aria-hidden="true">6.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="commands/find.html"><strong aria-hidden="true">6.1.</strong> cargo-msrv find</a></li><li class="chapter-item expanded "><a href="commands/help.html"><strong aria-hidden="true">6.2.</strong> cargo-msrv help</a></li><li class="chapter-item expanded "><a href="commands/list.html"><strong aria-hidden="true">6.3.</strong> cargo-msrv list</a></li><li class="chapter-item expanded "><a href="commands/set.html"><strong aria-hidden="true">6.4.</strong> cargo-msrv set</a></li><li class="chapter-item expanded "><a href="commands/show.html"><strong aria-hidden="true">6.5.</strong> cargo-msrv show</a></li><li class="chapter-item expanded "><a href="commands/verify.html"><strong aria-hidden="true">6.6.</strong> cargo-msrv verify</a></li></ol></li><li class="chapter-item expanded "><a href="ci/index.html"><strong aria-hidden="true">7.</strong> Verification in CI</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ci/gitlab.html"><strong aria-hidden="true">7.1.</strong> GitLab</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -239,8 +239,71 @@ acceptable Rust releases. If you require additional options, please refer to the
 output.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="migration-guide"><a class="header" href="#migration-guide">Migration Guide</a></h1>
 <ul>
-<li><strong><a href="migration-guide/./v0.15_v0.16_json.html">v0.15 to v0.16</a>: The new JSON output format</strong></li>
+<li><strong><a href="releases/./v0.15_v0.16_highlights.html">v0.15 to v0.16</a>: Release highlights</strong></li>
+<li><strong><a href="releases/./v0.15_v0.16_json.html">v0.15 to v0.16</a>: The new JSON output format</strong></li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="0160---a-few-release-highlights"><a class="header" href="#0160---a-few-release-highlights">0.16.0 - A few release highlights</a></h1>
+<p>A quick tour through some <code>cargo msrv 0.16.0</code> highlights.</p>
+<h2 id="the-noticeable-one---cargo-msrv-find"><a class="header" href="#the-noticeable-one---cargo-msrv-find">The noticeable one - cargo msrv find</a></h2>
+<p>The tagline of <code>cargo-msrv</code> is &quot;Find the minimum supported Rust version (MSRV) for your project&quot;.
+Previously, one could achieve this by running <code>cargo msrv</code>. If you want to do the same in 0.16, you instead
+should run <code>cargo msrv find</code>. The top level  <code>cargo msrv</code> action is no more.</p>
+<p>There are two primary reasons to move this action to a subcommand instead of keeping it at the top level:</p>
+<ol>
+<li>Consistency: <code>cargo msrv</code> can do more than that tagline, and placing all actions on the subcommand level signals that
+they're equals.</li>
+<li>Unsupported CLI flags and options: When actions are placed on two layers, and one of these layers is below the other,
+then the bottom layer inherits its flags and options, even though they do not always overlap. For example, the set of
+CLI flags and options of <code>cargo msrv find</code> and <code>cargo msrv list</code> are not identical. <code>cargo msrv find</code> for example has
+an option called <code>--release-source</code> which should be present for <code>cargo msrv find</code> but not for <code>cargo msrv list</code>. If
+<code>cargo msrv find</code> would still be run as <code>cargo msrv</code>, you could also invoke this option for <code>cargo msrv list</code>, like
+so: <code>cargo msrv --release-source rust-dist list</code>. However, contextually, the <code>--release-source</code> option does not make
+sense for <code>cargo msrv list</code>, so previously it was ignored. By making <code>cargo msrv find</code> a subcommand like
+<code>cargo msrv list</code>, the flags and options which are not shared between all actions can be put solely below their own
+subcommand.</li>
+</ol>
+<p>A consequence of (2) is that some unnecessary options and flags have been removed from the top level, and so this is a
+breaking change, not just for <code>cargo msrv find</code> but also for <code>cargo msrv list</code>.</p>
+<p>Minor reasons for this change include that I can now talk about <code>cargo msrv find</code> as &quot;<code>cargo msrv find</code>&quot; instead of
+<code>cargo msrv (find)</code> or &quot;the top level command&quot;. Plus, it addressed some difficulties around the code which does CLI
+parsing.</p>
+<h2 id="the-ui-part-1-output-format-options"><a class="header" href="#the-ui-part-1-output-format-options">The UI part 1: output format options</a></h2>
+<p>The way the UI is rendered has been updated. Internally, it is now easier to add and maintain different output formats.</p>
+<p><code>cargo-msrv</code> now supports 3 output formats:</p>
+<ul>
+<li>human (the default one, intended for the human eye)</li>
+<li>json (intended for machine readability)</li>
+<li>minimal (*new*, it was requested for environments where people only care about success/failure, such as CI)</li>
+</ul>
+<h2 id="the-ui-part-2-cargo-msrv-find-and-verify-human-output"><a class="header" href="#the-ui-part-2-cargo-msrv-find-and-verify-human-output">The UI part 2: <code>cargo msrv find</code> and <code>verify</code> &quot;human&quot; output</a></h2>
+<p>As they say, &quot;a picture is a thousand words&quot;:</p>
+<p><strong>Previously...</strong></p>
+<p><a href="https://asciinema.org/a/465459"><img src="https://asciinema.org/a/465459.svg" alt="asciicast" /></a></p>
+<p><strong>New...</strong></p>
+<p><a href="https://asciinema.org/a/JGyYmk7LNJvfDrc2oMQEt0SFF"><img src="https://asciinema.org/a/JGyYmk7LNJvfDrc2oMQEt0SFF.svg" alt="asciicast" /></a></p>
+<p>I'll be iterating the UI further in the future. Constructive feedback is more than welcome!</p>
+<h2 id="cargo-msrv-find---write-msrv"><a class="header" href="#cargo-msrv-find---write-msrv"><code>cargo msrv find --write-msrv</code></a></h2>
+<p>This option will write the MSRV to your Cargo manifest:</p>
+<p><a href="https://asciinema.org/a/679863?t=47"><img src="https://asciinema.org/a/679863.svg" alt="asciicast" /></a></p>
+<h2 id="cargo-msrv-find---min-and---max"><a class="header" href="#cargo-msrv-find---min-and---max"><code>cargo msrv find --min</code> and <code>--max</code></a></h2>
+<p>The <code>--min</code> and <code>--max</code> options would previously only take three component semver versions like &quot;1.2.3&quot; or editions. It
+is common to specify the MSRV in a two component version like &quot;1.2&quot;, so these are now also supported.</p>
+<h2 id="cargo-msrv-verify---rust-version"><a class="header" href="#cargo-msrv-verify---rust-version"><code>cargo msrv verify --rust-version</code></a></h2>
+<p><code>cargo msrv verify</code> can be used to check whether your project is compatible with its MSRV. The MSRV is usually read from
+the Cargo manifest (<code>Cargo.toml</code>). Sometimes it can be useful to provide it manually instead. That's where this option
+comes in handy.</p>
+<p>It should be noted that <code>cargo-msrv</code> does, at present, not unset any value you may have specified in the
+Cargo manifest. So if you have a Cargo manifest with <code>rust-version = &quot;1.56.0&quot;</code> and supply the <code>--rust-version</code> option
+with the value <code>1.55.0</code>, the cargo project will (if the default options are used) fail to compile, and as a consequence
+<code>cargo-msrv</code> will report that your crate is not compatible with the specified MSRV.</p>
+<h2 id="fetching-the-rust-releases-index"><a class="header" href="#fetching-the-rust-releases-index">Fetching the rust releases index</a></h2>
+<p>The rust releases index, the thing we use to figure out which Rust versions exist, are now only fetched when a
+subcommand needs it (currently <code>cargo msrv find</code> and <code>cargo msrv verify</code>).</p>
+<h2 id="the-changelog"><a class="header" href="#the-changelog">The changelog</a></h2>
+<p>The complete changelog can be found <a href="https://github.com/foresterre/cargo-msrv/blob/main/CHANGELOG.md">here</a>.</p>
+<h2 id="thanks"><a class="header" href="#thanks">Thanks!</a></h2>
+<p>Thanks to all contributors, whether you submitted a <a href="https://github.com/foresterre/cargo-msrv/pulls">PR</a> or reported
+an <a href="https://github.com/foresterre/cargo-msrv/issues">issue</a>. Some reported issues and PR's really made my day! 💛</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="migration-guide-v015-to-v016-with-the-json-output-format"><a class="header" href="#migration-guide-v015-to-v016-with-the-json-output-format">Migration Guide: v0.15 to v0.16 with the JSON output format</a></h1>
 <h2 id="enabling-json-output"><a class="header" href="#enabling-json-output">Enabling json output</a></h2>
 <p>In v0.15, json lines output could be enabled by providing the <code>--output-format json</code> option as part of
@@ -253,7 +316,7 @@ work.</p>
 level command was moved to its own subcommand for consistency and more correct CLI argument parsing.</p>
 <h2 id="message-type-tag"><a class="header" href="#message-type-tag">Message type tag</a></h2>
 <p>In v0.15, json messages were tagged using a field named <code>reason</code>. From v0.16 onwards, this field has been renamed
-to <code>type</code> instead. Please refer to the <a href="migration-guide/../output-formats/json.html">JSON output format</a> page for a list of supported
+to <code>type</code> instead. Please refer to the <a href="releases/../output-formats/json.html">JSON output format</a> page for a list of supported
 messages.</p>
 <h2 id="message-replacements"><a class="header" href="#message-replacements">Message replacements</a></h2>
 <p>In this section, we will discuss the previously supported json messages, and provide suggestions of their replacements.</p>
@@ -476,7 +539,7 @@ The success field would respectively be used to report whether an MSRV had been 
 verified
 was compatible or not. These messages, <code>msrv-complete</code> and <code>verify-complete</code> have been replaced by the
 <code>subcommand_result</code>
-event. Please refer to the <a href="migration-guide/../output-formats/json.html#event-subcommandresult">subcommand_result</a> event for the complete
+event. Please refer to the <a href="releases/../output-formats/json.html#event-subcommandresult">subcommand_result</a> event for the complete
 description of output per command.</p>
 <p>The v0.15 output had the following format:</p>
 <pre><code class="language-jsonc">{
@@ -516,8 +579,7 @@ description of output per command.</p>
 }
 </code></pre>
 <h4 id="list-msrvs-specified-by-crate-authors"><a class="header" href="#list-msrvs-specified-by-crate-authors">List MSRV's specified by crate authors</a></h4>
-<p>This event is contains the output of the list command, which reports about the MSRV of the dependencies of the given
-crate.
+<p>This event contains the output of the list command, which reports the MSRV of dependencies of a crate.
 The exact output depends on which variant is used, either <code>ordered-by-msrv</code> (default) or <code>direct-deps</code>.</p>
 <p>The output of the list command is almost the same as it was before. The event is no longer called <code>list</code>; instead
 the output is given via the <code>subcommand_result</code> event, where the value of <code>subcommand_id</code> is <code>list</code>. The output of the
@@ -1241,14 +1303,16 @@ crate.</li>
 <li><a href="commands/./verify.html">cargo-msrv verify</a>: The <code>verify</code> subcommand is used to check whether the pinned MSRV is acceptable.</li>
 </ul>
 <h1 id="program-wide-options"><a class="header" href="#program-wide-options">Program wide options</a></h1>
-<p>⚠ work-in-progress.</p>
+<p>See <code>cargo msrv --help</code> for a full list of program wide options.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv"><a class="header" href="#cargo-msrv">cargo-msrv</a></h1>
 <h1 id="command"><a class="header" href="#command">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv find [options]</code></li>
 <li>Through Cargo: <code>cargo msrv find [options]</code></li>
 </ul>
-<h2 id="description"><a class="header" href="#description">DESCRIPTION</a></h2>
+<h1 id="preview"><a class="header" href="#preview">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/679855"><img src="https://asciinema.org/a/679855.svg" alt="asciicast" /></a></p>
+<h1 id="description"><a class="header" href="#description">DESCRIPTION</a></h1>
 <p>Find the MSRV for your project.</p>
 <p>This command will test your project by running various Rust toolchains against your project. The order in which these
 toolchains will be tested, and the amount of tests ran, depends on the search strategy, the amount of toolchains
@@ -1262,7 +1326,7 @@ the highest still
 toolchain for which a check command passes). Bisect tests projects using a binary search. This can be significantly
 faster,
 so it's usually advisable to enable it by default.</p>
-<h3 id="why-run-against-complete-toolchains"><a class="header" href="#why-run-against-complete-toolchains">Why run against complete toolchains?</a></h3>
+<h2 id="why-run-against-complete-toolchains"><a class="header" href="#why-run-against-complete-toolchains">Why run against complete toolchains?</a></h2>
 <p>Running against a complete toolchain may seem like a lot of wasted computing power. Why not run against just the AST,
 and
 (conditionally) tag each AST node with a supported from version (or query it, as library functions already have an '
@@ -1273,12 +1337,12 @@ however
 we found that the selection of the MSRV of a toolchain is not just limited by the source code itself. External factors
 such as Rust editions or knobs in the Cargo manifest also impact the MSRV for a crate. As such, the running a complete
 toolchain helps us to be more precise<sup>1</sup>.</p>
-<h3 id="future-work"><a class="header" href="#future-work">Future work</a></h3>
+<h2 id="future-work"><a class="header" href="#future-work">Future work</a></h2>
 <p><em>1. We want to eventually add a combination-of-strategies strategy which can combine result of other strategies to come
 to a possibly more precise definition.</em></p>
 <p><em>2. If you come up with a strategy which will add value to cargo-msrv, feel free to contribute the idea, or even an
 implementation. If you don't know where to start, create a new issue, we're happy to help!</em></p>
-<h2 id="options"><a class="header" href="#options">OPTIONS</a></h2>
+<h1 id="options"><a class="header" href="#options">OPTIONS</a></h1>
 <p><strong><code>--bisect</code></strong></p>
 <p>Use a binary search to find the MSRV. This is usually faster than using a linear search.
 The binary search strategy is the default since <code>cargo-msrv v0.14.0</code>.</p>
@@ -1357,7 +1421,7 @@ See <a href="https://rust-lang.github.io/rustup/overrides.html#the-toolchain-fil
 <p><strong><code>--</code> ...cmd</strong></p>
 <p>When provided, the trailing command (<code>cmd</code>) will be used as the <em>cargo-msrv check</em> command, instead of the default
 <code>cargo check</code>. This <code>cmd</code> must be runnable by <code>rustup</code> through <code>rustup run &lt;toolchain&gt; &lt;cmd&gt;</code>.</p>
-<h2 id="examples"><a class="header" href="#examples">EXAMPLES</a></h2>
+<h1 id="examples"><a class="header" href="#examples">EXAMPLES</a></h1>
 <ol>
 <li>Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.</li>
 </ol>
@@ -1385,15 +1449,17 @@ format.</li>
 </ol>
 <pre><code class="language-shell">cargo msrv find --output-format json
 </code></pre>
-<h2 id="footnotes"><a class="header" href="#footnotes">FOOTNOTES</a></h2>
+<h1 id="footnotes"><a class="header" href="#footnotes">FOOTNOTES</a></h1>
 <p><sup>1</sup> Precision is of course a debatable concept. In this case we note that &quot;a toolchain must be able
-to pass the cargo-msrv compatibility check command for a crate&quot; (in its broadest sense).</p>
+to pass the cargo-msrv compatibility check command for a crate&quot;.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-help"><a class="header" href="#cargo-msrv-help">cargo-msrv help</a></h1>
 <h1 id="command-1"><a class="header" href="#command-1">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv help [subcommand]</code></li>
-<li>Through Cargo: <code>cargo msrv help [subcommand]</code> </li>
+<li>Through Cargo: <code>cargo msrv help [subcommand]</code></li>
 </ul>
+<h1 id="preview-1"><a class="header" href="#preview-1">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/lBKWtUonNo4lP9f5ecQHh36ss"><img src="https://asciinema.org/a/lBKWtUonNo4lP9f5ecQHh36ss.svg" alt="asciicast" /></a></p>
 <h1 id="description-1"><a class="header" href="#description-1">DESCRIPTION</a></h1>
 <p>Help users navigate the cargo-msrv CLI by printing a help message.</p>
 <!-- # OPTIONS -->
@@ -1414,22 +1480,26 @@ to pass the cargo-msrv compatibility check command for a crate&quot; (in its bro
 <li>Standalone: <code>cargo-msrv list [options]</code></li>
 <li>Through Cargo: <code>cargo msrv list [options]</code></li>
 </ul>
+<h1 id="preview-2"><a class="header" href="#preview-2">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/679857"><img src="https://asciinema.org/a/679857.svg" alt="asciicast" /></a></p>
 <h1 id="description-2"><a class="header" href="#description-2">DESCRIPTION</a></h1>
 <p>List the author specified MSRV for each depended-upon package.</p>
 <p>Authors may specify the MSRV for their crate by adding the <code>package.rust-version</code> key to the <code>Cargo.toml</code> manifest.
-See the <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field">Cargo book</a> for more. This value
-is supported from Rust 1.56 onwards. </p>
+See the <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field">Cargo book</a> for more. This
+value is supported from Rust 1.56 onwards.</p>
 <pre><code class="language-toml">[package]
 rust-version = &quot;1.56&quot;
 </code></pre>
-<p>For crates which have an MSRV prior to Rust 1.56, you can use the <code>package.metadata.msrv</code> key in the <code>Cargo.toml</code> manifest
-instead. The <code>package.metadata</code> table exists specifically for tools like cargo-msrv, and within this table, 
+<p>For crates which have an MSRV prior to Rust 1.56, you can use the <code>package.metadata.msrv</code> key in the <code>Cargo.toml</code>
+manifest
+instead. The <code>package.metadata</code> table exists specifically for tools like cargo-msrv, and within this table,
 Cargo will not warn about keys it does not understand. Note that the use of this key is tailored to cargo-msrv and may
 not be supported by other tools.</p>
 <pre><code class="language-toml">[package.metadata]
 msrv = &quot;1.53.0&quot;
 </code></pre>
-<p>Both <code>package.rust-version</code> and <code>package.metadata.msrv</code> require a two or three component version number, without semver operators
+<p>Both <code>package.rust-version</code> and <code>package.metadata.msrv</code> require a two or three component version number, without semver
+operators
 or pre-release identifiers. For example, <code>1.56</code> and <code>1.56.0</code> are both valid, while <code>^1.56.0</code> and <code>1.56.0-beta</code> are not.</p>
 <h1 id="options-1"><a class="header" href="#options-1">OPTIONS</a></h1>
 <p><strong><code>--variant</code> variant</strong></p>
@@ -1484,7 +1554,7 @@ specified), it's dependencies.</p>
 <p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 <ol start="2">
-<li>List the MSRV's for your direct dependencies using </li>
+<li>List the MSRV's for your direct dependencies using</li>
 </ol>
 <pre><code class="language-shell">cargo msrv list --variant direct-deps
 </code></pre>
@@ -1538,38 +1608,67 @@ dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
 </code></pre>
 <p>NB: The dependencies which are listed with an empty MSRV cell do not specify a MSRV yet. At the time of writing, most
 dependencies in the cargo-msrv dependency tree did not have an MSRV defined.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2">cargo-msrv show</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-set-2"><a class="header" href="#cargo-msrv-set-2">cargo-msrv set</a></h1>
 <h1 id="command-3"><a class="header" href="#command-3">COMMAND</a></h1>
+<ul>
+<li>Standalone: <code>cargo-msrv set</code></li>
+<li>Through Cargo: <code>cargo msrv set</code></li>
+</ul>
+<h1 id="preview-3"><a class="header" href="#preview-3">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/679858"><img src="https://asciinema.org/a/679858.svg" alt="asciicast" /></a></p>
+<h1 id="description-3"><a class="header" href="#description-3">DESCRIPTION</a></h1>
+<p>Set the MSRV in the Cargo manifest.</p>
+<p>This is either the <code>package.rust-version</code> field or the <code>package.metadata.msrv</code> field in the Cargo manifest (
+<code>Cargo.toml</code>).</p>
+<!-- # OPTIONS -->
+<h1 id="examples-3"><a class="header" href="#examples-3">EXAMPLES</a></h1>
+<ol>
+<li>Set an MSRV by providing a two component Rust version</li>
+</ol>
+<pre><code class="language-shell">cargo msrv set 1.56
+</code></pre>
+<ol start="2">
+<li>Set an MSRV by providing a three component Rust version</li>
+</ol>
+<pre><code class="language-shell">cargo msrv set 1.58.1
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-show-2"><a class="header" href="#cargo-msrv-show-2">cargo-msrv show</a></h1>
+<h1 id="command-4"><a class="header" href="#command-4">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv show</code></li>
 <li>Through Cargo: <code>cargo msrv show</code></li>
 </ul>
-<h1 id="description-3"><a class="header" href="#description-3">DESCRIPTION</a></h1>
+<h1 id="preview-4"><a class="header" href="#preview-4">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/679864"><img src="https://asciinema.org/a/679864.svg" alt="asciicast" /></a></p>
+<h1 id="description-4"><a class="header" href="#description-4">DESCRIPTION</a></h1>
 <p>Print the crate author specified MSRV.</p>
-<p>This is either the <code>package.rust-version</code> field or the <code>package.metadata.msrv</code> field in the Cargo manifest (<code>Cargo.toml</code>).</p>
+<p>This is either the <code>package.rust-version</code> field or the <code>package.metadata.msrv</code> field in the Cargo manifest (
+<code>Cargo.toml</code>).</p>
 <!-- # OPTIONS -->
-<h1 id="examples-3"><a class="header" href="#examples-3">EXAMPLES</a></h1>
+<h1 id="examples-4"><a class="header" href="#examples-4">EXAMPLES</a></h1>
 <ol>
 <li>Show the MSRV specified by a crate author</li>
 </ol>
 <pre><code class="language-shell">cargo msrv show
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cargo-msrv-verify-2"><a class="header" href="#cargo-msrv-verify-2">cargo-msrv verify</a></h1>
-<h1 id="command-4"><a class="header" href="#command-4">COMMAND</a></h1>
+<h1 id="command-5"><a class="header" href="#command-5">COMMAND</a></h1>
 <ul>
 <li>Standalone: <code>cargo-msrv verify</code></li>
 <li>Through Cargo: <code>cargo msrv verify</code></li>
 </ul>
-<h1 id="description-4"><a class="header" href="#description-4">DESCRIPTION</a></h1>
+<h1 id="preview-5"><a class="header" href="#preview-5">PREVIEW</a></h1>
+<p><a href="https://asciinema.org/a/679863"><img src="https://asciinema.org/a/679863.svg" alt="asciicast" /></a></p>
+<h1 id="description-5"><a class="header" href="#description-5">DESCRIPTION</a></h1>
 <p>Verify whether the MSRV can be satisfied.</p>
-<p>The MSRV can be specified in the Cargo manifest (<code>Cargo.toml</code>) using either the <code>package.rust-version</code> (Rust &gt;=1.56, recommended), 
+<p>The MSRV can be specified in the Cargo manifest (<code>Cargo.toml</code>) using either the <code>package.rust-version</code> (Rust &gt;=1.56,
+recommended),
 or the <code>package.metadata.msrv</code> field.</p>
 <p>If the check fails, the program returns with a non-zero exit code.</p>
-<!-- # OPTIONS -->
-<h2 id="options-2"><a class="header" href="#options-2">OPTIONS</a></h2>
+<h1 id="options-2"><a class="header" href="#options-2">OPTIONS</a></h1>
 <p><strong><code>--rust-version</code> version</strong></p>
-<p>Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility. </p>
-<h1 id="examples-4"><a class="header" href="#examples-4">EXAMPLES</a></h1>
+<p>Specify the Rust version of a Rust toolchain, against which the crate will be checked for compatibility.</p>
+<h1 id="examples-5"><a class="header" href="#examples-5">EXAMPLES</a></h1>
 <ol>
 <li>Verify whether the MSRV specified in the Cargo manifest is satisfiable (Good case).</li>
 </ol>
@@ -1585,8 +1684,8 @@ rust-version = &quot;1.56.0&quot;
     println!(&quot;Hello world&quot;);
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
-The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key. 
+<p>We check whether the MSRV's check command, in this case the default <code>cargo check</code>, can be satisfied.
+The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key.
 Since the example crate used no features requiring a more recent version than Rust 1.56, the check will be satisfied,
 and the program returns a with exit code 0 (success).</p>
 <pre><code class="language-shell">cargo msrv verify # Will succeed, and return with exit code 0
@@ -1607,7 +1706,7 @@ rust-version = &quot;1.56.0&quot;
     assert_eq!(cmd.get_program(), &quot;ls&quot;); // will fail because Command::get_program was introduced in 1.57, which is greater than 1.56 (the MSRV)
 }
 </code></pre></pre>
-<p>We check whether the MSRV's  check command, in this case the default <code>cargo check</code>, can be satisfied.
+<p>We check whether the MSRV's check command, in this case the default <code>cargo check</code>, can be satisfied.
 The crate author specified the MSRV in the Cargo.toml, using the <code>package.rust-version</code> key.
 Since the example crate used a feature requiring a more recent version than Rust 1.56, the check cannot be satisfied,
 and the program returns a with a non-zero exit code (failure).</p>
@@ -1618,7 +1717,8 @@ and the program returns a with a non-zero exit code (failure).</p>
 </ol>
 <pre><code class="language-shell">cargo msrv --path path/to/my/crate verify
 </code></pre>
-<p>This example shows how to use arguments (in this case <code>--path</code>) shared between the default cargo-msrv command and verify.
+<p>This example shows how to use arguments (in this case <code>--path</code>) shared between the default cargo-msrv command and
+verify.
 Note that shared arguments must be specified before the subcommand (here <code>verify</code>).</p>
 <ol start="4">
 <li>Run the 'verify' subcommand using a self-determined Rust version.</li>
