@@ -1641,6 +1641,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "package-selection"
+version = "0.1.0"
+dependencies = [
+ "camino",
+ "cargo_metadata",
+ "thiserror",
+]
+
+[[package]]
 name = "papergrid"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -56,3 +56,6 @@ vergen = { version = "8.3.2", default-features = false, features = ["build", "ca
 [profile.release]
 lto = true
 codegen-units = 1
+
+[workspace]
+members = ["crates/package-selection"]

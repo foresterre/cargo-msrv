@@ -1,0 +1,9 @@
+[package]
+name = "package-selection"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+camino = "1.1.9"
+cargo_metadata = { version = "0.18.1" }
+thiserror = "1.0.64"
