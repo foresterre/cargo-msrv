@@ -27,7 +27,7 @@ pub fn write_msrv(
 
 #[cfg(test)]
 mod tests {
-    use crate::context::{EnvironmentContext, RustReleasesContext};
+    use crate::context::{EnvironmentContext, RustReleasesContext, WorkspacePackages};
     use crate::error::CargoMSRVError;
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::FakeTestReporter;
@@ -51,7 +51,8 @@ mod tests {
         let version = BareVersion::ThreeComponents(2, 0, 5);
 
         let env = EnvironmentContext {
-            crate_path: root.to_path_buf(),
+            root_crate_path: root.to_path_buf(),
+            workspace_packages: WorkspacePackages::from_iter([]),
         };
 
         let index = ReleaseIndex::from_iter(vec![rust_releases::Release::new_stable(
@@ -85,7 +86,8 @@ mod tests {
         let version = BareVersion::ThreeComponents(2, 0, 5);
 
         let env = EnvironmentContext {
-            crate_path: root.to_path_buf(),
+            root_crate_path: root.to_path_buf(),
+            workspace_packages: WorkspacePackages::from_iter([]),
         };
 
         let index = ReleaseIndex::from_iter(vec![]);
@@ -116,7 +118,8 @@ mod tests {
         let version = BareVersion::ThreeComponents(2, 0, 5);
 
         let env = EnvironmentContext {
-            crate_path: root.to_path_buf(),
+            root_crate_path: root.to_path_buf(),
+            workspace_packages: WorkspacePackages::from_iter([]),
         };
 
         write_msrv(
