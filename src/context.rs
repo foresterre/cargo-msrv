@@ -284,6 +284,8 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
         let workspace = opts.workspace.partition_packages(&metadata);
         let workspace_packages = WorkspacePackages::from_iter(workspace.0.into_iter().cloned());
 
+        info!(?workspace_packages, workspace_packages_excluded = ?workspace.1);
+
         Ok(Self {
             root_crate_path,
             workspace_packages,
