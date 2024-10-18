@@ -74,6 +74,16 @@ impl Context {
         }
     }
 
+    pub fn environment_context(&self) -> &EnvironmentContext {
+        match self {
+            Context::Find(ctx) => &ctx.environment,
+            Context::List(ctx) => &ctx.environment,
+            Context::Set(ctx) => &ctx.environment,
+            Context::Show(ctx) => &ctx.environment,
+            Context::Verify(ctx) => &ctx.environment,
+        }
+    }
+
     /// Returns the inner find context, if it was present.
     pub fn to_find_context(self) -> Option<FindContext> {
         if let Self::Find(ctx) = self {
@@ -314,14 +324,21 @@ impl EnvironmentContext {
 
 #[derive(Clone, Debug)]
 pub struct WorkspacePackages {
-    _selected: Vec<cargo_metadata::Package>,
+    selected: Vec<cargo_metadata::Package>,
 }
 
 impl WorkspacePackages {
     pub fn from_iter(selected: impl IntoIterator<Item = cargo_metadata::Package>) -> Self {
         Self {
-            _selected: selected.into_iter().collect(),
+            selected: selected.into_iter().collect(),
         }
+    }
+
+    pub fn names(&self) -> Vec<String> {
+        self.selected
+            .iter()
+            .map(|pkg| pkg.name.to_string())
+            .collect()
     }
 }
 
