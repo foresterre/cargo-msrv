@@ -11,6 +11,7 @@ pub use scope::TestScopeGenerator;
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
+pub use cargo_workspace::CargoWorkspace;
 pub use check_method::{CheckMethod, Method};
 pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
@@ -41,6 +42,7 @@ mod types;
 
 // specific events
 mod auxiliary_output;
+mod cargo_workspace;
 mod check_method;
 mod check_result;
 mod check_toolchain;
@@ -122,6 +124,9 @@ impl Event {
 pub enum Message {
     // setup
     Meta(Meta),
+
+    // package selection
+    CargoWorkspace(CargoWorkspace),
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!
