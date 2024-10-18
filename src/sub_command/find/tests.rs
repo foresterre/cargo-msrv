@@ -2,6 +2,7 @@ use super::*;
 use crate::check::TestRunner;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
+    WorkspacePackages,
 };
 use crate::manifest::bare_version::BareVersion;
 use crate::reporter::TestReporterWrapper;
@@ -263,7 +264,8 @@ fn create_test_context() -> FindContext {
             rustup_command: None,
         },
         environment: EnvironmentContext {
-            crate_path: Utf8PathBuf::new(),
+            root_crate_path: Utf8PathBuf::new(),
+            workspace_packages: WorkspacePackages::from_iter([]),
         },
     }
 }

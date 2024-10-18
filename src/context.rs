@@ -239,7 +239,10 @@ pub struct EnvironmentContext {
     ///
     /// Does not include a manifest file like Cargo.toml, so it's easy to append
     /// a file path like `Cargo.toml` or `Cargo.lock`.
-    pub crate_path: Utf8PathBuf,
+    pub root_crate_path: Utf8PathBuf,
+
+    /// Resolved workspace
+    pub workspace_packages: WorkspacePackages,
 }
 
 impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
@@ -271,32 +274,56 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
             })
         }?;
 
-        let crate_path = path.try_into().map_err(|err| {
+        let root_crate_path: Utf8PathBuf = path.try_into().map_err(|err| {
             CargoMSRVError::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err)))
         })?;
 
-        Ok(Self { crate_path })
+        let metadata = cargo_metadata::MetadataCommand::new()
+            .manifest_path(root_crate_path.join("Cargo.toml"))
+            .exec()?;
+        let workspace = opts.workspace.partition_packages(&metadata);
+        let workspace_packages = WorkspacePackages::from_iter(workspace.0.into_iter().cloned());
+
+        info!(?workspace_packages, workspace_packages_excluded = ?workspace.1);
+
+        Ok(Self {
+            root_crate_path,
+            workspace_packages,
+        })
     }
 }
 
 impl EnvironmentContext {
     /// Path to the crate root
     pub fn root(&self) -> &Utf8Path {
-        &self.crate_path
+        &self.root_crate_path
     }
 
     /// The path to the Cargo manifest
     pub fn manifest(&self) -> Utf8PathBuf {
-        self.crate_path.join("Cargo.toml")
+        self.root_crate_path.join("Cargo.toml")
     }
 
     /// The path to the Cargo lock file
     pub fn lock(&self) -> Utf8PathBuf {
-        self.crate_path.join("Cargo.lock")
+        self.root_crate_path.join("Cargo.lock")
     }
 }
 
 // ---
+
+#[derive(Clone, Debug)]
+pub struct WorkspacePackages {
+    _selected: Vec<cargo_metadata::Package>,
+}
+
+impl WorkspacePackages {
+    pub fn from_iter(selected: impl IntoIterator<Item = cargo_metadata::Package>) -> Self {
+        Self {
+            _selected: selected.into_iter().collect(),
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, ValueEnum)]
 pub enum OutputFormat {
