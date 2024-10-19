@@ -35,23 +35,23 @@ use rust_releases::semver;
 pub mod check;
 pub mod cli;
 
-mod context;
-pub(crate) mod dependency_graph;
+pub mod context;
+pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
 mod external_command;
 pub mod io;
-pub(crate) mod lockfile;
-pub(crate) mod log_level;
-pub(crate) mod manifest;
-pub(crate) mod msrv;
-pub(crate) mod outcome;
+pub mod lockfile;
+pub mod log_level;
+pub mod manifest;
+pub mod msrv;
+pub mod outcome;
 pub mod reporter;
 pub mod rust;
-pub(crate) mod search_method;
-pub(crate) mod sub_command;
-pub(crate) mod typed_bool;
-pub(crate) mod writer;
+pub mod search_method;
+pub mod sub_command;
+pub mod typed_bool;
+pub mod writer;
 
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
