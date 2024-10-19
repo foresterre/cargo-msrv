@@ -52,7 +52,7 @@ mod tests {
 
         let env = EnvironmentContext {
             root_crate_path: root.to_path_buf(),
-            workspace_packages: WorkspacePackages::from_iter([]),
+            workspace_packages: WorkspacePackages::default(),
         };
 
         let index = ReleaseIndex::from_iter(vec![rust_releases::Release::new_stable(
@@ -87,7 +87,7 @@ mod tests {
 
         let env = EnvironmentContext {
             root_crate_path: root.to_path_buf(),
-            workspace_packages: WorkspacePackages::from_iter([]),
+            workspace_packages: WorkspacePackages::default(),
         };
 
         let index = ReleaseIndex::from_iter(vec![]);
@@ -119,7 +119,7 @@ mod tests {
 
         let env = EnvironmentContext {
             root_crate_path: root.to_path_buf(),
-            workspace_packages: WorkspacePackages::from_iter([]),
+            workspace_packages: WorkspacePackages::default(),
         };
 
         write_msrv(
