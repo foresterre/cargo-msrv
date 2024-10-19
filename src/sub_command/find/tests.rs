@@ -265,7 +265,7 @@ fn create_test_context() -> FindContext {
         },
         environment: EnvironmentContext {
             root_crate_path: Utf8PathBuf::new(),
-            workspace_packages: WorkspacePackages::from_iter([]),
+            workspace_packages: WorkspacePackages::default(),
         },
     }
 }

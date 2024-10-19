@@ -30,6 +30,7 @@ use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::default_target::default_target;
 use crate::log_level::LogLevel;
+use crate::reporter::event::SelectedPackage;
 pub use find::FindContext;
 pub use list::ListContext;
 pub use set::SetContext;
@@ -71,6 +72,16 @@ impl Context {
             Context::Set(_) => "set",
             Context::Show(_) => "show",
             Context::Verify(_) => "verify",
+        }
+    }
+
+    pub fn environment_context(&self) -> &EnvironmentContext {
+        match self {
+            Context::Find(ctx) => &ctx.environment,
+            Context::List(ctx) => &ctx.environment,
+            Context::Set(ctx) => &ctx.environment,
+            Context::Show(ctx) => &ctx.environment,
+            Context::Verify(ctx) => &ctx.environment,
         }
     }
 
@@ -235,6 +246,8 @@ impl From<CustomCheckOpts> for CheckCommandContext {
 
 #[derive(Clone, Debug)]
 pub struct EnvironmentContext {
+    // TODO: Some parts assume a Cargo crate, but that's not strictly a requirement
+    //  of cargo-msrv (only rustup is). We should fix this.
     /// The path to the root of a crate.
     ///
     /// Does not include a manifest file like Cargo.toml, so it's easy to append
@@ -278,13 +291,36 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
             CargoMSRVError::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err)))
         })?;
 
-        let metadata = cargo_metadata::MetadataCommand::new()
+        // Only select packages if this is a Cargo project.
+        // For now, to be pragmatic, we'll take a shortcut and say that it is so,
+        // if the cargo metadata command succeeds. If it doesn't, we'll fall
+        // back to just the default package.
+        let workspace_packages = if let Ok(metadata) = cargo_metadata::MetadataCommand::new()
             .manifest_path(root_crate_path.join("Cargo.toml"))
-            .exec()?;
-        let workspace = opts.workspace.partition_packages(&metadata);
-        let workspace_packages = WorkspacePackages::from_iter(workspace.0.into_iter().cloned());
+            .exec()
+        {
+            let partition = opts.workspace.partition_packages(&metadata);
+            let selected = partition.0.into_iter().cloned().collect();
+            let excluded = partition.1;
 
-        info!(?workspace_packages, workspace_packages_excluded = ?workspace.1);
+            info!(
+                action = "detect_cargo_workspace_packages",
+                method = "cargo_metadata",
+                success = true,
+                ?selected,
+                ?excluded
+            );
+
+            WorkspacePackages::from_vec(selected)
+        } else {
+            info!(
+                action = "detect_cargo_workspace_packages",
+                method = "cargo_metadata",
+                success = false,
+            );
+
+            WorkspacePackages::default()
+        };
 
         Ok(Self {
             root_crate_path,
@@ -312,16 +348,44 @@ impl EnvironmentContext {
 
 // ---
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct WorkspacePackages {
-    _selected: Vec<cargo_metadata::Package>,
+    selected: Option<Vec<cargo_metadata::Package>>,
 }
 
 impl WorkspacePackages {
-    pub fn from_iter(selected: impl IntoIterator<Item = cargo_metadata::Package>) -> Self {
+    pub fn from_vec(selected: Vec<cargo_metadata::Package>) -> Self {
         Self {
-            _selected: selected.into_iter().collect(),
+            selected: Some(selected),
         }
+    }
+
+    pub fn selected(&self) -> Option<Vec<SelectedPackage>> {
+        self.selected.as_deref().map(|pks| {
+            pks.iter()
+                .map(|pkg| SelectedPackage {
+                    name: pkg.name.to_string(),
+                    path: pkg.manifest_path.to_path_buf(),
+                })
+                .collect()
+        })
+    }
+
+    /// The default package is used when either:
+    /// 1. No packages were selected (e.g. because we are not in a cargo workspace or do not use cargo)
+    /// 2. No workspace flags like --workspace, --package, --all or --exclude are used
+    ///
+    /// See [clap_cargo::Workspace](https://docs.rs/clap-cargo/latest/clap_cargo/struct.Workspace.html) which is
+    /// currently used for the selection.
+    pub fn use_default_package(&self) -> bool {
+        self.selected_packages().is_empty()
+    }
+
+    /// The slice of selected packages.
+    /// If empty, either no workspace selection flag was used, or cargo_metadata failed,
+    /// for example because it wasn't a cargo workspace.
+    pub fn selected_packages(&self) -> &[cargo_metadata::Package] {
+        self.selected.as_deref().unwrap_or_default()
     }
 }
 

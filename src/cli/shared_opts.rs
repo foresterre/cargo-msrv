@@ -7,7 +7,10 @@ use std::path::PathBuf;
 #[derive(Debug, Args)]
 #[command(group(ArgGroup::new("paths").args(&["path", "manifest_path"])))]
 pub struct SharedOpts {
-    /// Path to cargo project directory
+    /// Path to project root directory
+    ///
+    /// This should be used over `--manifest-path` if not in a Cargo project.
+    /// If you have a Cargo project, prefer `--manifest-path`.
     #[arg(long, value_name = "Crate Directory", global = true, value_hint = ValueHint::DirPath)]
     pub path: Option<PathBuf>,
 

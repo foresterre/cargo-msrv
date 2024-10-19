@@ -18,6 +18,7 @@ pub use fetch_index::FetchIndex;
 pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
+pub use selected_packages::{SelectedPackage, SelectedPackages};
 pub use setup_toolchain::SetupToolchain;
 pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;
@@ -48,6 +49,7 @@ mod fetch_index;
 mod meta;
 mod progress;
 mod search_method;
+mod selected_packages;
 mod setup_toolchain;
 mod subcommand_init;
 mod subcommand_result;
@@ -122,6 +124,9 @@ impl Event {
 pub enum Message {
     // setup
     Meta(Meta),
+
+    // package selection
+    SelectedPackages(SelectedPackages),
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!

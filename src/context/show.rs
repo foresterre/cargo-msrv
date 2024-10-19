@@ -16,7 +16,7 @@ impl TryFrom<CargoMsrvOpts> for ShowContext {
         let CargoMsrvOpts { shared_opts, .. } = opts;
 
         Ok(Self {
-            environment: (&shared_opts).try_into().unwrap(), // todo!
+            environment: (&shared_opts).try_into()?,
         })
     }
 }
