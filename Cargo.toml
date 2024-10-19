@@ -18,6 +18,9 @@ rust-version = "1.78"
 [package.metadata.release]
 tag-name = "v{{version}}"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }-v{ version }{ archive-suffix }"
+
 [dependencies]
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.1" # utf-8 paths
