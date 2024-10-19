@@ -1,12 +1,12 @@
 use crate::reporter::event::VerifyResult;
 use crate::reporter::JsonHandler;
+use crate::rust::Toolchain;
 use crate::semver;
-use crate::toolchain::ToolchainSpec;
 use storyteller::EventHandler;
 
 #[test]
 fn handler_success() {
-    let event = VerifyResult::compatible(ToolchainSpec::new(
+    let event = VerifyResult::compatible(Toolchain::new(
         semver::Version::new(1, 2, 3),
         "my-target",
         &[],
@@ -37,7 +37,7 @@ fn handler_success() {
 
 #[test]
 fn event_success() {
-    let event = VerifyResult::compatible(ToolchainSpec::new(
+    let event = VerifyResult::compatible(Toolchain::new(
         semver::Version::new(1, 2, 3),
         "my-target",
         &[],
@@ -61,7 +61,7 @@ fn event_success() {
 #[test]
 fn handler_failure_with_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
+        Toolchain::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         Some("Hello World".to_string()),
     );
 
@@ -92,7 +92,7 @@ fn handler_failure_with_message() {
 #[test]
 fn event_failure_with_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
+        Toolchain::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         Some("Hello World".to_string()),
     );
 
@@ -115,7 +115,7 @@ fn event_failure_with_message() {
 #[test]
 fn handler_failure_without_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
+        Toolchain::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         None,
     );
 
@@ -145,7 +145,7 @@ fn handler_failure_without_message() {
 #[test]
 fn event_failure_without_message() {
     let event = VerifyResult::incompatible(
-        ToolchainSpec::new(semver::Version::new(1, 2, 3), "my-target", &[]),
+        Toolchain::new(semver::Version::new(1, 2, 3), "my-target", &[]),
         None,
     );
 

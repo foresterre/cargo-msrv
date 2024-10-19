@@ -2,7 +2,7 @@
 //!
 //! [`check`]: crate::check::Check
 
-use crate::toolchain::ToolchainSpec;
+use crate::rust::Toolchain;
 use rust_releases::semver;
 
 #[derive(Clone, Debug)]
@@ -12,11 +12,11 @@ pub enum Outcome {
 }
 
 impl Outcome {
-    pub fn new_success(toolchain_spec: ToolchainSpec) -> Self {
+    pub fn new_success(toolchain_spec: Toolchain) -> Self {
         Self::Success(SuccessOutcome { toolchain_spec })
     }
 
-    pub fn new_failure(toolchain_spec: ToolchainSpec, error_message: String) -> Self {
+    pub fn new_failure(toolchain_spec: Toolchain, error_message: String) -> Self {
         Self::Failure(FailureOutcome {
             toolchain_spec,
             error_message,
@@ -37,7 +37,7 @@ impl Outcome {
         }
     }
 
-    pub fn toolchain_spec(&self) -> &ToolchainSpec {
+    pub fn toolchain_spec(&self) -> &Toolchain {
         match self {
             Self::Success(outcome) => &outcome.toolchain_spec,
             Self::Failure(outcome) => &outcome.toolchain_spec,
@@ -47,25 +47,25 @@ impl Outcome {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SuccessOutcome {
-    pub(crate) toolchain_spec: ToolchainSpec,
+    pub(crate) toolchain_spec: Toolchain,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FailureOutcome {
-    pub(crate) toolchain_spec: ToolchainSpec,
+    pub(crate) toolchain_spec: Toolchain,
     pub(crate) error_message: String,
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::toolchain::ToolchainSpec;
+    use crate::rust::Toolchain;
     use crate::Outcome;
     use rust_releases::semver;
 
     #[test]
     fn success_outcome() {
         let version = semver::Version::new(1, 2, 3);
-        let toolchain = ToolchainSpec::new(version, "x", &[]);
+        let toolchain = Toolchain::new(version, "x", &[]);
 
         let outcome = Outcome::new_success(toolchain.clone());
 
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn failure_outcome() {
         let version = semver::Version::new(1, 2, 3);
-        let toolchain = ToolchainSpec::new(version, "x", &[]);
+        let toolchain = Toolchain::new(version, "x", &[]);
 
         let outcome = Outcome::new_failure(toolchain.clone(), "msg".to_string());
 

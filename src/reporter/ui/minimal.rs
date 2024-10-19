@@ -111,8 +111,8 @@ mod tests {
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
     use crate::reporter::ui::minimal::MinimalOutputHandler;
+    use crate::rust::Toolchain;
     use crate::semver;
-    use crate::toolchain::ToolchainSpec;
     use camino::Utf8Path;
     use cargo_metadata::PackageId;
     use storyteller::EventHandler;
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn verify_true() {
-        let event = VerifyResult::compatible(ToolchainSpec::new(
+        let event = VerifyResult::compatible(Toolchain::new(
             semver::Version::new(1, 2, 3),
             "test_target",
             &[],
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn verify_false_no_error_message() {
         let event = VerifyResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
+            Toolchain::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             None,
         );
 
@@ -276,7 +276,7 @@ mod tests {
     #[test]
     fn verify_false_with_error_message() {
         let event = VerifyResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
+            Toolchain::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             Some("error message".to_string()),
         );
 

@@ -1,5 +1,5 @@
-use crate::rust_release::RustRelease;
-use crate::toolchain::ToolchainSpec;
+use crate::rust::RustRelease;
+use crate::rust::Toolchain;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -7,7 +7,7 @@ pub enum MinimumSupportedRustVersion {
     /// A toolchain is compatible, if the outcome of a toolchain check results in a success
     Toolchain {
         // toolchain
-        toolchain: ToolchainSpec,
+        toolchain: Toolchain,
     },
     /// Compatibility is none, if the check on the last available toolchain fails
     NoCompatibleToolchain,
@@ -42,7 +42,7 @@ impl MinimumSupportedRustVersion {
 #[cfg(test)]
 mod tests {
     use crate::msrv::MinimumSupportedRustVersion;
-    use crate::rust_release::RustRelease;
+    use crate::rust::RustRelease;
     use cargo_metadata::semver;
 
     #[test]

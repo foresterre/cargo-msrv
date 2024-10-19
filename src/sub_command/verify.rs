@@ -12,8 +12,8 @@ use crate::manifest::CargoManifest;
 use crate::outcome::Outcome;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
+use crate::rust::Toolchain;
 use crate::sub_command::SubCommand;
-use crate::toolchain::ToolchainSpec;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, C: Check> {
@@ -69,7 +69,7 @@ fn verify_msrv(
 
     let target = ctx.toolchain.target;
     let components = ctx.toolchain.components;
-    let toolchain = ToolchainSpec::new(version.clone(), target, components);
+    let toolchain = Toolchain::new(version.clone(), target, components);
 
     match runner.check(&toolchain)? {
         Outcome::Success(_) => success(reporter, toolchain),
@@ -78,7 +78,7 @@ fn verify_msrv(
 }
 
 // Report the successful verification to the user
-fn success(reporter: &impl Reporter, toolchain: ToolchainSpec) -> TResult<()> {
+fn success(reporter: &impl Reporter, toolchain: Toolchain) -> TResult<()> {
     reporter.report_event(VerifyResult::compatible(toolchain))?;
     Ok(())
 }
@@ -86,7 +86,7 @@ fn success(reporter: &impl Reporter, toolchain: ToolchainSpec) -> TResult<()> {
 // Report the failed verification to the user, and return a VerifyFailed error
 fn failure(
     reporter: &impl Reporter,
-    toolchain: ToolchainSpec,
+    toolchain: Toolchain,
     rust_version: RustVersion,
     error: Option<String>,
 ) -> TResult<()> {

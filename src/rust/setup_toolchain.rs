@@ -3,11 +3,11 @@ use crate::error::{
 };
 use crate::external_command::rustup_command::RustupCommand;
 use crate::reporter::event::SetupToolchain as SetupToolchainEvent;
-use crate::toolchain::ToolchainSpec;
+use crate::rust::Toolchain;
 use crate::{CargoMSRVError, Reporter, TResult};
 
 pub trait SetupToolchain {
-    fn download(&self, toolchain: &ToolchainSpec) -> TResult<()>;
+    fn download(&self, toolchain: &Toolchain) -> TResult<()>;
 }
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ impl<'reporter, R: Reporter> SetupRustupToolchain<'reporter, R> {
 
 impl<'reporter, R: Reporter> SetupToolchain for SetupRustupToolchain<'reporter, R> {
     #[instrument(skip(self, toolchain))]
-    fn download(&self, toolchain: &ToolchainSpec) -> TResult<()> {
+    fn download(&self, toolchain: &Toolchain) -> TResult<()> {
         self.reporter
             .run_scoped_event(SetupToolchainEvent::new(toolchain.to_owned()), || {
                 install_toolchain(toolchain)
@@ -40,7 +40,7 @@ impl<'reporter, R: Reporter> SetupToolchain for SetupRustupToolchain<'reporter, 
 }
 
 #[instrument(skip(toolchain))]
-fn install_toolchain(toolchain: &ToolchainSpec) -> TResult<()> {
+fn install_toolchain(toolchain: &Toolchain) -> TResult<()> {
     info!(toolchain = toolchain.spec(), "installing host toolchain");
 
     let rustup = RustupCommand::new()
@@ -71,7 +71,7 @@ fn install_toolchain(toolchain: &ToolchainSpec) -> TResult<()> {
 }
 
 #[instrument(skip(toolchain))]
-fn add_target(toolchain: &ToolchainSpec) -> TResult<()> {
+fn add_target(toolchain: &Toolchain) -> TResult<()> {
     info!(
         toolchain = toolchain.spec(),
         target = toolchain.target(),
@@ -112,7 +112,7 @@ fn add_target(toolchain: &ToolchainSpec) -> TResult<()> {
 }
 
 #[instrument(skip(toolchain))]
-fn add_components(toolchain: &ToolchainSpec) -> TResult<()> {
+fn add_components(toolchain: &Toolchain) -> TResult<()> {
     info!(
         toolchain = toolchain.spec(),
         target = toolchain.target(),
