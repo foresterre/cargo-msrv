@@ -246,6 +246,8 @@ impl From<CustomCheckOpts> for CheckCommandContext {
 
 #[derive(Clone, Debug)]
 pub struct EnvironmentContext {
+    // TODO: Some parts assume a Cargo crate, but that's not strictly a requirement
+    //  of cargo-msrv (only rustup is). We should fix this.
     /// The path to the root of a crate.
     ///
     /// Does not include a manifest file like Cargo.toml, so it's easy to append
