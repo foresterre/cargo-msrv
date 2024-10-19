@@ -11,7 +11,6 @@ pub use scope::TestScopeGenerator;
 pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
-pub use cargo_workspace::CargoWorkspace;
 pub use check_method::{CheckMethod, Method};
 pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
@@ -19,6 +18,7 @@ pub use fetch_index::FetchIndex;
 pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
+pub use selected_packages::{SelectedPackage, SelectedPackages};
 pub use setup_toolchain::SetupToolchain;
 pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;
@@ -42,7 +42,6 @@ mod types;
 
 // specific events
 mod auxiliary_output;
-mod cargo_workspace;
 mod check_method;
 mod check_result;
 mod check_toolchain;
@@ -50,6 +49,7 @@ mod fetch_index;
 mod meta;
 mod progress;
 mod search_method;
+mod selected_packages;
 mod setup_toolchain;
 mod subcommand_init;
 mod subcommand_result;
@@ -126,7 +126,7 @@ pub enum Message {
     Meta(Meta),
 
     // package selection
-    CargoWorkspace(CargoWorkspace),
+    SelectedPackages(SelectedPackages),
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!

@@ -27,7 +27,7 @@ pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 use crate::check::RustupToolchainCheck;
 use crate::context::ReleaseSource;
 use crate::error::{CargoMSRVError, TResult};
-use crate::reporter::event::{CargoWorkspace, Meta, SubcommandInit};
+use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
 use crate::reporter::{Event, Reporter};
 use rust_releases::semver;
 
@@ -60,8 +60,8 @@ pub(crate) mod writer;
 
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;
-    reporter.report_event(CargoWorkspace::new(
-        ctx.environment_context().workspace_packages.names(),
+    reporter.report_event(SelectedPackages::new(
+        ctx.environment_context().workspace_packages.selected(),
     ))?;
     reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
