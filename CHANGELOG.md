@@ -10,6 +10,11 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Added
+
+* Added `--workspace`, `--all`, `--package` and `--exclude` CLI options for package selection when in a Cargo project (
+  with limited workspace support for now)
+
 ## [0.16.2] - 2024-10-10
 
 ### Fixed
