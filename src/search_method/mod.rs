@@ -2,7 +2,7 @@ pub use {bisect::Bisect, linear::Linear};
 
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
-use crate::rust_release::RustRelease;
+use crate::rust::RustRelease;
 use crate::TResult;
 
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each

@@ -7,7 +7,7 @@ use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
-use crate::rust_release::RustRelease;
+use crate::rust::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::TResult;
 
@@ -119,7 +119,7 @@ mod tests {
 
     use crate::check::TestRunner;
     use crate::reporter::TestReporterWrapper;
-    use crate::rust_release::RustRelease;
+    use crate::rust::RustRelease;
     use crate::search_method::FindMinimalSupportedRustVersion;
     use crate::semver;
 

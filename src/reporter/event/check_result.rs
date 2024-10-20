@@ -1,6 +1,6 @@
 use crate::reporter::event::shared::compatibility::Compatibility;
 use crate::reporter::event::Message;
-use crate::toolchain::ToolchainSpec;
+use crate::rust::Toolchain;
 use crate::Event;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -11,19 +11,19 @@ pub struct CheckResult {
 }
 
 impl CheckResult {
-    pub fn compatible(toolchain: impl Into<ToolchainSpec>) -> Self {
+    pub fn compatible(toolchain: impl Into<Toolchain>) -> Self {
         Self {
             compatibility: Compatibility::compatible(toolchain),
         }
     }
 
-    pub fn incompatible(toolchain: impl Into<ToolchainSpec>, error: Option<String>) -> Self {
+    pub fn incompatible(toolchain: impl Into<Toolchain>, error: Option<String>) -> Self {
         Self {
             compatibility: Compatibility::incompatible(toolchain, error),
         }
     }
 
-    pub fn toolchain(&self) -> &ToolchainSpec {
+    pub fn toolchain(&self) -> &Toolchain {
         self.compatibility.toolchain()
     }
 
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn reported_compatible_toolchain() {
         let reporter = TestReporterWrapper::default();
-        let event = CheckResult::compatible(ToolchainSpec::new(
+        let event = CheckResult::compatible(Toolchain::new(
             semver::Version::new(1, 2, 3),
             "test_target",
             &[],
@@ -70,7 +70,7 @@ mod tests {
     fn reported_incompatible_toolchain(error_message: Option<String>) {
         let reporter = TestReporterWrapper::default();
         let event = CheckResult::incompatible(
-            ToolchainSpec::new(semver::Version::new(1, 2, 3), "test_target", &[]),
+            Toolchain::new(semver::Version::new(1, 2, 3), "test_target", &[]),
             error_message,
         );
 

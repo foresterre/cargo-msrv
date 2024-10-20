@@ -1,7 +1,7 @@
 use crate::check::Check;
 use crate::outcome::Outcome;
+use crate::rust::Toolchain;
 use crate::semver::Version;
-use crate::toolchain::ToolchainSpec;
 use crate::TResult;
 use std::collections::HashSet;
 
@@ -20,18 +20,18 @@ impl TestRunner {
 }
 
 impl Check for TestRunner {
-    fn check(&self, toolchain: &ToolchainSpec) -> TResult<Outcome> {
+    fn check(&self, toolchain: &Toolchain) -> TResult<Outcome> {
         let v = toolchain.version();
 
         if self.accept_versions.contains(toolchain.version()) {
-            Ok(Outcome::new_success(ToolchainSpec::new(
+            Ok(Outcome::new_success(Toolchain::new(
                 v.clone(),
                 self.target,
                 &[],
             )))
         } else {
             Ok(Outcome::new_failure(
-                ToolchainSpec::new(v.clone(), self.target, &[]),
+                Toolchain::new(v.clone(), self.target, &[]),
                 "f".to_string(),
             ))
         }

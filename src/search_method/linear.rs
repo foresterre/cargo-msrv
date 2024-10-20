@@ -5,7 +5,7 @@ use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Outcome;
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
-use crate::rust_release::RustRelease;
+use crate::rust::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::TResult;
 
@@ -68,8 +68,8 @@ mod tests {
     use super::*;
     use crate::check::TestRunner;
     use crate::reporter::TestReporterWrapper;
+    use crate::rust::Toolchain;
     use crate::semver;
-    use crate::toolchain::ToolchainSpec;
     use rust_releases::{Release, ReleaseIndex};
     use std::iter::FromIterator;
 
@@ -123,7 +123,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: ToolchainSpec::new(semver::Version::new(1, 54, 0), "x", &[]),
+            toolchain: Toolchain::new(semver::Version::new(1, 54, 0), "x", &[]),
         };
 
         assert_eq!(actual, expected);
@@ -152,7 +152,7 @@ mod tests {
             .unwrap();
 
         let expected = MinimumSupportedRustVersion::Toolchain {
-            toolchain: ToolchainSpec::new(semver::Version::new(1, 56, 0), "x", &[]),
+            toolchain: Toolchain::new(semver::Version::new(1, 56, 0), "x", &[]),
         };
 
         assert_eq!(actual, expected);

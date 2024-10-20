@@ -23,6 +23,8 @@ impl SubCommand for Show {
 }
 
 fn show_msrv(ctx: &ShowContext, reporter: &impl Reporter) -> TResult<()> {
+    // TODO: Add support for workspaces, but take care to also still support raw `rustup run`.
+
     let cargo_toml = ctx.environment.manifest();
 
     let metadata = MetadataCommand::new().manifest_path(&cargo_toml).exec()?;

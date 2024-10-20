@@ -1,4 +1,4 @@
-use crate::toolchain::ToolchainSpec;
+use crate::rust::Toolchain;
 
 /// A `cargo-msrv` Rust release.
 ///
@@ -26,17 +26,17 @@ impl RustRelease {
         }
     }
 
-    /// Get the [`ToolchainSpec`] for the given Rust release.
-    pub fn to_toolchain_spec(&self) -> ToolchainSpec {
+    /// Get the [`Toolchain`] for the given Rust release.
+    pub fn to_toolchain_spec(&self) -> Toolchain {
         let version = self.release.version();
-        ToolchainSpec::new(version.clone(), self.target, self.components)
+        Toolchain::new(version.clone(), self.target, self.components)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::rust_release::RustRelease;
-    use crate::toolchain::ToolchainSpec;
+    use crate::rust::RustRelease;
+    use crate::rust::Toolchain;
     use rust_releases::semver;
 
     #[test]
@@ -49,7 +49,7 @@ mod tests {
         );
         let spec = rust_release.to_toolchain_spec();
 
-        let expected = ToolchainSpec::new(version, "x", &[]);
+        let expected = Toolchain::new(version, "x", &[]);
         assert_eq!(spec, expected);
     }
 }

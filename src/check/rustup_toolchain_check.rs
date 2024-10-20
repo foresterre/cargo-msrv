@@ -5,8 +5,8 @@ use crate::external_command::cargo_command::CargoCommand;
 use crate::external_command::rustup_command::RustupCommand;
 use crate::lockfile::LockfileHandler;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
-use crate::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
-use crate::toolchain::ToolchainSpec;
+use crate::rust::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
+use crate::rust::Toolchain;
 use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
 use std::fmt;
@@ -38,7 +38,7 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
 }
 
 impl<'reporter, 'env, R: Reporter> Check for RustupToolchainCheck<'reporter, 'env, R> {
-    fn check(&self, toolchain: &ToolchainSpec) -> TResult<Outcome> {
+    fn check(&self, toolchain: &Toolchain) -> TResult<Outcome> {
         let settings = &self.settings;
 
         self.reporter
@@ -86,7 +86,7 @@ impl<R: Reporter> fmt::Debug for RustupToolchainCheck<'_, '_, R> {
     }
 }
 
-fn setup_toolchain(reporter: &impl Reporter, toolchain: &ToolchainSpec) -> TResult<()> {
+fn setup_toolchain(reporter: &impl Reporter, toolchain: &Toolchain) -> TResult<()> {
     let downloader = SetupRustupToolchain::new(reporter);
     downloader.download(toolchain)?;
 
@@ -95,7 +95,7 @@ fn setup_toolchain(reporter: &impl Reporter, toolchain: &ToolchainSpec) -> TResu
 
 fn run_check_command_via_rustup(
     reporter: &impl Reporter,
-    toolchain: &ToolchainSpec,
+    toolchain: &Toolchain,
     dir: &Utf8Path,
     check: &[String],
 ) -> TResult<Outcome> {

@@ -29,34 +29,29 @@ use crate::context::ReleaseSource;
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
 use crate::reporter::{Event, Reporter};
+use rust::release_index;
 use rust_releases::semver;
 
 pub mod check;
 pub mod cli;
 
+pub mod context;
+pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
-pub mod io;
-pub mod reporter;
-pub mod toolchain;
-
-mod context;
-pub(crate) mod default_target;
-pub(crate) mod dependency_graph;
 mod external_command;
-pub(crate) mod lockfile;
-pub(crate) mod log_level;
-pub(crate) mod manifest;
-pub(crate) mod msrv;
-pub(crate) mod outcome;
-mod release_index;
-pub(crate) mod releases_filter;
-mod rust_release;
-pub(crate) mod search_method;
-pub(crate) mod setup_toolchain;
-pub(crate) mod sub_command;
-pub(crate) mod typed_bool;
-pub(crate) mod writer;
+pub mod io;
+pub mod lockfile;
+pub mod log_level;
+pub mod manifest;
+pub mod msrv;
+pub mod outcome;
+pub mod reporter;
+pub mod rust;
+pub mod search_method;
+pub mod sub_command;
+pub mod typed_bool;
+pub mod writer;
 
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(Meta::default())?;

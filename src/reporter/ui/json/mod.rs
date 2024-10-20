@@ -8,7 +8,16 @@ use std::sync::{Arc, Mutex};
 use storyteller::EventHandler;
 
 #[cfg(test)]
-mod testing;
+mod test_find;
+
+#[cfg(test)]
+mod test_set;
+
+#[cfg(test)]
+mod test_show;
+
+#[cfg(test)]
+mod test_verify;
 
 pub struct JsonHandler<W: SendWriter> {
     writer: Arc<Mutex<W>>,

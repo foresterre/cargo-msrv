@@ -1,4 +1,4 @@
-use crate::toolchain::ToolchainSpec;
+use crate::rust::Toolchain;
 
 /// Reports whether a crate is compatible with a certain toolchain, or not.
 /// If it's not compatible, it may specify a reason why it is not compatible.
@@ -6,14 +6,14 @@ use crate::toolchain::ToolchainSpec;
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Compatibility {
-    toolchain: ToolchainSpec,
+    toolchain: Toolchain,
     is_compatible: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,
 }
 
 impl Compatibility {
-    pub fn compatible(toolchain: impl Into<ToolchainSpec>) -> Self {
+    pub fn compatible(toolchain: impl Into<Toolchain>) -> Self {
         Self {
             toolchain: toolchain.into(),
             is_compatible: true,
@@ -21,7 +21,7 @@ impl Compatibility {
         }
     }
 
-    pub fn incompatible(toolchain: impl Into<ToolchainSpec>, error: Option<String>) -> Self {
+    pub fn incompatible(toolchain: impl Into<Toolchain>, error: Option<String>) -> Self {
         Self {
             toolchain: toolchain.into(),
             is_compatible: false,
@@ -29,7 +29,7 @@ impl Compatibility {
         }
     }
 
-    pub fn toolchain(&self) -> &ToolchainSpec {
+    pub fn toolchain(&self) -> &Toolchain {
         &self.toolchain
     }
 
