@@ -29,7 +29,7 @@ and of course the limiting factor of the project which will determine the MSRV. 
 cargo-msrv _check_. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is `cargo check`.
 
-There are currently two search strategies: _linear_ and _bisect_ (default). When using the linear strategy, your crate
+There are currently two search strategies: _bisect_ (default) and _linear_. When using the linear strategy, your crate
 will be checked against toolchains from most-recent to least-recent. When a check fails, the previous Rust (if any)
 version is returned as the MSRV (i.e. the highest toolchain for which a check command passes). The bisect strategy uses
 a binary search to find the MSRV. This can be significantly faster, so it's usually advisable to keep it enabled by
