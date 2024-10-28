@@ -152,7 +152,7 @@ toolchains will be tested, and the amount of tests ran, depends on the search st
 available and of course the limiting factor of the project which will determine the MSRV. We usually call each test a
 cargo-msrv <em>check</em>. By default, the check command, the command used to test whether toolchain passes or fails a check,
 is <code>cargo check</code>.</p>
-<p>There are currently two search strategies: <em>linear</em> (default) and <em>bisect</em>. Linear tests projects against toolchains in
+<p>There are currently two search strategies: <em>bisect</em> (default) and <em>linear</em>. Linear tests projects against toolchains in
 a
 most-recent to least-recent order. When a check fails, the previous Rust (if any) version is returned as the MSRV (i.e.
 the highest still
