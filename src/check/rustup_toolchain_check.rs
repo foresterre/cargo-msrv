@@ -225,7 +225,7 @@ pub struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn default(cargo_command: CargoCommand) -> Self {
+    pub fn from_cargo_command(cargo_command: CargoCommand) -> Self {
         Self {
             command: cargo_command.into_args(),
         }

@@ -78,7 +78,7 @@ impl VerifyContext {
                 .all_features(self.check_cmd.cargo_all_features)
                 .no_default_features(self.check_cmd.cargo_no_default_features);
 
-            RunCommand::default(cargo_command)
+            RunCommand::from_cargo_command(cargo_command)
         }
     }
 }

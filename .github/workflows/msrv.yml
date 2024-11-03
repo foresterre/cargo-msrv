@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - mainLOCAL_URL
+      - main
   merge_group:
   schedule:
     - cron: '00 06 * * *'
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ubuntu, macos, windows]
+        build: [ ubuntu, macos, windows ]
         include:
           - build: ubuntu
             os: ubuntu-latest
