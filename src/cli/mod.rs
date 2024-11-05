@@ -164,7 +164,7 @@ pub struct FindOpts {
     /// For toolchains which include a Cargo version which supports the rust-version field,
     /// the `package.rust-version` field will be written. For older Rust toolchains,
     /// the `package.metadata.msrv` field will be written instead.
-    #[arg(long)]
+    #[arg(long, visible_alias = "set")]
     pub write_msrv: bool,
 
     #[command(flatten)]
