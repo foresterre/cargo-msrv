@@ -22,7 +22,7 @@ jobs:
             os: ubuntu-latest
 
           - build: macos
-            os: macos-13
+            os: macos-latest
 
           - build: windows
             os: windows-latest
