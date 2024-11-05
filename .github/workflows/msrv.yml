@@ -44,7 +44,12 @@ jobs:
         run: cargo msrv --output-format json verify
       - name: run_cargo_msrv_on_verify_failure
         if: ${{ failure() }}
-        run: cargo msrv find --output-format json
+        run: cargo msrv verify --log-target stdout --log-level debug --no-user-output
+      - name: debug_run_cargo_msrv
+        run: cargo msrv --output-format json verify
+      - name: debug_run_cargo_msrv_on_verify_failure
+        if: ${{ failure() }}
+        run: cargo msrv find --log-target stdout --log-level debug --no-user-output
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
   # We don't use --all-features here!
@@ -61,7 +66,7 @@ jobs:
         with:
           tool: cargo-binstall
       - name: install_cargo_msrv_bin
-        run: cargo binstall --version 0.16.0 --no-confirm cargo-msrv
+        run: cargo binstall --version 0.16.2 --no-confirm cargo-msrv
       - name: version_of_cargo_msrv
         run: cargo msrv --version
       - name: run_cargo_msrv
