@@ -46,7 +46,12 @@ fn install_toolchain(toolchain: &Toolchain) -> TResult<()> {
     let rustup = RustupCommand::new()
         .with_stdout()
         .with_stderr()
-        .with_args(["--profile", "minimal", &format!("{}", toolchain.version())])
+        .with_args([
+            "--profile",
+            "minimal",
+            &format!("{}", toolchain.version()),
+            "--no-self-update",
+        ])
         .install()?;
 
     let status = rustup.exit_status();
