@@ -1,14 +1,15 @@
-use std::ffi::{OsStr, OsString};
-use std::path::Path;
-use std::process::{Command, Stdio};
-
 use crate::error::{IoError, IoErrorSource, TResult};
+use camino::Utf8Path;
+use std::ffi::{OsStr, OsString};
+use std::process::{Command, Stdio};
 
 pub struct RustupCommand {
     command: Command,
     args: Vec<OsString>,
     stdout: Stdio,
     stderr: Stdio,
+    // Span used to trace the path to execution of a RustupCommand
+    _span: tracing::Span,
 }
 
 impl RustupCommand {
@@ -18,11 +19,27 @@ impl RustupCommand {
             args: Vec::new(),
             stdout: Stdio::null(),
             stderr: Stdio::null(),
+            _span: tracing::debug_span!("RustupCommand"),
         }
     }
 
-    pub fn with_dir(mut self, path: impl AsRef<Path>) -> Self {
-        let _ = self.command.current_dir(path);
+    pub fn with_dir(mut self, path: impl AsRef<Utf8Path>) -> Self {
+        // The block ensures the scope of the _span.enter() will exit before
+        // returning self at the end of the method scope.
+        {
+            let _span = self._span.enter();
+
+            let path = path.as_ref();
+
+            if let Ok(canonical_path) = path.canonicalize() {
+                debug!(name: "rustup_command_path", canonicalized = true, path = %canonical_path.display());
+                self.command.current_dir(canonical_path);
+            } else {
+                debug!(name: "rustup_command_path", canonicalized = false, %path);
+                self.command.current_dir(path);
+            }
+        }
+
         self
     }
 
@@ -71,6 +88,8 @@ impl RustupCommand {
     /// * [RustupCommand::install](RustupCommand::install)
     /// * [RustupCommand::show](RustupCommand::show)
     pub fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
+        let _span = self._span.enter();
+
         debug!(
             cmd = ?cmd,
             args = ?self.args.as_slice(),
@@ -87,6 +106,7 @@ impl RustupCommand {
             error,
             source: IoErrorSource::SpawnProcess(cmd.to_owned()),
         })?;
+
         let output = child.wait_with_output().map_err(|error| IoError {
             error,
             source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.to_owned()),
