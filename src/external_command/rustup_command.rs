@@ -73,7 +73,8 @@ impl RustupCommand {
     pub fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
         debug!(
             cmd = ?cmd,
-            args = ?self.args.as_slice()
+            args = ?self.args.as_slice(),
+            current_dir = ?self.command.get_current_dir(),
         );
 
         self.command.arg(cmd);
