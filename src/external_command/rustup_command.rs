@@ -91,6 +91,7 @@ impl RustupCommand {
         let _span = self._span.enter();
 
         debug!(
+            name: "rustup_command_execute_start",
             cmd = ?cmd,
             args = ?self.args.as_slice(),
             current_dir = ?self.command.get_current_dir(),
@@ -111,6 +112,12 @@ impl RustupCommand {
             error,
             source: IoErrorSource::WaitForProcessAndCollectOutput(cmd.to_owned()),
         })?;
+
+        debug!(
+            name: "rustup_command_execute_finish",
+            cmd = ?cmd,
+            success = output.status.success(),
+        );
 
         Ok(RustupOutput {
             output,
