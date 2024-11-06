@@ -35,19 +35,25 @@ jobs:
       - name: install_cargo_msrv
         if: matrix.build == 'ubuntu'
         run: cargo install cargo-msrv
+        shell: bash
       - name: install_cargo_msrv_no_default
         if: matrix.build != 'ubuntu'
         run: cargo install cargo-msrv --no-default-features
+        shell: bash
       - name: version_of_cargo_msrv
         run: cargo msrv --version
+        shell: bash
       - name: run_cargo_msrv
         run: cargo msrv --output-format json verify
+        shell: bash
       - name: run_cargo_msrv_on_verify_failure
         if: ${{ failure() }}
         run: cargo msrv --output-format json verify
+        shell: bash
       - name: debug_run_cargo_msrv_verify
         if: ${{ failure() }}
         run: cargo msrv verify --log-target stdout --log-level debug --no-user-output
+        shell: bash
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
   # We don't use --all-features here!
