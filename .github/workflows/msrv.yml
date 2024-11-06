@@ -32,6 +32,9 @@ jobs:
         uses: actions/checkout@v4
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
+      - name: workaround_overwrite_cargo_home_for_windows # normally set by dtolnay/rust-toolchain@stable, but always with a forward slash path separator
+        if: matrix.build == 'windows'
+        run: echo CARGO_HOME=${CARGO_HOME:-$USERPROFILE\\.cargo} >> $GITHUB_ENV
       - name: install_cargo_msrv
         if: matrix.build == 'ubuntu'
         run: cargo install cargo-msrv
