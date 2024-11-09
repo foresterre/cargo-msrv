@@ -54,6 +54,21 @@ jobs:
         if: ${{ failure() }}
         run: cargo msrv verify --log-target stdout --log-level debug --no-user-output
         shell: bash
+      - name: debug_manual_install
+        if: ${{ failure() }}
+        run: rustup install --profile minimal 1.78.0
+        shell: bash
+
+  msrv_windows_debug:
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - name: checkout_repo
+        uses: actions/checkout@v4
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: debug_manual_install
+        run: rustup install --profile minimal 1.78.0
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
   # We don't use --all-features here!
