@@ -10,6 +10,9 @@ pub use rustup_toolchain_check::{RunCommand, RustupToolchainCheck};
 #[cfg(test)]
 pub use testing::TestRunner;
 
+/// Implementers of this trait must determine whether a Rust toolchain is _supported_
+/// for a Rust project. This is a step in the process of determining the _minimally
+/// supported_ Rust version; the MSRV.
 pub trait IsCompatible {
     fn before(&self, _toolchain: &Toolchain) -> TResult<()> {
         Ok(())
