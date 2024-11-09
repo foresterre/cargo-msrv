@@ -18,7 +18,11 @@ impl<'runner, R: IsCompatible> Linear<'runner, R> {
         Self { runner }
     }
 
-    fn run_check(runner: &R, release: &RustRelease, _reporter: &impl Reporter) -> TResult<Compatibility> {
+    fn run_check(
+        runner: &R,
+        release: &RustRelease,
+        _reporter: &impl Reporter,
+    ) -> TResult<Compatibility> {
         let toolchain = release.to_toolchain_spec();
         runner.is_compatible(&toolchain)
     }

@@ -1,5 +1,5 @@
-use crate::compatibility::RunCommand;
 use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::compatibility::RunCommand;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
 };

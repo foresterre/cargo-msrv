@@ -1,6 +1,6 @@
 use crate::common::reporter::EventTestDevice;
-use cargo_msrv::compatibility::RustupToolchainCheck;
 use cargo_msrv::cli::CargoCli;
+use cargo_msrv::compatibility::RustupToolchainCheck;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Context, Find, SubCommand};
