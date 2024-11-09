@@ -47,10 +47,10 @@ fn install_toolchain(toolchain: &Toolchain) -> TResult<()> {
         .with_stdout()
         .with_stderr()
         .with_args([
+            "--no-self-update",
             "--profile",
             "minimal",
             &format!("{}", toolchain.version()),
-            "--no-self-update",
         ])
         .install()?;
 
