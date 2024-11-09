@@ -3,7 +3,7 @@ use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
 };
 
-use crate::check::RunCommand;
+use crate::compatibility::RunCommand;
 use crate::error::CargoMSRVError;
 use crate::external_command::cargo_command::CargoCommand;
 use crate::sub_command::verify::RustVersion;

@@ -1,5 +1,5 @@
 use super::*;
-use crate::check::TestRunner;
+use crate::compatibility::TestRunner;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
     WorkspacePackages,

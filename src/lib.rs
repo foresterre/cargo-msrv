@@ -21,10 +21,10 @@ extern crate core;
 extern crate tracing;
 
 pub use crate::context::{Context, OutputFormat, TracingOptions, TracingTargetOption};
-pub use crate::outcome::Outcome;
+pub use crate::outcome::Compatibility;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 
-use crate::check::RustupToolchainCheck;
+use crate::compatibility::RustupToolchainCheck;
 use crate::context::ReleaseSource;
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
@@ -32,8 +32,8 @@ use crate::reporter::{Event, Reporter};
 use rust::release_index;
 use rust_releases::semver;
 
-pub mod check;
 pub mod cli;
+pub mod compatibility;
 
 pub mod context;
 pub mod dependency_graph;

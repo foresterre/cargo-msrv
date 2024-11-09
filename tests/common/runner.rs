@@ -5,10 +5,10 @@
 
 use std::collections::HashSet;
 
-use cargo_msrv::check::Check;
+use cargo_msrv::compatibility::IsCompatible;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::rust::Toolchain;
-use cargo_msrv::Outcome;
+use cargo_msrv::Compatibility;
 use rust_releases::semver::Version;
 
 pub struct TestRunner {
@@ -25,19 +25,19 @@ impl TestRunner {
     }
 }
 
-impl Check for TestRunner {
-    fn check(&self, toolchain: &Toolchain) -> Result<Outcome, CargoMSRVError> {
+impl IsCompatible for TestRunner {
+    fn is_compatible(&self, toolchain: &Toolchain) -> Result<Compatibility, CargoMSRVError> {
         let version = toolchain.version();
         let components = toolchain.components();
 
         if self.accept_versions.contains(toolchain.version()) {
-            Ok(Outcome::new_success(Toolchain::new(
+            Ok(Compatibility::new_success(Toolchain::new(
                 version.clone(),
                 self.target,
                 components,
             )))
         } else {
-            Ok(Outcome::new_failure(
+            Ok(Compatibility::new_failure(
                 Toolchain::new(version.clone(), self.target, components),
                 "f".to_string(),
             ))

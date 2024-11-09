@@ -1,4 +1,4 @@
-use crate::check::Check;
+use crate::compatibility::IsCompatible;
 use crate::context::EnvironmentContext;
 use crate::error::{IoError, IoErrorSource};
 use crate::external_command::cargo_command::CargoCommand;
@@ -7,7 +7,7 @@ use crate::lockfile::LockfileHandler;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::rust::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
 use crate::rust::Toolchain;
-use crate::{lockfile, CargoMSRVError, Outcome, Reporter, TResult};
+use crate::{lockfile, CargoMSRVError, Compatibility, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
 use std::fmt;
 use std::fmt::Formatter;
@@ -37,8 +37,8 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
     }
 }
 
-impl<'reporter, 'env, R: Reporter> Check for RustupToolchainCheck<'reporter, 'env, R> {
-    fn check(&self, toolchain: &Toolchain) -> TResult<Outcome> {
+impl<'reporter, 'env, R: Reporter> IsCompatible for RustupToolchainCheck<'reporter, 'env, R> {
+    fn is_compatible(&self, toolchain: &Toolchain) -> TResult<Compatibility> {
         let settings = &self.settings;
 
         self.reporter
@@ -98,7 +98,7 @@ fn run_check_command_via_rustup(
     toolchain: &Toolchain,
     dir: &Utf8Path,
     check: &[String],
-) -> TResult<Outcome> {
+) -> TResult<Compatibility> {
     let version = format!("{}", toolchain.version());
     let mut cmd = vec![version.as_str()];
     cmd.extend(check.iter().map(|s| s.as_str()));
@@ -121,7 +121,7 @@ fn run_check_command_via_rustup(
     let status = rustup_output.exit_status();
 
     if status.success() {
-        Ok(Outcome::new_success(toolchain.to_owned()))
+        Ok(Compatibility::new_success(toolchain.to_owned()))
     } else {
         let stderr = rustup_output.stderr();
         let command = cmd.join(" ");
@@ -133,7 +133,7 @@ fn run_check_command_via_rustup(
             "try_building run failed"
         );
 
-        Ok(Outcome::new_failure(
+        Ok(Compatibility::new_failure(
             toolchain.to_owned(),
             stderr.to_string(),
         ))
@@ -142,22 +142,22 @@ fn run_check_command_via_rustup(
 
 fn report_outcome(
     reporter: &impl Reporter,
-    outcome: &Outcome,
+    outcome: &Compatibility,
     no_error_report: bool,
 ) -> TResult<()> {
     match outcome {
-        Outcome::Success(outcome) => {
+        Compatibility::Compatible(outcome) => {
             // report compatibility with this toolchain
             reporter.report_event(CheckResult::compatible(outcome.toolchain_spec.to_owned()))?
         }
-        Outcome::Failure(outcome) if no_error_report => {
+        Compatibility::Incompatible(outcome) if no_error_report => {
             // report incompatibility with this toolchain
             reporter.report_event(CheckResult::incompatible(
                 outcome.toolchain_spec.to_owned(),
                 None,
             ))?
         }
-        Outcome::Failure(outcome) => {
+        Compatibility::Incompatible(outcome) => {
             // report incompatibility with this toolchain
             reporter.report_event(CheckResult::incompatible(
                 outcome.toolchain_spec.to_owned(),

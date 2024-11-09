@@ -1,30 +1,30 @@
-use crate::check::Check;
+use crate::compatibility::IsCompatible;
 use crate::context::SearchMethod;
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
-use crate::outcome::Outcome;
+use crate::outcome::Compatibility;
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
 use crate::rust::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::TResult;
 
-pub struct Linear<'runner, R: Check> {
+pub struct Linear<'runner, R: IsCompatible> {
     runner: &'runner R,
 }
 
-impl<'runner, R: Check> Linear<'runner, R> {
+impl<'runner, R: IsCompatible> Linear<'runner, R> {
     pub fn new(runner: &'runner R) -> Self {
         Self { runner }
     }
 
-    fn run_check(runner: &R, release: &RustRelease, _reporter: &impl Reporter) -> TResult<Outcome> {
+    fn run_check(runner: &R, release: &RustRelease, _reporter: &impl Reporter) -> TResult<Compatibility> {
         let toolchain = release.to_toolchain_spec();
-        runner.check(&toolchain)
+        runner.is_compatible(&toolchain)
     }
 }
 
-impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
+impl<'runner, R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'runner, R> {
     fn find_toolchain(
         &self,
         search_space: &[RustRelease],
@@ -47,10 +47,10 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
                 let outcome = Self::run_check(self.runner, release, reporter)?;
 
                 match outcome {
-                    Outcome::Failure(_outcome) => {
+                    Compatibility::Incompatible(_outcome) => {
                         break;
                     }
-                    Outcome::Success(_outcome) => {}
+                    Compatibility::Compatible(_outcome) => {}
                 }
 
                 last_compatible_index = Some(i);
@@ -66,7 +66,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Linear<'runner, R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::check::TestRunner;
+    use crate::compatibility::TestRunner;
     use crate::reporter::TestReporterWrapper;
     use crate::rust::Toolchain;
     use crate::semver;

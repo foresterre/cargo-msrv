@@ -4,24 +4,24 @@ use std::convert::TryFrom;
 
 use rust_releases::{Release, ReleaseIndex};
 
-use crate::check::Check;
+use crate::compatibility::IsCompatible;
 use crate::context::{EnvironmentContext, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::CargoManifest;
-use crate::outcome::Outcome;
+use crate::outcome::Compatibility;
 use crate::reporter::event::VerifyResult;
 use crate::reporter::Reporter;
 use crate::rust::Toolchain;
 use crate::sub_command::SubCommand;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
-pub struct Verify<'index, C: Check> {
+pub struct Verify<'index, C: IsCompatible> {
     release_index: &'index ReleaseIndex,
     runner: C,
 }
 
-impl<'index, C: Check> Verify<'index, C> {
+impl<'index, C: IsCompatible> Verify<'index, C> {
     /// Instantiate the verifier using a release index and a runner.
     ///
     /// The runner is used to determine whether a given Rust version will be deemed compatible or not.
@@ -33,7 +33,7 @@ impl<'index, C: Check> Verify<'index, C> {
     }
 }
 
-impl<'index, C: Check> SubCommand for Verify<'index, C> {
+impl<'index, C: IsCompatible> SubCommand for Verify<'index, C> {
     type Context = VerifyContext;
     type Output = ();
 
@@ -61,7 +61,7 @@ fn verify_msrv(
     ctx: &VerifyContext,
     release_index: &ReleaseIndex,
     rust_version: RustVersion,
-    runner: &impl Check,
+    runner: &impl IsCompatible,
 ) -> TResult<()> {
     let bare_version = rust_version.version();
     let version =
@@ -71,9 +71,11 @@ fn verify_msrv(
     let components = ctx.toolchain.components;
     let toolchain = Toolchain::new(version.clone(), target, components);
 
-    match runner.check(&toolchain)? {
-        Outcome::Success(_) => success(reporter, toolchain),
-        Outcome::Failure(f) => failure(reporter, toolchain, rust_version, Some(f.error_message)),
+    match runner.is_compatible(&toolchain)? {
+        Compatibility::Compatible(_) => success(reporter, toolchain),
+        Compatibility::Incompatible(f) => {
+            failure(reporter, toolchain, rust_version, Some(f.error_message))
+        }
     }
 }
 
