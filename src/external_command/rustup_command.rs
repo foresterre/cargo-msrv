@@ -87,7 +87,7 @@ impl RustupCommand {
     /// * [RustupCommand::run](RustupCommand::run)
     /// * [RustupCommand::install](RustupCommand::install)
     /// * [RustupCommand::show](RustupCommand::show)
-    pub fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
+    fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
         let _span = self._span.enter();
 
         debug!(
