@@ -68,9 +68,9 @@ jobs:
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
       - name: debug_manual_install
-        run: rustup install --profile minimal 1.78.0
+        run: rustup install --no-self-update --profile minimal 1.78.0
       - name: debug_manual_install_two
-        run: rustup install --profile minimal 1.78.0
+        run: rustup install --no-self-update --profile minimal 1.78.0
 
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
