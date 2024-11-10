@@ -11,12 +11,11 @@ on:
 jobs:
   # MSRV check and e2e test
   msrv:
-    name: msrv
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        build: [ ubuntu, macos ] # [, windows] ... Disabled Windows for now, see #1036
+        build: [ ubuntu, macos, windows ]
         include:
           - build: ubuntu
             os: ubuntu-latest
@@ -24,68 +23,59 @@ jobs:
           - build: macos
             os: macos-latest
 
-    #          - build: windows
-    #            os: windows-latest
+          - build: windows
+            os: windows-latest
     continue-on-error: true
     steps:
-      - name: checkout_repo
-        uses: actions/checkout@v4
-      - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: install_cargo_msrv
-        if: matrix.build == 'ubuntu'
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - if: matrix.build == 'ubuntu'
         run: cargo install cargo-msrv
-      - name: install_cargo_msrv_no_default
-        if: matrix.build != 'ubuntu'
+      - if: matrix.build != 'ubuntu'
         run: cargo install cargo-msrv --no-default-features
-      - name: version_of_cargo_msrv
-        run: cargo msrv --version
-      - name: run_cargo_msrv
-        run: cargo msrv verify --output-format json
-      - name: run_cargo_msrv_on_verify_failure
-        if: ${{ failure() }}
+      - run: cargo msrv --version
+      - run: cargo msrv verify --output-format json
+      - if: ${{ failure() }}
         run: cargo msrv find --output-format json
+
+  msrv_windows:
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install cargo-msrv --version 0.15.1 --no-default-features
+      - run: cargo msrv --version
+      - run: cargo msrv --output-format json verify
+      - if: ${{ failure() }}
+        run: cargo msrv --output-format json
 
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
   msrv_pre_release:
-    name: msrv_pre_release
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - name: checkout_repo
-        uses: actions/checkout@v4
-      - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-binstall
-      - name: install_cargo_msrv_bin
-        run: cargo binstall --version 0.16.2 --no-confirm cargo-msrv
-      - name: version_of_cargo_msrv
-        run: cargo msrv --version
-      - name: run_cargo_msrv
-        run: cargo msrv verify --output-format json
-      - name: run_cargo_msrv_on_verify_failure
-        if: ${{ failure() }}
+      - run: cargo binstall --no-confirm cargo-msrv
+      - run: cargo msrv --version
+      - run: cargo msrv verify --output-format json
+      - if: ${{ failure() }}
         run: cargo msrv find --output-format json
 
   # The same as the 'msrv' job, except it takes the latest development branch, as a form of test
   # we don't use --all-features here!
   msrv_development:
-    name: msrv_development
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - name: checkout_repo
-        uses: actions/checkout@v4
-      - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: install_cargo_msrv
-        run: cargo install --git https://github.com/foresterre/cargo-msrv.git cargo-msrv
-      - name: version_of_cargo_msrv
-        run: cargo msrv --version
-      - name: run_cargo_msrv
-        run: cargo msrv verify --output-format json
-      - name: run_cargo_msrv_on_verify_failure
-        if: ${{ failure() }}
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install --git https://github.com/foresterre/cargo-msrv.git cargo-msrv
+      - run: cargo msrv --version
+      - run: cargo msrv verify --output-format json
+      - if: ${{ failure() }}
         run: cargo msrv find --output-format json
