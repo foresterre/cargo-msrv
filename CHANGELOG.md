@@ -19,6 +19,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Toolchains installed with `rustup install` now use the `--no-self-update` flag
 
+### Known issues
+
+* Installing toolchains on GitHub Actions can fail for the windows runner (#1036)
+
 ## [0.16.2] - 2024-10-10
 
 ### Fixed
