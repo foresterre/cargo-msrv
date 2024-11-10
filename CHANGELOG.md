@@ -15,6 +15,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added `--workspace`, `--all`, `--package` and `--exclude` CLI options for package selection when in a Cargo project (
   with limited workspace support for now)
 
+### Changed
+
+* Toolchains installed with `rustup install` now use the `--no-self-update` flag
+
 ## [0.16.2] - 2024-10-10
 
 ### Fixed
