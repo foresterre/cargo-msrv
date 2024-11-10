@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ ubuntu, macos ] # [, windows] ... Disabled Windows for now, see #1036
+        build: [ ubuntu, macos, windows ]
         include:
           - build: ubuntu
             os: ubuntu-latest
@@ -24,8 +24,8 @@ jobs:
           - build: macos
             os: macos-latest
 
-    #          - build: windows
-    #            os: windows-latest
+          - build: windows
+            os: windows-latest
     continue-on-error: true
     steps:
       - name: checkout_repo
