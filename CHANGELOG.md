@@ -14,6 +14,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Added `--workspace`, `--all`, `--package` and `--exclude` CLI options for package selection when in a Cargo project (
   with limited workspace support for now)
+* `cargo msrv find --write-msrv` is now aliased by `cargo msrv find --set`, which is consistent in terminology with
+  `cargo msrv set`
 
 ### Changed
 
