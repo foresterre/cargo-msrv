@@ -1,21 +1,21 @@
 use bisector::{Bisector, ConvergeTo, Indices, Step};
 
-use crate::check::Check;
+use crate::compatibility::IsCompatible;
 use crate::context::SearchMethod;
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
-use crate::outcome::{FailureOutcome, Outcome, SuccessOutcome};
+use crate::outcome::{Compatibility, Compatible, Incompatible};
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
 use crate::rust::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
 use crate::TResult;
 
-pub struct Bisect<'runner, R: Check> {
+pub struct Bisect<'runner, R: IsCompatible> {
     runner: &'runner R,
 }
 
-impl<'runner, R: Check> Bisect<'runner, R> {
+impl<'runner, R: IsCompatible> Bisect<'runner, R> {
     pub fn new(runner: &'runner R) -> Self {
         Self { runner }
     }
@@ -24,13 +24,13 @@ impl<'runner, R: Check> Bisect<'runner, R> {
         runner: &R,
         release: &RustRelease,
         _reporter: &impl Reporter,
-    ) -> TResult<ConvergeTo<FailureOutcome, SuccessOutcome>> {
+    ) -> TResult<ConvergeTo<Incompatible, Compatible>> {
         let toolchain = release.to_toolchain_spec();
 
-        match runner.check(&toolchain) {
+        match runner.is_compatible(&toolchain) {
             Ok(outcome) => match outcome {
-                Outcome::Success(outcome) => Ok(ConvergeTo::Right(outcome)),
-                Outcome::Failure(outcome) => Ok(ConvergeTo::Left(outcome)),
+                Compatibility::Compatible(outcome) => Ok(ConvergeTo::Right(outcome)),
+                Compatibility::Incompatible(outcome) => Ok(ConvergeTo::Left(outcome)),
             },
             Err(err) => Err(err),
         }
@@ -50,7 +50,7 @@ impl<'runner, R: Check> Bisect<'runner, R> {
     }
 }
 
-impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
+impl<'runner, R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
     fn find_toolchain(
         &self,
         search_space: &[RustRelease],
@@ -117,7 +117,7 @@ impl<'runner, R: Check> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
 mod tests {
     use rust_releases::Release;
 
-    use crate::check::TestRunner;
+    use crate::compatibility::TestRunner;
     use crate::reporter::TestReporterWrapper;
     use crate::rust::RustRelease;
     use crate::search_method::FindMinimalSupportedRustVersion;

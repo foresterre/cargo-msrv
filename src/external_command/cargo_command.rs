@@ -33,7 +33,7 @@ impl CargoCommand {
 
     /// Intended to be used in conjunction with [`RunCommand`] and/or [`RustupCommand`].
     ///
-    /// [`RunCommand`]: crate::check::RunCommand
+    /// [`RunCommand`]: crate::compatibility::RunCommand
     /// [`RustupCommand`]: crate::external_command::rustup_command::RustupCommand
     // Currently we don't invoke it from here directly, but we might eventually, if
     // we want to also provide some nicer structs around parsing. However compared to

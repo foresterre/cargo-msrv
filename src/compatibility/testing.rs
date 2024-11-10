@@ -1,5 +1,5 @@
-use crate::check::Check;
-use crate::outcome::Outcome;
+use crate::compatibility::IsCompatible;
+use crate::outcome::Compatibility;
 use crate::rust::Toolchain;
 use crate::semver::Version;
 use crate::TResult;
@@ -19,18 +19,18 @@ impl TestRunner {
     }
 }
 
-impl Check for TestRunner {
-    fn check(&self, toolchain: &Toolchain) -> TResult<Outcome> {
+impl IsCompatible for TestRunner {
+    fn is_compatible(&self, toolchain: &Toolchain) -> TResult<Compatibility> {
         let v = toolchain.version();
 
         if self.accept_versions.contains(toolchain.version()) {
-            Ok(Outcome::new_success(Toolchain::new(
+            Ok(Compatibility::new_success(Toolchain::new(
                 v.clone(),
                 self.target,
                 &[],
             )))
         } else {
-            Ok(Outcome::new_failure(
+            Ok(Compatibility::new_failure(
                 Toolchain::new(v.clone(), self.target, &[]),
                 "f".to_string(),
             ))

@@ -1,6 +1,6 @@
 use rust_releases::{Release, ReleaseIndex};
 
-use crate::check::Check;
+use crate::compatibility::IsCompatible;
 use crate::context::{FindContext, SearchMethod};
 use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::manifest::bare_version::BareVersion;
@@ -14,12 +14,12 @@ use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
 use crate::{semver, SubCommand};
 
-pub struct Find<'index, C: Check> {
+pub struct Find<'index, C: IsCompatible> {
     release_index: &'index ReleaseIndex,
     runner: C,
 }
 
-impl<'index, C: Check> Find<'index, C> {
+impl<'index, C: IsCompatible> Find<'index, C> {
     pub fn new(release_index: &'index ReleaseIndex, runner: C) -> Self {
         Self {
             release_index,
@@ -28,7 +28,7 @@ impl<'index, C: Check> Find<'index, C> {
     }
 }
 
-impl<'index, C: Check> SubCommand for Find<'index, C> {
+impl<'index, C: IsCompatible> SubCommand for Find<'index, C> {
     type Context = FindContext;
     type Output = semver::Version;
 
@@ -41,7 +41,7 @@ fn find_msrv(
     ctx: &FindContext,
     reporter: &impl Reporter,
     release_index: &ReleaseIndex,
-    runner: &impl Check,
+    runner: &impl IsCompatible,
 ) -> TResult<semver::Version> {
     let search_result = search(ctx, reporter, release_index, runner)?;
 
@@ -89,7 +89,7 @@ fn search(
     ctx: &FindContext,
     reporter: &impl Reporter,
     index: &ReleaseIndex,
-    runner: &impl Check,
+    runner: &impl IsCompatible,
 ) -> TResult<MinimumSupportedRustVersion> {
     let releases = index.releases();
 
@@ -111,7 +111,7 @@ fn run_with_search_method(
     ctx: &FindContext,
     included_releases: &[Release],
     reporter: &impl Reporter,
-    runner: &impl Check,
+    runner: &impl IsCompatible,
 ) -> TResult<MinimumSupportedRustVersion> {
     let search_method = ctx.search_method;
     info!(?search_method);

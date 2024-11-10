@@ -1,6 +1,7 @@
 [advisories]
 ignore = [
-    "RUSTSEC-2024-0370" # proc-macro-error is unmaintained (via tabled > tabled_derive)
+    "RUSTSEC-2024-0370", # https://rustsec.org/advisories/RUSTSEC-2024-0370 `proc-macro-error` is unmaintained (via `tabled` > `tabled_derive`)
+    "RUSTSEC-2024-0384", # https://rustsec.org/advisories/RUSTSEC-2024-0384 `instant` is unmaintained (via `indicatif`)
 ]
 
 [licenses]
