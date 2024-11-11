@@ -119,7 +119,7 @@ impl TryFrom<CargoMsrvOpts> for Context {
 
     fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let ctx = match opts.subcommand {
-            SubCommand::Doctor => Self::Doctor(DoctorContext::try_from(opts)?),
+            SubCommand::Doctor(_) => Self::Doctor(DoctorContext::try_from(opts)?),
             SubCommand::Find(_) => Self::Find(FindContext::try_from(opts)?),
             SubCommand::List(_) => Self::List(ListContext::try_from(opts)?),
             SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),

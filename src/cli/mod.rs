@@ -105,7 +105,7 @@ pub struct CargoMsrvOpts {
 #[command(propagate_version = true)]
 pub enum SubCommand {
     /// Find & fix MSRV related issues
-    Doctor,
+    Doctor(DoctorOpts),
     /// Find the MSRV
     Find(FindOpts),
     /// Display the MSRV's of dependencies
@@ -118,6 +118,14 @@ pub enum SubCommand {
     ///
     ///  The MSRV must be specified via the `--rust-version` option, or via the 'package.rust-version' or 'package.metadata.msrv' keys in the Cargo.toml manifest.
     Verify(VerifyOpts),
+}
+
+#[derive(Debug, Args)]
+#[command(next_help_heading = "Doctor options")]
+pub struct DoctorOpts {
+    /// Try to fix the reported issues
+    #[arg(long)]
+    pub fix: bool,
 }
 
 // Cli Options for top-level cargo-msrv (find) command
