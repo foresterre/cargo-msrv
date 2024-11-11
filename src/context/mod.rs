@@ -85,22 +85,26 @@ impl Context {
         }
     }
 
-    /// Returns the inner find context, if it was present.
-    pub fn to_find_context(self) -> Option<FindContext> {
-        if let Self::Find(ctx) = self {
-            Some(ctx)
-        } else {
-            None
-        }
+    /// Returns the inner find context
+    ///
+    /// **Panics**
+    ///
+    /// Panics if the context does not match with `Find`
+    pub fn to_find_context(self) -> FindContext {
+        let Self::Find(ctx) = self else {
+            unreachable!("Find Context does not exist")
+        };
+
+        ctx
     }
 
-    /// Returns the inner find context, if it was present.
-    pub fn to_verify_context(self) -> Option<VerifyContext> {
-        if let Self::Verify(ctx) = self {
-            Some(ctx)
-        } else {
-            None
-        }
+    /// Returns the inner verify context
+    pub fn to_verify_context(self) -> VerifyContext {
+        let Self::Verify(ctx) = self else {
+            unreachable!("Find Context does not exist")
+        };
+
+        ctx
     }
 }
 
