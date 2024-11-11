@@ -104,6 +104,8 @@ pub struct CargoMsrvOpts {
 #[derive(Debug, Subcommand)]
 #[command(propagate_version = true)]
 pub enum SubCommand {
+    /// Find & fix MSRV related issues
+    Doctor,
     /// Find the MSRV
     Find(FindOpts),
     /// Display the MSRV's of dependencies
