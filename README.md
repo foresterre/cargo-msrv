@@ -6,17 +6,23 @@ In this readme you'll find everything to get you started. You can find more deta
 [cargo-msrv book](https://foresterre.github.io/cargo-msrv/index.html).
 
 ### Preview
-<sup><strong>⌘</strong> [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup><strong>
+⌘</strong> [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 [![asciicast](https://asciinema.org/a/679852.svg)](https://asciinema.org/a/679852)
 
-### Prerequisites 
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+### Prerequisites
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 [Rustup](https://rustup.rs/) is required for the `cargo msrv (find)` and `cargo msrv verify` commands.
 
 ### Install
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 #### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
 
@@ -29,14 +35,14 @@ In this readme you'll find everything to get you started. You can find more deta
 
 | cargo       | supported | command                                                                                       |
 |-------------|-----------|-----------------------------------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.2` cargo-msrv |
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.16.3` cargo-msrv |
 | development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv               |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
 | cargo       | supported | command                                                     |
 |-------------|-----------|-------------------------------------------------------------|
-| stable      | 💚        | `$ cargo binstall --version 0.16.2 --no-confirm cargo-msrv` |
+| stable      | 💚        | `$ cargo binstall --version 0.16.3 --no-confirm cargo-msrv` |
 | development | ❌         |                                                             |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
@@ -53,7 +59,9 @@ You can use the following commands for building and running via Docker:
 Docker images are also available on [Docker Hub](https://hub.docker.com/r/foresterre/cargo-msrv).
 
 ### Usage
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 * [`cargo msrv find`](https://foresterre.github.io/cargo-msrv/commands/find.html)
   or [`cargo msrv find --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
@@ -149,7 +157,9 @@ Debug output options:
 ```
 
 ### JSON format
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 JSON output may be enabled by providing the `--output-format json` flag: `cargo msrv find --output-format json`.
 Events are printed as json lines. The event type is indicated by the `type` key.
@@ -159,7 +169,9 @@ Please see the [Output formats](https://foresterre.github.io/cargo-msrv/output-f
 book for documentation of this output format.
 
 ### A short history
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args-between-top-level-and-subcommand/)_
 
@@ -233,7 +245,9 @@ _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args
 > supported, and thus can not be an MSRV).
 
 ### License
-<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+
+<sup>
+⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 Licensed under either of
 
