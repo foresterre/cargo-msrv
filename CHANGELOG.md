@@ -14,8 +14,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Added
 
-* Added `--workspace`, `--all`, `--package` and `--exclude` CLI options for package selection when in a Cargo project (
-  workspace support is limited for now)
+* Added `--workspace`, `--all`, `--package` and `--exclude` CLI options for package selection when in a Cargo project
+  (currently, limitations apply to support for Cargo workspaces)
 * `cargo msrv find --write-msrv` is now aliased by `cargo msrv find --set`, which is consistent in terminology with
   `cargo msrv set`
 
@@ -27,7 +27,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
 
-[0.16.2]: https://github.com/foresterre/cargo-msrv/compare/v0.16.2...v0.16.3
+[0.16.3]: https://github.com/foresterre/cargo-msrv/compare/v0.16.2...v0.16.3
 
 ## [0.16.2] - 2024-10-10
 
