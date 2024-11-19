@@ -26,6 +26,6 @@ jobs:
         run: cargo llvm-cov --all-features --locked --lcov --output-path lcov.info --lib
 
       - name: upload_code_coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: lcov.info
