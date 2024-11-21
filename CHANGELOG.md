@@ -10,6 +10,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## [0.17.0] - 2024-11-21
+
+### Added
+
+* Rust edition 2024 can now be detected
+
+[0.17.0]: https://github.com/foresterre/cargo-msrv/compare/v0.16.3...v0.17.0
+
 ## [0.16.3] - 2024-11-11
 
 ### Added
