@@ -7,22 +7,19 @@ In this readme you'll find everything to get you started. You can find more deta
 
 ### Preview
 
-<sup><strong>
-⌘</strong> [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup><strong>⌘</strong> [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 [![asciicast](https://asciinema.org/a/679852.svg)](https://asciinema.org/a/679852)
 
 ### Prerequisites
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 [Rustup](https://rustup.rs/) is required for the `cargo msrv (find)` and `cargo msrv verify` commands.
 
 ### Install
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 #### cargo ([crates.io source](https://crates.io/crates/cargo-msrv))
 
@@ -60,8 +57,7 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
 
 ### Usage
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 * [`cargo msrv find`](https://foresterre.github.io/cargo-msrv/commands/find.html)
   or [`cargo msrv find --linear`](https://foresterre.github.io/cargo-msrv/commands/find.html) to find the MSRV for a
@@ -158,8 +154,7 @@ Debug output options:
 
 ### JSON format
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 JSON output may be enabled by providing the `--output-format json` flag: `cargo msrv find --output-format json`.
 Events are printed as json lines. The event type is indicated by the `type` key.
@@ -170,8 +165,7 @@ book for documentation of this output format.
 
 ### A short history
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args-between-top-level-and-subcommand/)_
 
@@ -246,8 +240,7 @@ _An [excerpt](https://foresterre.github.io/posts/puzzle-sharing-declarative-args
 
 ### License
 
-<sup>
-⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
+<sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>
 
 Licensed under either of
 
