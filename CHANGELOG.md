@@ -10,6 +10,20 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Known issues
+
+* Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
+
+## [0.17.1] - 2024-11-24
+
+### Fixed
+
+#### Infra
+
+* Fix release pipeline for binaries
+
+[0.17.1]: https://github.com/foresterre/cargo-msrv/compare/v0.17.0...v0.17.1
+
 ## [0.17.0] - 2024-11-21
 
 ### Added
@@ -30,10 +44,6 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Changed
 
 * Toolchains installed with `rustup install` now use the `--no-self-update` flag
-
-### Known issues
-
-* Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
 
 [0.16.3]: https://github.com/foresterre/cargo-msrv/compare/v0.16.2...v0.16.3
 
