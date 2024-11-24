@@ -1,10 +1,13 @@
 accepted = [
+    "0BSD",
     "Apache-2.0",
     "BSD-3-Clause",
     "ISC",
     "MIT",
+    "OpenSSL",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
     "Zlib",
-    "0BSD",
 ]
 workarounds = ["ring", "rustls"]
 
