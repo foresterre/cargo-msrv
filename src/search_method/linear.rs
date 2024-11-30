@@ -28,7 +28,7 @@ impl<'runner, R: IsCompatible> Linear<'runner, R> {
     }
 }
 
-impl<'runner, R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'runner, R> {
+impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
     fn find_toolchain(
         &self,
         search_space: &[RustRelease],

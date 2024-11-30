@@ -21,7 +21,7 @@ impl<'reporter, R: Reporter> SetupRustupToolchain<'reporter, R> {
     }
 }
 
-impl<'reporter, R: Reporter> SetupToolchain for SetupRustupToolchain<'reporter, R> {
+impl<R: Reporter> SetupToolchain for SetupRustupToolchain<'_, R> {
     #[instrument(skip(self, toolchain))]
     fn download(&self, toolchain: &Toolchain) -> TResult<()> {
         self.reporter

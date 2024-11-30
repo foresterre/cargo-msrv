@@ -50,7 +50,7 @@ impl<'runner, R: IsCompatible> Bisect<'runner, R> {
     }
 }
 
-impl<'runner, R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'runner, R> {
+impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
     fn find_toolchain(
         &self,
         search_space: &[RustRelease],

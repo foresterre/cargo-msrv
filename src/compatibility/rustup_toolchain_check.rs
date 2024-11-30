@@ -37,7 +37,7 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
     }
 }
 
-impl<'reporter, 'env, R: Reporter> IsCompatible for RustupToolchainCheck<'reporter, 'env, R> {
+impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
     fn is_compatible(&self, toolchain: &Toolchain) -> TResult<Compatibility> {
         let settings = &self.settings;
 
@@ -201,7 +201,7 @@ struct Settings<'env> {
     check_cmd: RunCommand,
 }
 
-impl<'env> Settings<'env> {
+impl Settings<'_> {
     pub fn ignore_lockfile(&self) -> bool {
         self.ignore_lockfile
     }

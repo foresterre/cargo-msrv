@@ -24,7 +24,7 @@ impl<'de> serde::Deserialize<'de> for True {
 
 struct TrueVisitor;
 
-impl<'de> serde::de::Visitor<'de> for TrueVisitor {
+impl serde::de::Visitor<'_> for TrueVisitor {
     type Value = True;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -66,7 +66,7 @@ impl<'de> serde::Deserialize<'de> for False {
 
 struct FalseVisitor;
 
-impl<'de> serde::de::Visitor<'de> for FalseVisitor {
+impl serde::de::Visitor<'_> for FalseVisitor {
     type Value = False;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
