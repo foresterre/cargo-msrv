@@ -2065,9 +2065,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22be28a0d21257ad95d8fe4bfedbdbbee744c16f3fd3f7a8518e3eb5d75e0504"
+checksum = "ae0b7d55c4d765bbe7f1781878a937220e8a3f3ea0cab9d5a393f580f5da3400"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
@@ -2076,42 +2076,42 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-core"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bfb5ffbf1c08930303d2d60fe1ac0c50e6d2d7093d481abfaa8c1291fc01e01"
+checksum = "0b8e39f74f477f1429a6ed738dab457e45a28add59c0ce3147f59914f3461caa"
 dependencies = [
  "semver",
- "thiserror 1.0.69",
+ "thiserror 2.0.3",
 ]
 
 [[package]]
 name = "rust-releases-io"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c66be7ab65220ac31f21f99563e07efb28226c2dcf2497d50ced3de08c910202"
+checksum = "b3ab1bd401aed9cb73155f04e29b992f5fd8d09ba5edcd9a75cc560deea4f44e"
 dependencies = [
  "directories-next",
- "thiserror 1.0.69",
+ "thiserror 2.0.3",
  "ureq",
 ]
 
 [[package]]
 name = "rust-releases-rust-changelog"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "553667da6c64754d9d17932943012507eb4e6d94d86ca64da9c9bb2454896586"
+checksum = "49e16dd568a283cb43f6d1749ce85f8de299e461b77ec46985f1b72fb982b629"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 1.0.69",
+ "thiserror 2.0.3",
  "time",
 ]
 
 [[package]]
 name = "rust-releases-rust-dist"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "627a9611eb8d6d0d2c5128eb36e621d1f81791139b1bb67afde05fd0a7b87a0c"
+checksum = "079100f8b30b487b0db1a030613d03990b9403b2a75f8de38ee775baedf6b64c"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
@@ -2119,7 +2119,7 @@ dependencies = [
  "regex",
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 1.0.69",
+ "thiserror 2.0.3",
  "tokio",
 ]
 
