@@ -28,7 +28,7 @@ impl<'index, C: IsCompatible> Find<'index, C> {
     }
 }
 
-impl<'index, C: IsCompatible> SubCommand for Find<'index, C> {
+impl<C: IsCompatible> SubCommand for Find<'_, C> {
     type Context = FindContext;
     type Output = semver::Version;
 

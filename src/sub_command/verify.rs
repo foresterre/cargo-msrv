@@ -33,7 +33,7 @@ impl<'index, C: IsCompatible> Verify<'index, C> {
     }
 }
 
-impl<'index, C: IsCompatible> SubCommand for Verify<'index, C> {
+impl<C: IsCompatible> SubCommand for Verify<'_, C> {
     type Context = VerifyContext;
     type Output = ();
 
