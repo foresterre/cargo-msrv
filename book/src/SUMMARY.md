@@ -5,6 +5,7 @@
     - [Installation](./getting-started/installation.md)
     - [Quick Start](./getting-started/quick-start.md)
     - [Cargo Workspace](./getting-started/cargo-workspace.md)
+    - [HTTP PROXY](./getting-started/rust-releases-proxy.md)
 - [Releases](releases/index.md)
     - [v0.15 to v0.16](releases/v0.15_v0.16_highlights.md)
     - [v0.15 to v0.16 JSON](releases/v0.15_v0.16_json.md)
