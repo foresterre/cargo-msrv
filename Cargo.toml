@@ -21,7 +21,7 @@ tag-name = "v{{version}}"
 [dependencies]
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.1" # utf-8 paths
-cargo_metadata = "0.18.1" # resolving Cargo manifest metadata (consider `guppy`!)
+cargo_metadata = "0.19.1" # resolving Cargo manifest metadata (consider `guppy`!)
 clap = { version = "4.5.23", features = ["derive"] } # parse CLI arguments
 clap-cargo = { version = "0.14.1", features = ["cargo_metadata"] }
 dirs = "5.0.1" # common directories
