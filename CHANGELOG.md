@@ -278,7 +278,7 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 
 ## [0.4.0] - 2021-04-09
 
-* Added option to only take the latest patch Release version into acount, and make it the default.
+* Added option to only take the latest patch Release version into account, and make it the default.
 * Added minimum and maximum release version options, which can be used to restrict the range of version to be checked.
 * Change default check command to `cargo check -all` (was `cargo build --all`).
 * Add option to output a `rust-toolchain` file.
