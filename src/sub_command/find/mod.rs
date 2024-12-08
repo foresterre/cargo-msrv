@@ -74,7 +74,7 @@ fn find_msrv(
                 write_msrv(
                     reporter,
                     BareVersion::two_component_from_semver(toolchain.version()),
-                    Some(release_index), // Re-use the already obtained index
+                    Some(release_index), // Reuse the already obtained index
                     environment_ctx,
                     rust_releases_ctx,
                 )?;
