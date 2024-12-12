@@ -46,6 +46,10 @@ impl HumanProgressHandler {
         pb.finish_and_clear(); // Hide the spinner on startup
         pb
     }
+
+    fn println(&self, message: impl Display) {
+        self.pb.suspend(|| println!("{message}"))
+    }
 }
 
 impl EventHandler for HumanProgressHandler {
@@ -56,7 +60,7 @@ impl EventHandler for HumanProgressHandler {
         match event.message() {
             Message::Meta(it) => {
                 let message = it.format_human();
-                self.pb.println(message);
+                self.println(message);
             }
             Message::SubcommandInit(it) if it.should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
@@ -64,10 +68,10 @@ impl EventHandler for HumanProgressHandler {
             }
             Message::UnableToConfirmValidReleaseVersion(_) => {
                 let message = Status::info("Unable to verify if provided version is an existing Rust release version");
-                self.pb.println(message);
+                self.println(message);
             }
             Message::CheckToolchain(it) if event.is_scope_start() => {
-                self.pb.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
+                self.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
                 self.start_runner_progress(it.toolchain.version());
             }
             Message::CheckToolchain(_it) /* is scope end */ => {
@@ -76,22 +80,22 @@ impl EventHandler for HumanProgressHandler {
             // Message::Compatibility(CheckResult {  compatibility_report: CompatibilityReport::Compatible, toolchain, .. }) => {
             Message::CheckResult(CheckResult {  compatibility }) if compatibility.is_compatible() => {
                 let message = Status::ok("Is compatible");
-                self.pb.println(message);
+                self.println(message);
             }
             Message::CheckResult(CheckResult { compatibility }) if !compatibility.is_compatible() => {
                 let message = Status::fail("Is incompatible");
-                self.pb.println(message);
+                self.println(message);
 
                 if let Some(error_report) = compatibility.error() {
-                    self.pb.println(message_box(error_report));
+                    self.println(message_box(error_report));
                 }
             }
             Message::SubcommandResult(result) => self.handle_subcommand_result(result),
             Message::TerminateWithFailure(termination) if termination.should_highlight() => {
-                self.pb.println(format!("\n\n{}", termination.as_message().red()));
+                self.println(format!("\n\n{}", termination.as_message().red()));
             }
             Message::TerminateWithFailure(termination) if !termination.should_highlight() => {
-                self.pb.println(format!("\n\n{}", termination.as_message().dimmed().bold()));
+                self.println(format!("\n\n{}", termination.as_message().dimmed().bold()));
             }
             _ => {}
         };
@@ -102,24 +106,24 @@ impl HumanProgressHandler {
     fn handle_subcommand_result(&self, result: &SubcommandResult) {
         match result {
             SubcommandResult::Find(inner) => {
-                self.pb.println(format!("\n{}\n", inner.summary()));
+                self.println(format!("\n{}\n", inner.summary()));
             }
             SubcommandResult::List(inner) => {
-                self.pb.println(inner.to_string());
+                self.println(inner);
             }
             SubcommandResult::Set(inner) => {
                 let message = Status::with_lead(
                     "Set".bright_green(),
                     format_args!("Rust {}", inner.version()),
                 );
-                self.pb.println(message);
+                self.println(message);
             }
             SubcommandResult::Show(inner) => {
                 let message = Status::with_lead(
                     "Show".bright_green(),
                     format_args!("MSRV is Rust {}", inner.version()),
                 );
-                self.pb.println(message);
+                self.println(message);
             }
             SubcommandResult::Verify(_inner) => {
                 // tbd.
