@@ -647,7 +647,7 @@ dependencies = [
  "storyteller",
  "tabled",
  "terminal_size",
- "thiserror 2.0.8",
+ "thiserror 2.0.9",
  "toml_edit",
  "tracing",
  "tracing-appender",
@@ -2075,7 +2075,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b8e39f74f477f1429a6ed738dab457e45a28add59c0ce3147f59914f3461caa"
 dependencies = [
  "semver",
- "thiserror 2.0.8",
+ "thiserror 2.0.9",
 ]
 
 [[package]]
@@ -2085,7 +2085,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3ab1bd401aed9cb73155f04e29b992f5fd8d09ba5edcd9a75cc560deea4f44e"
 dependencies = [
  "directories-next",
- "thiserror 2.0.8",
+ "thiserror 2.0.9",
  "ureq",
 ]
 
@@ -2097,7 +2097,7 @@ checksum = "49e16dd568a283cb43f6d1749ce85f8de299e461b77ec46985f1b72fb982b629"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 2.0.8",
+ "thiserror 2.0.9",
  "time",
 ]
 
@@ -2113,7 +2113,7 @@ dependencies = [
  "regex",
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 2.0.8",
+ "thiserror 2.0.9",
  "tokio",
 ]
 
@@ -2566,11 +2566,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.8"
+version = "2.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08f5383f3e0071702bf93ab5ee99b52d26936be9dedd9413067cbdcddcb6141a"
+checksum = "f072643fd0190df67a8bab670c20ef5d8737177d6ac6b2e9a236cb096206b2cc"
 dependencies = [
- "thiserror-impl 2.0.8",
+ "thiserror-impl 2.0.9",
 ]
 
 [[package]]
@@ -2586,9 +2586,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.8"
+version = "2.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2f357fcec90b3caef6623a099691be676d033b40a058ac95d2a6ade6fa0c943"
+checksum = "7b50fa271071aae2e6ee85f842e2e28ba8cd2c5fb67f11fcb1fd70b276f9e7d4"
 dependencies = [
  "proc-macro2",
  "quote",
