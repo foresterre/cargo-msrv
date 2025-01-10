@@ -647,7 +647,7 @@ dependencies = [
  "storyteller",
  "tabled",
  "terminal_size",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
  "toml_edit",
  "tracing",
  "tracing-appender",
@@ -690,7 +690,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
 ]
 
 [[package]]
@@ -2097,7 +2097,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b8e39f74f477f1429a6ed738dab457e45a28add59c0ce3147f59914f3461caa"
 dependencies = [
  "semver",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
 ]
 
 [[package]]
@@ -2107,7 +2107,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3ab1bd401aed9cb73155f04e29b992f5fd8d09ba5edcd9a75cc560deea4f44e"
 dependencies = [
  "directories-next",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
  "ureq",
 ]
 
@@ -2119,7 +2119,7 @@ checksum = "49e16dd568a283cb43f6d1749ce85f8de299e461b77ec46985f1b72fb982b629"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
  "time",
 ]
 
@@ -2135,7 +2135,7 @@ dependencies = [
  "regex",
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 2.0.9",
+ "thiserror 2.0.10",
  "tokio",
 ]
 
@@ -2589,11 +2589,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.9"
+version = "2.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f072643fd0190df67a8bab670c20ef5d8737177d6ac6b2e9a236cb096206b2cc"
+checksum = "a3ac7f54ca534db81081ef1c1e7f6ea8a3ef428d2fc069097c079443d24124d3"
 dependencies = [
- "thiserror-impl 2.0.9",
+ "thiserror-impl 2.0.10",
 ]
 
 [[package]]
@@ -2609,9 +2609,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.9"
+version = "2.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b50fa271071aae2e6ee85f842e2e28ba8cd2c5fb67f11fcb1fd70b276f9e7d4"
+checksum = "9e9465d30713b56a37ede7185763c3492a91be2f5fa68d958c44e41ab9248beb"
 dependencies = [
  "proc-macro2",
  "quote",
