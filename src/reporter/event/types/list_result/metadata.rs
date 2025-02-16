@@ -1,11 +1,11 @@
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::CargoManifest;
 use crate::semver;
-use cargo_metadata::{MetadataCommand, Package};
+use cargo_msrv_cargo_metadata as cargo_metadata;
 use std::convert::TryFrom;
 use std::path::Path;
 
-pub fn package_msrv(package: &Package) -> Option<semver::Version> {
+pub fn package_msrv(package: &cargo_metadata::Package) -> Option<semver::Version> {
     package
         .rust_version
         .clone()
@@ -21,7 +21,7 @@ pub fn format_version(version: Option<&semver::Version>) -> Option<String> {
 //  rust-version
 pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semver::Version> {
     fn parse(path: &Path) -> Option<semver::Version> {
-        MetadataCommand::new()
+        cargo_metadata::MetadataCommand::new()
             .manifest_path(path)
             .exec()
             .ok()
@@ -34,7 +34,7 @@ pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<crate::semve
 }
 
 pub(in crate::reporter::event) fn get_package_metadata_msrv(
-    package: &Package,
+    package: &cargo_metadata::Package,
 ) -> Option<crate::semver::Version> {
     package
         .metadata

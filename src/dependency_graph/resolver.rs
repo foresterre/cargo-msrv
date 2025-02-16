@@ -1,19 +1,19 @@
 use crate::dependency_graph::DependencyGraph;
 use crate::error::{CargoMSRVError, TResult};
 use camino::Utf8Path;
-use cargo_metadata::MetadataCommand;
+use cargo_msrv_cargo_metadata as cargo_metadata;
 
 pub(crate) trait DependencyResolver {
     fn resolve(&self) -> TResult<DependencyGraph>;
 }
 
 pub(crate) struct CargoMetadataResolver {
-    metadata_command: MetadataCommand,
+    metadata_command: cargo_metadata::MetadataCommand,
 }
 
 impl CargoMetadataResolver {
     pub fn from_manifest_path(path: &Utf8Path) -> Self {
-        let mut metadata_command = MetadataCommand::new();
+        let mut metadata_command = cargo_metadata::MetadataCommand::new();
         metadata_command.manifest_path(path);
 
         Self { metadata_command }

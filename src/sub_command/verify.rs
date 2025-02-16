@@ -1,5 +1,5 @@
 use camino::Utf8PathBuf;
-use cargo_metadata::MetadataCommand;
+use cargo_msrv_cargo_metadata as cargo_metadata;
 use std::convert::TryFrom;
 
 use rust_releases::{Release, ReleaseIndex};
@@ -147,7 +147,7 @@ impl RustVersion {
     pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
         let manifest_path = env.manifest();
 
-        let metadata = MetadataCommand::new()
+        let metadata = cargo_metadata::MetadataCommand::new()
             .manifest_path(&manifest_path)
             .exec()?;
         CargoManifest::try_from(metadata)?

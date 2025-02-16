@@ -13,6 +13,7 @@ use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
 use crate::manifest::bare_version::BareVersion;
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_cargo_metadata as cargo_metadata;
 use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
 use std::path::Path;

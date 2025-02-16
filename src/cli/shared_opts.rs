@@ -1,5 +1,6 @@
 use crate::context::{OutputFormat, TracingTargetOption};
 use crate::log_level::LogLevel;
+use cargo_msrv_clap_cargo as clap_cargo;
 use clap::{ArgGroup, Args, ValueHint};
 use std::path::PathBuf;
 

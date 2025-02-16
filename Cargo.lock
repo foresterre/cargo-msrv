@@ -631,9 +631,9 @@ dependencies = [
  "assert_fs",
  "bisector",
  "camino",
- "cargo_metadata 0.19.1",
+ "cargo-msrv-cargo_metadata",
+ "cargo-msrv-clap-cargo",
  "clap",
- "clap-cargo",
  "dirs",
  "indicatif",
  "once_cell",
@@ -654,6 +654,33 @@ dependencies = [
  "tracing-subscriber",
  "vergen",
  "yare",
+]
+
+[[package]]
+name = "cargo-msrv-cargo_metadata"
+version = "0.19.2-unofficial.2-cargo-msrv"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3ac37b33f2d41037225590668065716cb1c2d58ff03249ee554b3a2ac566c4c"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.11",
+]
+
+[[package]]
+name = "cargo-msrv-clap-cargo"
+version = "0.15.3-unofficial.1-cargo-msrv"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bcbb72fa754c652b762d53b4797a1afae7e4962a11b9bb440f8994e8018d85c"
+dependencies = [
+ "anstyle",
+ "cargo-msrv-cargo_metadata",
+ "clap",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -680,20 +707,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo_metadata"
-version = "0.19.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8769706aad5d996120af43197bf46ef6ad0fda35216b4505f926a365a232d924"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror 2.0.11",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -716,19 +729,6 @@ checksum = "769b0145982b4b48713e01ec42d61614425f27b7058bda7180a3a41f30104796"
 dependencies = [
  "clap_builder",
  "clap_derive",
-]
-
-[[package]]
-name = "clap-cargo"
-version = "0.15.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d546f0e84ff2bfa4da1ce9b54be42285767ba39c688572ca32412a09a73851e5"
-dependencies = [
- "anstyle",
- "cargo_metadata 0.19.1",
- "clap",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -2945,7 +2945,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2990d9ea5967266ea0ccf413a4aa5c42a93dbcfda9cb49a97de6931726b12566"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "cfg-if",
  "regex",
  "rustc_version",

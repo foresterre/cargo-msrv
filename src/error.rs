@@ -1,4 +1,5 @@
 use camino::Utf8PathBuf;
+use cargo_msrv_cargo_metadata as cargo_metadata;
 use owo_colors::OwoColorize;
 use std::env;
 use std::ffi::OsString;
