@@ -11,11 +11,11 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
+            os: ubuntu-22.04 # Prevent building on the latest GLIBC. There's not really a need to, and Debian 12 users are still behind
             archive_ext: tgz
 
           - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
+            os: ubuntu-22.04 # Prevent building on the latest GLIBC. There's not really a need to, and Debian 12 users are still behind
             archive_ext: tgz
 
           - target: x86_64-apple-darwin
