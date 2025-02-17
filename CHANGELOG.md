@@ -20,9 +20,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Fetching the rust-releases index now attempts to set proxy settings detected from the environment (HTTP_PROXY)
 
-[0.17.1]: https://github.com/foresterre/cargo-msrv/compare/v0.17.1...v0.18.0
-
-## [0.17.1] - 2024-11-24
+## 0.17.1 - 2024-11-24
 
 ### Fixed
 
@@ -30,17 +28,13 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Fix release pipeline for binaries
 
-[0.17.1]: https://github.com/foresterre/cargo-msrv/compare/v0.17.0...v0.17.1
-
-## [0.17.0] - 2024-11-21
+## 0.17.0 - 2024-11-21
 
 ### Added
 
 * Rust edition 2024 can now be detected
 
-[0.17.0]: https://github.com/foresterre/cargo-msrv/compare/v0.16.3...v0.17.0
-
-## [0.16.3] - 2024-11-11
+## 0.16.3 - 2024-11-11
 
 ### Added
 
@@ -53,9 +47,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Toolchains installed with `rustup install` now use the `--no-self-update` flag
 
-[0.16.3]: https://github.com/foresterre/cargo-msrv/compare/v0.16.2...v0.16.3
-
-## [0.16.2] - 2024-10-10
+## 0.16.2 - 2024-10-10
 
 ### Fixed
 
@@ -63,9 +55,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Fix release pipeline for `x86_64-unknown-linux-musl` binaries
 
-[0.16.2]: https://github.com/foresterre/cargo-msrv/compare/v0.16.1...v0.16.2
-
-## [0.16.1] - 2024-10-09
+## 0.16.1 - 2024-10-09
 
 ### Added
 
@@ -73,9 +63,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Build and release `x86_64-unknown-linux-musl` binaries
 
-[0.16.1]: https://github.com/foresterre/cargo-msrv/compare/v0.16.0...v0.16.1
-
-## [0.16.0] - 2024-10-09
+## 0.16.0 - 2024-10-09
 
 ### Added
 
@@ -141,9 +129,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Moved the top level `cargo msrv` "find the MSRV" action to the `cargo msrv find` subcommand, which removed several
   options and flags from the top level command which had previously no effect on other subcommands.
 
-[0.16.0]: https://github.com/foresterre/cargo-msrv/compare/v0.15.1...v0.16.0
-
-## [0.15.1] - 2022-02-24
+## 0.15.1 - 2022-02-24
 
 In this release a license generation step was fixed, which caused the automated binary builds to fail.
 In addition, a Cargo feature toggle was added which adds a feature gate for the rust-dist release source of
@@ -152,9 +138,7 @@ features (i.e. without rust-dist), which reduces build time and binary size.
 
 This release does not contain user-facing changes, hence the lack of changelog entries for this version.
 
-[0.15.1]: https://github.com/foresterre/cargo-msrv/compare/v0.15.0...v0.15.1
-
-## [0.15.0] - 2022-02-23
+## 0.15.0 - 2022-02-23
 
 ### Added
 
@@ -171,22 +155,16 @@ This release does not contain user-facing changes, hence the lack of changelog e
 
 * ⚠️ Breaking change: Value `void` was removed as a valid format for the `--output-format` option.
 
-[0.15.0]: https://github.com/foresterre/cargo-msrv/compare/v0.14.2...0.15.0
-
-## [0.14.2] - 2022-02-09
+## 0.14.2 - 2022-02-09
 
 * Fixed: Unable to set a custom check command when calling the cargo-msrv verify subcommand.
 
-[0.14.2]: https://github.com/foresterre/cargo-msrv/compare/v0.14.1...v0.14.2
-
-## [0.14.1] - 2022-02-02
+## 0.14.1 - 2022-02-02
 
 * Fixed: Regression in the new bisection implementation introduced in v0.14.0, where the algorithm would stop one step
   too early.
 
-[0.14.1]: https://github.com/foresterre/cargo-msrv/compare/v0.14.0...v0.14.1
-
-## [0.14.0] - 2022-01-30
+## 0.14.0 - 2022-01-30
 
 * Added: Verify as a subcommand
 * Deprecated: Deprecated the `cargo msrv --verify` flag in favour of the `cargo msrv verify` subcommand.
@@ -197,9 +175,7 @@ This release does not contain user-facing changes, hence the lack of changelog e
 * Added: Feedback messages printed after each check, allowing users to see why certain Rust versions are not compatible.
 * Added: Flag `--no-check-feedback` which disables the feedback messages printed after each check.
 
-[0.14.0]: https://github.com/foresterre/cargo-msrv/compare/v0.13.0...v0.14.0
-
-## [0.13.0] - 2021-12-25
+## 0.13.0 - 2021-12-25
 
 * Fixed: Help text of the list subcommand will now be shown correctly .
 * Fixed: The json output of the list subcommand will now also report when it's done.
@@ -213,9 +189,7 @@ This release does not contain user-facing changes, hence the lack of changelog e
 * Changed: Suggest `package.rust-version` is missing when MSRV can't be found in the Cargo manifest.
 * Fixed: Return non-zero exit code when verify command fails.
 
-[0.13.0]: https://github.com/foresterre/cargo-msrv/compare/v0.12.0...v0.13.0
-
-## [0.12.0] - 2021-11-01
+## 0.12.0 - 2021-11-01
 
 * Added subcommand `list` which lists the MSRV's of dependencies as specified by crate authors using the rust-version
   key.
@@ -225,15 +199,11 @@ _Only list available as a subcommand. The determine-msrv and verify-msrv command
 yet,
 but are planned to._
 
-[0.12.0]: https://github.com/foresterre/cargo-msrv/compare/v0.11.1...v0.12.0
-
-## [0.11.1] - 2021-10-28
+## 0.11.1 - 2021-10-28
 
 This release is equal to `v0.11.0`, except that the automated 'release build and packaging' task was fixed.
 
-[0.11.1]: https://github.com/foresterre/cargo-msrv/compare/v0.11.0...v0.11.1
-
-## [0.11.0] - 2021-10-28
+## 0.11.0 - 2021-10-28
 
 * Added `--release-source` which allows users to select a rust-releases source.
 * A message is now shown to inform users when the index is being updated.
@@ -241,46 +211,32 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 * When the `package.edition` is set, the first release supporting this edition will now be set as the minimum version.
   This behaviour can be disabled by providing the `--no-read-min-edition` flag.
 
-[0.11.0]: https://github.com/foresterre/cargo-msrv/compare/v0.10.0...v0.11.0
-
-## [0.10.0] - 2021-10-01
+## 0.10.0 - 2021-10-01
 
 * Add option to specify an edition alias instead of a minimum version.
 
-[0.10.0]: https://github.com/foresterre/cargo-msrv/compare/v0.9.0...v0.10.0
-
-## [0.9.0] - 2021-09-06
+## 0.9.0 - 2021-09-06
 
 * cargo-msrv will no longer try to install upcoming, but unreleased, Rust releases.
 
-[0.9.0]: https://github.com/foresterre/cargo-msrv/compare/v0.8.0...v0.9.0
-
-## [0.8.0] - 2021-07-30
+## 0.8.0 - 2021-07-30
 
 * Renamed `--minimum` to `--min` while keeping the former as an alias.
 * Renamed `--maximum` to `--max` while keeping the former as an alias.
 
-[0.8.0]: https://github.com/foresterre/cargo-msrv/compare/v0.7.0...v0.8.0
-
-## [0.7.0] - 2021-06-15
+## 0.7.0 - 2021-06-15
 
 * Added command (`--verify`) to verify the MSRV, if defined with the 'package.metadata.msrv' key in the `Cargo.toml`.
 
-[0.7.0]: https://github.com/foresterre/cargo-msrv/compare/v0.6.0...v0.7.0
-
-## [0.6.0] - 2021-05-27
+## 0.6.0 - 2021-05-27
 
 * Added option,`--output-format`, to output the status of the program in a machine-readable format to stdout.
 
-[0.6.0]: https://github.com/foresterre/cargo-msrv/compare/v0.5.0...v0.6.0
-
-## [0.5.0] - 2021-05-13
+## 0.5.0 - 2021-05-13
 
 * Added flag `--ignore-lockfile` which addresses an issue where newer lockfiles could not be parsed by older toolchains.
 
-[0.5.0]: https://github.com/foresterre/cargo-msrv/compare/v0.4.0...v0.5.0
-
-## [0.4.0] - 2021-04-09
+## 0.4.0 - 2021-04-09
 
 * Added option to only take the latest patch Release version into account, and make it the default.
 * Added minimum and maximum release version options, which can be used to restrict the range of version to be checked.
@@ -288,30 +244,22 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 * Add option to output a `rust-toolchain` file.
 * Add option to use a binary search instead of a linear search to find the MSRV.
 
-[0.4.0]: https://github.com/foresterre/cargo-msrv/compare/v0.3.1...v0.4.0
-
-## [0.3.1] - 2021-03-09
+## 0.3.1 - 2021-03-09
 
 * Update deprecated dependency.
 * Add repository to `Cargo.toml`.
 
-[0.3.1]: https://github.com/foresterre/cargo-msrv/compare/v0.3.0...v0.3.1
-
-## [0.3.0] - 2021-03-09
+## 0.3.0 - 2021-03-09
 
 * Replace guessing Rust release version numbers with fetching an actual index.
 * Make the terminal UI friendlier by replacing the log and wall of text with a progress bar and updating state.
 
-[0.3.0]: https://github.com/foresterre/cargo-msrv/compare/v0.2.1...v0.3.0
-
-## [0.2.1]
+## 0.2.1
 
 * Fix bug where no output was shown to the user by default.
 * Increased own crate MSRV from `1.40.0` to `1.42.0`.
 
-[0.2.1]: https://github.com/foresterre/cargo-msrv/compare/v0.2.0...v0.2.1
-
-## [0.2.0]
+## 0.2.0
 
 * Replace `reqwest` http client with a smaller http client.
 * Inform a user about sub-tasks such as installing a toolchain or running a check.
@@ -319,19 +267,13 @@ This release is equal to `v0.11.0`, except that the automated 'release build and
 * Increase own crate MSRV from `1.34.0` to `1.40.0`.
 * Install rust targets with the `minimal` rustup profile.
 
-[0.2.0]: https://github.com/foresterre/cargo-msrv/compare/v0.1.0...v0.2.0
-
-## [0.1.0]
+## 0.1.0
 
 * Rust release channel manifest will now be re-fetched (expiry date of 1 day)
 * Added support for custom rustup run commands; defaults to `cargo build --all`.
 * Added support for custom toolchain targets.
 * Added a spinner to show progression.
 
-[0.1.0]: https://github.com/foresterre/cargo-msrv/compare/v0.0.0...v0.1.0
-
-## [0.0.0]
+## 0.0.0
 
 * This was the initial `cargo-msrv` release.
-
-[0.0.0]: https://github.com/foresterre/cargo-msrv/releases/tag/v0.0.0
