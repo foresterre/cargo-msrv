@@ -10,13 +10,17 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Known issues
+
+* Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
+
+## 0.18.0 - 2025-02-17
+
 ### Added
 
 * Fetching the rust-releases index now attempts to set proxy settings detected from the environment (HTTP_PROXY)
 
-### Known issues
-
-* Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
+[0.17.1]: https://github.com/foresterre/cargo-msrv/compare/v0.17.1...v0.18.0
 
 ## [0.17.1] - 2024-11-24
 
