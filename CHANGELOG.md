@@ -14,6 +14,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
 
+## 0.18.1 - 2025-02-18
+
+### Fixed
+
+#### Infra
+
+* Fix release pipeline for `x86_64-unknown-linux-gnu` and `x86_64-unknown-linux-musl` binaries
+
 ## 0.18.0 - 2025-02-17
 
 ### Added

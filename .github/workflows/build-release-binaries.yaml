@@ -13,22 +13,27 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-22.04 # Prevent building on the latest GLIBC. There's not really a need to, and Debian 12 users are still behind
             archive_ext: tgz
+            kind: linux
 
           - target: x86_64-unknown-linux-musl
             os: ubuntu-22.04 # Prevent building on the latest GLIBC. There's not really a need to, and Debian 12 users are still behind
             archive_ext: tgz
+            kind: linux
 
           - target: x86_64-apple-darwin
             os: macos-13
             archive_ext: tgz
+            kind: macos
 
           - target: aarch64-apple-darwin
             os: macos-latest
             archive_ext: tgz
+            kind: macos
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             archive_ext: zip
+            kind: windows
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -86,21 +91,21 @@ jobs:
         run: cargo about generate --output-file "${{ steps.set_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
-        if: matrix.os == 'macos-13' || matrix.os == 'macos-latest'
+        if: matrix.kind == 'macos'
         shell: bash
         run: |
           cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
           gtar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: pack_archive_linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.kind == 'linux'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
           tar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: pack_archive_windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.kind == 'windows'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/cargo-msrv.exe ./${{ steps.set_output.outputs.subfolder }}
