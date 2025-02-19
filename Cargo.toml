@@ -42,7 +42,6 @@ tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
 
 [features]
-default = ["rust-releases-dist-source"]
 rust-releases-dist-source = ["rust-releases/rust-dist"]
 
 [dev-dependencies]
