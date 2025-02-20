@@ -89,3 +89,21 @@ jobs:
       - name: run_cargo_msrv_on_verify_failure
         if: ${{ failure() }}
         run: cargo msrv find --output-format json
+
+  minimal_versions:
+    name: msrv_with_minimal_versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout_repo
+        uses: actions/checkout@v4
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: generate_lockfile_with_minimal_versions
+        run: cargo generate-lockfile -Z minimal-versions
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+      - name: install_cargo_msrv
+        run: cargo binstall --no-confirm cargo-msrv
+      - name: check_minimal_versions
+        run: cargo msrv verify -- cargo check --locked
