@@ -1,0 +1,19 @@
+[package]
+name = "msrv"
+version = "0.0.1-beta.0"
+authors = ["Martijn Gribnau <garm@ilumeo.com>"]
+description = "Find your minimum supported Rust version (MSRV), library edition! See cargo-msrv!"
+license = "Apache-2.0 OR MIT"
+edition = "2021"
+repository = "https://github.com/foresterre/cargo-msrv"
+keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
+rust-version = "1.82"
+
+[dependencies]
+rust-releases = { version = "0.29.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
+rust-toolchain = "1.1.0"
+version-number = "0.4.0"
+
+[features]
+default = ["rust-releases-dist-source"]
+rust-releases-dist-source = ["rust-releases/rust-dist"]
