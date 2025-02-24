@@ -11,14 +11,18 @@ keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
 build = "build.rs"
-
 exclude = ["/design"]
-rust-version = "1.81.0"
+
+rust-version = "1.82.0"
 
 [package.metadata.release]
 tag-name = "v{{version}}"
 
 [dependencies]
+# workspace
+msrv = { path = "crates/msrv", version = "0.0.1-beta.0" }
+
+# external
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.1" # utf-8 paths
 cargo_metadata = "0.19.1" # resolving Cargo manifest metadata (consider `guppy`!)
@@ -53,6 +57,9 @@ assert_fs = "1.1.2"
 
 [build-dependencies]
 vergen = { version = "8.3.2", default-features = false, features = ["build", "cargo", "git", "gitcl", "rustc"] }
+
+[workspace]
+members = ["crates/msrv"]
 
 [profile.release]
 lto = true
