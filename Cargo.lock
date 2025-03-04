@@ -633,7 +633,7 @@ dependencies = [
  "assert_fs",
  "bisector",
  "camino",
- "cargo_metadata 0.19.1",
+ "cargo_metadata 0.19.2",
  "clap",
  "clap-cargo",
  "dirs",
@@ -684,9 +684,9 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.19.1"
+version = "0.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8769706aad5d996120af43197bf46ef6ad0fda35216b4505f926a365a232d924"
+checksum = "dd5eb614ed4c27c5d706420e4320fbe3216ab31fa1c33cd8246ac36dae4479ba"
 dependencies = [
  "camino",
  "cargo-platform",
@@ -728,7 +728,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d546f0e84ff2bfa4da1ce9b54be42285767ba39c688572ca32412a09a73851e5"
 dependencies = [
  "anstyle",
- "cargo_metadata 0.19.1",
+ "cargo_metadata 0.19.2",
  "clap",
  "serde",
  "serde_json",
