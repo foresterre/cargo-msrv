@@ -19,23 +19,26 @@ use std::path::Path;
 use std::str::FromStr;
 use std::{env, fmt};
 
-pub mod find;
-pub mod list;
-pub mod set;
-pub mod show;
-pub mod verify;
-
 use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::log_level::LogLevel;
 use crate::reporter::event::SelectedPackage;
 use crate::rust::default_target::default_target;
+
+pub use doctor::DoctorContext;
 pub use find::FindContext;
 pub use list::ListContext;
 pub use set::SetContext;
 pub use show::ShowContext;
 pub use verify::VerifyContext;
+
+pub mod doctor;
+pub mod find;
+pub mod list;
+pub mod set;
+pub mod show;
+pub mod verify;
 
 /// A `context` in `cargo-msrv`, is a definitive and flattened set of options,
 /// required for the program (and its selected sub-command) to function.
@@ -57,6 +60,7 @@ pub use verify::VerifyContext;
 /// data.
 #[derive(Debug)]
 pub enum Context {
+    Doctor(DoctorContext),
     Find(FindContext),
     List(ListContext),
     Set(SetContext),
@@ -67,6 +71,7 @@ pub enum Context {
 impl Context {
     pub fn reporting_name(&self) -> &'static str {
         match self {
+            Context::Doctor(_) => "Doctor",
             Context::Find(_) => "find",
             Context::List(_) => "list",
             Context::Set(_) => "set",
@@ -77,6 +82,7 @@ impl Context {
 
     pub fn environment_context(&self) -> &EnvironmentContext {
         match self {
+            Context::Doctor(ctx) => &ctx.environment,
             Context::Find(ctx) => &ctx.environment,
             Context::List(ctx) => &ctx.environment,
             Context::Set(ctx) => &ctx.environment,
@@ -85,22 +91,26 @@ impl Context {
         }
     }
 
-    /// Returns the inner find context, if it was present.
-    pub fn to_find_context(self) -> Option<FindContext> {
-        if let Self::Find(ctx) = self {
-            Some(ctx)
-        } else {
-            None
-        }
+    /// Returns the inner find context
+    ///
+    /// **Panics**
+    ///
+    /// Panics if the context does not match with `Find`
+    pub fn to_find_context(self) -> FindContext {
+        let Self::Find(ctx) = self else {
+            unreachable!("Find Context does not exist")
+        };
+
+        ctx
     }
 
-    /// Returns the inner find context, if it was present.
-    pub fn to_verify_context(self) -> Option<VerifyContext> {
-        if let Self::Verify(ctx) = self {
-            Some(ctx)
-        } else {
-            None
-        }
+    /// Returns the inner verify context
+    pub fn to_verify_context(self) -> VerifyContext {
+        let Self::Verify(ctx) = self else {
+            unreachable!("Find Context does not exist")
+        };
+
+        ctx
     }
 }
 
@@ -109,6 +119,7 @@ impl TryFrom<CargoMsrvOpts> for Context {
 
     fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
         let ctx = match opts.subcommand {
+            SubCommand::Doctor(_) => Self::Doctor(DoctorContext::try_from(opts)?),
             SubCommand::Find(_) => Self::Find(FindContext::try_from(opts)?),
             SubCommand::List(_) => Self::List(ListContext::try_from(opts)?),
             SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),
