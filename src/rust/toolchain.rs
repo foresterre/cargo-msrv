@@ -1,5 +1,5 @@
-use once_cell::sync::OnceCell;
 use rust_releases::semver;
+use std::cell::OnceCell;
 
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]

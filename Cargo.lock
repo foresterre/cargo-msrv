@@ -639,7 +639,6 @@ dependencies = [
  "dirs",
  "indicatif",
  "msrv",
- "once_cell",
  "owo-colors",
  "parameterized",
  "petgraph",
