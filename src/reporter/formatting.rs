@@ -1,8 +1,8 @@
-use once_cell::sync::OnceCell;
+use std::sync::OnceLock;
 use tabled::settings::{Margin, Style};
 use tabled::{Table, Tabled};
 
-static TERM_WIDTH: OnceCell<usize> = OnceCell::new();
+static TERM_WIDTH: OnceLock<usize> = OnceLock::new();
 
 static TABLE_CORRECTION: usize = 4;
 
