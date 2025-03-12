@@ -10,10 +10,5 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
 rust-version = "1.82"
 
 [dependencies]
-rust-releases = { version = "0.29.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
 rust-toolchain = "1.1.0"
 version-number = "0.4.0"
-
-[features]
-default = ["rust-releases-dist-source"]
-rust-releases-dist-source = ["rust-releases/rust-dist"]
