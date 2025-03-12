@@ -14,6 +14,18 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
 
+## 0.18.3 - 2025-03-12
+
+#### Infra
+
+* Attempt to fix release pipeline for all binaries (license generation step failed)
+
+## 0.18.2 - 2025-03-12
+
+### Security
+
+* Update transitive dependency `ring` to `>= 0.17.12` (Resolves RUSTSEC-2025-0009, `cargo-msrv` is unlikely to be affected)
+
 ## 0.18.1 - 2025-02-18
 
 ### Fixed
