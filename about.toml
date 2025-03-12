@@ -1,11 +1,11 @@
 accepted = [
     "0BSD",
     "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
     "BSD-3-Clause",
     "ISC",
     "MIT",
     "OpenSSL",
-    "Unicode-DFS-2016",
     "Unicode-3.0",
     "Zlib",
 ]
@@ -14,14 +14,14 @@ workarounds = ["ring", "rustls"]
 ignore-build-dependencies = true
 ignore-dev-dependencies = true
 
+[cbindgen]
+accepted = ["MPL-2.0"]
+
 [option-ext]
 accepted = ["MPL-2.0"]
 
 [ring]
 accepted = ["ISC", "OpenSSL"]
-
-[unicode-ident]
-accepted = ["Unicode-DFS-2016"]
 
 [webpki]
 accepted = ["ISC", "BSD-3-Clause"]
