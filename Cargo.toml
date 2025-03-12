@@ -19,7 +19,7 @@ tag-name = "v{{version}}"
 
 [dependencies]
 # workspace
-msrv = { path = "crates/msrv", version = "0.0.1-beta.0" }
+msrv = { path = "crates/msrv", version = "0.0.2" }
 
 # external
 bisector = "0.4.0" # bisection with a custom comparator
