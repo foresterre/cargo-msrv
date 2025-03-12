@@ -707,7 +707,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.18.2"
+version = "0.18.3"
 dependencies = [
  "assert_fs",
  "bisector",
