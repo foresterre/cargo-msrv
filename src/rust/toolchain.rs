@@ -1,5 +1,5 @@
-use once_cell::sync::OnceCell;
 use rust_releases::semver;
+use std::sync::OnceLock;
 
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -8,7 +8,7 @@ pub struct Toolchain {
     target: &'static str,
     components: &'static [&'static str],
     #[serde(skip)]
-    spec: OnceCell<String>,
+    spec: OnceLock<String>,
 }
 
 impl Toolchain {
@@ -21,7 +21,7 @@ impl Toolchain {
             version,
             target,
             components,
-            spec: OnceCell::new(),
+            spec: OnceLock::new(),
         }
     }
 

@@ -121,16 +121,16 @@ impl RustupCommand {
 
         Ok(RustupOutput {
             output,
-            stdout: once_cell::sync::OnceCell::new(),
-            stderr: once_cell::sync::OnceCell::new(),
+            stdout: std::sync::OnceLock::new(),
+            stderr: std::sync::OnceLock::new(),
         })
     }
 }
 
 pub struct RustupOutput {
     output: std::process::Output,
-    stdout: once_cell::sync::OnceCell<String>,
-    stderr: once_cell::sync::OnceCell<String>,
+    stdout: std::sync::OnceLock<String>,
+    stderr: std::sync::OnceLock<String>,
 }
 
 impl RustupOutput {
