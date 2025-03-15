@@ -18,9 +18,6 @@ rust-version = "1.85"
 tag-name = "v{{version}}"
 
 [dependencies]
-# workspace
-msrv = { path = "crates/msrv", version = "0.0.2" }
-
 # external
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.1" # utf-8 paths
