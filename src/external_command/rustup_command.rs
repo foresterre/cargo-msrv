@@ -31,7 +31,7 @@ impl RustupCommand {
 
             let path = path.as_ref();
 
-            if let Ok(canonical_path) = path.canonicalize() {
+            if let Ok(canonical_path) = dunce::canonicalize(path) {
                 debug!(name: "rustup_command_path", canonicalized = true, path = %canonical_path.display());
                 self.command.current_dir(canonical_path);
             } else {

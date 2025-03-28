@@ -10,9 +10,9 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
-### Known issues
+### Changed
 
-* Installing toolchains on GitHub Actions can fail for the windows runner (see #1036)
+* Improve compatibility of path canonicalization on Windows 
 
 ## 0.18.3 - 2025-03-12
 
