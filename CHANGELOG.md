@@ -10,6 +10,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.18.4 - 2025-03-28
+
 ### Changed
 
 * Improve compatibility of path canonicalization on Windows 
