@@ -270,7 +270,7 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
             // Use `--manifest-path` if specified. This was added later, and can not be specified
             // together with `--path`. This option refers to the `Cargo.toml` document
             // of a crate ("manifest").
-            path.canonicalize()
+            dunce::canonicalize(path)
                 .map_err(|_| CargoMSRVError::Path(PathError::DoesNotExist(path.to_path_buf())))
                 .and_then(|p| {
                     p.parent().map(Path::to_path_buf).ok_or_else(|| {

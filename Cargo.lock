@@ -716,6 +716,7 @@ dependencies = [
  "clap",
  "clap-cargo",
  "dirs",
+ "dunce",
  "indicatif",
  "msrv",
  "owo-colors",

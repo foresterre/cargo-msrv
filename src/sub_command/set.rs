@@ -57,12 +57,13 @@ fn has_release(configured_msrv: &BareVersion, release_index: &ReleaseIndex) -> b
         .any(|release| matches_release(configured_msrv, release))
 }
 
-fn matches_release(configured_msrv: &BareVersion, release: &Release) -> bool {
-    let major_match = release.version().major == configured_msrv.major();
-    let minor_match = release.version().minor == configured_msrv.minor();
-    let patch_match = configured_msrv
+fn matches_release(msrv: &BareVersion, release: &Release) -> bool {
+    let major_match = release.version().major == msrv.major();
+    let minor_match = release.version().minor == msrv.minor();
+    let patch_match = msrv
         .patch()
-        .map_or(true, |patch| release.version().patch == patch);
+        .is_none_or(|patch| release.version().patch == patch);
+
     major_match && minor_match && patch_match
 }
 
