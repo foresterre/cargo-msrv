@@ -35,7 +35,7 @@ petgraph = "0.7.1" # graph data structures
 rust-releases = { version = "0.30.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
 serde_json = "1.0.140"  # JSON serialization and deserialization
-storyteller = "1.0.0" # minimal multi user output architecture
+storyteller = "1.0.1" # minimal multi user output architecture
 tabled = { version = "~0.16.0", features = ["ansi"] } # pretty print tables
 terminal_size = "0.4.2" # determine the terminal size
 thiserror = "2.0.11" # error handling
