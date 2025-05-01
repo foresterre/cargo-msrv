@@ -67,7 +67,7 @@ pub enum CargoMsrvCli {
     /// Find your Minimum Supported Rust Version!
     #[command(
         author = "Martijn Gribnau <garm@ilumeo.com>",
-        after_help = r#"
+        after_help = indoc::indoc!{"
             You can provide a custom compatibility check command as the last positional argument via
             the -- syntax, e.g. `$ cargo msrv find -- my custom command`.
 
@@ -79,7 +79,7 @@ pub enum CargoMsrvCli {
             NB: You only need to provide the <COMMAND...> part.
 
             By default, the compatibility check command is `cargo check`.
-        "#
+        "}
     )]
     Msrv(CargoMsrvOpts),
 }
