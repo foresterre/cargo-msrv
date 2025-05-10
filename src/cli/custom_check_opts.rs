@@ -24,7 +24,8 @@ pub struct CustomCheckOpts {
     #[arg(long)]
     pub no_default_features: bool,
 
-    /// Supply a custom `check` command to be used by cargo msrv
+    /// Supply a custom command to be used by cargo msrv.
+    /// Example: `cargo check --ignore-rust-version` to ignore the `rust-version` field of crates
     #[arg(last = true)]
     pub custom_check_opts: Option<Vec<String>>,
 }
