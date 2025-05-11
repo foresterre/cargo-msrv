@@ -169,12 +169,7 @@ When provided, the trailing command (`cmd`) will be used as the _cargo-msrv chec
 
 # EXAMPLES
 
-1. Determine the MSRV for the crate in your current working directory, while ignoring `rust-version` fields in crates.
-```shell
-cargo msrv find -- cargo check --ignore-rust-version
-```
-
-12. Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.
+1. Try to determine the MSRV for the crate in your current working directory, using the binary search strategy.
 
 ```shell
 cargo msrv find --bisect
@@ -186,7 +181,7 @@ or (from cargo-msrv `v0.14.0`, `bisect` is the default search method):
 cargo msrv find
 ```
 
-3. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
+2. Try to determine the MSRV for the crate in your current working directory, using the linear search strategy.
 
 ```shell
 cargo msrv find --linear
@@ -195,12 +190,19 @@ cargo msrv find --linear
 NB: Prior to cargo-msrv `v0.14.0`, `linear` was the default search strategy, and no flag was available explicitly
 use this search strategy.
 
-4. Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
+3. Try to determine the MSRV for the crate in your current working directory, using a custom cargo-msrv check command:
    `cargo test`.
 
 ```shell
 cargo msrv find -- cargo test
 ```
+
+4. Determine the MSRV for the crate in your current working directory, while ignoring `rust-version` fields in crates.
+```shell
+cargo msrv find -- cargo check --ignore-rust-version
+```
+
+Only available on Rust >= 1.56.
 
 5. Try to determine the MSRV for the crate in your current working directory, but use the JSON machine-readable output
    format.
