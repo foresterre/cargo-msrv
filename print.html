@@ -1546,6 +1546,12 @@ use this search strategy.</p>
 <pre><code class="language-shell">cargo msrv find -- cargo test
 </code></pre>
 <ol start="4">
+<li>Determine the MSRV for the crate in your current working directory, while ignoring <code>rust-version</code> fields in crates.</li>
+</ol>
+<pre><code class="language-shell">cargo msrv find -- cargo check --ignore-rust-version
+</code></pre>
+<p>Only available on Rust &gt;= 1.56.</p>
+<ol start="5">
 <li>Try to determine the MSRV for the crate in your current working directory, but use the JSON machine-readable output
 format.</li>
 </ol>
