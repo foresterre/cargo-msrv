@@ -31,7 +31,7 @@ dirs = "6.0.0" # common directories
 dunce = "1.0.5" # better canonicalize for Windows
 indicatif = "0.17.11" # UI
 indoc = "2.0.6"
-owo-colors = "4.1.0" # color support for the terminal
+owo-colors = "4.2.1" # color support for the terminal
 petgraph = "0.8.1" # graph data structures
 rust-releases = { version = "0.30.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
