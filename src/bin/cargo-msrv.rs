@@ -25,7 +25,7 @@ fn main() {
                 // caused this error in the first place
                 // Additionally `tracing::error!` would not print to console by default, so user would not
                 // know what went wrong
-                eprintln!("Setup error: {}", err);
+                eprintln!("Setup error: {err}");
                 ExitCode::Failure
             }
         }

@@ -9,6 +9,6 @@ fn main() {
         .rustc_semver()
         .emit()
     {
-        eprintln!("Unable to set build metadata: '{}'", e);
+        eprintln!("Unable to set build metadata: '{e}'");
     }
 }
