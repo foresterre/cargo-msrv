@@ -17,7 +17,7 @@ allow = [
     "Zlib",
 ]
 exceptions = [
-    { allow = ["MPL-2.0"], name = "webpki-roots", version = "*" },
+    { allow = ["CDLA-Permissive-2.0 "], name = "webpki-roots", version = "*" },
     { allow = ["MPL-2.0"], name = "option-ext", version = "*" },
     { allow = ["MPL-2.0"], name = "cbindgen", version = "*" },
 ]
