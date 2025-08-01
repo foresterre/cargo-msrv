@@ -58,7 +58,7 @@ pub fn find_msrv_with_releases<
     let matches = CargoCli::parse_args(with_args);
     let opts = matches.to_cargo_msrv_cli().to_opts();
     let ctx = Context::try_from(opts)?;
-    let find_ctx = ctx.to_find_context().unwrap();
+    let find_ctx = ctx.to_find_context();
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.
