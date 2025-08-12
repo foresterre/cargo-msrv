@@ -13,7 +13,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout_repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: install_rust
         uses: dtolnay/rust-toolchain@stable
