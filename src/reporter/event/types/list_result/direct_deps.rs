@@ -40,7 +40,7 @@ impl serde::Serialize for DirectDepsFormatter<'_> {
     }
 }
 
-fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> {
+fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values<'_>> {
     let package_id = graph.root_crate();
     let root_index = graph.index()[package_id].into();
     let neighbors = graph
