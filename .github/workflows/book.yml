@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: setup_mdbook
         uses: peaceiris/actions-mdbook@v2
