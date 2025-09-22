@@ -69,12 +69,13 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-      - name: Update Docker Hub description
-        if: github.event_name != 'pull_request'
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: foresterre
-          password: ${{ secrets.DOCKER_TOKEN }}
+      # This step has been failing for a while, for unknown reasons
+      #- name: Update Docker Hub description
+      #  if: github.event_name != 'pull_request'
+      #  uses: peter-evans/dockerhub-description@v4
+      #  with:
+      #    username: foresterre
+      #    password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
