@@ -97,7 +97,7 @@ jobs:
       - name: install_rust
         uses: dtolnay/rust-toolchain@nightly
       - name: generate_lockfile_with_minimal_versions
-        run: cargo generate-lockfile -Z minimal-versions
+        run: cargo +nightly generate-lockfile -Z minimal-versions
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-binstall
