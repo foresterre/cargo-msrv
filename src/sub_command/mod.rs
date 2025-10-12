@@ -1,8 +1,18 @@
+use crate::reporter::Reporter;
+use crate::TResult;
+
+/// Find MSRV related issues
+///
+/// # Example (CLI)
+///
+/// `cargo msrv doctor`
+pub use doctor::Doctor;
+
 /// Find the MSRV of a Rust package.
 ///
 /// # Example (CLI)
 ///
-/// `cargo msrv`
+/// `cargo msrv find`
 pub use find::Find;
 
 /// List the MSRV's of libraries you depend on.
@@ -38,9 +48,7 @@ pub use set::Set;
 /// `cargo msrv show`
 pub use show::Show;
 
-use crate::reporter::Reporter;
-use crate::TResult;
-
+pub mod doctor;
 pub mod find;
 pub mod list;
 pub mod set;
