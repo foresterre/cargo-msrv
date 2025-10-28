@@ -9,7 +9,7 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --verbose --locked --release
+RUN cargo build --verbose --locked --release --target x86_64-unknown-linux-musl
 
 FROM rust:slim-bookworm AS runtime
 WORKDIR app
