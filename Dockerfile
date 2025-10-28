@@ -7,6 +7,7 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
+RUN apk add git # add git for embedded metadata via `vergen`
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --verbose --locked --release
