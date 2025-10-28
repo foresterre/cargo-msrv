@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:latest-rust-latest AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1-alpine3.22 AS chef
 WORKDIR app
 
 FROM chef AS planner
@@ -9,11 +9,9 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN rustup target add x86_64-unknown-linux-musl
-RUN apt-get update -y && apt-get install -y musl-tools
-RUN cargo build --verbose --locked --release --target x86_64-unknown-linux-musl
+RUN cargo build --verbose --locked --release
 
-FROM rust:slim-bookworm AS runtime
+FROM alpine:3.22 AS runtime
 WORKDIR app
 COPY --from=builder /app/target/release/cargo-msrv /usr/local/bin
 ENTRYPOINT ["cargo-msrv", "msrv"]
