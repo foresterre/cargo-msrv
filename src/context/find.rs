@@ -21,6 +21,9 @@ pub struct FindContext {
     /// Don't print the result of compatibility checks
     pub no_check_feedback: bool,
 
+    /// Treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
+    pub skip_unavailable_toolchains: bool,
+
     /// Write the MSRV to the Cargo manifest
     pub write_msrv: bool,
 
@@ -62,6 +65,7 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
             },
             write_toolchain_file: find_opts.write_toolchain_file,
             ignore_lockfile: find_opts.ignore_lockfile,
+            skip_unavailable_toolchains: find_opts.skip_unavailable_toolchains,
             no_check_feedback: find_opts.no_check_feedback,
             write_msrv: find_opts.write_msrv,
             rust_releases: find_opts.rust_releases_opts.into(),

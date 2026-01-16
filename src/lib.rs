@@ -68,6 +68,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 reporter,
                 ctx.ignore_lockfile,
                 ctx.no_check_feedback,
+                ctx.skip_unavailable_toolchains,
                 &ctx.environment,
                 ctx.run_command(),
             );
@@ -90,6 +91,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 reporter,
                 ctx.ignore_lockfile,
                 ctx.no_check_feedback,
+                false,
                 &ctx.environment,
                 ctx.run_command(),
             );

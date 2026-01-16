@@ -10,6 +10,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Added
+
+- Added `--skip-unavailable-toolchains` which treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
+
 ### Fixed
 
 #### Infra
@@ -20,7 +24,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Changed
 
-* Improve compatibility of path canonicalization on Windows 
+* Improve compatibility of path canonicalization on Windows
 
 ## 0.18.3 - 2025-03-12
 
@@ -32,7 +36,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Security
 
-* Update transitive dependency `ring` to `>= 0.17.12` (Resolves RUSTSEC-2025-0009, `cargo-msrv` is unlikely to be affected)
+* Update transitive dependency `ring` to `>= 0.17.12` (Resolves RUSTSEC-2025-0009, `cargo-msrv` is unlikely to be
+  affected)
 
 ## 0.18.1 - 2025-02-18
 

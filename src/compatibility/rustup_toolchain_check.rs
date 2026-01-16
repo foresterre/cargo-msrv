@@ -4,6 +4,7 @@ use crate::error::{IoError, IoErrorSource};
 use crate::external_command::cargo_command::CargoCommand;
 use crate::external_command::rustup_command::RustupCommand;
 use crate::lockfile::LockfileHandler;
+use crate::outcome::Incompatible;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::rust::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
 use crate::rust::Toolchain;
@@ -22,6 +23,7 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
         reporter: &'reporter R,
         ignore_lockfile: bool,
         no_check_feedback: bool,
+        skip_unavailable_toolchains: bool,
         environment: &'env EnvironmentContext,
         run_command: RunCommand,
     ) -> Self {
@@ -30,6 +32,7 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
             settings: Settings {
                 ignore_lockfile,
                 no_check_feedback,
+                skip_unavailable_toolchains,
                 environment,
                 check_cmd: run_command,
             },
@@ -51,7 +54,18 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
                     .map(|handle| handle.move_lockfile())
                     .transpose()?;
 
-                setup_toolchain(self.reporter, toolchain)?;
+                // Exit early, while marking this version as incompatible, when `skip_unavailable_toolchains`
+                // is set and the setup failed.
+                match setup_toolchain(self.reporter, toolchain) {
+                    Ok(()) => Ok(()),
+                    Err(err) if settings.skip_unavailable_toolchains() => {
+                        return Ok(Compatibility::Incompatible(Incompatible {
+                            toolchain_spec: toolchain.clone(),
+                            error_message: err.to_string(),
+                        }));
+                    }
+                    Err(err) => Err(err),
+                }?;
 
                 if handle_wrap.is_some() {
                     remove_lockfile(&settings.lockfile_path())?;
@@ -196,6 +210,7 @@ fn remove_lockfile(lock_file: &Utf8Path) -> TResult<()> {
 struct Settings<'env> {
     ignore_lockfile: bool,
     no_check_feedback: bool,
+    skip_unavailable_toolchains: bool,
 
     environment: &'env EnvironmentContext,
     check_cmd: RunCommand,
@@ -208,6 +223,10 @@ impl Settings<'_> {
 
     pub fn no_check_feedback(&self) -> bool {
         self.no_check_feedback
+    }
+
+    pub fn skip_unavailable_toolchains(&self) -> bool {
+        self.skip_unavailable_toolchains
     }
 
     pub fn crate_root_path(&self) -> &Utf8Path {

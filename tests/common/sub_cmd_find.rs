@@ -74,6 +74,7 @@ pub fn find_msrv_with_releases<
         device.reporter(),
         ignore_toolchain,
         no_check_feedback,
+        true, /* Marking unavailable versions as incompatible  */
         env,
         find_ctx.run_command(),
     );
