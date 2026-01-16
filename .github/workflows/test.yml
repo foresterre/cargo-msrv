@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # We would prefer to use `dtolnay/rust-toolchain@master with toolchain=${{ matrix.rust }}` or `rustup update ${{ matrix.rust }}`.
       # However, when using either we run into a linking issue:
