@@ -10,6 +10,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Fixed
+
+#### Infra
+
+- Fix missing rustup dependency in docker image
+
 ## 0.18.4 - 2025-03-28
 
 ### Changed
