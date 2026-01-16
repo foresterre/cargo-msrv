@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1-alpine3.22 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1-alpine3.23 AS chef
 WORKDIR app
 
 FROM chef AS planner
@@ -12,7 +12,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --verbose --locked --release
 
-FROM alpine:3.22 AS runtime
+FROM rust:1-alpine3.23 AS runtime
 WORKDIR app
 COPY --from=builder /app/target/release/cargo-msrv /usr/local/bin
 ENTRYPOINT ["cargo-msrv", "msrv"]

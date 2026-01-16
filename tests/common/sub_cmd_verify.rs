@@ -33,6 +33,7 @@ where
         device.reporter(),
         ignore_toolchain,
         no_check_feedback,
+        false, /* Marking unavailable versions as incompatible, which is always false for `verify`  */
         env,
         verify_ctx.run_command(),
     );

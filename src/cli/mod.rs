@@ -151,6 +151,13 @@ pub struct FindOpts {
     #[arg(long)]
     pub ignore_lockfile: bool,
 
+    /// Treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
+    ///
+    /// Can be useful for reducing the search space on platforms with limited toolchain availability.
+    /// Be warned that network errors on either end can also mark versions incorrectly as incompatible.
+    #[arg(long)]
+    pub skip_unavailable_toolchains: bool,
+
     /// Don't print the result of compatibility checks
     ///
     /// The feedback of a compatibility check can be useful to determine why a certain Rust

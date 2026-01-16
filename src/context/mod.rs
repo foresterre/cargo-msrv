@@ -528,16 +528,11 @@ impl TracingOptions {
     }
 }
 
-#[derive(Debug, Copy, Clone, ValueEnum)]
+#[derive(Debug, Copy, Clone, ValueEnum, Default)]
 pub enum TracingTargetOption {
+    #[default]
     File,
     Stdout,
-}
-
-impl Default for TracingTargetOption {
-    fn default() -> Self {
-        Self::File
-    }
 }
 
 impl TracingTargetOption {

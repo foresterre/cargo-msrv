@@ -245,6 +245,7 @@ fn create_test_context() -> FindContext {
         search_method: SearchMethod::Bisect,
         write_toolchain_file: false,
         ignore_lockfile: false,
+        skip_unavailable_toolchains: true,
         no_check_feedback: false,
         write_msrv: false,
         rust_releases: RustReleasesContext {
