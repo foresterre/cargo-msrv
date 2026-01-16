@@ -22,7 +22,7 @@ jobs:
             rust: stable
 
           - build: macos-stable
-            os: macos-13
+            os: macos-latest
             rust: stable
 
           # FIXME: This is currently broken, see below.
