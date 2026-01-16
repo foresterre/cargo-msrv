@@ -49,12 +49,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        run: |
-          PLATFORM_PAIR=$(echo ${{ matrix.platform }} | tr '/' '-')
-          echo "platform-pair=${PLATFORM_PAIR}" >> $GITHUB_OUTPUT
-
       - name: Build and push by digest
         id: docker_build
         uses: docker/build-push-action@v6
@@ -63,7 +57,6 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           outputs: type=image,name=foresterre/cargo-msrv,push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
@@ -79,7 +72,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ steps.meta.outputs.platform-pair }}
+          name: digests-${{ strategy.job-index }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -145,16 +138,9 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          docker buildx imagetools create ${{ steps.meta.outputs.tags }} \
             $(printf 'foresterre/cargo-msrv@sha256:%s ' *)
 
-      - name: Create manifest list and push (GHCR)
-        working-directory: /tmp/digests
-        run: |
-          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("ghcr.io")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'foresterre/cargo-msrv@sha256:%s ' *)
-
-      - name: Inspect images
+      - name: Inspect image
         run: |
           docker buildx imagetools inspect foresterre/cargo-msrv:${{ steps.meta.outputs.version }}
-          docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/cargo-msrv:${{ steps.meta.outputs.version }}
