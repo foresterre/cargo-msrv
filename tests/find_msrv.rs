@@ -30,6 +30,10 @@ mod common;
         semver::Version::new(1,38,0),
     }
 )]
+#[cfg_attr(
+    all(target_os = "macos", target_arch = "aarch64"),
+    ignore = "toolchain unavailable on aarch64-apple-darwin"
+)]
 fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
     let fixture = Fixture::new(folder);
 
@@ -61,6 +65,10 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
         semver::Version::new(1,37,0),
         semver::Version::new(1,38,0),
     }
+)]
+#[cfg_attr(
+    all(target_os = "macos", target_arch = "aarch64"),
+    ignore = "toolchain unavailable on aarch64-apple-darwin"
 )]
 fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
     let fixture = Fixture::new(folder);
@@ -107,6 +115,10 @@ fn msrv_unsupported() {
         semver::Version::new(1,38,0),
     }
 )]
+#[cfg_attr(
+    all(target_os = "macos", target_arch = "aarch64"),
+    ignore = "toolchain unavailable on aarch64-apple-darwin"
+)]
 fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
     let fixture = Fixture::new(folder);
 
@@ -142,6 +154,10 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
         semver::Version::new(1,38,0),
     }
 )]
+#[cfg_attr(
+    all(target_os = "macos", target_arch = "aarch64"),
+    ignore = "toolchain unavailable on aarch64-apple-darwin"
+)]
 fn msrv_with_release_source(release_source: &str, folder: &str, expected_version: semver::Version) {
     let fixture = Fixture::new(folder);
 
@@ -167,6 +183,10 @@ fn msrv_with_release_source(release_source: &str, folder: &str, expected_version
 }
 
 #[test]
+#[cfg_attr(
+    all(target_os = "macos", target_arch = "aarch64"),
+    ignore = "toolchain unavailable on aarch64-apple-darwin"
+)]
 fn msrv_with_old_lockfile() {
     let fixture = Fixture::new("1.29.2");
 
@@ -190,6 +210,10 @@ mod minimum_from_edition {
     use crate::common::Fixture;
 
     #[test]
+    #[cfg_attr(
+        all(target_os = "macos", target_arch = "aarch64"),
+        ignore = "toolchain unavailable on aarch64-apple-darwin"
+    )]
     fn msrv_min_with_edition_in_cargo_toml() {
         let fixture = Fixture::new("1.30.0");
 
