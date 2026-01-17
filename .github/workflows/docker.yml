@@ -138,7 +138,11 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create ${{ steps.meta.outputs.tags }} \
+          tags=()
+          while IFS= read -r tag; do
+            tags+=("--tag" "$tag")
+          done <<< "${{ steps.meta.outputs.tags }}"
+          docker buildx imagetools create "${tags[@]}" \
             $(printf 'foresterre/cargo-msrv@sha256:%s ' *)
 
       - name: Inspect image
