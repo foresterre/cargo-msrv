@@ -64,7 +64,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
         .rev()
         .map(|(version, packages)| Values {
             msrv: format_version(version.as_ref()),
-            dependencies: packages.iter().map(|p| p.name.clone()).collect(),
+            dependencies: packages.iter().map(|p| p.name.to_string()).collect(),
         })
 }
 
