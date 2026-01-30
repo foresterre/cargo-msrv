@@ -70,7 +70,7 @@ Docker images are also available on [Docker Hub](https://hub.docker.com/r/forest
     * Example: `cargo msrv find -- cargo check --tests`.
     * Example: `cargo msrv find -- cargo check --ignore-rust-version`. Only available on Rust >= 1.56.
 * [`cargo msrv verify`](https://foresterre.github.io/cargo-msrv/commands/verify.html)  to verify the MSRV as specified
-  by a crate author\
+  by a crate author
     * A crate author may specify the MSRV using the `package.rust-version` (Rust >=1.56) or the `package.metadata.msrv`
       key in the 'Cargo.toml' manifest. See
       the [book](https://foresterre.github.io/cargo-msrv/commands/list.html#description) for a more detailed

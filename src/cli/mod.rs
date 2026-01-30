@@ -139,8 +139,7 @@ pub struct FindOpts {
 
     /// Pin the MSRV by writing the version to a rust-toolchain file
     ///
-    /// The toolchain file will pin the Rust version for this crate.
-    /// See https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file for more.
+    /// The [toolchain](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file) file will pin the Rust version for this crate.
     #[arg(long, alias = "toolchain-file")]
     pub write_toolchain_file: bool,
 
