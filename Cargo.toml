@@ -25,7 +25,7 @@ msrv = { path = "crates/msrv", version = "0.0.2" }
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.2" # utf-8 paths
 cargo_metadata = "0.23.1" # resolving Cargo manifest metadata (consider `guppy`!)
-clap = { version = "4.5.55", features = ["derive"] } # parse CLI arguments
+clap = { version = "4.5.56", features = ["derive"] } # parse CLI arguments
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
 dirs = "6.0.0" # common directories
 dunce = "1.0.5" # better canonicalize for Windows
