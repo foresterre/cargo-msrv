@@ -12,7 +12,7 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 
 build = "build.rs"
 exclude = ["/design"]
-rust-version = "1.88"
+rust-version = "1.91"
 
 [package.metadata.release]
 tag-name = "v{{version}}"
@@ -40,7 +40,7 @@ storyteller = "1.0.0" # minimal multi user output architecture
 tabled = { version = "~0.16.0", features = ["ansi"] } # pretty print tables
 terminal_size = "0.4.3" # determine the terminal size
 thiserror = "2.0.18" # error handling
-toml_edit = "0.25.2" # read and write the Cargo.toml
+toml_edit = "0.25.3" # read and write the Cargo.toml
 tracing = "0.1" # tracing
 tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
