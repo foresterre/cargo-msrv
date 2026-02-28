@@ -25,6 +25,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Changed
 
 * Improve compatibility of path canonicalization on Windows
+* Restore lockfile moved by `--ignore-lockfile`, after a user interrupts the process
 
 ## 0.18.3 - 2025-03-12
 

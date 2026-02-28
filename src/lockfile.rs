@@ -1,61 +1,88 @@
+use crate::error::{IoError, IoErrorSource, LockfileHandlerError, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
-use std::marker::PhantomData;
+use std::sync::Mutex;
 
-use crate::error::{IoError, IoErrorSource, TResult};
+static RESTORE: Mutex<Option<(Utf8PathBuf, Utf8PathBuf)>> = Mutex::new(None);
 
-pub struct LockfileHandler<S: LockfileState> {
-    state: Utf8PathBuf,
-    marker: PhantomData<S>,
+/// Must be called once to set up the lockfile restoration handler
+pub fn init_lockfile_cleanup_handler() -> Result<(), LockfileHandlerError> {
+    match ctrlc::set_handler(|| {
+        restore();
+    }) {
+        Ok(()) => Ok(()),
+        // only init once, if there are multiple processes playing with the lockfile we could have a problem
+        Err(ctrlc::Error::MultipleHandlers) => Ok(()),
+        Err(_) => Err(LockfileHandlerError),
+    }
 }
 
-pub struct Start;
-pub struct Moved;
-pub struct Complete;
+fn with_lock<F, R>(f: F) -> R
+where
+    F: FnOnce(&mut Option<(Utf8PathBuf, Utf8PathBuf)>) -> R,
+{
+    let mut guard = RESTORE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-pub trait LockfileState {}
-impl LockfileState for Start {}
-impl LockfileState for Moved {}
-impl LockfileState for Complete {}
+    f(&mut guard)
+}
+
+fn restore() {
+    with_lock(|opt| {
+        if let Some((temp, original)) = opt.take() {
+            let _ = std::fs::rename(temp, original);
+        }
+    });
+}
+
+fn register(temp: Utf8PathBuf, original: Utf8PathBuf) {
+    with_lock(|opt| *opt = Some((temp, original)));
+}
+
+fn deregister() {
+    with_lock(|opt| *opt = None);
+}
 
 const CARGO_LOCK_REPLACEMENT: &str = "Cargo.lock-ignored-for-cargo-msrv";
 
-impl LockfileHandler<Start> {
-    pub fn new<P: AsRef<Utf8Path>>(lock_file: P) -> Self {
-        Self {
-            state: lock_file.as_ref().to_path_buf(),
-            marker: PhantomData,
-        }
+pub struct LockfileHandler {
+    original: Utf8PathBuf,
+    temp: Utf8PathBuf,
+}
+
+impl LockfileHandler {
+    pub fn try_new<P: AsRef<Utf8Path>>(lock_file: P) -> Result<Self, LockfileHandlerError> {
+        let original = lock_file.as_ref().to_path_buf();
+        let temp = original.parent().unwrap().join(CARGO_LOCK_REPLACEMENT);
+
+        init_lockfile_cleanup_handler()?;
+
+        Ok(Self { original, temp })
     }
 
-    pub fn move_lockfile(self) -> TResult<LockfileHandler<Moved>> {
-        let folder = self.state.parent().unwrap();
-        std::fs::rename(self.state.as_path(), folder.join(CARGO_LOCK_REPLACEMENT)).map_err(
-            |error| IoError {
-                error,
-                source: IoErrorSource::RenameFile(self.state.clone()),
-            },
-        )?;
+    pub fn move_lockfile(self) -> TResult<MovedLockfile> {
+        std::fs::rename(&self.original, &self.temp).map_err(|error| IoError {
+            error,
+            source: IoErrorSource::RenameFile(self.original.clone()),
+        })?;
 
-        Ok(LockfileHandler {
-            state: self.state,
-            marker: PhantomData,
+        register(self.temp.clone(), self.original.clone());
+
+        Ok(MovedLockfile {
+            original: self.original,
+            temp: self.temp,
         })
     }
 }
 
-impl LockfileHandler<Moved> {
-    pub fn move_lockfile_back(self) -> TResult<LockfileHandler<Complete>> {
-        let folder = self.state.parent().unwrap();
-        std::fs::rename(folder.join(CARGO_LOCK_REPLACEMENT), self.state.as_path()).map_err(
-            |err| IoError {
-                error: err,
-                source: IoErrorSource::RenameFile(self.state.clone()),
-            },
-        )?;
+pub struct MovedLockfile {
+    original: Utf8PathBuf,
+    temp: Utf8PathBuf,
+}
 
-        Ok(LockfileHandler {
-            state: self.state,
-            marker: PhantomData,
-        })
+impl Drop for MovedLockfile {
+    fn drop(&mut self) {
+        let _ = std::fs::rename(&self.temp, &self.original);
+        deregister();
     }
 }

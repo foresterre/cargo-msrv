@@ -1,6 +1,6 @@
 use crate::compatibility::IsCompatible;
 use crate::context::EnvironmentContext;
-use crate::error::{IoError, IoErrorSource};
+use crate::error::{IoError, IoErrorSource, LockfileHandlerError};
 use crate::external_command::cargo_command::CargoCommand;
 use crate::external_command::rustup_command::RustupCommand;
 use crate::lockfile::LockfileHandler;
@@ -8,7 +8,7 @@ use crate::outcome::Incompatible;
 use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use crate::rust::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
 use crate::rust::Toolchain;
-use crate::{lockfile, CargoMSRVError, Compatibility, Reporter, TResult};
+use crate::{CargoMSRVError, Compatibility, Reporter, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
 use std::fmt;
 use std::fmt::Formatter;
@@ -50,7 +50,7 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
                 let ignore_lockfile = settings.ignore_lockfile();
-                let handle_wrap = create_lockfile_handle(ignore_lockfile, settings.environment)
+                let handle_wrap = create_lockfile_handle(ignore_lockfile, settings.environment)?
                     .map(|handle| handle.move_lockfile())
                     .transpose()?;
 
@@ -84,9 +84,9 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
                 // report outcome to UI
                 report_outcome(self.reporter, &outcome, settings.no_check_feedback())?;
 
-                // move the lockfile back
+                // move the lockfile back - we do this explicitly for clarity
                 if let Some(handle) = handle_wrap {
-                    handle.move_lockfile_back()?;
+                    drop(handle);
                 }
 
                 Ok(outcome)
@@ -188,11 +188,12 @@ fn report_outcome(
 fn create_lockfile_handle(
     ignore_lockfile: bool,
     env: &EnvironmentContext,
-) -> Option<LockfileHandler<lockfile::Start>> {
+) -> Result<Option<LockfileHandler>, LockfileHandlerError> {
     ignore_lockfile
         .then(|| env.lock())
         .filter(|lockfile| lockfile.is_file())
-        .map(LockfileHandler::new)
+        .map(LockfileHandler::try_new)
+        .transpose()
 }
 
 fn remove_lockfile(lock_file: &Utf8Path) -> TResult<()> {
