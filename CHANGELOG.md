@@ -10,9 +10,17 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.19.0 - 2026-03-01
+
 ### Added
 
 * Added `--skip-unavailable-toolchains` which treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
+* Add color to cli help output
+
+### Changed
+
+* Restore lockfile when moved by `--ignore-lockfile`, after a user interrupts the process
+* Deindented help text
 
 ### Fixed
 
@@ -25,7 +33,6 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Changed
 
 * Improve compatibility of path canonicalization on Windows
-* Restore lockfile moved by `--ignore-lockfile`, after a user interrupts the process
 
 ## 0.18.3 - 2025-03-12
 
