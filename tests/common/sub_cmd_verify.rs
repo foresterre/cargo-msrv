@@ -17,7 +17,7 @@ where
     let matches = CargoCli::parse_args(with_args);
     let opts = matches.to_cargo_msrv_cli().to_opts();
     let ctx = Context::try_from(opts)?;
-    let verify_ctx = ctx.to_verify_context().unwrap();
+    let verify_ctx = ctx.to_verify_context();
 
     // Limit the available versions: this ensures we don't need to incrementally install more toolchains
     //  as more Rust toolchains become available.

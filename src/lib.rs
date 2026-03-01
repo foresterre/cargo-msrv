@@ -22,7 +22,7 @@ extern crate tracing;
 
 pub use crate::context::{Context, OutputFormat, TracingOptions, TracingTargetOption};
 pub use crate::outcome::Compatibility;
-pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
+pub use crate::sub_command::{Doctor, Find, List, Set, Show, SubCommand, Verify};
 
 use crate::compatibility::RustupToolchainCheck;
 use crate::context::ReleaseSource;
@@ -61,6 +61,9 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
     match ctx {
+        Context::Doctor(ctx) => {
+            Doctor.run(ctx, reporter)?;
+        }
         Context::Find(ctx) => {
             let index = release_index::fetch_index(reporter, ctx.rust_releases.release_source)?;
 
