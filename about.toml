@@ -40,4 +40,4 @@ license = "BSD-3-Clause"
 checksum = "845022E0C1DB1ABB41A6BA4CD3C4B674EC290F3359D9D3C78AE558D4C0ED9308"
 
 [webpki-roots]
-accepted = ["MPL-2.0"]
+accepted = ["CDLA-Permissive-2.0"]
