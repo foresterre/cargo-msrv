@@ -27,6 +27,7 @@ camino = "1.2" # utf-8 paths
 cargo_metadata = "0.23.1" # resolving Cargo manifest metadata (consider `guppy`!)
 clap = { version = "4.5.59", features = ["derive"] } # parse CLI arguments
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
+ctrlc = "3.5.1" # interrupt handling
 dirs = "6.0.0" # common directories
 dunce = "1.0.5" # better canonicalize for Windows
 indicatif = "0.18.4" # UI

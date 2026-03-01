@@ -49,6 +49,9 @@ pub enum CargoMSRVError {
     InvalidUTF8(#[from] FromUtf8Error),
 
     #[error(transparent)]
+    LockfileHandler(#[from] LockfileHandlerError),
+
+    #[error(transparent)]
     ManifestParseError(#[from] ManifestParseError),
 
     #[error("No crate root found for given crate")]
@@ -336,3 +339,7 @@ enum Utf8PathErrorInner {
     #[error("Path contains non UTF-8 characters (path: '{}')", .0.as_path().display())]
     FromPathBuf(camino::FromPathBufError),
 }
+
+#[derive(Debug, thiserror::Error)]
+#[error("Unable to set cleanup handler for lockfile")]
+pub struct LockfileHandlerError;

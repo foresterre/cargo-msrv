@@ -12,19 +12,20 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Added
 
-- Added `--skip-unavailable-toolchains` which treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
+* Added `--skip-unavailable-toolchains` which treats a Rust version as incompatible when a toolchain failed to install or was otherwise unavailable
 
 ### Fixed
 
 #### Infra
 
-- Fix missing rustup dependency in docker image
+* Fix missing rustup dependency in docker image
 
 ## 0.18.4 - 2025-03-28
 
 ### Changed
 
 * Improve compatibility of path canonicalization on Windows
+* Restore lockfile moved by `--ignore-lockfile`, after a user interrupts the process
 
 ## 0.18.3 - 2025-03-12
 
