@@ -10,6 +10,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.19.1 - 2026-03-01
+
+### Fixed
+
+#### Infra
+
+* Fix license generation in pipeline
+
 ## 0.19.0 - 2026-03-01
 
 ### Added
@@ -35,6 +43,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Improve compatibility of path canonicalization on Windows
 
 ## 0.18.3 - 2025-03-12
+
+### Fixed
 
 #### Infra
 
