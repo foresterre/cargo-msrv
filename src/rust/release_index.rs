@@ -4,7 +4,7 @@ use crate::reporter::event::FetchIndex;
 use crate::reporter::Reporter;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
-use rust_releases::{Channel, FetchResources, ReleaseIndex, RustChangelog, Source};
+use rust_releases::{Channel, ReleaseIndex, RustChangelog, Source};
 
 pub fn fetch_index(
     reporter: &impl Reporter,
