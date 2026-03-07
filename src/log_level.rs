@@ -74,7 +74,9 @@ impl From<LogLevel> for tracing::Level {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ParseLogLevelError {
-    #[error("The given log level '{given_input}' does not exist, valid options are: {valid_options_formatted}]")]
+    #[error(
+        "The given log level '{given_input}' does not exist, valid options are: {valid_options_formatted}]"
+    )]
     NoMatchingLevel {
         given_input: String,
         valid_options_formatted: String,

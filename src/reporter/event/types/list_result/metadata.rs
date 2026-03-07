@@ -1,5 +1,5 @@
-use crate::manifest::bare_version::BareVersion;
 use crate::manifest::CargoManifest;
+use crate::manifest::bare_version::BareVersion;
 use crate::semver;
 use cargo_metadata::{MetadataCommand, Package};
 use std::convert::TryFrom;

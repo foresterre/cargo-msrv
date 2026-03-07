@@ -8,8 +8,8 @@ use std::string::FromUtf8Error;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
 use crate::log_level::ParseLogLevelError;
-use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 use crate::manifest::ManifestParseError;
+use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
 use rust_releases::Release;
 
 use crate::sub_command::{show, verify};
@@ -118,10 +118,14 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),
 
-    #[error("The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains.")]
+    #[error(
+        "The given toolchain could not be found. Run `rustup toolchain list` for an overview of installed toolchains."
+    )]
     ToolchainNotInstalled,
 
-    #[error("The given target could not be found. Run `rustup target list` for an overview of available toolchains.")]
+    #[error(
+        "The given target could not be found. Run `rustup target list` for an overview of available toolchains."
+    )]
     UnknownTarget,
 
     #[error("Unable to get or store the channel manifest on disk.")]

@@ -1,7 +1,7 @@
 use crate::reporter::event::{
     CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit, SubcommandResult,
 };
-use crate::{semver, table_settings, Event};
+use crate::{Event, semver, table_settings};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -187,7 +187,7 @@ impl Status {
 
 fn status(lead: impl Display, message: impl Display) -> String {
     use tabled::builder::Builder;
-    use tabled::settings::{object::Columns, Margin, Modify, Style, Width};
+    use tabled::settings::{Margin, Modify, Style, Width, object::Columns};
 
     const MAX_LEAD_WIDTH: usize = 6;
 
@@ -223,8 +223,8 @@ fn message_box(message: &str) -> String {
 }
 
 fn result_table(result: &FindResult) -> String {
-    use tabled::settings::{object::Rows, Alignment, Disable, Margin, Style};
     use tabled::Table;
+    use tabled::settings::{Alignment, Disable, Margin, Style, object::Rows};
 
     fn msrv(result: &FindResult) -> String {
         result

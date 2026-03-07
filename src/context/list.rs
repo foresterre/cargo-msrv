@@ -61,7 +61,7 @@ impl FromStr for ListMsrvVariant {
                 return Err(crate::CargoMSRVError::InvalidConfig(format!(
                     "No such list variant '{}'",
                     elsy
-                )))
+                )));
             }
         })
     }

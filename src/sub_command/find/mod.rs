@@ -5,14 +5,14 @@ use crate::context::{FindContext, SearchMethod};
 use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::manifest::bare_version::BareVersion;
 use crate::msrv::MinimumSupportedRustVersion;
-use crate::reporter::event::FindResult;
 use crate::reporter::Reporter;
-use crate::rust::releases_filter::ReleasesFilter;
+use crate::reporter::event::FindResult;
 use crate::rust::RustRelease;
+use crate::rust::releases_filter::ReleasesFilter;
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
-use crate::{semver, SubCommand};
+use crate::{SubCommand, semver};
 
 pub struct Find<'index, C: IsCompatible> {
     release_index: &'index ReleaseIndex,

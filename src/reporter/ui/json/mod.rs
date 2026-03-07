@@ -1,5 +1,5 @@
-use crate::io::SendWriter;
 use crate::Event;
+use crate::io::SendWriter;
 use std::io;
 use std::io::Stderr;
 #[cfg(test)]
@@ -24,12 +24,9 @@ pub struct JsonHandler<W: SendWriter> {
 }
 
 impl<W: SendWriter> JsonHandler<W> {
-    const LOCK_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to lock writer for JsonHandle\", \"experimental\": true }";
-    const SERIALIZE_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to serialize event for JsonHandle\", \"experimental\": true }";
-    const WRITE_FAILURE_MSG: &'static str =
-        "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\", \"experimental\": true }";
+    const LOCK_FAILURE_MSG: &'static str = "{ \"panic\": true, \"cause\": \"Unable to lock writer for JsonHandle\", \"experimental\": true }";
+    const SERIALIZE_FAILURE_MSG: &'static str = "{ \"panic\": true, \"cause\": \"Unable to serialize event for JsonHandle\", \"experimental\": true }";
+    const WRITE_FAILURE_MSG: &'static str = "{ \"panic\": true, \"cause\": \"Unable to write serialized event for JsonHandle\", \"experimental\": true }";
 }
 
 #[cfg(test)]

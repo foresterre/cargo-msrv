@@ -1,17 +1,17 @@
 use std::io::Write;
 
-use rust_releases::{semver, Release, ReleaseIndex};
-use toml_edit::{table, value, DocumentMut, Item, Value};
+use rust_releases::{Release, ReleaseIndex, semver};
+use toml_edit::{DocumentMut, Item, Value, table, value};
 
 use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
 use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
+use crate::reporter::Reporter;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
     UnableToConfirmValidReleaseVersion,
 };
-use crate::reporter::Reporter;
 use crate::{CargoMSRVError, SubCommand, TResult};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
@@ -403,10 +403,12 @@ rust-version = "1.58"
             "1.17"
         );
 
-        assert!(manifest
-            .get("package")
-            .and_then(|p| p.get("rust-version"))
-            .is_none());
+        assert!(
+            manifest
+                .get("package")
+                .and_then(|p| p.get("rust-version"))
+                .is_none()
+        );
     }
 
     #[test]
@@ -471,10 +473,12 @@ metadata = { msrv = "1.15" }
             "1.57"
         );
 
-        assert!(manifest
-            .get("package")
-            .and_then(|p| p.get("metadata"))
-            .is_none());
+        assert!(
+            manifest
+                .get("package")
+                .and_then(|p| p.get("metadata"))
+                .is_none()
+        );
     }
 }
 

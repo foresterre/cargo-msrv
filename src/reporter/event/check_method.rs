@@ -1,6 +1,6 @@
+use crate::Event;
 use crate::reporter::event::Message;
 use crate::rust::Toolchain;
-use crate::Event;
 use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -52,8 +52,8 @@ impl Method {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use crate::semver;
     use camino::Utf8Path;
     use storyteller::EventReporter;

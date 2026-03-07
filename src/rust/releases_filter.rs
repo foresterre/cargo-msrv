@@ -1,7 +1,7 @@
 use crate::manifest::bare_version;
 use crate::semver;
-use rust_releases::linear::LatestStableReleases;
 use rust_releases::Release;
+use rust_releases::linear::LatestStableReleases;
 
 /// Filter releases based on the given configuration.
 pub struct ReleasesFilter<'ctx> {

@@ -58,8 +58,8 @@ pub struct Incompatible {
 
 #[cfg(test)]
 mod tests {
-    use crate::rust::Toolchain;
     use crate::Compatibility;
+    use crate::rust::Toolchain;
     use rust_releases::semver;
 
     #[test]

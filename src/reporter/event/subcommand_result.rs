@@ -1,6 +1,6 @@
-use crate::reporter::event::{FindResult, ListResult, SetResult, ShowResult, VerifyResult};
-use crate::reporter::Message;
 use crate::Event;
+use crate::reporter::Message;
+use crate::reporter::event::{FindResult, ListResult, SetResult, ShowResult, VerifyResult};
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]

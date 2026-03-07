@@ -80,20 +80,20 @@ impl ScopeGenerator for TestScopeGenerator {
 
 #[cfg(test)]
 mod tests {
-    use crate::reporter::event::scope::{ScopeCounter, ScopeGenerator};
     use crate::reporter::event::Marker;
+    use crate::reporter::event::scope::{ScopeCounter, ScopeGenerator};
     use std::sync::atomic::Ordering;
 
     #[test]
     fn unused() {
-        let gen = ScopeCounter::new();
-        assert_eq!(gen.counter.load(Ordering::Relaxed), 0);
+        let generator = ScopeCounter::new();
+        assert_eq!(generator.counter.load(Ordering::Relaxed), 0);
     }
 
     #[test]
     fn first_id() {
-        let gen = ScopeCounter::new();
-        let (start, end) = gen.generate();
+        let generator = ScopeCounter::new();
+        let (start, end) = generator.generate();
 
         assert_eq!(start.id, 0);
         assert_eq!(end.id, 0);
@@ -104,8 +104,8 @@ mod tests {
 
     #[test]
     fn second_id() {
-        let gen = ScopeCounter::new();
-        let (start, end) = gen.generate();
+        let generator = ScopeCounter::new();
+        let (start, end) = generator.generate();
 
         assert_eq!(start.id, 0);
         assert_eq!(end.id, 0);
@@ -113,7 +113,7 @@ mod tests {
         assert_eq!(start.marker, Marker::Start);
         assert_eq!(end.marker, Marker::End);
 
-        let (start, end) = gen.generate();
+        let (start, end) = generator.generate();
 
         assert_eq!(start.id, 1);
         assert_eq!(end.id, 1);
@@ -124,13 +124,13 @@ mod tests {
 
     #[test]
     fn thousand() {
-        let gen = ScopeCounter::new();
+        let generator = ScopeCounter::new();
 
         for _ in 0..1000 {
-            gen.generate();
+            generator.generate();
         }
 
-        let (start, end) = gen.generate();
+        let (start, end) = generator.generate();
 
         assert_eq!(start.id, 1000);
         assert_eq!(end.id, 1000);
