@@ -10,6 +10,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.19.2 - 2026-03-07
+
+### Fixed
+
+* Updated `rust-releases` to `0.31.0` to resolve security advisories `GHSA-hfpc-8r3f-gw53`, `GHSA-vw5v-4f2q-w9xf` and `GHSA-65p9-r9h6-22vj` related to the transitive `aws-lc` dependency
+
 ## 0.19.1 - 2026-03-01
 
 ### Fixed
