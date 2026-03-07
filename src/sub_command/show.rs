@@ -5,10 +5,10 @@ use std::convert::TryFrom;
 use crate::context::ShowContext;
 use crate::error::TResult;
 
-use crate::manifest::CargoManifest;
-use crate::reporter::event::ShowResult;
-use crate::reporter::Reporter;
 use crate::SubCommand;
+use crate::manifest::CargoManifest;
+use crate::reporter::Reporter;
+use crate::reporter::event::ShowResult;
 
 #[derive(Default)]
 pub struct Show;

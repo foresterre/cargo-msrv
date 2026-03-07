@@ -34,7 +34,7 @@ mod tests {
     use crate::writer::write_msrv::write_msrv;
     use assert_fs::prelude::*;
     use camino::Utf8Path;
-    use rust_releases::{semver, ReleaseIndex};
+    use rust_releases::{ReleaseIndex, semver};
     use std::iter::FromIterator;
 
     #[test]

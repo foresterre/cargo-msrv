@@ -4,13 +4,13 @@ extern crate cargo_msrv;
 
 use cargo_msrv::error::CargoMSRVError;
 use parameterized::parameterized;
-use rust_releases::{semver, Release};
+use rust_releases::{Release, semver};
 use std::path::Path;
 
+use crate::common::Fixture;
 use crate::common::sub_cmd_find::{
     find_msrv, find_msrv_with_releases, run_cargo_version_which_doesnt_support_lockfile_v2,
 };
-use crate::common::Fixture;
 
 mod common;
 
@@ -205,9 +205,9 @@ fn msrv_with_old_lockfile() {
 }
 
 mod minimum_from_edition {
-    use super::{semver, Release};
-    use crate::common::sub_cmd_find::find_msrv_with_releases;
+    use super::{Release, semver};
     use crate::common::Fixture;
+    use crate::common::sub_cmd_find::find_msrv_with_releases;
 
     #[test]
     #[cfg_attr(

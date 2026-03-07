@@ -3,8 +3,8 @@ use crate::reporter::ui::TestingHandler;
 use crate::{Event, Reporter};
 use std::sync::Arc;
 use storyteller::{
-    event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventListener,
-    EventReporter, EventReporterError, FinishProcessing,
+    ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventListener, EventReporter,
+    EventReporterError, FinishProcessing, event_channel,
 };
 
 pub struct TestReporterWrapper {

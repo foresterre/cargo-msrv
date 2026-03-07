@@ -14,7 +14,7 @@ use cargo_msrv::reporter::{
     DiscardOutputHandler, HumanProgressHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
 };
 use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
-use cargo_msrv::{run_app, Context, OutputFormat, TracingOptions, TracingTargetOption};
+use cargo_msrv::{Context, OutputFormat, TracingOptions, TracingTargetOption, run_app};
 
 fn main() {
     std::process::exit(

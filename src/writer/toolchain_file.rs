@@ -1,9 +1,9 @@
 use crate::error::{IoError, IoErrorSource};
+use crate::reporter::Reporter;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
 };
-use crate::reporter::Reporter;
-use crate::{semver, TResult};
+use crate::{TResult, semver};
 use camino::{Utf8Path, Utf8PathBuf};
 use std::fmt;
 
@@ -75,7 +75,7 @@ mod write_toolchain_file_tests {
     };
     use crate::reporter::{FakeTestReporter, TestReporterWrapper};
     use crate::writer::toolchain_file::write_toolchain_file;
-    use crate::{semver, CargoMSRVError, Event};
+    use crate::{CargoMSRVError, Event, semver};
     use assert_fs::prelude::*;
     use camino::{Utf8Path, Utf8PathBuf};
 
@@ -206,11 +206,13 @@ channel = "1.55.77"
         write_toolchain_file(test_reporter.get(), &version, root).unwrap();
 
         let events = test_reporter.wait_for_events();
-        let expected: Vec<Event> = vec![AuxiliaryOutput::new(
-            Destination::file(Utf8PathBuf::from_path_buf(tmp.join("rust-toolchain")).unwrap()),
-            AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
-        )
-        .into()];
+        let expected: Vec<Event> = vec![
+            AuxiliaryOutput::new(
+                Destination::file(Utf8PathBuf::from_path_buf(tmp.join("rust-toolchain")).unwrap()),
+                AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
+            )
+            .into(),
+        ];
 
         phenomenon::contains_at_least_ordered(events, expected).assert_this();
     }
@@ -237,13 +239,10 @@ channel = "1.55.77"
         ));
 
         let message = format!("{error}");
-        let check = message.contains({
-            format!(
-                "caused by: 'Unable to write file '{}'",
-                expected_path.display()
-            )
-            .as_str()
-        });
+        let check = message.contains(&format!(
+            "caused by: 'Unable to write file '{}'",
+            expected_path.display()
+        ));
 
         assert!(check);
     }

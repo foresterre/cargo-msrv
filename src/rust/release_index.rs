@@ -1,7 +1,7 @@
 use crate::context::ReleaseSource;
 use crate::error::TResult;
-use crate::reporter::event::FetchIndex;
 use crate::reporter::Reporter;
+use crate::reporter::event::FetchIndex;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
 use rust_releases::{Channel, ReleaseIndex, RustChangelog, Source};

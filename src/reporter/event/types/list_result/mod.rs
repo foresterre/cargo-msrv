@@ -1,6 +1,6 @@
+use crate::Event;
 use crate::dependency_graph::DependencyGraph;
 use crate::reporter::event::Message;
-use crate::Event;
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::Formatter;

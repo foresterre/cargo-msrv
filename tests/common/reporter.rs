@@ -6,8 +6,8 @@
 use cargo_msrv::reporter::{Event, Marker, Reporter, Scope, ScopeGenerator, SupplyScopeGenerator};
 use std::sync::{Arc, Mutex, MutexGuard};
 use storyteller::{
-    event_channel, ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventHandler,
-    EventListener, EventReporter, EventReporterError, EventSender, FinishProcessing,
+    ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventHandler, EventListener,
+    EventReporter, EventReporterError, EventSender, FinishProcessing, event_channel,
 };
 
 pub struct IntegrationTestReporter {

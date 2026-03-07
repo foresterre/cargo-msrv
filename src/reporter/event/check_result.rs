@@ -1,7 +1,7 @@
-use crate::reporter::event::shared::compatibility::Compatibility;
-use crate::reporter::event::Message;
-use crate::rust::Toolchain;
 use crate::Event;
+use crate::reporter::event::Message;
+use crate::reporter::event::shared::compatibility::Compatibility;
+use crate::rust::Toolchain;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -41,9 +41,9 @@ impl From<CheckResult> for Event {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
-    use crate::{semver, Event};
+    use crate::reporter::event::Message;
+    use crate::{Event, semver};
     use storyteller::EventReporter;
 
     #[test]

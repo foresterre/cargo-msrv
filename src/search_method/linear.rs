@@ -1,13 +1,13 @@
+use crate::TResult;
 use crate::compatibility::IsCompatible;
 use crate::context::SearchMethod;
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Compatibility;
-use crate::reporter::event::{FindMsrv, Progress};
 use crate::reporter::Reporter;
+use crate::reporter::event::{FindMsrv, Progress};
 use crate::rust::RustRelease;
 use crate::search_method::FindMinimalSupportedRustVersion;
-use crate::TResult;
 
 pub struct Linear<'runner, R: IsCompatible> {
     runner: &'runner R,

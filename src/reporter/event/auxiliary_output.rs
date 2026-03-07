@@ -1,5 +1,5 @@
-use crate::reporter::event::Message;
 use crate::Event;
+use crate::reporter::event::Message;
 use camino::Utf8PathBuf;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -72,9 +72,9 @@ pub enum ToolchainFileKind {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
-    use crate::reporter::TestReporterWrapper;
     use crate::Event;
+    use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use camino::Utf8Path;
     use storyteller::EventReporter;
 

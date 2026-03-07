@@ -2,10 +2,10 @@
 
 use cargo_msrv::exit_code::ExitCode;
 use parameterized::parameterized;
-use rust_releases::{semver, Release};
+use rust_releases::{Release, semver};
 use std::process::Command;
 
-use crate::common::{sub_cmd_verify::run_verify, Fixture};
+use crate::common::{Fixture, sub_cmd_verify::run_verify};
 
 mod common;
 
