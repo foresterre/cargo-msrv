@@ -4,7 +4,7 @@ use cargo_msrv::compatibility::RustupToolchainCheck;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Context, Find, SubCommand};
-use rust_releases::{semver, Release, ReleaseIndex};
+use rust_releases::{Release, ReleaseIndex, semver};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;

@@ -51,8 +51,8 @@ struct SerializableReason {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[test]
@@ -93,9 +93,10 @@ mod tests {
 
         if let Message::TerminateWithFailure(msg) = &events[0].message {
             assert!(msg.should_highlight());
-            assert!(msg
-                .as_message()
-                .starts_with("Unable to find a Minimum Supported Rust Version (MSRV)"));
+            assert!(
+                msg.as_message()
+                    .starts_with("Unable to find a Minimum Supported Rust Version (MSRV)")
+            );
         }
     }
 }

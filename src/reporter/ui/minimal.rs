@@ -1,7 +1,7 @@
-use crate::io::SendWriter;
-use crate::reporter::event::SubcommandResult;
-use crate::reporter::Message;
 use crate::Event;
+use crate::io::SendWriter;
+use crate::reporter::Message;
+use crate::reporter::event::SubcommandResult;
 use std::io;
 use std::io::{Stderr, Stdout};
 #[cfg(test)]
@@ -103,8 +103,8 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 
 #[cfg(test)]
 mod tests {
-    use crate::context::list::ListMsrvVariant;
     use crate::context::SearchMethod;
+    use crate::context::list::ListMsrvVariant;
     use crate::dependency_graph::DependencyGraph;
     use crate::manifest::bare_version::BareVersion;
     use crate::reporter::event::{

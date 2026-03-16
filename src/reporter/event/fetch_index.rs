@@ -25,8 +25,8 @@ impl From<FetchIndex> for Event {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[test]

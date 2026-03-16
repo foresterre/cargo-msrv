@@ -1,5 +1,5 @@
-use crate::reporter::event::Message;
 use crate::Event;
+use crate::reporter::event::Message;
 
 /// Progression indicates how far we are
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -32,8 +32,8 @@ impl Progress {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[test]

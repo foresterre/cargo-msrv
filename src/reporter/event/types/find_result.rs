@@ -1,9 +1,9 @@
 use crate::context::SearchMethod;
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::Message;
+use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::typed_bool::{False, True};
-use crate::{semver, Event};
+use crate::{Event, semver};
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -100,8 +100,8 @@ enum ResultDetails {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[test]

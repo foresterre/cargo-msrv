@@ -1,7 +1,7 @@
-use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::subcommand_result::SubcommandResult;
-use crate::reporter::event::Message;
 use crate::Event;
+use crate::manifest::bare_version::BareVersion;
+use crate::reporter::event::Message;
+use crate::reporter::event::subcommand_result::SubcommandResult;
 use camino::{Utf8Path, Utf8PathBuf};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -50,8 +50,8 @@ struct ResultDetails {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[test]

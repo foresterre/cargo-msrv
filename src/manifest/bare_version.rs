@@ -368,7 +368,7 @@ impl serde::Serialize for BareVersion {
 #[cfg(test)]
 mod bare_version_tests {
     use crate::manifest::BareVersion;
-    use rust_releases::{semver, Release, ReleaseIndex};
+    use rust_releases::{Release, ReleaseIndex, semver};
     use std::iter::FromIterator;
     use yare::parameterized;
 

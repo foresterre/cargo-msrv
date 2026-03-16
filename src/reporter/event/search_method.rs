@@ -1,6 +1,6 @@
+use crate::Event;
 use crate::context::SearchMethod as Method;
 use crate::reporter::event::Message;
-use crate::Event;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -25,8 +25,8 @@ impl From<FindMsrv> for Event {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use storyteller::EventReporter;
 
     #[yare::parameterized(

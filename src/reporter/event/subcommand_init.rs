@@ -1,5 +1,5 @@
-use crate::reporter::event::Message;
 use crate::Event;
+use crate::reporter::event::Message;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -25,8 +25,8 @@ impl From<SubcommandInit> for Event {
 
 #[cfg(test)]
 mod tests {
-    use crate::reporter::event::Message;
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::Message;
     use crate::{Event, SubcommandInit};
     use storyteller::EventReporter;
 

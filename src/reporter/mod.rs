@@ -1,7 +1,7 @@
-use storyteller::{event_channel, ChannelEventListener, ChannelReporter, EventListener};
+use storyteller::{ChannelEventListener, ChannelReporter, EventListener, event_channel};
 
-use crate::reporter::event::ScopeCounter;
 use crate::TResult;
+use crate::reporter::event::ScopeCounter;
 
 pub use ui::DiscardOutputHandler;
 pub use ui::HumanProgressHandler;
@@ -117,8 +117,8 @@ impl SupplyScopeGenerator for MainReporter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::reporter::event::{Marker, Message, Meta, Scope};
     use crate::reporter::TestReporterWrapper;
+    use crate::reporter::event::{Marker, Message, Meta, Scope};
     use crate::{CargoMSRVError, Reporter, SubcommandInit};
     use std::collections::BTreeSet;
     use storyteller::EventReporter;
@@ -190,9 +190,9 @@ mod tests {
         let setup = ReporterSetup;
 
         let (reporter, _listener) = setup.create();
-        let gen = reporter.scope_generator();
+        let generator = reporter.scope_generator();
 
-        let set = iter::repeat_with(|| gen.generate())
+        let set = iter::repeat_with(|| generator.generate())
             .take(1000)
             .map(|(start, end)| {
                 assert!(start.is_start());

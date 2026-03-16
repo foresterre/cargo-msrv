@@ -38,8 +38,8 @@ pub use set::Set;
 /// `cargo msrv show`
 pub use show::Show;
 
-use crate::reporter::Reporter;
 use crate::TResult;
+use crate::reporter::Reporter;
 
 pub mod find;
 pub mod list;

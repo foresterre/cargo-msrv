@@ -1,7 +1,7 @@
 use crate::context::SearchMethod;
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::event::FindResult;
 use crate::reporter::JsonHandler;
+use crate::reporter::event::FindResult;
 use crate::semver;
 use storyteller::EventHandler;
 

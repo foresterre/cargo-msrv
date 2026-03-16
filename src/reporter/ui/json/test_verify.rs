@@ -1,5 +1,5 @@
-use crate::reporter::event::VerifyResult;
 use crate::reporter::JsonHandler;
+use crate::reporter::event::VerifyResult;
 use crate::rust::Toolchain;
 use crate::semver;
 use storyteller::EventHandler;

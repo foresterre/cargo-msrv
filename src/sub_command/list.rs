@@ -1,9 +1,9 @@
+use crate::SubCommand;
 use crate::context::ListContext;
 use crate::dependency_graph::resolver::{CargoMetadataResolver, DependencyResolver};
 use crate::error::TResult;
-use crate::reporter::event::ListResult;
 use crate::reporter::Reporter;
-use crate::SubCommand;
+use crate::reporter::event::ListResult;
 
 #[derive(Default)]
 pub struct List;
