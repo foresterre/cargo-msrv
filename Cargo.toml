@@ -1,6 +1,6 @@
 [package]
 name = "cargo-msrv"
-version = "0.19.2"
+version = "0.19.3"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0 OR MIT"
@@ -34,7 +34,7 @@ indicatif = "0.18.4" # UI
 indoc = "2.0.7"
 owo-colors = "4.3.0" # color support for the terminal
 petgraph = "0.8.3" # graph data structures
-rust-releases = { version = "0.31.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
+rust-releases = { version = "0.32.0", default-features = false, features = ["rust-changelog"] } # get the available rust versions
 serde = { version = "1.0", features = ["derive"] } # serialization and deserialization
 serde_json = "1.0.149"  # JSON serialization and deserialization
 storyteller = "1.0.0" # minimal multi user output architecture

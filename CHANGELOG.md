@@ -10,6 +10,12 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.19.3 - 2026-03-25
+
+### Fixed
+
+* Updated `rust-releases` to `0.32.0` to resolve security advisories `GHSA-394x-vwmw-crm3`, `GHSA-9f94-5g5w-gf6r`, `GHSA-pwjx-qhcg-rvj4`
+
 ## 0.19.2 - 2026-03-07
 
 ### Fixed
