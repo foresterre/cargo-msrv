@@ -225,9 +225,9 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-s3"
-version = "1.125.0"
+version = "1.127.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "223f5c95650d9557925a91f4c2db3def189e8f659452134a29e5cd2d37d708ed"
+checksum = "151783f64e0dcddeb4965d08e36c276b4400a46caa88805a2e36d497deaf031a"
 dependencies = [
  "aws-credential-types",
  "aws-runtime",
@@ -526,9 +526,9 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-types"
-version = "1.4.6"
+version = "1.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2b1117b3b2bbe166d11199b540ceed0d0f7676e36e7b962b5a437a9971eac75"
+checksum = "9d73dbfbaa8e4bc57b9045137680b958d274823509a360abfd8e1d514d40c95c"
 dependencies = [
  "base64-simd",
  "bytes",
@@ -2341,9 +2341,9 @@ dependencies = [
 
 [[package]]
 name = "rust-releases"
-version = "0.31.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fe5b552179c4637f3c673182792b4188655a956f4959a19a6d91c52cc2333a5"
+checksum = "cc776d2ced441850926dce7d1a57507173b37a5d21d9465a3c7e8edff79d97c6"
 dependencies = [
  "rust-releases-core",
  "rust-releases-rust-changelog",
@@ -2372,29 +2372,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-releases-io"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33d1a6e725d3aad8605427b59f9234a2008decf1bd4adbb55fa38c1df925b53d"
+dependencies = [
+ "directories-next",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "rust-releases-rust-changelog"
 version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "775f451ff29c7d5bc95435e61535e3c7e5ab98cb590bbe8e75f0a60c72b38fb7"
 dependencies = [
  "rust-releases-core",
- "rust-releases-io",
+ "rust-releases-io 0.31.0",
  "thiserror 2.0.18",
  "time",
 ]
 
 [[package]]
 name = "rust-releases-rust-dist"
-version = "0.31.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a15bff62316a24af5f9a766a9bdb9ee4297ffe8c407f2487f7a30a275abadcc5"
+checksum = "f6b7a0c8a7619fef363cf261364b177363a691620240d09bfed1cb892d8d4b49"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
  "lazy_static",
  "regex",
  "rust-releases-core",
- "rust-releases-io",
+ "rust-releases-io 0.32.0",
  "thiserror 2.0.18",
  "tokio",
 ]
@@ -2455,7 +2465,7 @@ dependencies = [
  "once_cell",
  "ring",
  "rustls-pki-types",
- "rustls-webpki 0.103.9",
+ "rustls-webpki 0.103.10",
  "subtle",
  "zeroize",
 ]
@@ -2493,9 +2503,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.9"
+version = "0.103.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7df23109aa6c1567d1c575b9952556388da57401e4ace1d15f79eedad0d8f53"
+checksum = "df33b2b81ac578cabaf06b89b0631153a3f416b0a886e8a7a1707fb51abbd1ef"
 dependencies = [
  "aws-lc-rs",
  "ring",
