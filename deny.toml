@@ -1,7 +1,10 @@
 [advisories]
 ignore = [
     "RUSTSEC-2024-0370", # https://rustsec.org/advisories/RUSTSEC-2024-0370 `proc-macro-error` is unmaintained (via `tabled` > `tabled_derive`)
-    "RUSTSEC-2026-0009", # https://rustsec.org/advisories/RUSTSEC-2026-0009
+    "RUSTSEC-2026-0009", # https://rustsec.org/advisories/RUSTSEC-2026-0009 dos via stack exhaustian (via `rust-releases` > `rust-releases-rust-dist` > `aws-*` > `time`)
+    "RUSTSEC-2026-0098", # https://rustsec.org/advisories/RUSTSEC-2026-0098 name constraints for URI names were incorrectly accepted (via `rust-releases` > `rust-releases-rust-dist` > `aws-config` > `aws-smithy-runtime` > `aws-smithy-http-client` > `rustls` > `rustls-webpki`)
+    "RUSTSEC-2026-0099", # https://rustsec.org/advisories/RUSTSEC-2026-0099 permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name (via `rust-releases` > `rust-releases-rust-dist` > `aws-config` > `aws-smithy-runtime` > `aws-smithy-http-client` > `rustls` > `rustls-webpki`)
+    "RUSTSEC-2026-0104", # https://rustsec.org/advisories/RUSTSEC-2026-0104 reachable panic in certificate revocation list parsing (via `rust-releases` > `rust-releases-rust-dist` > `aws-config` > `aws-smithy-runtime` > `aws-smithy-http-client` > `rustls` > `rustls-webki`)
 ]
 
 [licenses]
