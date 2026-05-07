@@ -1,4 +1,4 @@
-use storyteller::{ChannelEventListener, ChannelReporter, EventListener, event_channel};
+use storyteller::{ChannelEventListener, ChannelReporter, DisconnectToken, event_channel};
 
 use crate::TResult;
 use crate::reporter::event::ScopeCounter;
@@ -29,8 +29,11 @@ pub use testing::{FakeTestReporter, TestReporterWrapper};
 // So instead of `fn hello(reporter: &impl EventReporter<Event = Event>)`, we write:
 // `fn hello(reporter: &impl Reporter)`
 pub trait Reporter:
-    storyteller::EventReporter<Event = Event, Err = storyteller::EventReporterError<Event>>
-    + SupplyScopeGenerator
+    storyteller::EventReporter<
+        Event = Event,
+        Err = storyteller::EventReporterError<Event>,
+        DisconnectToken = DisconnectToken,
+    > + SupplyScopeGenerator
 {
     /// Perform a (fallible) action within the scope of the `f` closure, and report the start and
     /// end of this action.
@@ -60,8 +63,11 @@ pub trait Reporter:
 }
 
 impl<R> Reporter for R where
-    R: storyteller::EventReporter<Event = Event, Err = storyteller::EventReporterError<Event>>
-        + SupplyScopeGenerator
+    R: storyteller::EventReporter<
+            Event = Event,
+            Err = storyteller::EventReporterError<Event>,
+            DisconnectToken = DisconnectToken,
+        > + SupplyScopeGenerator
 {
 }
 
@@ -69,7 +75,7 @@ impl<R> Reporter for R where
 pub struct ReporterSetup;
 
 impl ReporterSetup {
-    pub fn create(self) -> (impl Reporter, impl EventListener<Event = Event>) {
+    pub fn create(self) -> (impl Reporter, ChannelEventListener<Event>) {
         let (sender, receiver) = event_channel::<Event>();
 
         let reporter = MainReporter::new(ChannelReporter::new(sender));
@@ -96,12 +102,13 @@ impl MainReporter {
 impl storyteller::EventReporter for MainReporter {
     type Event = Event;
     type Err = storyteller::EventReporterError<Event>;
+    type DisconnectToken = DisconnectToken;
 
     fn report_event(&self, event: impl Into<Self::Event>) -> Result<(), Self::Err> {
         self.inner.report_event(event)
     }
 
-    fn disconnect(self) -> Result<(), Self::Err> {
+    fn disconnect(self) -> Result<Self::DisconnectToken, Self::Err> {
         self.inner.disconnect()
     }
 }

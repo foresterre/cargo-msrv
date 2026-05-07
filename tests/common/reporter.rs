@@ -6,8 +6,8 @@
 use cargo_msrv::reporter::{Event, Marker, Reporter, Scope, ScopeGenerator, SupplyScopeGenerator};
 use std::sync::{Arc, Mutex, MutexGuard};
 use storyteller::{
-    ChannelEventListener, ChannelFinalizeHandler, ChannelReporter, EventHandler, EventListener,
-    EventReporter, EventReporterError, EventSender, FinishProcessing, event_channel,
+    ChannelEventListener, ChannelHandlerGuard, ChannelReporter, DisconnectToken, EventHandler,
+    EventListener, EventReporter, EventReporterError, EventSender, HandlerGuard, event_channel,
 };
 
 pub struct IntegrationTestReporter {
@@ -18,12 +18,13 @@ pub struct IntegrationTestReporter {
 impl EventReporter for IntegrationTestReporter {
     type Event = Event;
     type Err = EventReporterError<Event>;
+    type DisconnectToken = DisconnectToken;
 
     fn report_event(&self, event: impl Into<Self::Event>) -> Result<(), Self::Err> {
         self.inner.report_event(event)
     }
 
-    fn disconnect(self) -> Result<(), Self::Err> {
+    fn disconnect(self) -> Result<Self::DisconnectToken, Self::Err> {
         self.inner.disconnect()
     }
 }
@@ -57,11 +58,11 @@ impl ScopeGenerator for IntegrationTestScopeGenerator {
 }
 
 pub struct EventTestDevice {
-    reporter: IntegrationTestReporter,
+    reporter: Option<IntegrationTestReporter>,
     #[allow(unused)]
     listener: ChannelEventListener<Event>,
-    handler: Arc<TestingHandler>,
-    finalizer: ChannelFinalizeHandler,
+    handler: Option<Arc<TestingHandler>>,
+    guard: Option<ChannelHandlerGuard>,
 }
 
 impl Default for EventTestDevice {
@@ -71,13 +72,22 @@ impl Default for EventTestDevice {
         let reporter = IntegrationTestReporter::new(sender);
         let listener = ChannelEventListener::new(receiver);
         let handler = Arc::new(TestingHandler::default());
-        let finalizer = listener.run_handler(handler.clone());
+        let guard = listener.run_handler(handler.clone());
 
         Self {
-            reporter,
+            reporter: Some(reporter),
             listener,
-            handler,
-            finalizer,
+            handler: Some(handler),
+            guard: Some(guard),
+        }
+    }
+}
+
+impl Drop for EventTestDevice {
+    fn drop(&mut self) {
+        if let (Some(reporter), Some(guard)) = (self.reporter.take(), self.guard.take()) {
+            let token = reporter.disconnect().unwrap();
+            guard.join(token).unwrap();
         }
     }
 }
@@ -85,6 +95,8 @@ impl Default for EventTestDevice {
 impl EventTestDevice {
     pub fn events(&self) -> Vec<Event> {
         self.handler
+            .as_ref()
+            .unwrap()
             .clone()
             .events()
             .iter()
@@ -92,17 +104,17 @@ impl EventTestDevice {
             .collect::<Vec<_>>()
     }
 
-    pub fn wait_for_events(self) -> Vec<Event> {
-        self.reporter.disconnect().unwrap();
-        self.finalizer.finish_processing().unwrap();
+    pub fn wait_for_events(mut self) -> Vec<Event> {
+        let token = self.reporter.take().unwrap().disconnect().unwrap();
+        self.guard.take().unwrap().join(token).unwrap();
 
-        let handler = Arc::try_unwrap(self.handler).unwrap();
+        let handler = Arc::try_unwrap(self.handler.take().unwrap()).unwrap();
 
         handler.unwrap_events()
     }
 
     pub fn reporter(&self) -> &impl Reporter {
-        &self.reporter
+        self.reporter.as_ref().unwrap()
     }
 }
 

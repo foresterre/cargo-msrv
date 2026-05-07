@@ -4,7 +4,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use storyteller::{EventHandler, EventListener, FinishProcessing};
+use storyteller::{DisconnectToken, EventHandler, EventListener, HandlerGuard};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 use cargo_msrv::cli::{CargoCli, CargoMsrvOpts};
@@ -73,7 +73,7 @@ fn setup_reporter(opts: CargoMsrvOpts) -> Result<ExitCode, SetupError> {
 
     let output_format = opts.shared_opts.user_output_opts.effective_output_format();
     let handler = WrappingHandler::from(output_format);
-    let finalizer = listener.run_handler(Arc::new(handler));
+    let guard = listener.run_handler(Arc::new(handler));
     tracing::info!("storyteller started handler");
     tracing::info!("starting execution");
 
@@ -82,8 +82,8 @@ fn setup_reporter(opts: CargoMsrvOpts) -> Result<ExitCode, SetupError> {
     tracing::info!("finished execution");
 
     let exit_code = get_exit_code(res, &reporter)?;
-    disconnect_reporter(reporter)?;
-    wait_for_user_output(finalizer)?;
+    let token = disconnect_reporter(reporter)?;
+    wait_for_user_output(guard, token)?;
 
     Ok(exit_code)
 }
@@ -161,25 +161,22 @@ impl From<OutputFormat> for WrappingHandler {
 
 /// Disconnect the reporter, signalling that the program is finished, and we can now finish
 /// up processing the last user output events.
-fn disconnect_reporter(reporter: impl Reporter) -> Result<(), SetupError> {
+fn disconnect_reporter(reporter: impl Reporter) -> Result<DisconnectToken, SetupError> {
     reporter
         .disconnect()
-        .map_err(|_| SetupError::StorytellerDisconnect)?;
-
-    tracing::info!("disconnected reporter");
-
-    Ok(())
+        .map_err(|_| SetupError::StorytellerDisconnect)
+        .inspect(|_| tracing::info!("disconnected reporter"))
 }
 
 /// Wait for the user output processing to finish up it's queue of events by blocking.
-fn wait_for_user_output(finalizer: impl FinishProcessing) -> Result<(), SetupError> {
-    finalizer
-        .finish_processing()
-        .map_err(|_| SetupError::StorytellerFinishEventProcessing)?;
-
-    tracing::info!("finished processing unprocessed events");
-
-    Ok(())
+fn wait_for_user_output<G: HandlerGuard<Token = DisconnectToken>>(
+    guard: G,
+    token: DisconnectToken,
+) -> Result<(), SetupError> {
+    guard
+        .join(token)
+        .map_err(|_| SetupError::StorytellerFinishEventProcessing)
+        .inspect(|_| tracing::info!("finished processing unprocessed events"))
 }
 
 fn init_tracing(tracing_config: &TracingConfig) -> Result<TracingGuard, SetupError> {
