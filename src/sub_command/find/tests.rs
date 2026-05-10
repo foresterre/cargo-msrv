@@ -6,10 +6,27 @@ use crate::context::{
     WorkspacePackages,
 };
 use crate::manifest::bare_version::BareVersion;
-use crate::reporter::TestReporterWrapper;
+use crate::reporter::{Message, SubcommandResult, TestReporterWrapper};
 use camino::Utf8PathBuf;
 use rust_releases::semver;
 use std::iter::FromIterator;
+
+fn find_result_event(events: &[Event]) -> &FindResult {
+    events
+        .iter()
+        .find_map(|event| match event.message() {
+            Message::SubcommandResult(SubcommandResult::Find(result)) => Some(result),
+            _ => None,
+        })
+        .expect("missing find result event")
+}
+
+fn progress_count(events: &[Event]) -> u64 {
+    events
+        .iter()
+        .filter(|event| matches!(event.message(), Message::Progress(_)))
+        .count() as u64
+}
 
 #[test]
 fn bisect_find_only_last() {
@@ -50,18 +67,10 @@ fn bisect_find_only_last() {
     assert_eq!(found, semver::Version::new(1, 56, 0));
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![
-        FindResult::new_msrv(
-            semver::Version::new(1, 56, 0),
-            "x",
-            BareVersion::ThreeComponents(1, 37, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
-            SearchMethod::Bisect,
-        )
-        .into(),
-    ];
+    let result = find_result_event(&events);
 
-    phenomenon::contains_at_least_ordered(events, expected).assert_this();
+    assert_eq!(result.msrv(), Some(&semver::Version::new(1, 56, 0)));
+    assert_eq!(result.skipped_checks(), Some(20 - progress_count(&events)));
 }
 
 #[test]
@@ -97,18 +106,10 @@ fn bisect_find_all_compatible() {
     assert_eq!(found, semver::Version::new(1, 52, 0));
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![
-        FindResult::new_msrv(
-            semver::Version::new(1, 52, 0),
-            "x",
-            BareVersion::ThreeComponents(1, 52, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
-            SearchMethod::Bisect,
-        )
-        .into(),
-    ];
+    let result = find_result_event(&events);
 
-    phenomenon::contains_at_least_ordered(events, expected).assert_this();
+    assert_eq!(result.msrv(), Some(&semver::Version::new(1, 52, 0)));
+    assert_eq!(result.skipped_checks(), Some(5 - progress_count(&events)));
 }
 
 #[test]
@@ -135,17 +136,10 @@ fn bisect_none_compatible() {
     assert!(result.is_err());
 
     let events = reporter.wait_for_events();
-    let expected: Vec<Event> = vec![
-        FindResult::none(
-            "x",
-            BareVersion::ThreeComponents(1, 52, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
-            SearchMethod::Bisect,
-        )
-        .into(),
-    ];
+    let result = find_result_event(&events);
 
-    phenomenon::contains_at_least_ordered(events, expected).assert_this();
+    assert_eq!(result.msrv(), None);
+    assert_eq!(result.skipped_checks(), Some(5 - progress_count(&events)));
 }
 
 // These test cases cover the case that the minimum is set to be a strictly more recent

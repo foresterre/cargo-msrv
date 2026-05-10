@@ -7,7 +7,7 @@ use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::rust::RustRelease;
-use crate::search_method::FindMinimalSupportedRustVersion;
+use crate::search_method::{FindMinimalSupportedRustVersion, SearchOutcome};
 
 pub struct Linear<'runner, R: IsCompatible> {
     runner: &'runner R,
@@ -33,7 +33,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
         &self,
         search_space: &[RustRelease],
         reporter: &impl Reporter,
-    ) -> TResult<MinimumSupportedRustVersion> {
+    ) -> TResult<SearchOutcome> {
         info!(?search_space);
 
         if search_space.is_empty() {
@@ -62,7 +62,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
 
             let msrv = last_compatible_index.map(|i| &search_space[i]);
 
-            Ok(MinimumSupportedRustVersion::from_option(msrv))
+            Ok(SearchOutcome::new(MinimumSupportedRustVersion::from_option(msrv), None))
         })
     }
 }
@@ -103,7 +103,7 @@ mod tests {
 
         let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
 
-        assert_eq!(actual, expected);
+        assert_eq!(actual.msrv, expected);
     }
 
     #[test]
@@ -130,7 +130,7 @@ mod tests {
             toolchain: Toolchain::new(semver::Version::new(1, 54, 0), "x", &[]),
         };
 
-        assert_eq!(actual, expected);
+        assert_eq!(actual.msrv, expected);
     }
 
     #[test]
@@ -159,7 +159,7 @@ mod tests {
             toolchain: Toolchain::new(semver::Version::new(1, 56, 0), "x", &[]),
         };
 
-        assert_eq!(actual, expected);
+        assert_eq!(actual.msrv, expected);
     }
 
     #[test]
@@ -188,7 +188,7 @@ mod tests {
         // can.
         let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
 
-        assert_eq!(actual, expected);
+        assert_eq!(actual.msrv, expected);
     }
 
     #[test]
@@ -216,6 +216,6 @@ mod tests {
         // Not 1.55, since we expect that the Rust 1.56 must be able to compile everything that 1.54
         // can.
         let expected = MinimumSupportedRustVersion::NoCompatibleToolchain;
-        assert_eq!(actual, expected);
+        assert_eq!(actual.msrv, expected);
     }
 }
