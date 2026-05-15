@@ -2000,7 +2000,7 @@ dependencies = [
 name = "msrv"
 version = "0.0.2"
 dependencies = [
- "rust-toolchain",
+ "rust-toolchain 1.1.0",
  "version-number",
 ]
 
@@ -2431,12 +2431,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-releases"
-version = "0.32.0"
+name = "rust-release"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc776d2ced441850926dce7d1a57507173b37a5d21d9465a3c7e8edff79d97c6"
+checksum = "57c5889fa32f4d20d07493ddca8bd133efcd8d993d7b75a3a77908cc1c9c5b8e"
 dependencies = [
- "rust-releases-core",
+ "rust-toolchain 2.0.0",
+]
+
+[[package]]
+name = "rust-releases"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1722eeb255942dcb607d347e11ca137128f61c16c4f59a054a006386e811d22f"
+dependencies = [
+ "rust-releases-core 0.33.0",
  "rust-releases-rust-changelog",
  "rust-releases-rust-dist",
 ]
@@ -2448,6 +2457,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d88e431fd8e09a10915a4ab707e0bfceb101347f686e424ab7438fcbff86d3af"
 dependencies = [
  "semver",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "rust-releases-core"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56073819eabcda404722e9c153ad33a268eba316c0d7b86c059bd9700d078300"
+dependencies = [
+ "rust-release",
  "thiserror 2.0.18",
 ]
 
@@ -2464,12 +2483,13 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-io"
-version = "0.32.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33d1a6e725d3aad8605427b59f9234a2008decf1bd4adbb55fa38c1df925b53d"
+checksum = "4c1d37583877de7de8f80207a5140055c657f784175df69e7dcfe346f83ae4d4"
 dependencies = [
  "directories-next",
  "thiserror 2.0.18",
+ "ureq",
 ]
 
 [[package]]
@@ -2478,7 +2498,7 @@ version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "775f451ff29c7d5bc95435e61535e3c7e5ab98cb590bbe8e75f0a60c72b38fb7"
 dependencies = [
- "rust-releases-core",
+ "rust-releases-core 0.31.0",
  "rust-releases-io 0.31.0",
  "thiserror 2.0.18",
  "time",
@@ -2486,16 +2506,16 @@ dependencies = [
 
 [[package]]
 name = "rust-releases-rust-dist"
-version = "0.32.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6b7a0c8a7619fef363cf261364b177363a691620240d09bfed1cb892d8d4b49"
+checksum = "f77c9e10cc2a6bd2952fc629bdd59d1b11059bea0cbda4b02f5b17acac03bddb"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
  "lazy_static",
  "regex",
- "rust-releases-core",
- "rust-releases-io 0.32.0",
+ "rust-releases-core 0.33.0",
+ "rust-releases-io 0.33.0",
  "thiserror 2.0.18",
  "tokio",
 ]
@@ -2505,6 +2525,17 @@ name = "rust-toolchain"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d6eabe35a52d519553f1c990b6c4370c1584d07775b4170885483ca541d856a"
+dependencies = [
+ "target-lexicon",
+ "thiserror 2.0.18",
+ "version-number",
+]
+
+[[package]]
+name = "rust-toolchain"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90d544a983e3f798d518d8e203ae4b0f26f984d62913f303fb15f8d390d93913"
 dependencies = [
  "target-lexicon",
  "thiserror 2.0.18",
@@ -3339,9 +3370,9 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "ureq"
-version = "3.2.1"
+version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ab5172ab0c2b6d01a9bb4f9332f7c1211193ea002742188040d09ea4eafe867"
+checksum = "dea7109cdcd5864d4eeb1b58a1648dc9bf520360d7af16ec26d0a9354bafcfc0"
 dependencies = [
  "base64",
  "flate2",
@@ -3356,9 +3387,9 @@ dependencies = [
 
 [[package]]
 name = "ureq-proto"
-version = "0.5.3"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d81f9efa9df032be5934a46a068815a10a042b494b6a58cb0a1a97bb5467ed6f"
+checksum = "e994ba84b0bd1b1b0cf92878b7ef898a5c1760108fe7b6010327e274917a808c"
 dependencies = [
  "base64",
  "http 1.4.0",
