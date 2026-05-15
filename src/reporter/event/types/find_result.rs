@@ -16,6 +16,8 @@ pub struct FindResult {
     pub maximum_version: BareVersion,
     #[serde(skip)]
     pub search_method: SearchMethod,
+    #[serde(skip)]
+    skipped_checks: Option<u64>,
 
     result: ResultDetails,
 }
@@ -34,6 +36,7 @@ impl FindResult {
             maximum_version: max,
 
             search_method,
+            skipped_checks: None,
 
             result: ResultDetails::Determined {
                 version,
@@ -54,9 +57,15 @@ impl FindResult {
             maximum_version: max,
 
             search_method,
+            skipped_checks: None,
 
             result: ResultDetails::Undetermined { success: False },
         }
+    }
+
+    pub fn with_skipped_checks(mut self, skipped_checks: u64) -> Self {
+        self.skipped_checks = Some(skipped_checks);
+        self
     }
 
     pub fn msrv(&self) -> Option<&semver::Version> {
@@ -69,6 +78,10 @@ impl FindResult {
         } else {
             None
         }
+    }
+
+    pub fn skipped_checks(&self) -> Option<u64> {
+        self.skipped_checks
     }
 }
 

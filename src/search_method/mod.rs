@@ -5,6 +5,21 @@ use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
 use crate::rust::RustRelease;
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SearchOutcome {
+    pub msrv: MinimumSupportedRustVersion,
+    pub skipped_checks: Option<u64>,
+}
+
+impl SearchOutcome {
+    pub fn new(msrv: MinimumSupportedRustVersion, skipped_checks: Option<u64>) -> Self {
+        Self {
+            msrv,
+            skipped_checks,
+        }
+    }
+}
+
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each
 /// step, making this an efficient search function.
 pub mod bisect;
@@ -23,5 +38,5 @@ pub trait FindMinimalSupportedRustVersion {
         &self,
         search_space: &[RustRelease],
         reporter: &impl Reporter,
-    ) -> TResult<MinimumSupportedRustVersion>;
+    ) -> TResult<SearchOutcome>;
 }

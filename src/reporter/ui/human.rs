@@ -236,8 +236,8 @@ fn result_table(result: &FindResult) -> String {
     let target = result.target.as_str();
     let search_method: &str = result.search_method.into();
 
-    let content = &[
-        &[
+    let mut content = vec![
+        [
             format!("Considered ({} … {}):", "min".cyan(), "max".yellow()),
             format!(
                 "Rust {} … Rust {}",
@@ -245,16 +245,24 @@ fn result_table(result: &FindResult) -> String {
                 result.maximum_version.yellow()
             ),
         ],
-        &[
+        [
             "Search method:".to_string(),
             format!("{}", search_method.bright_purple()),
         ],
-        &["MSRV:".to_string(), msrv(result)],
-        &[
-            format!("{}", "Target:".dimmed()),
-            format!("{}", target.dimmed()),
-        ],
+        ["MSRV:".to_string(), msrv(result)],
     ];
+
+    if let Some(skipped_checks) = result.skipped_checks() {
+        content.push([
+            format!("{}", "Skipped checks:".dimmed()),
+            skipped_checks.to_string(),
+        ]);
+    }
+
+    content.push([
+        format!("{}", "Target:".dimmed()),
+        format!("{}", target.dimmed()),
+    ]);
 
     Table::new(content)
         .with(Disable::row(Rows::first()))
@@ -264,6 +272,46 @@ fn result_table(result: &FindResult) -> String {
         .with(Alignment::top())
         .with(Margin::new(2, 0, 0, 1))
         .to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::context::SearchMethod;
+    use crate::manifest::bare_version::BareVersion;
+    use crate::reporter::event::FindResult;
+    use crate::semver;
+
+    #[test]
+    fn summary_includes_skipped_checks_for_bisect() {
+        let result = FindResult::new_msrv(
+            semver::Version::new(1, 56, 0),
+            "x",
+            BareVersion::ThreeComponents(1, 37, 0),
+            BareVersion::ThreeComponents(1, 56, 0),
+            SearchMethod::Bisect,
+        )
+        .with_skipped_checks(13);
+
+        let summary = result.summary();
+
+        assert!(summary.contains("Skipped checks:"));
+        assert!(summary.contains("13"));
+    }
+
+    #[test]
+    fn summary_omits_skipped_checks_for_linear() {
+        let result = FindResult::new_msrv(
+            semver::Version::new(1, 56, 0),
+            "x",
+            BareVersion::ThreeComponents(1, 37, 0),
+            BareVersion::ThreeComponents(1, 56, 0),
+            SearchMethod::Linear,
+        );
+
+        let summary = result.summary();
+
+        assert!(!summary.contains("Skipped checks:"));
+    }
 }
 
 impl Meta {

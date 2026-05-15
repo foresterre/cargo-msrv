@@ -9,7 +9,7 @@ use crate::outcome::{Compatibility, Compatible, Incompatible};
 use crate::reporter::Reporter;
 use crate::reporter::event::{FindMsrv, Progress};
 use crate::rust::RustRelease;
-use crate::search_method::FindMinimalSupportedRustVersion;
+use crate::search_method::{FindMinimalSupportedRustVersion, SearchOutcome};
 
 pub struct Bisect<'runner, R: IsCompatible> {
     runner: &'runner R,
@@ -55,7 +55,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
         &self,
         search_space: &[RustRelease],
         reporter: &impl Reporter,
-    ) -> TResult<MinimumSupportedRustVersion> {
+    ) -> TResult<SearchOutcome> {
         info!(?search_space);
 
         reporter.run_scoped_event(FindMsrv::new(SearchMethod::Bisect), || {
@@ -63,6 +63,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
 
             let total = search_space.len() as u64;
             let mut iteration = 0_u64;
+            let mut checks_run = 0_u64;
             let mut indices = Indices::try_from_bisector(&searcher)
                 .map_err(|_| NoToolchainsToTryError::new_empty())?;
 
@@ -76,6 +77,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
                 indices,
             )? {
                 iteration += 1;
+                checks_run += 1;
 
                 info!(?indices, ?next_indices);
 
@@ -97,6 +99,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
             // https://github.com/foresterre/cargo-msrv/issues/288
             let msrv = if indices.middle() == search_space.len() - 1 {
                 Self::show_progress(iteration + 1, total, indices, reporter)?;
+                checks_run += 1;
 
                 match Self::run_check(self.runner, converged_to_release, reporter)? {
                     ConvergeTo::Left(_outcome) => {
@@ -108,7 +111,10 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
                 last_compatible_index.map(|i| &search_space[i.middle()])
             };
 
-            Ok(MinimumSupportedRustVersion::from_option(msrv))
+            Ok(SearchOutcome::new(
+                MinimumSupportedRustVersion::from_option(msrv),
+                Some(total.saturating_sub(checks_run)),
+            ))
         })
     }
 }
@@ -330,6 +336,6 @@ mod tests {
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
 
-        assert_eq!(result.unwrap_version(), expected_msrv);
+        assert_eq!(result.msrv.unwrap_version(), expected_msrv);
     }
 }

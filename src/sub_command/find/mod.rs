@@ -9,7 +9,7 @@ use crate::reporter::Reporter;
 use crate::reporter::event::FindResult;
 use crate::rust::RustRelease;
 use crate::rust::releases_filter::ReleasesFilter;
-use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
+use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear, SearchOutcome};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
 use crate::{SubCommand, semver};
@@ -137,7 +137,7 @@ fn run_searcher(
         .iter()
         .map(|r| RustRelease::new(r.clone(), ctx.toolchain.target, ctx.toolchain.components))
         .collect::<Vec<_>>();
-    let minimum_capable = method
+    let search_outcome: SearchOutcome = method
         .find_toolchain(&searchable_releases, reporter)
         .map_err(|err| match err {
             CargoMSRVError::NoToolchainsToTry(inner) if !inner.has_clues() => {
@@ -151,13 +151,13 @@ fn run_searcher(
             _ => err,
         })?;
 
-    report_outcome(&minimum_capable, releases, ctx, reporter)?;
+    report_outcome(&search_outcome, releases, ctx, reporter)?;
 
-    Ok(minimum_capable)
+    Ok(search_outcome.msrv.clone())
 }
 
 fn report_outcome(
-    minimum_capable: &MinimumSupportedRustVersion,
+    search_outcome: &SearchOutcome,
     releases: &[Release],
     ctx: &FindContext,
     reporter: &impl Reporter,
@@ -179,25 +179,37 @@ fn report_outcome(
     let target = ctx.toolchain.target;
     let search_method = ctx.search_method;
 
-    match minimum_capable {
+    match &search_outcome.msrv {
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
             let version = toolchain.version();
 
-            reporter.report_event(FindResult::new_msrv(
+            let mut event = FindResult::new_msrv(
                 version.clone(),
                 target,
                 minimum_considered,
                 maximum_considered,
                 search_method,
-            ))?;
+            );
+
+            if let Some(skipped_checks) = search_outcome.skipped_checks {
+                event = event.with_skipped_checks(skipped_checks);
+            }
+
+            reporter.report_event(event)?;
         }
         MinimumSupportedRustVersion::NoCompatibleToolchain => {
-            reporter.report_event(FindResult::none(
+            let mut event = FindResult::none(
                 target,
                 minimum_considered,
                 maximum_considered,
                 search_method,
-            ))?;
+            );
+
+            if let Some(skipped_checks) = search_outcome.skipped_checks {
+                event = event.with_skipped_checks(skipped_checks);
+            }
+
+            reporter.report_event(event)?;
         }
     }
 
