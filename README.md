@@ -32,14 +32,14 @@ In this readme you'll find everything to get you started. You can find more deta
 
 | cargo       | supported | command                                                                                       |
 |-------------|-----------|-----------------------------------------------------------------------------------------------|
-| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.18.4` cargo-msrv |
+| stable      | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git --tag v0.19.3` cargo-msrv |
 | development | 💚        | `$ cargo install --git https://github.com/foresterre/cargo-msrv.git` cargo-msrv               |
 
 #### [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 
 | cargo       | supported | command                                                     |
 |-------------|-----------|-------------------------------------------------------------|
-| stable      | 💚        | `$ cargo binstall --version 0.18.4 --no-confirm cargo-msrv` |
+| stable      | 💚        | `$ cargo binstall --no-confirm cargo-msrv` |
 | development | ❌        |                                                             |
 
 #### Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/cargo-msrv/)
