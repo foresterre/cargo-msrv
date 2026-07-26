@@ -57,6 +57,6 @@ impl<W: SendWriter> EventHandler for JsonHandler<W> {
         let mut w = self.writer.lock().expect(Self::LOCK_FAILURE_MSG);
         let serialized_event = serde_json::to_string(&event).expect(Self::SERIALIZE_FAILURE_MSG);
 
-        writeln!(&mut w, "{}", &serialized_event).expect(Self::WRITE_FAILURE_MSG);
+        writeln!(&mut w, "{}", serialized_event).expect(Self::WRITE_FAILURE_MSG);
     }
 }

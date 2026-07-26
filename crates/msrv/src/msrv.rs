@@ -28,7 +28,7 @@ impl MSRV {
 
 impl fmt::Display for MSRV {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("{}", &self.version))
+        f.write_fmt(format_args!("{}", self.version))
     }
 }
 

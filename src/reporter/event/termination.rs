@@ -22,7 +22,7 @@ impl TerminateWithFailure {
         Self {
             highlight,
             reason: SerializableReason {
-                description: format!("{}", &error),
+                description: format!("{}", error),
             },
         }
     }
