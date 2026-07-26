@@ -18,10 +18,6 @@ rust-version = "1.91.1"
 tag-name = "v{{version}}"
 
 [dependencies]
-# workspace
-msrv = { path = "crates/msrv", version = "0.0.2" }
-
-# external
 bisector = "0.4.0" # bisection with a custom comparator
 camino = "1.2" # utf-8 paths
 cargo_metadata = "0.23.1" # resolving Cargo manifest metadata (consider `guppy`!)

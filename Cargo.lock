@@ -714,7 +714,6 @@ dependencies = [
  "dunce",
  "indicatif",
  "indoc",
- "msrv",
  "owo-colors",
  "parameterized",
  "petgraph",
