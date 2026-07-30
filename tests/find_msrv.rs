@@ -2,15 +2,14 @@
 
 extern crate cargo_msrv;
 
-use cargo_msrv::error::CargoMSRVError;
-use parameterized::parameterized;
-use rust_releases::{Release, semver};
-use std::path::Path;
-
 use crate::common::Fixture;
 use crate::common::sub_cmd_find::{
     find_msrv, find_msrv_with_releases, run_cargo_version_which_doesnt_support_lockfile_v2,
 };
+use cargo_msrv::error::CargoMSRVError;
+use parameterized::parameterized;
+use rust_releases::{Release, semver};
+use std::path::Path;
 
 mod common;
 

@@ -1,9 +1,9 @@
-use crate::manifest::bare_version::BareVersion;
 use cargo_metadata::{Metadata, semver};
+use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use toml_edit::{DocumentMut, TomlError};
 
-pub(crate) mod bare_version;
+use cargo_msrv_types::bare_version;
 
 pub trait TomlParser {
     type Error;
@@ -229,7 +229,7 @@ mod minimal_version_tests {
 
 #[cfg(test)]
 mod bare_version_tests {
-    use crate::manifest::BareVersion;
+    use cargo_msrv_types::BareVersion;
     use rust_releases::{Release, ReleaseIndex, semver};
     use std::iter::FromIterator;
     use yare::parameterized;

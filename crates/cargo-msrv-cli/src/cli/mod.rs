@@ -2,16 +2,16 @@ use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
-use crate::context::list::ListMsrvVariant;
-use crate::manifest::bare_version::BareVersion;
+use crate::types::ListMsrvVariant;
+use cargo_msrv_types::BareVersion;
 use clap::{Args, Parser, Subcommand};
 use clap_cargo::style::CLAP_STYLING;
 use std::ffi::{OsStr, OsString};
 
-pub(crate) mod custom_check_opts;
-pub(crate) mod rust_releases_opts;
-pub(crate) mod shared_opts;
-pub(crate) mod toolchain_opts;
+pub mod custom_check_opts;
+pub mod rust_releases_opts;
+pub mod shared_opts;
+pub mod toolchain_opts;
 
 #[derive(Debug, Parser)]
 #[command(version, name = "cargo", bin_name = "cargo", max_term_width = 120, styles = CLAP_STYLING)]

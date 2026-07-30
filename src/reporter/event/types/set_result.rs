@@ -1,8 +1,8 @@
 use crate::Event;
-use crate::manifest::bare_version::BareVersion;
 use crate::reporter::event::Message;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_types::BareVersion;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]

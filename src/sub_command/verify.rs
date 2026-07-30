@@ -8,12 +8,12 @@ use crate::compatibility::IsCompatible;
 use crate::context::{EnvironmentContext, VerifyContext};
 use crate::error::{CargoMSRVError, TResult};
 use crate::manifest::CargoManifest;
-use crate::manifest::bare_version::BareVersion;
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::VerifyResult;
 use crate::rust::Toolchain;
 use crate::sub_command::SubCommand;
+use cargo_msrv_types::BareVersion;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, C: IsCompatible> {

@@ -1,7 +1,7 @@
 use crate::manifest::CargoManifest;
-use crate::manifest::bare_version::BareVersion;
 use crate::semver;
 use cargo_metadata::{MetadataCommand, Package};
+use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use std::path::Path;
 

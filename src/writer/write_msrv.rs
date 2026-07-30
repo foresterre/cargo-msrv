@@ -1,7 +1,7 @@
 use crate::context::{EnvironmentContext, RustReleasesContext, SetContext};
-use crate::manifest::bare_version::BareVersion;
 use crate::reporter::Reporter;
 use crate::{Set, SubCommand, TResult};
+use cargo_msrv_types::BareVersion;
 use rust_releases::ReleaseIndex;
 
 /// Write the MSRV to the Cargo manifest
@@ -29,11 +29,11 @@ pub fn write_msrv(
 mod tests {
     use crate::context::{EnvironmentContext, RustReleasesContext, WorkspacePackages};
     use crate::error::CargoMSRVError;
-    use crate::manifest::bare_version::BareVersion;
     use crate::reporter::FakeTestReporter;
     use crate::writer::write_msrv::write_msrv;
     use assert_fs::prelude::*;
     use camino::Utf8Path;
+    use cargo_msrv_types::BareVersion;
     use rust_releases::{ReleaseIndex, semver};
     use std::iter::FromIterator;
 

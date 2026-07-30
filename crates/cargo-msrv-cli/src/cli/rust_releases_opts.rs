@@ -1,6 +1,6 @@
-use crate::ReleaseSource;
-use crate::manifest::bare_version;
-use crate::manifest::bare_version::BareVersion;
+use crate::types::ReleaseSource;
+use cargo_msrv_types::BareVersion;
+use cargo_msrv_types::bare_version;
 use clap::Args;
 use std::str::FromStr;
 

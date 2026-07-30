@@ -85,7 +85,7 @@ pub enum ParseLogLevelError {
 
 #[cfg(test)]
 mod tests {
-    use crate::log_level::{LogLevel, ParseLogLevelError};
+    use super::*;
 
     #[yare::parameterized(
         trace_numeric = {  "5", LogLevel::Trace },

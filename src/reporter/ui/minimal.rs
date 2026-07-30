@@ -106,7 +106,6 @@ mod tests {
     use crate::context::SearchMethod;
     use crate::context::list::ListMsrvVariant;
     use crate::dependency_graph::DependencyGraph;
-    use crate::manifest::bare_version::BareVersion;
     use crate::reporter::event::{
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
     };
@@ -115,6 +114,7 @@ mod tests {
     use crate::semver;
     use camino::Utf8Path;
     use cargo_metadata::PackageId;
+    use cargo_msrv_types::BareVersion;
     use storyteller::EventHandler;
 
     #[test]

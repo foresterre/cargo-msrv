@@ -11,13 +11,11 @@ use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 
 use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
-use crate::manifest::bare_version::BareVersion;
 use camino::{Utf8Path, Utf8PathBuf};
-use clap::ValueEnum;
+use cargo_msrv_types::BareVersion;
 use std::convert::{TryFrom, TryInto};
+use std::env;
 use std::path::Path;
-use std::str::FromStr;
-use std::{env, fmt};
 
 pub mod find;
 pub mod list;
@@ -28,9 +26,10 @@ pub mod verify;
 use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::Edition;
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::log_level::LogLevel;
 use crate::reporter::event::SelectedPackage;
 use crate::rust::default_target::default_target;
+use cargo_msrv_cli::types::LogLevel;
+pub use cargo_msrv_cli::types::{OutputFormat, ReleaseSource, TracingTargetOption};
 pub use find::FindContext;
 pub use list::ListContext;
 pub use set::SetContext;
@@ -389,97 +388,6 @@ impl WorkspacePackages {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, ValueEnum)]
-pub enum OutputFormat {
-    /// Progress bar rendered to stderr
-    #[default]
-    Human,
-    /// Json status updates printed to stdout
-    Json,
-    /// Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
-    Minimal,
-    /// No output -- meant to be used for debugging and testing
-    #[value(skip)]
-    None,
-}
-
-impl fmt::Display for OutputFormat {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Human => write!(f, "human"),
-            Self::Json => write!(f, "json"),
-            Self::Minimal => write!(f, "minimal"),
-            Self::None => write!(f, "none"),
-        }
-    }
-}
-
-impl FromStr for OutputFormat {
-    type Err = CargoMSRVError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "human" => Ok(Self::Human),
-            "json" => Ok(Self::Json),
-            "minimal" => Ok(Self::Minimal),
-            unknown => Err(CargoMSRVError::InvalidConfig(format!(
-                "Given output format '{}' is not valid",
-                unknown
-            ))),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize, ValueEnum)]
-#[serde(rename_all = "snake_case")]
-pub enum ReleaseSource {
-    #[default]
-    RustChangelog,
-    #[cfg(feature = "rust-releases-dist-source")]
-    RustDist,
-}
-
-impl FromStr for ReleaseSource {
-    type Err = CargoMSRVError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.try_into()
-    }
-}
-
-impl From<ReleaseSource> for &'static str {
-    fn from(value: ReleaseSource) -> Self {
-        match value {
-            ReleaseSource::RustChangelog => "rust-changelog",
-            #[cfg(feature = "rust-releases-dist-source")]
-            ReleaseSource::RustDist => "rust-dist",
-        }
-    }
-}
-
-impl TryFrom<&str> for ReleaseSource {
-    type Error = CargoMSRVError;
-
-    fn try_from(source: &str) -> Result<Self, Self::Error> {
-        match source {
-            "rust-changelog" => Ok(Self::RustChangelog),
-            #[cfg(feature = "rust-releases-dist-source")]
-            "rust-dist" => Ok(Self::RustDist),
-            s => Err(CargoMSRVError::RustReleasesSourceParseError(s.to_string())),
-        }
-    }
-}
-
-impl fmt::Display for ReleaseSource {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::RustChangelog => write!(f, "rust-changelog"),
-            #[cfg(feature = "rust-releases-dist-source")]
-            Self::RustDist => write!(f, "rust-dist"),
-        }
-    }
-}
-
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SearchMethod {
@@ -525,32 +433,5 @@ impl TracingOptions {
 
     pub fn level(&self) -> &LogLevel {
         &self.level
-    }
-}
-
-#[derive(Debug, Copy, Clone, ValueEnum, Default)]
-pub enum TracingTargetOption {
-    #[default]
-    File,
-    Stdout,
-}
-
-impl TracingTargetOption {
-    pub const FILE: &'static str = "file";
-    pub const STDOUT: &'static str = "stdout";
-}
-
-impl FromStr for TracingTargetOption {
-    type Err = CargoMSRVError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            Self::FILE => Ok(Self::File),
-            Self::STDOUT => Ok(Self::Stdout),
-            unknown => Err(CargoMSRVError::InvalidConfig(format!(
-                "Given log target '{}' is not valid",
-                unknown
-            ))),
-        }
     }
 }

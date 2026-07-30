@@ -1,7 +1,7 @@
-use crate::manifest::bare_version::BareVersion;
 use crate::reporter::JsonHandler;
 use crate::reporter::event::ShowResult;
 use camino::Utf8Path;
+use cargo_msrv_types::BareVersion;
 use storyteller::EventHandler;
 
 #[test]

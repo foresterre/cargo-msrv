@@ -5,7 +5,6 @@ use toml_edit::{DocumentMut, Item, Value, table, value};
 
 use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
-use crate::manifest::bare_version::BareVersion;
 use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::Reporter;
 use crate::reporter::event::{
@@ -13,6 +12,7 @@ use crate::reporter::event::{
     UnableToConfirmValidReleaseVersion,
 };
 use crate::{CargoMSRVError, SubCommand, TResult};
+use cargo_msrv_types::BareVersion;
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -223,9 +223,9 @@ fn discard_current_msrv(document: &mut DocumentMut) {
 mod set_or_override_msrv_tests {
     use toml_edit::DocumentMut;
 
-    use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::set_or_override_msrv;
+    use cargo_msrv_types::BareVersion;
 
     #[test]
     fn set_rust_version_in_empty_two_component() {
@@ -676,9 +676,9 @@ metadata = { msrv = "1.15", other = 1 }
 mod insert_new_msrv_tests {
     use toml_edit::{DocumentMut, Item};
 
-    use crate::manifest::bare_version::BareVersion;
     use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::insert_new_msrv;
+    use cargo_msrv_types::BareVersion;
 
     #[test]
     fn insert_rust_version_in_empty_two_component() {
@@ -766,9 +766,9 @@ edition = "2021"
     mod insert_package_manifest_msrv_correct_table_type {
         use toml_edit::{DocumentMut, Item, Value};
 
-        use crate::manifest::bare_version::BareVersion;
         use crate::manifest::{CargoManifestParser, TomlParser};
         use crate::sub_command::set::insert_new_msrv;
+        use cargo_msrv_types::BareVersion;
 
         const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
 
@@ -927,8 +927,8 @@ mod valid_release_tests {
     use cargo_metadata::semver;
     use rust_releases::{Release, ReleaseIndex};
 
-    use crate::manifest::bare_version::BareVersion;
     use crate::sub_command::set::has_release;
+    use cargo_msrv_types::BareVersion;
 
     #[test]
     fn releases_include_bare() {

@@ -1,11 +1,10 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::EnvironmentContext;
 use crate::error::CargoMSRVError;
-use clap::ValueEnum;
 use std::convert::{TryFrom, TryInto};
-use std::fmt;
-use std::fmt::Formatter;
-use std::str::FromStr;
+
+pub use cargo_msrv_cli::types::ListMsrvVariant;
+pub(crate) use cargo_msrv_cli::types::{DIRECT_DEPS, ORDERED_BY_MSRV};
 
 #[derive(Debug)]
 pub struct ListContext {
@@ -37,41 +36,5 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
             variant: list_opts.variant,
             environment,
         })
-    }
-}
-
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
-pub enum ListMsrvVariant {
-    DirectDeps,
-    #[default]
-    OrderedByMSRV,
-}
-
-pub(crate) const DIRECT_DEPS: &str = "direct-deps";
-pub(crate) const ORDERED_BY_MSRV: &str = "ordered-by-msrv";
-
-impl FromStr for ListMsrvVariant {
-    type Err = CargoMSRVError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            DIRECT_DEPS => Self::DirectDeps,
-            ORDERED_BY_MSRV => Self::OrderedByMSRV,
-            elsy => {
-                return Err(crate::CargoMSRVError::InvalidConfig(format!(
-                    "No such list variant '{}'",
-                    elsy
-                )));
-            }
-        })
-    }
-}
-
-impl fmt::Display for ListMsrvVariant {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::DirectDeps => write!(f, "{}", DIRECT_DEPS),
-            Self::OrderedByMSRV => write!(f, "{}", ORDERED_BY_MSRV),
-        }
     }
 }

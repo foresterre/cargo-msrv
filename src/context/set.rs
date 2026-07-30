@@ -1,7 +1,7 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
 use crate::context::{EnvironmentContext, RustReleasesContext};
 use crate::error::CargoMSRVError;
-use crate::manifest::bare_version::BareVersion;
+use cargo_msrv_types::BareVersion;
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug)]

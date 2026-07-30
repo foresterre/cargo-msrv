@@ -298,7 +298,7 @@ mod format_toolchain_file_tests {
     #[yare::parameterized(
         str_value = { Box::new("1.36.0") },
         semver = { Box::new(crate::semver::Version::new(1, 36, 0)) },
-        bare_version = { Box::new(crate::manifest::bare_version::BareVersion::ThreeComponents(1, 36, 0))},
+        bare_version = { Box::new(cargo_msrv_types::BareVersion::ThreeComponents(1, 36, 0))},
     )]
     fn values_which_impl_display(channel: Box<dyn fmt::Display>) {
         let content = format_toolchain_file(&channel);

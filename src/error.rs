@@ -7,9 +7,12 @@ use std::path::PathBuf;
 use std::string::FromUtf8Error;
 
 use crate::cli::rust_releases_opts::{ParseEditionError, ParseEditionOrVersionError};
-use crate::log_level::ParseLogLevelError;
 use crate::manifest::ManifestParseError;
-use crate::manifest::bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
+use cargo_msrv_cli::types::{
+    ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError, ParseReleaseSourceError,
+    ParseTracingTargetOptionError,
+};
+use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
 use rust_releases::Release;
 
 use crate::sub_command::{show, verify};
@@ -19,7 +22,7 @@ pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 #[derive(Debug, thiserror::Error)]
 pub enum CargoMSRVError {
     #[error("Unable to parse minimum rust version: {0}")]
-    BareVersionParse(#[from] crate::manifest::bare_version::Error),
+    BareVersionParse(#[from] cargo_msrv_types::bare_version::Error),
 
     #[error(transparent)]
     CargoMetadata(#[from] cargo_metadata::Error),
@@ -162,6 +165,34 @@ impl From<String> for CargoMSRVError {
     }
 }
 
+// The values of the command line options are parsed by the `cargo-msrv-cli` crate, which has its
+// own, self contained errors. The conversions below keep these errors reportable as a
+// `CargoMSRVError`.
+
+impl From<ParseListMsrvVariantError> for CargoMSRVError {
+    fn from(error: ParseListMsrvVariantError) -> Self {
+        Self::InvalidConfig(error.to_string())
+    }
+}
+
+impl From<ParseOutputFormatError> for CargoMSRVError {
+    fn from(error: ParseOutputFormatError) -> Self {
+        Self::InvalidConfig(error.to_string())
+    }
+}
+
+impl From<ParseReleaseSourceError> for CargoMSRVError {
+    fn from(error: ParseReleaseSourceError) -> Self {
+        Self::RustReleasesSourceParseError(error.0)
+    }
+}
+
+impl From<ParseTracingTargetOptionError> for CargoMSRVError {
+    fn from(error: ParseTracingTargetOptionError) -> Self {
+        Self::InvalidConfig(error.to_string())
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 #[error("IO error: '{error}'. caused by: '{source}'.")]
 pub struct IoError {
@@ -244,7 +275,7 @@ pub struct NoToolchainToTryClues {
 #[derive(Debug, thiserror::Error)]
 #[error("No Rust releases match input '{}' (search space: [{}])",
     input,
-    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", ") )
+    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", "))
 ]
 pub struct InvalidMsrvSetError {
     pub(crate) input: BareVersion,

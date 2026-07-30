@@ -1,5 +1,5 @@
-use crate::manifest::bare_version;
 use crate::semver;
+use cargo_msrv_types::bare_version;
 use rust_releases::Release;
 use rust_releases::linear::LatestStableReleases;
 
@@ -61,7 +61,7 @@ fn include_version(
 
 #[cfg(test)]
 mod tests {
-    use crate::manifest::bare_version::BareVersion;
+    use cargo_msrv_types::BareVersion;
     use parameterized::{ide, parameterized};
     use rust_releases::semver::Version;
 

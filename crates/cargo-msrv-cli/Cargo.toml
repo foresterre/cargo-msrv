@@ -1,0 +1,31 @@
+[package]
+name = "cargo-msrv-cli"
+description = "Command line interface of cargo-msrv"
+version = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+edition = { workspace = true }
+repository = { workspace = true }
+
+rust-version = "1.91.1"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "cli", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
+
+[dependencies]
+cargo-msrv-types = { path = "../cargo-msrv-types", version = "0.19.3" }
+
+clap = { workspace = true }
+clap-cargo = { workspace = true }
+indoc = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+yare = { workspace = true }
+
+[features]
+# Enables the `rust-dist` release source as a value of the `--release-source` option
+rust-releases-dist-source = []
+

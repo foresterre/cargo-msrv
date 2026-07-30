@@ -32,7 +32,8 @@ use crate::reporter::{Event, Reporter};
 use rust::release_index;
 use rust_releases::semver;
 
-pub mod cli;
+pub use cargo_msrv_cli::cli;
+
 pub mod compatibility;
 
 pub mod context;
@@ -42,7 +43,6 @@ pub mod exit_code;
 mod external_command;
 pub mod io;
 pub mod lockfile;
-pub mod log_level;
 pub mod manifest;
 pub mod msrv;
 pub mod outcome;
