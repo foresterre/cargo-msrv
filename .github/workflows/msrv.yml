@@ -45,6 +45,8 @@ jobs:
     strategy:
       matrix:
         crate: [
+          "cargo-msrv-cli",
+          "cargo-msrv-types",
           "msrv"
         ]
     steps:

@@ -21,4 +21,4 @@ jobs:
 
       - name: check_formatting
         run: |
-          cargo fmt -- --check
+          cargo fmt --all -- --check
