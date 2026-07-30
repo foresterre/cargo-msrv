@@ -29,7 +29,7 @@ For example:
 
 <commit message>
 
-Assisted-by: claude-opus-4-7
+Assisted-by: claude-opus-4.7
 ```
 
 NB: Use an `Assisted-by:` footer (NEVER use `Co-authored-by:`) to attribute LLM/agent involvement in commits. 
