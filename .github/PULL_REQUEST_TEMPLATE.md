@@ -1,11 +1,11 @@
-Thank you for your contribution to `cargo-msrv`. If you need any help (and are a human), feel free to ask questions to @foresterre.
+Thank you for your contribution to `cargo-msrv`. If you need any help (and are a human), feel free to ask questions. We're happy to help!
 
 ## Description
 
 <!-- What does this change do, and why? -->
 
 
-## AI / LLM disclosure
+## AI / LLM Disclosure
 
 <!-- Only check the boxes that apply -->
 
