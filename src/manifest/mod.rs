@@ -87,13 +87,56 @@ fn find_minimum_rust_version(
             .as_str()
     }
 
+    /// Parses `workspace.package.rust-version` for workspace manifests without a root package.
+    /// Also falls back to `workspace.metadata.msrv` (the cargo-msrv convention).
+    fn find_workspace_rust_version(
+        metadata: &Metadata,
+    ) -> Result<Option<BareVersion>, bare_version::Error> {
+        if metadata.root_package().is_some() {
+            return Ok(None);
+        }
+        let workspace_toml = metadata.workspace_root.join("Cargo.toml");
+        let contents = match std::fs::read_to_string(&workspace_toml) {
+            Ok(c) => c,
+            Err(_) => return Ok(None),
+        };
+        let doc: DocumentMut = match contents.parse() {
+            Ok(d) => d,
+            Err(_) => return Ok(None),
+        };
+        let workspace = match doc.get("workspace") {
+            Some(w) => w,
+            None => return Ok(None),
+        };
+        if let Some(v) = workspace
+            .get("package")
+            .and_then(|p| p.get("rust-version"))
+            .and_then(|v| v.as_str())
+        {
+            return BareVersion::try_from(v).map(Some);
+        }
+        if let Some(v) = workspace
+            .get("metadata")
+            .and_then(|m| m.get("msrv"))
+            .and_then(|v| v.as_str())
+        {
+            return BareVersion::try_from(v).map(Some);
+        }
+        Ok(None)
+    }
+
     // Parse the MSRV from the `package.rust-version` key if it exists,
-    // and try to fallback to our own `package.metadata.msrv` if it doesn't
+    // and try to fallback to our own `package.metadata.msrv` if it doesn't.
+    // For workspace manifests with no root package, fall back to `workspace.package.rust-version`.
     match find_rust_version(metadata) {
         Some(version) => Ok(Some(BareVersion::from(version))),
-        None => find_metadata_msrv(metadata)
+        None => match find_metadata_msrv(metadata)
             .map(BareVersion::try_from)
-            .transpose(),
+            .transpose()?
+        {
+            Some(v) => Ok(Some(v)),
+            None => find_workspace_rust_version(metadata),
+        },
     }
 }
 
@@ -224,6 +267,137 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata);
 
         assert!(manifest.is_err());
+    }
+}
+
+#[cfg(test)]
+mod workspace_version_tests {
+    use crate::manifest::{BareVersion, CargoManifest};
+    use cargo_metadata::Metadata;
+    use std::convert::TryFrom;
+
+    /// Build a Metadata JSON for a pure workspace (no root package) with the given workspace_root.
+    fn workspace_metadata_json(workspace_root: &str) -> String {
+        format!(
+            r#"{{
+  "packages": [
+    {{
+      "name": "member",
+      "version": "0.1.0",
+      "id": "member 0.1.0 (path+file://{workspace_root}/member)",
+      "manifest_path": "{workspace_root}/member/Cargo.toml",
+      "dependencies": [],
+      "targets": [],
+      "features": {{}},
+      "edition": "2018"
+    }}
+  ],
+  "workspace_members": [
+    "member 0.1.0 (path+file://{workspace_root}/member)"
+  ],
+  "target_directory": "{workspace_root}/target",
+  "version": 1,
+  "workspace_root": "{workspace_root}"
+}}"#,
+            workspace_root = workspace_root
+        )
+    }
+
+    fn with_temp_workspace<F: FnOnce(&std::path::Path)>(cargo_toml_content: &str, f: F) {
+        let dir = std::env::temp_dir().join(format!(
+            "cargo-msrv-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .subsec_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("Cargo.toml"), cargo_toml_content).unwrap();
+        f(&dir);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn workspace_package_rust_version_two_components() {
+        with_temp_workspace(
+            r#"
+[workspace.package]
+rust-version = "1.70"
+[workspace]
+members = ["member"]
+"#,
+            |dir| {
+                let root = dir.to_str().unwrap();
+                let json = workspace_metadata_json(root);
+                let metadata: Metadata = serde_json::from_str(&json).unwrap();
+                let manifest = CargoManifest::try_from(metadata).unwrap();
+                assert_eq!(
+                    manifest.minimum_rust_version().unwrap(),
+                    &BareVersion::TwoComponents(1, 70)
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn workspace_package_rust_version_three_components() {
+        with_temp_workspace(
+            r#"
+[workspace.package]
+rust-version = "1.70.0"
+[workspace]
+members = ["member"]
+"#,
+            |dir| {
+                let root = dir.to_str().unwrap();
+                let json = workspace_metadata_json(root);
+                let metadata: Metadata = serde_json::from_str(&json).unwrap();
+                let manifest = CargoManifest::try_from(metadata).unwrap();
+                assert_eq!(
+                    manifest.minimum_rust_version().unwrap(),
+                    &BareVersion::ThreeComponents(1, 70, 0)
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn workspace_metadata_msrv_fallback() {
+        with_temp_workspace(
+            r#"
+[workspace]
+members = ["member"]
+[workspace.metadata]
+msrv = "1.65"
+"#,
+            |dir| {
+                let root = dir.to_str().unwrap();
+                let json = workspace_metadata_json(root);
+                let metadata: Metadata = serde_json::from_str(&json).unwrap();
+                let manifest = CargoManifest::try_from(metadata).unwrap();
+                assert_eq!(
+                    manifest.minimum_rust_version().unwrap(),
+                    &BareVersion::TwoComponents(1, 65)
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn workspace_no_rust_version_returns_none() {
+        with_temp_workspace(
+            r#"
+[workspace]
+members = ["member"]
+"#,
+            |dir| {
+                let root = dir.to_str().unwrap();
+                let json = workspace_metadata_json(root);
+                let metadata: Metadata = serde_json::from_str(&json).unwrap();
+                let manifest = CargoManifest::try_from(metadata).unwrap();
+                assert!(manifest.minimum_rust_version().is_none());
+            },
+        );
     }
 }
 
