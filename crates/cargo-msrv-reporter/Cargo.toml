@@ -17,15 +17,15 @@ cargo-msrv-context = { workspace = true }
 cargo-msrv-manifest = { workspace = true }
 cargo-msrv-types = { workspace = true }
 
-camino = "1.2"
-cargo_metadata = "0.23.1"
+camino = { workspace = true }
+cargo_metadata = { workspace = true }
 indicatif = "0.18.4"
-owo-colors = "4.3.0"
-petgraph = "0.8.3"
+owo-colors = { workspace = true }
+petgraph = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
-serde_json = "1.0.150"
-storyteller = "2.0.0-beta.1"
+serde_json = { workspace = true }
+storyteller = { workspace = true }
 tabled = { version = "~0.16.0", features = ["ansi"] }
 terminal_size = "0.4.3"
 
