@@ -1,0 +1,40 @@
+[package]
+name = "cargo-msrv-reporter"
+description = "User facing output of cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.91.1"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "reporter", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-context = { workspace = true }
+cargo-msrv-manifest = { workspace = true }
+cargo-msrv-types = { workspace = true }
+
+camino = { workspace = true }
+cargo_metadata = { workspace = true }
+indicatif = "0.18.4"
+owo-colors = { workspace = true }
+petgraph = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+storyteller = { workspace = true }
+tabled = { version = "~0.16.0", features = ["ansi"] }
+terminal_size = "0.4.3"
+
+[dev-dependencies]
+yare = { workspace = true }
+
+[features]
+# Enables the `rust-dist` release source
+rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
+
+# Enables the test reporters and event handlers, for use by dependent crates
+testing = []

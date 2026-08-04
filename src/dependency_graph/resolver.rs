@@ -50,9 +50,7 @@ where
 {
     // Add nodes to the petgraph
     for package in packages {
-        let package_id = package.id.clone();
-        let node_index = graph.packages.add_node(package);
-        let _ = graph.index.insert(package_id, node_index.index());
+        graph.add_package(package);
     }
 
     for dependency in dependencies {
@@ -65,11 +63,11 @@ where
                 .iter()
                 .all(|k| k.kind == DependencyKind::Normal || k.kind == DependencyKind::Build)
             {
-                let child = graph.index[&child.pkg];
-                let ancestor = graph.index[&dependency.id];
+                let child = graph.index()[&child.pkg];
+                let ancestor = graph.index()[&dependency.id];
 
                 // add link
-                graph.packages.add_edge(ancestor.into(), child.into(), ());
+                graph.add_dependency(ancestor, child);
             }
         }
     }

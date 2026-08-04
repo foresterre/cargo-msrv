@@ -157,6 +157,15 @@ Thank you in advance!"#
     Path(#[from] PathError),
 }
 
+impl CargoMSRVError {
+    pub fn should_highlight(&self) -> bool {
+        matches!(
+            self,
+            Self::UnableToFindAnyGoodVersion { .. } | Self::InvalidMsrvSet(_)
+        )
+    }
+}
+
 impl From<String> for CargoMSRVError {
     fn from(s: String) -> Self {
         Self::GenericMessage(s)

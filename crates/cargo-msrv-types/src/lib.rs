@@ -4,5 +4,7 @@
 #![allow(clippy::uninlined_format_args)]
 
 pub mod bare_version;
+pub mod toolchain;
 
 pub use bare_version::{BareVersion, NoVersionMatchesManifestMsrvError};
+pub use toolchain::Toolchain;

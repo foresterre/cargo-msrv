@@ -1,10 +1,10 @@
 use super::*;
-use crate::Event;
 use crate::compatibility::TestRunner;
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
     WorkspacePackages,
 };
+use crate::reporter::Event;
 use crate::reporter::TestReporterWrapper;
 use camino::Utf8PathBuf;
 use cargo_msrv_context::types::ReleaseSource;

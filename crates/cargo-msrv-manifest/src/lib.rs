@@ -8,6 +8,10 @@ use toml_edit::{DocumentMut, TomlError};
 
 use cargo_msrv_types::bare_version;
 
+pub mod dependency_graph;
+
+pub use dependency_graph::DependencyGraph;
+
 pub trait TomlParser {
     type Error;
 

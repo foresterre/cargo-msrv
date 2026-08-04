@@ -10,6 +10,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Fixed
+
+* The `sha_short` build metadata is now reported again by the `meta` event
+
 ## 0.19.3 - 2026-03-25
 
 ### Fixed

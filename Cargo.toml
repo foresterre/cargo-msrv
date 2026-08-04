@@ -7,7 +7,7 @@ license = { workspace = true }
 edition = { workspace = true }
 repository = { workspace = true }
 
-rust-version = "1.91.1"
+rust-version = "1.96.0"
 
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
@@ -25,31 +25,28 @@ tag-name = "v{{version}}"
 cargo-msrv-cli = { workspace = true } # the command line interface
 cargo-msrv-context = { workspace = true } # the resolved configuration of a run
 cargo-msrv-manifest = { workspace = true } # the Cargo manifest parsing
+cargo-msrv-reporter = { workspace = true } # the user facing output
 cargo-msrv-types = { workspace = true } # the types shared with the command line interface
 
 # external
 bisector = "0.4.0" # bisection with a custom comparator
-camino = "1.2" # utf-8 paths
-cargo_metadata = "0.23.1" # resolving Cargo manifest metadata (consider `guppy`!)
+camino = { workspace = true } # utf-8 paths
+cargo_metadata = { workspace = true } # resolving Cargo manifest metadata (consider `guppy`!)
 ctrlc = "3.5.1" # interrupt handling
 dirs = "6.0.0" # common directories
-dunce = "1.0.5" # better canonicalize for Windows
-indicatif = "0.18.4" # UI
-owo-colors = "4.3.0" # color support for the terminal
-petgraph = "0.8.3" # graph data structures
+dunce = { workspace = true } # better canonicalize for Windows
+owo-colors = { workspace = true } # color support for the terminal
 rust-releases = { workspace = true, features = ["rust-changelog"] } # get the available rust versions
-serde = { workspace = true } # serialization and deserialization
-serde_json = "1.0.150"  # JSON serialization and deserialization
-storyteller = "2.0.0-beta.1" # minimal multi user output architecture
-tabled = { version = "~0.16.0", features = ["ansi"] } # pretty print tables
-terminal_size = "0.4.3" # determine the terminal size
+storyteller = { workspace = true } # minimal multi user output architecture
 thiserror = { workspace = true } # error handling
-toml_edit = "0.25.5" # read and write the Cargo.toml
+toml_edit = { workspace = true } # read and write the Cargo.toml
 tracing = { workspace = true } # tracing
 tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
 
 [dev-dependencies]
+cargo-msrv-reporter = { workspace = true, features = ["testing"] }
+
 assert_fs = "1.1.3"
 yare = { workspace = true }
 phenomenon = "~1.0.0"
@@ -57,7 +54,8 @@ parameterized = { workspace = true }
 
 
 [build-dependencies]
-vergen = { version = "8.3.2", default-features = false, features = ["build", "cargo", "git", "gitcl", "rustc"] }
+vergen = { version = "10.0.2", default-features = false, features = ["cargo", "rustc"] }
+vergen-gitcl = { version = "10.0.2", default-features = false }
 
 # ~~~ features ~~~
 
@@ -67,6 +65,7 @@ rust-releases-dist-source = [
     "rust-releases/rust-dist",
     "cargo-msrv-cli/rust-releases-dist-source",
     "cargo-msrv-context/rust-releases-dist-source",
+    "cargo-msrv-reporter/rust-releases-dist-source",
 ]
 
 # ~~~ workspace ~~~
@@ -76,6 +75,7 @@ members = [
     "crates/cargo-msrv-cli",
     "crates/cargo-msrv-context",
     "crates/cargo-msrv-manifest",
+    "crates/cargo-msrv-reporter",
     "crates/cargo-msrv-types",
     "crates/msrv",
 ]
@@ -91,15 +91,25 @@ repository = "https://github.com/foresterre/cargo-msrv"
 cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.19.3" }
 cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.19.3" }
 cargo-msrv-manifest = { path = "crates/cargo-msrv-manifest", version = "0.19.3" }
+cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.19.3" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
+camino = "1.2"
+cargo_metadata = "0.23.1"
 clap = { version = "4.6.0", features = ["derive"] }
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
+dunce = "1.0.5"
 indoc = "2.0.7"
+owo-colors = "4.3.0"
 parameterized = "2.1.0"
+petgraph = "0.8.3"
 rust-releases = { version = "0.32.0", default-features = false }
+semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.150"
+storyteller = "2.0.0-beta.1"
 thiserror = "2.0.18"
+toml_edit = "0.25.5"
 tracing = "0.1"
 yare = "3.0.0"
 
