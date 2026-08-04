@@ -58,7 +58,7 @@ fn meta() -> Meta {
     Meta::new(
         option_env!("CARGO_PKG_NAME").unwrap_or("cargo-msrv"),
         option_env!("CARGO_PKG_VERSION").unwrap_or(UNKNOWN_VERSION),
-        option_env!("VERGEN_GIT_SHA_SHORT"),
+        option_env!("VERGEN_GIT_SHA"),
         option_env!("VERGEN_CARGO_TARGET_TRIPLE"),
         option_env!("VERGEN_CARGO_FEATURES"),
         option_env!("VERGEN_RUSTC_SEMVER"),

@@ -7,7 +7,7 @@ license = { workspace = true }
 edition = { workspace = true }
 repository = { workspace = true }
 
-rust-version = "1.91.1"
+rust-version = "1.96.0"
 
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
@@ -54,7 +54,8 @@ parameterized = { workspace = true }
 
 
 [build-dependencies]
-vergen = { version = "8.3.2", default-features = false, features = ["build", "cargo", "git", "gitcl", "rustc"] }
+vergen = { version = "10.0.2", default-features = false, features = ["cargo", "rustc"] }
+vergen-gitcl = { version = "10.0.2", default-features = false }
 
 # ~~~ features ~~~
 
