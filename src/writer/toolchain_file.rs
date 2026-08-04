@@ -70,12 +70,13 @@ channel = "{}"
 mod write_toolchain_file_tests {
     use super::IoError;
     use crate::error::IoErrorSource;
+    use crate::reporter::Event;
     use crate::reporter::event::{
         AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
     };
     use crate::reporter::{FakeTestReporter, TestReporterWrapper};
     use crate::writer::toolchain_file::write_toolchain_file;
-    use crate::{CargoMSRVError, Event, semver};
+    use crate::{CargoMSRVError, semver};
     use assert_fs::prelude::*;
     use camino::{Utf8Path, Utf8PathBuf};
 

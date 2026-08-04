@@ -105,7 +105,7 @@ fn get_exit_code(
         Ok(_) => ExitCode::Success,
         Err(err) => {
             reporter
-                .report_event(TerminateWithFailure::new(err))
+                .report_event(TerminateWithFailure::new(&err, err.should_highlight()))
                 .map_err(|_| SetupError::StorytellerSend)?;
 
             ExitCode::Failure

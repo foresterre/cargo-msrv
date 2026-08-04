@@ -1,0 +1,94 @@
+use crate::Event;
+use crate::event::Message;
+use crate::event::shared::compatibility::Compatibility;
+use crate::event::subcommand_result::SubcommandResult;
+use cargo_msrv_types::Toolchain;
+
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct VerifyResult {
+    pub result: Compatibility,
+}
+
+impl VerifyResult {
+    pub fn compatible(toolchain: impl Into<Toolchain>) -> Self {
+        Self {
+            result: Compatibility::compatible(toolchain),
+        }
+    }
+
+    pub fn incompatible(toolchain: impl Into<Toolchain>, error: Option<String>) -> Self {
+        Self {
+            result: Compatibility::incompatible(toolchain, error),
+        }
+    }
+
+    pub fn toolchain(&self) -> &Toolchain {
+        self.result.toolchain()
+    }
+
+    pub fn is_compatible(&self) -> bool {
+        self.result.is_compatible()
+    }
+}
+
+impl From<VerifyResult> for SubcommandResult {
+    fn from(it: VerifyResult) -> Self {
+        Self::Verify(it)
+    }
+}
+
+impl From<VerifyResult> for Event {
+    fn from(it: VerifyResult) -> Self {
+        Message::SubcommandResult(it.into()).into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Event;
+    use crate::TestReporterWrapper;
+    use crate::event::Message;
+    use storyteller::EventReporter;
+
+    #[test]
+    fn reported_compatible_toolchain() {
+        let reporter = TestReporterWrapper::default();
+        let event = VerifyResult::compatible(Toolchain::new(
+            semver::Version::new(1, 2, 3),
+            "test_target",
+            &[],
+        ));
+
+        reporter.get().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::unscoped(Message::SubcommandResult(
+                SubcommandResult::Verify(event)
+            )),]
+        );
+    }
+
+    #[yare::parameterized(
+        none = { None },
+        some = { Some("whoo!".to_string()) },
+    )]
+    fn reported_incompatible_toolchain(error_message: Option<String>) {
+        let reporter = TestReporterWrapper::default();
+        let event = VerifyResult::incompatible(
+            Toolchain::new(semver::Version::new(1, 2, 3), "test_target", &[]),
+            error_message,
+        );
+
+        reporter.get().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::unscoped(Message::SubcommandResult(
+                SubcommandResult::Verify(event)
+            ))]
+        );
+    }
+}

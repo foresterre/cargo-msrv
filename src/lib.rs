@@ -27,15 +27,16 @@ pub use cargo_msrv_context::{Context, TracingOptions};
 
 use crate::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use crate::error::{CargoMSRVError, TResult};
+use crate::reporter::Reporter;
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
-use crate::reporter::{Event, Reporter};
-use cargo_msrv_context::types::ReleaseSource;
 use rust::release_index;
 use rust_releases::semver;
 
 pub use cargo_msrv_cli::cli;
 pub use cargo_msrv_context::context;
 pub use cargo_msrv_manifest as manifest;
+pub use cargo_msrv_reporter as reporter;
+pub use cargo_msrv_reporter::{io, typed_bool};
 
 pub mod compatibility;
 
@@ -43,19 +44,29 @@ pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
 mod external_command;
-pub mod io;
 pub mod lockfile;
 pub mod msrv;
 pub mod outcome;
-pub mod reporter;
 pub mod rust;
 pub mod search_method;
 pub mod sub_command;
-pub mod typed_bool;
 pub mod writer;
 
+const UNKNOWN_VERSION: &str = "?";
+
+fn meta() -> Meta {
+    Meta::new(
+        option_env!("CARGO_PKG_NAME").unwrap_or("cargo-msrv"),
+        option_env!("CARGO_PKG_VERSION").unwrap_or(UNKNOWN_VERSION),
+        option_env!("VERGEN_GIT_SHA_SHORT"),
+        option_env!("VERGEN_CARGO_TARGET_TRIPLE"),
+        option_env!("VERGEN_CARGO_FEATURES"),
+        option_env!("VERGEN_RUSTC_SEMVER"),
+    )
+}
+
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
-    reporter.report_event(Meta::default())?;
+    reporter.report_event(meta())?;
     reporter.report_event(SelectedPackages::new(
         ctx.environment_context().workspace_packages.selected(),
     ))?;

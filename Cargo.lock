@@ -738,22 +738,18 @@ dependencies = [
  "cargo-msrv-cli",
  "cargo-msrv-context",
  "cargo-msrv-manifest",
+ "cargo-msrv-reporter",
  "cargo-msrv-types",
  "cargo_metadata 0.23.1",
  "ctrlc",
  "dirs",
  "dunce",
- "indicatif",
  "owo-colors",
  "parameterized",
- "petgraph",
  "phenomenon",
  "rust-releases",
  "serde",
- "serde_json",
  "storyteller",
- "tabled",
- "terminal_size",
  "thiserror 2.0.19",
  "toml_edit",
  "tracing",
@@ -802,10 +798,32 @@ version = "0.19.3"
 dependencies = [
  "cargo-msrv-types",
  "cargo_metadata 0.23.1",
+ "petgraph",
  "rust-releases",
  "serde_json",
  "thiserror 2.0.19",
  "toml_edit",
+ "yare",
+]
+
+[[package]]
+name = "cargo-msrv-reporter"
+version = "0.19.3"
+dependencies = [
+ "camino",
+ "cargo-msrv-context",
+ "cargo-msrv-manifest",
+ "cargo-msrv-types",
+ "cargo_metadata 0.23.1",
+ "indicatif",
+ "owo-colors",
+ "petgraph",
+ "semver",
+ "serde",
+ "serde_json",
+ "storyteller",
+ "tabled",
+ "terminal_size",
  "yare",
 ]
 
