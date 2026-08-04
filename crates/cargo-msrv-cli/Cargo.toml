@@ -13,10 +13,14 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "cli", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
 [dependencies]
-cargo-msrv-types = { path = "../cargo-msrv-types", version = "0.19.3" }
+cargo-msrv-context = { workspace = true }
+cargo-msrv-types = { workspace = true }
 
+camino = "1.2"
+cargo_metadata = "0.23.1"
 clap = { workspace = true }
 clap-cargo = { workspace = true }
+dunce = "1.0.5"
 indoc = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
@@ -27,5 +31,5 @@ yare = { workspace = true }
 
 [features]
 # Enables the `rust-dist` release source as a value of the `--release-source` option
-rust-releases-dist-source = []
+rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
 

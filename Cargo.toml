@@ -22,8 +22,10 @@ tag-name = "v{{version}}"
 
 [dependencies]
 # workspace
-cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.19.3" } # the command line interface
-cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" } # the types shared with the command line interface
+cargo-msrv-cli = { workspace = true } # the command line interface
+cargo-msrv-context = { workspace = true } # the resolved configuration of a run
+cargo-msrv-manifest = { workspace = true } # the Cargo manifest parsing
+cargo-msrv-types = { workspace = true } # the types shared with the command line interface
 
 # external
 bisector = "0.4.0" # bisection with a custom comparator
@@ -61,12 +63,22 @@ vergen = { version = "8.3.2", default-features = false, features = ["build", "ca
 
 [features]
 default = ["rust-releases-dist-source"]
-rust-releases-dist-source = ["rust-releases/rust-dist", "cargo-msrv-cli/rust-releases-dist-source"]
+rust-releases-dist-source = [
+    "rust-releases/rust-dist",
+    "cargo-msrv-cli/rust-releases-dist-source",
+    "cargo-msrv-context/rust-releases-dist-source",
+]
 
 # ~~~ workspace ~~~
 
 [workspace]
-members = ["crates/cargo-msrv-cli", "crates/cargo-msrv-types", "crates/msrv"]
+members = [
+    "crates/cargo-msrv-cli",
+    "crates/cargo-msrv-context",
+    "crates/cargo-msrv-manifest",
+    "crates/cargo-msrv-types",
+    "crates/msrv",
+]
 
 [workspace.package]
 version = "0.19.3"
@@ -76,6 +88,11 @@ edition = "2024"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [workspace.dependencies]
+cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.19.3" }
+cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.19.3" }
+cargo-msrv-manifest = { path = "crates/cargo-msrv-manifest", version = "0.19.3" }
+cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
+
 clap = { version = "4.6.0", features = ["derive"] }
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
 indoc = "2.0.7"

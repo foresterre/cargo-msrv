@@ -1,4 +1,5 @@
-use crate::types::{LogLevel, OutputFormat, TracingTargetOption};
+use crate::values::{log_level, output_format, tracing_target_option};
+use cargo_msrv_context::types::{LogLevel, OutputFormat, TracingTargetOption};
 use clap::{ArgGroup, Args, ValueHint};
 use std::path::PathBuf;
 
@@ -33,8 +34,8 @@ pub struct UserOutputOpts {
     /// Set the format of user output
     #[arg(
         long,
-        value_enum,
-        default_value_t,
+        value_parser = output_format::VALUES.parser(),
+        default_value = output_format::VALUES.default_value(),
         value_name = "FORMAT",
         global = true
     )]
@@ -65,14 +66,20 @@ pub struct DebugOutputOpts {
     /// Specify where the program should output its logs
     #[arg(
         long,
-        value_enum,
-        default_value_t,
+        value_parser = tracing_target_option::VALUES.parser(),
+        default_value = tracing_target_option::VALUES.default_value(),
         value_name = "LOG TARGET",
         global = true
     )]
     pub log_target: TracingTargetOption,
 
     /// Specify the severity of logs which should be
-    #[arg(long, value_enum, default_value_t, value_name = "LEVEL", global = true)]
+    #[arg(
+        long,
+        value_parser = log_level::VALUES.parser(),
+        default_value = log_level::VALUES.default_value(),
+        value_name = "LEVEL",
+        global = true
+    )]
     pub log_level: LogLevel,
 }

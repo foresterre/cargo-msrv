@@ -20,30 +20,31 @@ extern crate core;
 #[macro_use]
 extern crate tracing;
 
-pub use crate::context::{Context, OutputFormat, TracingOptions, TracingTargetOption};
 pub use crate::outcome::Compatibility;
 pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
+pub use cargo_msrv_context::types::{OutputFormat, TracingTargetOption};
+pub use cargo_msrv_context::{Context, TracingOptions};
 
-use crate::compatibility::RustupToolchainCheck;
-use crate::context::ReleaseSource;
+use crate::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
 use crate::reporter::{Event, Reporter};
+use cargo_msrv_context::types::ReleaseSource;
 use rust::release_index;
 use rust_releases::semver;
 
 pub use cargo_msrv_cli::cli;
+pub use cargo_msrv_context::context;
+pub use cargo_msrv_manifest as manifest;
 
 pub mod compatibility;
 
-pub mod context;
 pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
 mod external_command;
 pub mod io;
 pub mod lockfile;
-pub mod manifest;
 pub mod msrv;
 pub mod outcome;
 pub mod reporter;
@@ -70,7 +71,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 ctx.no_check_feedback,
                 ctx.skip_unavailable_toolchains,
                 &ctx.environment,
-                ctx.run_command(),
+                ctx.provide_run_command(),
             );
             Find::new(&index, runner).run(ctx, reporter)?;
         }
@@ -93,7 +94,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
                 ctx.no_check_feedback,
                 false,
                 &ctx.environment,
-                ctx.run_command(),
+                ctx.provide_run_command(),
             );
 
             Verify::new(&index, runner).run(ctx, reporter)?;

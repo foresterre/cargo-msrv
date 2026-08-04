@@ -736,6 +736,8 @@ dependencies = [
  "bisector",
  "camino",
  "cargo-msrv-cli",
+ "cargo-msrv-context",
+ "cargo-msrv-manifest",
  "cargo-msrv-types",
  "cargo_metadata 0.23.1",
  "ctrlc",
@@ -765,13 +767,45 @@ dependencies = [
 name = "cargo-msrv-cli"
 version = "0.19.3"
 dependencies = [
+ "camino",
+ "cargo-msrv-context",
  "cargo-msrv-types",
+ "cargo_metadata 0.23.1",
  "clap",
  "clap-cargo",
+ "dunce",
  "indoc",
  "serde",
  "thiserror 2.0.19",
  "tracing",
+ "yare",
+]
+
+[[package]]
+name = "cargo-msrv-context"
+version = "0.19.3"
+dependencies = [
+ "camino",
+ "cargo-msrv-manifest",
+ "cargo-msrv-types",
+ "cargo_metadata 0.23.1",
+ "serde",
+ "thiserror 2.0.19",
+ "toml_edit",
+ "tracing",
+ "yare",
+]
+
+[[package]]
+name = "cargo-msrv-manifest"
+version = "0.19.3"
+dependencies = [
+ "cargo-msrv-types",
+ "cargo_metadata 0.23.1",
+ "rust-releases",
+ "serde_json",
+ "thiserror 2.0.19",
+ "toml_edit",
  "yare",
 ]
 

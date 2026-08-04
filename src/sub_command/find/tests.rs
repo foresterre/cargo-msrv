@@ -2,11 +2,12 @@ use super::*;
 use crate::Event;
 use crate::compatibility::TestRunner;
 use crate::context::{
-    CheckCommandContext, EnvironmentContext, ReleaseSource, RustReleasesContext, ToolchainContext,
+    CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
     WorkspacePackages,
 };
 use crate::reporter::TestReporterWrapper;
 use camino::Utf8PathBuf;
+use cargo_msrv_context::types::ReleaseSource;
 use cargo_msrv_types::BareVersion;
 use rust_releases::semver;
 use std::iter::FromIterator;

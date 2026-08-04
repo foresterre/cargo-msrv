@@ -18,7 +18,7 @@ pub use fetch_index::FetchIndex;
 pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
-pub use selected_packages::{SelectedPackage, SelectedPackages};
+pub use selected_packages::SelectedPackages;
 pub use setup_toolchain::SetupToolchain;
 pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;

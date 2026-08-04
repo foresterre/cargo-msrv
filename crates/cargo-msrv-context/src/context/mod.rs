@@ -6,30 +6,18 @@
 //!
 //! Unlike the opts, the context is top down, not bottom up.
 
-use crate::cli::rust_releases_opts::RustReleasesOpts;
-use crate::cli::shared_opts::SharedOpts;
-use crate::cli::toolchain_opts::ToolchainOpts;
-
-use crate::error::{CargoMSRVError, InvalidUtf8Error, IoError, IoErrorSource, PathError};
+use crate::context::error::{Error, IoError, IoErrorSource, TResult};
+use crate::types::{Edition, LogLevel, ReleaseSource, TracingTargetOption};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_types::BareVersion;
-use std::convert::{TryFrom, TryInto};
-use std::env;
-use std::path::Path;
 
+pub mod error;
 pub mod find;
 pub mod list;
 pub mod set;
 pub mod show;
 pub mod verify;
 
-use crate::cli::custom_check_opts::CustomCheckOpts;
-use crate::cli::rust_releases_opts::Edition;
-use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::reporter::event::SelectedPackage;
-use crate::rust::default_target::default_target;
-use cargo_msrv_cli::types::LogLevel;
-pub use cargo_msrv_cli::types::{OutputFormat, ReleaseSource, TracingTargetOption};
 pub use find::FindContext;
 pub use list::ListContext;
 pub use set::SetContext;
@@ -103,22 +91,6 @@ impl Context {
     }
 }
 
-impl TryFrom<CargoMsrvOpts> for Context {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
-        let ctx = match opts.subcommand {
-            SubCommand::Find(_) => Self::Find(FindContext::try_from(opts)?),
-            SubCommand::List(_) => Self::List(ListContext::try_from(opts)?),
-            SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),
-            SubCommand::Show => Self::Show(ShowContext::try_from(opts)?),
-            SubCommand::Verify(_) => Self::Verify(VerifyContext::try_from(opts)?),
-        };
-
-        Ok(ctx)
-    }
-}
-
 #[derive(Clone, Debug, Default)]
 pub struct RustReleasesContext {
     /// The minimum Rust version to consider.
@@ -134,17 +106,6 @@ pub struct RustReleasesContext {
     pub release_source: ReleaseSource,
 }
 
-impl From<RustReleasesOpts> for RustReleasesContext {
-    fn from(opts: RustReleasesOpts) -> Self {
-        Self {
-            minimum_rust_version: opts.min.map(|min| min.as_bare_version()),
-            maximum_rust_version: opts.max,
-            consider_patch_releases: opts.include_all_patch_releases,
-            release_source: opts.release_source,
-        }
-    }
-}
-
 impl RustReleasesContext {
     // This is necessary because we need to fetch the minimum version possibly from the Cargo.toml
     // via the edition key; but where that file should be located is only after we have an
@@ -152,7 +113,7 @@ impl RustReleasesContext {
     pub fn resolve_minimum_version(
         &self,
         env: &EnvironmentContext,
-    ) -> Result<Option<BareVersion>, CargoMSRVError> {
+    ) -> TResult<Option<BareVersion>> {
         // Precedence 1: Supplied values take precedence over all else.
         if let Some(min) = &self.minimum_rust_version {
             return Ok(Some(min.clone()));
@@ -167,7 +128,7 @@ impl RustReleasesContext {
 
         let document = contents
             .parse::<toml_edit::DocumentMut>()
-            .map_err(CargoMSRVError::ParseToml)?;
+            .map_err(Error::ParseToml)?;
 
         if let Some(edition) = document
             .as_table()
@@ -194,32 +155,6 @@ pub struct ToolchainContext {
     pub components: &'static [&'static str],
 }
 
-impl TryFrom<ToolchainOpts> for ToolchainContext {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: ToolchainOpts) -> Result<Self, Self::Error> {
-        let target = if let Some(target) = opts.target {
-            target
-        } else {
-            default_target()?
-        };
-
-        let target: &'static str = String::leak(target);
-
-        let components: &'static [&'static str] = Vec::leak(
-            opts.component
-                .into_iter()
-                .map(|s| {
-                    let s: &'static str = String::leak(s);
-                    s
-                })
-                .collect(),
-        );
-
-        Ok(Self { target, components })
-    }
-}
-
 #[derive(Debug)]
 pub struct CheckCommandContext {
     pub cargo_features: Option<Vec<String>>,
@@ -230,17 +165,6 @@ pub struct CheckCommandContext {
 
     /// The custom `Rustup` command to invoke for a toolchain.
     pub rustup_command: Option<Vec<String>>,
-}
-
-impl From<CustomCheckOpts> for CheckCommandContext {
-    fn from(opts: CustomCheckOpts) -> Self {
-        Self {
-            cargo_features: opts.features,
-            cargo_all_features: opts.all_features,
-            cargo_no_default_features: opts.no_default_features,
-            rustup_command: opts.custom_check_opts,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -255,77 +179,6 @@ pub struct EnvironmentContext {
 
     /// Resolved workspace
     pub workspace_packages: WorkspacePackages,
-}
-
-impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
-    type Error = CargoMSRVError;
-
-    fn try_from(opts: &'shared_opts SharedOpts) -> Result<Self, Self::Error> {
-        let path = if let Some(path) = opts.path.as_ref() {
-            // Use `--path` if specified. This is the oldest supported option.
-            // This option refers to the root of a crate.
-            Ok(path.clone())
-        } else if let Some(path) = opts.manifest_path.as_ref() {
-            // Use `--manifest-path` if specified. This was added later, and can not be specified
-            // together with `--path`. This option refers to the `Cargo.toml` document
-            // of a crate ("manifest").
-            dunce::canonicalize(path)
-                .map_err(|_| CargoMSRVError::Path(PathError::DoesNotExist(path.to_path_buf())))
-                .and_then(|p| {
-                    p.parent().map(Path::to_path_buf).ok_or_else(|| {
-                        CargoMSRVError::Path(PathError::NoParent(path.to_path_buf()))
-                    })
-                })
-        } else {
-            // Otherwise, fall back to the current directory.
-            env::current_dir().map_err(|error| {
-                CargoMSRVError::Io(IoError {
-                    error,
-                    source: IoErrorSource::CurrentDir,
-                })
-            })
-        }?;
-
-        let root_crate_path: Utf8PathBuf = path.try_into().map_err(|err| {
-            CargoMSRVError::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err)))
-        })?;
-
-        // Only select packages if this is a Cargo project.
-        // For now, to be pragmatic, we'll take a shortcut and say that it is so,
-        // if the cargo metadata command succeeds. If it doesn't, we'll fall
-        // back to just the default package.
-        let workspace_packages = if let Ok(metadata) = cargo_metadata::MetadataCommand::new()
-            .manifest_path(root_crate_path.join("Cargo.toml"))
-            .exec()
-        {
-            let partition = opts.workspace.partition_packages(&metadata);
-            let selected = partition.0.into_iter().cloned().collect();
-            let excluded = partition.1;
-
-            info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = true,
-                ?selected,
-                ?excluded
-            );
-
-            WorkspacePackages::from_vec(selected)
-        } else {
-            info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = false,
-            );
-
-            WorkspacePackages::default()
-        };
-
-        Ok(Self {
-            root_crate_path,
-            workspace_packages,
-        })
-    }
 }
 
 impl EnvironmentContext {
@@ -344,8 +197,6 @@ impl EnvironmentContext {
         self.root_crate_path.join("Cargo.lock")
     }
 }
-
-// ---
 
 #[derive(Clone, Debug, Default)]
 pub struct WorkspacePackages {
@@ -386,6 +237,13 @@ impl WorkspacePackages {
     pub fn selected_packages(&self) -> &[cargo_metadata::Package] {
         self.selected.as_deref().unwrap_or_default()
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct SelectedPackage {
+    pub name: String,
+    pub path: Utf8PathBuf,
 }
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, serde::Serialize)]

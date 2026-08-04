@@ -1,6 +1,6 @@
 use crate::common::reporter::EventTestDevice;
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::compatibility::RustupToolchainCheck;
+use cargo_msrv::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Context, Find, SubCommand};
@@ -76,7 +76,7 @@ pub fn find_msrv_with_releases<
         no_check_feedback,
         true, /* Marking unavailable versions as incompatible  */
         env,
-        find_ctx.run_command(),
+        find_ctx.provide_run_command(),
     );
 
     // Determine the MSRV from the index of available releases.

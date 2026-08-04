@@ -68,11 +68,6 @@ impl RustupCommand {
         self.execute(OsStr::new("install"))
     }
 
-    /// Execute `rustup show [...]`
-    pub fn show(self) -> TResult<RustupOutput> {
-        self.execute(OsStr::new("show"))
-    }
-
     pub fn target(self) -> TResult<RustupOutput> {
         self.execute(OsStr::new("target"))
     }
@@ -86,7 +81,6 @@ impl RustupCommand {
     /// See also:
     /// * [RustupCommand::run](RustupCommand::run)
     /// * [RustupCommand::install](RustupCommand::install)
-    /// * [RustupCommand::show](RustupCommand::show)
     fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
         let _span = self._span.enter();
 

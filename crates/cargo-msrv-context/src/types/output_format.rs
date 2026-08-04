@@ -1,8 +1,7 @@
-use clap::ValueEnum;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, ValueEnum)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum OutputFormat {
     /// Progress bar rendered to stderr
     #[default]
@@ -12,7 +11,6 @@ pub enum OutputFormat {
     /// Minimal output, usually just the result, such as the MSRV or whether verify succeeded or failed
     Minimal,
     /// No output -- meant to be used for debugging and testing
-    #[value(skip)]
     None,
 }
 

@@ -1,24 +1,12 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::context::EnvironmentContext;
-use crate::error::CargoMSRVError;
+use cargo_msrv_context::ListContext;
+use cargo_msrv_context::context::error::{Error, TResult};
 use std::convert::{TryFrom, TryInto};
 
-pub use cargo_msrv_cli::types::ListMsrvVariant;
-pub(crate) use cargo_msrv_cli::types::{DIRECT_DEPS, ORDERED_BY_MSRV};
-
-#[derive(Debug)]
-pub struct ListContext {
-    /// The type of output expected by the user
-    pub variant: ListMsrvVariant,
-
-    /// Resolved environment options
-    pub environment: EnvironmentContext,
-}
-
 impl TryFrom<CargoMsrvOpts> for ListContext {
-    type Error = CargoMSRVError;
+    type Error = Error;
 
-    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
+    fn try_from(opts: CargoMsrvOpts) -> TResult<Self> {
         let CargoMsrvOpts {
             shared_opts,
             subcommand,
