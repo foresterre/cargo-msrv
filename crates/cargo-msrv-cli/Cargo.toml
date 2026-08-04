@@ -22,7 +22,6 @@ clap = { workspace = true }
 clap-cargo = { workspace = true }
 dunce = "1.0.5"
 indoc = { workspace = true }
-serde = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 

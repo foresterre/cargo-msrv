@@ -46,8 +46,11 @@ jobs:
       matrix:
         crate: [
           "cargo-msrv-cli",
+          "cargo-msrv-context",
+          "cargo-msrv-manifest",
+          "cargo-msrv-reporter",
           "cargo-msrv-types",
-          "msrv"
+          "msrv",
         ]
     steps:
       - uses: actions/checkout@v7

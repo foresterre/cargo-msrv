@@ -37,7 +37,6 @@ dirs = "6.0.0" # common directories
 dunce = "1.0.5" # better canonicalize for Windows
 owo-colors = "4.3.0" # color support for the terminal
 rust-releases = { workspace = true, features = ["rust-changelog"] } # get the available rust versions
-serde = { workspace = true } # serialization and deserialization
 storyteller = "2.0.0-beta.1" # minimal multi user output architecture
 thiserror = { workspace = true } # error handling
 toml_edit = "0.25.5" # read and write the Cargo.toml
@@ -99,6 +98,7 @@ clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
 indoc = "2.0.7"
 parameterized = "2.1.0"
 rust-releases = { version = "0.32.0", default-features = false }
+semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0.18"
 tracing = "0.1"
