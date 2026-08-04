@@ -1,8 +1,7 @@
-use clap::ValueEnum;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum ListMsrvVariant {
     DirectDeps,
     #[default]

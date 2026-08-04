@@ -1,9 +1,9 @@
 use super::display_option;
 use super::display_vec;
 use super::metadata::*;
-use crate::context::list::DIRECT_DEPS;
 use crate::dependency_graph::DependencyGraph;
 use crate::reporter::formatting::table;
+use cargo_msrv_context::types::DIRECT_DEPS;
 use std::fmt;
 use std::fmt::Formatter;
 use tabled::Tabled;

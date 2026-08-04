@@ -1,3 +1,6 @@
+#![deny(clippy::all)]
+#![allow(clippy::uninlined_format_args)]
+
 use cargo_metadata::{Metadata, semver};
 use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
@@ -99,7 +102,7 @@ fn find_minimum_rust_version(
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::manifest::{BareVersion, CargoManifest};
+    use crate::{BareVersion, CargoManifest};
     use cargo_metadata::Metadata;
     use std::convert::TryFrom;
 

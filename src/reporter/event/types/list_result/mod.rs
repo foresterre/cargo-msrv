@@ -5,9 +5,9 @@ use std::borrow::Cow;
 use std::fmt;
 use std::fmt::Formatter;
 
-use crate::context::list::ListMsrvVariant;
 use crate::reporter::event::subcommand_result::SubcommandResult;
 use crate::reporter::event::types::list_result::ordered_by_msrv::OrderedByMsrvFormatter;
+use cargo_msrv_context::types::ListMsrvVariant;
 use direct_deps::DirectDepsFormatter;
 
 mod direct_deps;

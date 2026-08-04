@@ -1,6 +1,6 @@
 use rust_releases::{Release, ReleaseIndex};
 
-use crate::compatibility::IsCompatible;
+use crate::compatibility::{IsCompatible, RunCommandProvider};
 use crate::context::{FindContext, SearchMethod};
 use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::msrv::MinimumSupportedRustVersion;
@@ -50,7 +50,7 @@ fn find_msrv(
             info!("no minimal-compatible toolchain found");
 
             Err(CargoMSRVError::UnableToFindAnyGoodVersion {
-                command: ctx.run_command().components().join(" "),
+                command: ctx.provide_run_command().components().join(" "),
             })
         }
         MinimumSupportedRustVersion::Toolchain { toolchain } => {

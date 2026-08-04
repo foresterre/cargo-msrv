@@ -1,0 +1,31 @@
+[package]
+name = "cargo-msrv-context"
+description = "The resolved configuration of a cargo-msrv run"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.91.1"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "context", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-manifest = { workspace = true }
+cargo-msrv-types = { workspace = true }
+
+camino = "1.2"
+cargo_metadata = "0.23.1"
+serde = { workspace = true }
+thiserror = { workspace = true }
+toml_edit = "0.25.5"
+tracing = { workspace = true }
+
+[dev-dependencies]
+yare = { workspace = true }
+
+[features]
+# Enables the `rust-dist` release source
+rust-releases-dist-source = []

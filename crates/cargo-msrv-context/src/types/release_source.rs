@@ -1,9 +1,8 @@
-use clap::ValueEnum;
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize, ValueEnum)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ReleaseSource {
     #[default]

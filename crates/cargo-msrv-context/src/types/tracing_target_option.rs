@@ -1,7 +1,6 @@
-use clap::ValueEnum;
 use std::str::FromStr;
 
-#[derive(Debug, Copy, Clone, ValueEnum, Default)]
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
 pub enum TracingTargetOption {
     #[default]
     File,

@@ -104,7 +104,6 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 #[cfg(test)]
 mod tests {
     use crate::context::SearchMethod;
-    use crate::context::list::ListMsrvVariant;
     use crate::dependency_graph::DependencyGraph;
     use crate::reporter::event::{
         FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult,
@@ -114,6 +113,7 @@ mod tests {
     use crate::semver;
     use camino::Utf8Path;
     use cargo_metadata::PackageId;
+    use cargo_msrv_context::types::ListMsrvVariant;
     use cargo_msrv_types::BareVersion;
     use storyteller::EventHandler;
 

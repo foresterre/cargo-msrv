@@ -2,7 +2,8 @@ use crate::cli::custom_check_opts::CustomCheckOpts;
 use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
-use crate::types::ListMsrvVariant;
+use crate::values::list_msrv_variant;
+use cargo_msrv_context::types::ListMsrvVariant;
 use cargo_msrv_types::BareVersion;
 use clap::{Args, Parser, Subcommand};
 use clap_cargo::style::CLAP_STYLING;
@@ -67,7 +68,7 @@ pub enum CargoMsrvCli {
     /// Find your Minimum Supported Rust Version!
     #[command(
         author = "Martijn Gribnau <garm@ilumeo.com>",
-        after_help = indoc::indoc!{"
+        after_help = indoc::indoc! {"
             You can provide a custom compatibility check command as the last positional argument via
             the -- syntax, e.g. `$ cargo msrv find -- my custom command`.
 
@@ -188,7 +189,11 @@ pub struct FindOpts {
 #[command(next_help_heading = "List options")]
 pub struct ListOpts {
     /// Display the MSRV's of crates that your crate depends on
-    #[arg(long, value_enum, default_value_t)]
+    #[arg(
+        long,
+        value_parser = list_msrv_variant::VALUES.parser(),
+        default_value = list_msrv_variant::VALUES.default_value()
+    )]
     pub variant: ListMsrvVariant,
 }
 

@@ -1,9 +1,7 @@
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
-use clap::ValueEnum;
-
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum LogLevel {
     Trace,
     Debug,

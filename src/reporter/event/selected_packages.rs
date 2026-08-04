@@ -1,5 +1,5 @@
 use crate::reporter::{Event, Message};
-use camino::Utf8PathBuf;
+use cargo_msrv_context::SelectedPackage;
 
 /// Workspace packages selected
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -18,11 +18,4 @@ impl From<SelectedPackages> for Event {
     fn from(it: SelectedPackages) -> Self {
         Message::SelectedPackages(it).into()
     }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub struct SelectedPackage {
-    pub name: String,
-    pub path: Utf8PathBuf,
 }

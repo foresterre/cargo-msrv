@@ -1,0 +1,25 @@
+[package]
+name = "cargo-msrv-manifest"
+description = "Cargo manifest parsing of cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.91.1"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "manifest", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-types = { workspace = true }
+
+cargo_metadata = "0.23.1"
+thiserror = { workspace = true }
+toml_edit = "0.25.5"
+
+[dev-dependencies]
+rust-releases = { workspace = true }
+serde_json = "1.0.150"
+yare = { workspace = true }

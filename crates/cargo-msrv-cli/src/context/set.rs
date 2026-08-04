@@ -1,25 +1,12 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use crate::context::{EnvironmentContext, RustReleasesContext};
-use crate::error::CargoMSRVError;
-use cargo_msrv_types::BareVersion;
+use cargo_msrv_context::SetContext;
+use cargo_msrv_context::context::error::{Error, TResult};
 use std::convert::{TryFrom, TryInto};
 
-#[derive(Debug)]
-pub struct SetContext {
-    /// MSRV to set.
-    pub msrv: BareVersion,
-
-    /// The context for Rust releases
-    pub rust_releases: RustReleasesContext,
-
-    /// Resolved environment options
-    pub environment: EnvironmentContext,
-}
-
 impl TryFrom<CargoMsrvOpts> for SetContext {
-    type Error = CargoMSRVError;
+    type Error = Error;
 
-    fn try_from(opts: CargoMsrvOpts) -> Result<Self, Self::Error> {
+    fn try_from(opts: CargoMsrvOpts) -> TResult<Self> {
         let CargoMsrvOpts {
             shared_opts,
             subcommand,
