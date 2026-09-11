@@ -237,19 +237,17 @@ mod minimal_version_tests {
 #[cfg(test)]
 mod bare_version_tests {
     use cargo_msrv_types::BareVersion;
-    use rust_releases::{Release, ReleaseIndex, semver};
-    use std::iter::FromIterator;
     use yare::parameterized;
 
-    fn release_indices() -> ReleaseIndex {
-        FromIterator::from_iter(vec![
-            Release::new_stable(semver::Version::new(2, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 2)),
-            Release::new_stable(semver::Version::new(1, 54, 1)),
-            Release::new_stable(semver::Version::new(1, 0, 0)),
-        ])
+    fn available_versions() -> Vec<semver::Version> {
+        vec![
+            semver::Version::new(2, 56, 0),
+            semver::Version::new(1, 56, 0),
+            semver::Version::new(1, 55, 0),
+            semver::Version::new(1, 54, 2),
+            semver::Version::new(1, 54, 1),
+            semver::Version::new(1, 0, 0),
+        ]
     }
 
     #[parameterized(
@@ -323,8 +321,8 @@ mod bare_version_tests {
         one = {  BareVersion::TwoComponents(1, 0), semver::Version::new(1, 0, 0) },
     )]
     fn two_components_to_semver(version: BareVersion, expected: semver::Version) {
-        let index = release_indices();
-        let available = index.releases().iter().map(Release::version);
+        let versions = available_versions();
+        let available = versions.iter();
 
         let v = version.try_to_semver(available).unwrap();
 
@@ -340,8 +338,8 @@ mod bare_version_tests {
         one = {  BareVersion::ThreeComponents(1, 0, 0), semver::Version::new(1, 0, 0) },
     )]
     fn three_components_to_semver(version: BareVersion, expected: semver::Version) {
-        let index = release_indices();
-        let available = index.releases().iter().map(Release::version);
+        let versions = available_versions();
+        let available = versions.iter();
 
         let v = version.try_to_semver(available).unwrap();
 

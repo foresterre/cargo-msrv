@@ -2,7 +2,7 @@ use crate::TResult;
 use crate::compatibility::IsCompatible;
 use crate::outcome::Compatibility;
 use crate::rust::Toolchain;
-use crate::semver::Version;
+use semver::Version;
 use std::collections::HashSet;
 
 pub struct TestRunner {

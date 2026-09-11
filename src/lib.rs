@@ -30,7 +30,6 @@ use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::Reporter;
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
 use rust::release_index;
-use rust_releases::semver;
 
 pub use cargo_msrv_cli::cli;
 pub use cargo_msrv_context::context;

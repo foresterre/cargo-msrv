@@ -3,7 +3,6 @@
 //! [`check`]: crate::compatibility::IsCompatible
 
 use crate::rust::Toolchain;
-use rust_releases::semver;
 
 #[derive(Clone, Debug)]
 pub enum Compatibility {
@@ -60,7 +59,6 @@ pub struct Incompatible {
 mod tests {
     use crate::Compatibility;
     use crate::rust::Toolchain;
-    use rust_releases::semver;
 
     #[test]
     fn success_outcome() {

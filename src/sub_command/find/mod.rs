@@ -1,17 +1,15 @@
-use rust_releases::{Release, ReleaseIndex};
-
+use crate::SubCommand;
 use crate::compatibility::{IsCompatible, RunCommandProvider};
 use crate::context::{FindContext, SearchMethod};
 use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
 use crate::reporter::event::FindResult;
-use crate::rust::RustRelease;
 use crate::rust::releases_filter::ReleasesFilter;
+use crate::rust::{ReleaseIndex, RustRelease, Stable, ToolchainCandidate, to_semver};
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
-use crate::{SubCommand, semver};
 use cargo_msrv_types::BareVersion;
 
 pub struct Find<'index, C: IsCompatible> {
@@ -103,13 +101,13 @@ fn search(
         ctx.rust_releases.maximum_rust_version.as_ref(),
     );
 
-    let included_releases = releases_filter.filter(releases);
+    let included_releases = releases_filter.filter(&releases);
     run_with_search_method(ctx, &included_releases, reporter, runner)
 }
 
 fn run_with_search_method(
     ctx: &FindContext,
-    included_releases: &[Release],
+    included_releases: &[RustRelease<Stable>],
     reporter: &impl Reporter,
     runner: &impl IsCompatible,
 ) -> TResult<MinimumSupportedRustVersion> {
@@ -129,13 +127,13 @@ fn run_with_search_method(
 
 fn run_searcher(
     method: &impl FindMinimalSupportedRustVersion,
-    releases: &[Release],
+    releases: &[RustRelease<Stable>],
     ctx: &FindContext,
     reporter: &impl Reporter,
 ) -> TResult<MinimumSupportedRustVersion> {
     let searchable_releases = releases
         .iter()
-        .map(|r| RustRelease::new(r.clone(), ctx.toolchain.target, ctx.toolchain.components))
+        .map(|r| ToolchainCandidate::new(r.clone(), ctx.toolchain.target, ctx.toolchain.components))
         .collect::<Vec<_>>();
     let minimum_capable = method
         .find_toolchain(&searchable_releases, reporter)
@@ -158,7 +156,7 @@ fn run_searcher(
 
 fn report_outcome(
     minimum_capable: &MinimumSupportedRustVersion,
-    releases: &[Release],
+    releases: &[RustRelease<Stable>],
     ctx: &FindContext,
     reporter: &impl Reporter,
 ) -> TResult<()> {
@@ -204,17 +202,17 @@ fn report_outcome(
     Ok(())
 }
 
-fn min_max_releases(rust_releases: &[Release]) -> TResult<(BareVersion, BareVersion)> {
+fn min_max_releases(rust_releases: &[RustRelease<Stable>]) -> TResult<(BareVersion, BareVersion)> {
     let min = rust_releases
         .last()
-        .map(|v| v.version())
+        .map(|v| to_semver(v.version()))
         .ok_or(CargoMSRVError::RustReleasesEmptyReleaseSet)?;
     let max = rust_releases
         .first()
-        .map(|v| v.version())
+        .map(|v| to_semver(v.version()))
         .ok_or(CargoMSRVError::RustReleasesEmptyReleaseSet)?;
 
-    Ok((min.into(), max.into()))
+    Ok(((&min).into(), (&max).into()))
 }
 
 #[cfg(test)]

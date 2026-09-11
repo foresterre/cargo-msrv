@@ -49,6 +49,7 @@ jobs:
           "cargo-msrv-context",
           "cargo-msrv-manifest",
           "cargo-msrv-reporter",
+          "cargo-msrv-rust-releases",
           "cargo-msrv-types",
           "msrv",
         ]

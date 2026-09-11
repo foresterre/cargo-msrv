@@ -3,8 +3,8 @@ use cargo_msrv::cli::CargoCli;
 use cargo_msrv::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
+use cargo_msrv::rust::{ReleaseIndex, RustRelease, Stable};
 use cargo_msrv::{Context, Find, SubCommand};
-use rust_releases::{Release, ReleaseIndex, semver};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;
@@ -26,31 +26,31 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
         .map(|res| res.msrv().cloned())
 }
 
-fn releases_one_thirty_four_to_one_thirty_eight() -> Vec<Release> {
+fn releases_one_thirty_four_to_one_thirty_eight() -> Vec<RustRelease<Stable>> {
     vec![
-        Release::new_stable(semver::Version::new(1, 38, 0)),
-        Release::new_stable(semver::Version::new(1, 37, 0)),
-        Release::new_stable(semver::Version::new(1, 36, 0)),
-        Release::new_stable(semver::Version::new(1, 35, 0)),
-        Release::new_stable(semver::Version::new(1, 34, 0)),
+        RustRelease::new(Stable::new(1, 38, 0), None, []),
+        RustRelease::new(Stable::new(1, 37, 0), None, []),
+        RustRelease::new(Stable::new(1, 36, 0), None, []),
+        RustRelease::new(Stable::new(1, 35, 0), None, []),
+        RustRelease::new(Stable::new(1, 34, 0), None, []),
     ]
 }
 
-fn releases_one_twenty_eight_to_one_thirty_nine() -> Vec<Release> {
+fn releases_one_twenty_eight_to_one_thirty_nine() -> Vec<RustRelease<Stable>> {
     vec![
-        Release::new_stable(semver::Version::new(1, 39, 0)),
-        Release::new_stable(semver::Version::new(1, 38, 0)),
-        Release::new_stable(semver::Version::new(1, 37, 0)),
-        Release::new_stable(semver::Version::new(1, 30, 1)),
-        Release::new_stable(semver::Version::new(1, 29, 2)),
-        Release::new_stable(semver::Version::new(1, 28, 0)),
+        RustRelease::new(Stable::new(1, 39, 0), None, []),
+        RustRelease::new(Stable::new(1, 38, 0), None, []),
+        RustRelease::new(Stable::new(1, 37, 0), None, []),
+        RustRelease::new(Stable::new(1, 30, 1), None, []),
+        RustRelease::new(Stable::new(1, 29, 2), None, []),
+        RustRelease::new(Stable::new(1, 28, 0), None, []),
     ]
 }
 
 pub fn find_msrv_with_releases<
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,
-    V: IntoIterator<Item = Release>,
+    V: IntoIterator<Item = RustRelease<Stable>>,
 >(
     with_args: I,
     included_releases: V,

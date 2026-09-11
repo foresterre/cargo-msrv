@@ -21,6 +21,6 @@ thiserror = { workspace = true }
 toml_edit = { workspace = true }
 
 [dev-dependencies]
-rust-releases = { workspace = true }
+semver = { workspace = true }
 serde_json = { workspace = true }
 yare = { workspace = true }

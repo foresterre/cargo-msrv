@@ -9,32 +9,31 @@ use crate::reporter::TestReporterWrapper;
 use camino::Utf8PathBuf;
 use cargo_msrv_context::types::ReleaseSource;
 use cargo_msrv_types::BareVersion;
-use rust_releases::semver;
 use std::iter::FromIterator;
 
 #[test]
 fn bisect_find_only_last() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
-        Release::new_stable(semver::Version::new(1, 51, 0)),
-        Release::new_stable(semver::Version::new(1, 50, 0)),
-        Release::new_stable(semver::Version::new(1, 49, 0)),
-        Release::new_stable(semver::Version::new(1, 48, 0)),
-        Release::new_stable(semver::Version::new(1, 47, 0)),
-        Release::new_stable(semver::Version::new(1, 46, 0)),
-        Release::new_stable(semver::Version::new(1, 45, 0)),
-        Release::new_stable(semver::Version::new(1, 44, 0)),
-        Release::new_stable(semver::Version::new(1, 43, 0)),
-        Release::new_stable(semver::Version::new(1, 42, 0)),
-        Release::new_stable(semver::Version::new(1, 41, 0)),
-        Release::new_stable(semver::Version::new(1, 40, 0)),
-        Release::new_stable(semver::Version::new(1, 39, 0)),
-        Release::new_stable(semver::Version::new(1, 38, 0)),
-        Release::new_stable(semver::Version::new(1, 37, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
+        RustRelease::new(Stable::new(1, 51, 0), None, []),
+        RustRelease::new(Stable::new(1, 50, 0), None, []),
+        RustRelease::new(Stable::new(1, 49, 0), None, []),
+        RustRelease::new(Stable::new(1, 48, 0), None, []),
+        RustRelease::new(Stable::new(1, 47, 0), None, []),
+        RustRelease::new(Stable::new(1, 46, 0), None, []),
+        RustRelease::new(Stable::new(1, 45, 0), None, []),
+        RustRelease::new(Stable::new(1, 44, 0), None, []),
+        RustRelease::new(Stable::new(1, 43, 0), None, []),
+        RustRelease::new(Stable::new(1, 42, 0), None, []),
+        RustRelease::new(Stable::new(1, 41, 0), None, []),
+        RustRelease::new(Stable::new(1, 40, 0), None, []),
+        RustRelease::new(Stable::new(1, 39, 0), None, []),
+        RustRelease::new(Stable::new(1, 38, 0), None, []),
+        RustRelease::new(Stable::new(1, 37, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -68,11 +67,11 @@ fn bisect_find_only_last() {
 #[test]
 fn bisect_find_all_compatible() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -115,11 +114,11 @@ fn bisect_find_all_compatible() {
 #[test]
 fn bisect_none_compatible() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -159,12 +158,12 @@ mod issue_369_min_more_recent_than_max {
     #[test]
     fn bisect() {
         let releases = vec![
-            Release::new_stable(semver::Version::new(1, 46, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 57, 0)),
-            Release::new_stable(semver::Version::new(1, 58, 1)),
-            Release::new_stable(semver::Version::new(1, 59, 0)),
+            RustRelease::new(Stable::new(1, 46, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 57, 0), None, []),
+            RustRelease::new(Stable::new(1, 58, 1), None, []),
+            RustRelease::new(Stable::new(1, 59, 0), None, []),
         ];
 
         let index = ReleaseIndex::from_iter(releases);
@@ -207,12 +206,12 @@ mod issue_369_min_more_recent_than_max {
     #[test]
     fn linear() {
         let releases = vec![
-            Release::new_stable(semver::Version::new(1, 46, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 57, 0)),
-            Release::new_stable(semver::Version::new(1, 58, 1)),
-            Release::new_stable(semver::Version::new(1, 59, 0)),
+            RustRelease::new(Stable::new(1, 46, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 57, 0), None, []),
+            RustRelease::new(Stable::new(1, 58, 1), None, []),
+            RustRelease::new(Stable::new(1, 59, 0), None, []),
         ];
 
         let index = ReleaseIndex::from_iter(releases);

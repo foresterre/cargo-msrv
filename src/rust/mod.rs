@@ -1,7 +1,8 @@
-mod release;
-pub mod release_index;
-pub(crate) mod releases_filter;
 pub(crate) mod setup_toolchain;
 
+pub use cargo_msrv_rust_releases::{
+    ReleaseIndex, RustRelease, Stable, StableReleases, ToolchainCandidate, release_index, to_semver,
+};
 pub use cargo_msrv_types::Toolchain;
-pub use release::RustRelease;
+
+pub(crate) use cargo_msrv_rust_releases::releases_filter;

@@ -162,6 +162,12 @@ mod tests {
             parse(release_source::VALUES, "rust-dist").unwrap(),
             ReleaseSource::RustDist
         );
+
+        #[cfg(feature = "rust-releases-offline-source")]
+        assert_eq!(
+            parse(release_source::VALUES, "offline").unwrap(),
+            ReleaseSource::Offline
+        );
     }
 
     #[test]

@@ -10,6 +10,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+### Added
+
+* Added the `offline` release source, which uses a release index bundled with `cargo-msrv`, and requires no network access: `cargo msrv find --release-source offline`
+
+### Changed
+
+* Updated `rust-releases` to `0.34.0`
+
 ### Fixed
 
 * The `sha_short` build metadata is now reported again by the `meta` event

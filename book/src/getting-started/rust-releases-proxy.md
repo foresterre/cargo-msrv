@@ -10,6 +10,9 @@ distribution bucket.
 The source can be set with the `--release-source <source>` flag. The possible values are respectively `rust-changelog` and `rust-dist`,
 for the Rust GitHub repository and the Rust AWS S3 distribution bucket. For example: `cargo msrv find --release-source rust-changelog`.
 
+A third value, `offline`, reads an index which is bundled with `cargo-msrv` itself. It requires no network access, and
+therefore no proxy configuration, but it is only up-to-date up to the moment the `cargo-msrv` binary was built.
+
 
 
 #### Release source: `rust-changelog`

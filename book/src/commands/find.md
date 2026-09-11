@@ -136,10 +136,11 @@ using the `--no-user-output` flag.
 
 **`--release-source` source**
 
-Select the rust-releases source to use as the release index. Available options are `rust-changelog` and `rust-dist`.
-The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will
+Select the rust-releases source to use as the release index. Available options are `rust-changelog`, `rust-dist` and
+`offline`. The first will parse the Rust changelog file to determine which Rust releases have been made, the second will
 index
-the Rust S3 distribution bucket.
+the Rust S3 distribution bucket, and the third reads an index which is bundled with `cargo-msrv` itself, and therefore
+requires no network access. The bundled index is only up-to-date up to the moment the `cargo-msrv` binary was built.
 
 **`--path` directory-path**
 

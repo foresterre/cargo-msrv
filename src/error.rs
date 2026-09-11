@@ -9,8 +9,10 @@ use cargo_msrv_context::types::{
     ParseEditionError, ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError,
     ParseReleaseSourceError, ParseTracingTargetOptionError,
 };
+use cargo_msrv_rust_releases::FetchIndexError;
 use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
-use rust_releases::Release;
+
+use crate::rust::{RustRelease, Stable};
 
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
@@ -33,6 +35,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     Env(#[from] env::VarError),
+
+    #[error(transparent)]
+    FetchIndex(#[from] FetchIndexError),
 
     #[error("{0}")]
     GenericMessage(String),
@@ -82,13 +87,6 @@ pub enum CargoMSRVError {
     #[error("Unable to parse Cargo.toml: {0}")]
     ParseToml(#[from] toml_edit::TomlError),
 
-    #[error(transparent)]
-    RustReleasesSource(#[from] rust_releases::RustChangelogError),
-
-    #[error(transparent)]
-    #[cfg(feature = "rust-releases-dist-source")]
-    RustReleasesRustDistSource(#[from] rust_releases::RustDistError),
-
     #[error("Unable to parse rust-releases source from '{0}'")]
     RustReleasesSourceParseError(String),
 
@@ -102,7 +100,7 @@ pub enum CargoMSRVError {
     RustupRunWithCommandFailed,
 
     #[error(transparent)]
-    SemverError(#[from] rust_releases::semver::Error),
+    SemverError(#[from] semver::Error),
 
     #[error(transparent)]
     SetMsrv(#[from] SetMsrvError),
@@ -248,11 +246,11 @@ pub struct NoToolchainToTryClues {
 #[derive(Debug, thiserror::Error)]
 #[error("No Rust releases match input '{}' (search space: [{}])",
     input,
-    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", "))
+    search_space.iter().map(|r| r.version().version.to_string()).collect::<Vec<_>>().join(", "))
 ]
 pub struct InvalidMsrvSetError {
     pub(crate) input: BareVersion,
-    pub(crate) search_space: Vec<Release>,
+    pub(crate) search_space: Vec<RustRelease<Stable>>,
 }
 
 impl<T> From<storyteller::EventReporterError<T>> for CargoMSRVError {

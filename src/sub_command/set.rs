@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use rust_releases::{Release, ReleaseIndex, semver};
+use crate::rust::{ReleaseIndex, RustRelease, Stable};
 use toml_edit::{DocumentMut, Item, Value, table, value};
 
 use crate::context::SetContext;
@@ -39,7 +39,7 @@ impl SubCommand for Set<'_> {
             }
             Some(index) => Err(InvalidMsrvSetError {
                 input: configured_msrv.clone(),
-                search_space: index.releases().to_vec(),
+                search_space: index.releases(),
             }
             .into()),
             None => {
@@ -52,17 +52,17 @@ impl SubCommand for Set<'_> {
 
 fn has_release(configured_msrv: &BareVersion, release_index: &ReleaseIndex) -> bool {
     release_index
-        .releases()
+        .stable_releases()
         .iter()
         .any(|release| matches_release(configured_msrv, release))
 }
 
-fn matches_release(msrv: &BareVersion, release: &Release) -> bool {
-    let major_match = release.version().major == msrv.major();
-    let minor_match = release.version().minor == msrv.minor();
-    let patch_match = msrv
-        .patch()
-        .is_none_or(|patch| release.version().patch == patch);
+fn matches_release(msrv: &BareVersion, release: &RustRelease<Stable>) -> bool {
+    let version = release.version().version;
+
+    let major_match = version.major() == msrv.major();
+    let minor_match = version.minor() == msrv.minor();
+    let patch_match = msrv.patch().is_none_or(|patch| version.patch() == patch);
 
     major_match && minor_match && patch_match
 }
@@ -924,8 +924,7 @@ edition = "2021"
 mod valid_release_tests {
     use std::iter::FromIterator;
 
-    use cargo_metadata::semver;
-    use rust_releases::{Release, ReleaseIndex};
+    use crate::rust::{ReleaseIndex, RustRelease, Stable};
 
     use crate::sub_command::set::has_release;
     use cargo_msrv_types::BareVersion;
@@ -934,7 +933,7 @@ mod valid_release_tests {
     fn releases_include_bare() {
         let bare = BareVersion::TwoComponents(1, 55);
         let index =
-            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 0))]);
+            ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 0), None, [])]);
 
         assert!(has_release(&bare, &index))
     }
@@ -943,7 +942,7 @@ mod valid_release_tests {
     fn releases_does_not_include_bare() {
         let bare = BareVersion::TwoComponents(1, 55);
         let index =
-            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 54, 0))]);
+            ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 54, 0), None, [])]);
 
         assert!(!has_release(&bare, &index))
     }
@@ -952,7 +951,7 @@ mod valid_release_tests {
     fn releases_includes_bare_with_patch() {
         let bare = BareVersion::ThreeComponents(1, 55, 100);
         let index =
-            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 100))]);
+            ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 100), None, [])]);
 
         assert!(has_release(&bare, &index))
     }
@@ -961,7 +960,7 @@ mod valid_release_tests {
     fn releases_does_not_include_bare_with_patch() {
         let bare = BareVersion::ThreeComponents(1, 55, 100);
         let index =
-            ReleaseIndex::from_iter(vec![Release::new_stable(semver::Version::new(1, 55, 0))]);
+            ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 0), None, [])]);
 
         assert!(!has_release(&bare, &index))
     }
