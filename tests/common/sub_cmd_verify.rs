@@ -2,8 +2,8 @@ use crate::common::reporter::EventTestDevice;
 use cargo_msrv::cli::CargoCli;
 use cargo_msrv::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use cargo_msrv::error::CargoMSRVError;
+use cargo_msrv::rust::{ReleaseIndex, RustRelease, Stable};
 use cargo_msrv::{Context, SubCommand, Verify};
-use rust_releases::{Release, ReleaseIndex};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;
@@ -12,7 +12,7 @@ pub fn run_verify<I, T, S>(with_args: I, releases: S) -> Result<(), CargoMSRVErr
 where
     T: Into<OsString> + Clone,
     I: IntoIterator<Item = T>,
-    S: IntoIterator<Item = Release>,
+    S: IntoIterator<Item = RustRelease<Stable>>,
 {
     let matches = CargoCli::parse_args(with_args);
     let opts = matches.to_cargo_msrv_cli().to_opts();

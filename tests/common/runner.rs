@@ -9,7 +9,7 @@ use cargo_msrv::Compatibility;
 use cargo_msrv::compatibility::IsCompatible;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::rust::Toolchain;
-use rust_releases::semver::Version;
+use semver::Version;
 
 pub struct TestRunner {
     accept_versions: HashSet<Version>,

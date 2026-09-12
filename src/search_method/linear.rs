@@ -1,37 +1,48 @@
 use crate::TResult;
 use crate::compatibility::IsCompatible;
-use crate::context::SearchMethod;
+use crate::context::{SearchMethod, ToolchainContext};
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::rust::RustRelease;
+use crate::rust::{RustRelease, Stable, Toolchain, to_semver};
 use crate::search_method::FindMinimalSupportedRustVersion;
 
-pub struct Linear<'runner, R: IsCompatible> {
+pub struct Linear<'runner, 'ctx, R: IsCompatible> {
     runner: &'runner R,
+    toolchain_ctx: &'ctx ToolchainContext,
 }
 
-impl<'runner, R: IsCompatible> Linear<'runner, R> {
-    pub fn new(runner: &'runner R) -> Self {
-        Self { runner }
+impl<'runner, 'ctx, R: IsCompatible> Linear<'runner, 'ctx, R> {
+    pub fn new(runner: &'runner R, toolchain_ctx: &'ctx ToolchainContext) -> Self {
+        Self {
+            runner,
+            toolchain_ctx,
+        }
+    }
+
+    fn toolchain_for(&self, release: &RustRelease<Stable>) -> Toolchain {
+        Toolchain::new(
+            to_semver(release.version()),
+            self.toolchain_ctx.target,
+            self.toolchain_ctx.components,
+        )
     }
 
     fn run_check(
-        runner: &R,
-        release: &RustRelease,
+        &self,
+        release: &RustRelease<Stable>,
         _reporter: &impl Reporter,
     ) -> TResult<Compatibility> {
-        let toolchain = release.to_toolchain_spec();
-        runner.is_compatible(&toolchain)
+        self.runner.is_compatible(&self.toolchain_for(release))
     }
 }
 
-impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
+impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, '_, R> {
     fn find_toolchain(
         &self,
-        search_space: &[RustRelease],
+        search_space: &[RustRelease<Stable>],
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         info!(?search_space);
@@ -48,7 +59,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
                 let current = i as u64;
                 reporter.report_event(Progress::new(current, total, current + 1))?;
 
-                let outcome = Self::run_check(self.runner, release, reporter)?;
+                let outcome = self.run_check(release, reporter)?;
 
                 match outcome {
                     Compatibility::Incompatible(_outcome) => {
@@ -60,7 +71,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
                 last_compatible_index = Some(i);
             }
 
-            let msrv = last_compatible_index.map(|i| &search_space[i]);
+            let msrv = last_compatible_index.map(|i| self.toolchain_for(&search_space[i]));
 
             Ok(MinimumSupportedRustVersion::from_option(msrv))
         })
@@ -72,15 +83,19 @@ mod tests {
     use super::*;
     use crate::compatibility::TestRunner;
     use crate::reporter::TestReporterWrapper;
-    use crate::rust::Toolchain;
-    use crate::semver;
-    use rust_releases::{Release, ReleaseIndex};
+    use crate::rust::ReleaseIndex;
     use std::iter::FromIterator;
 
-    fn to_rust_releases<'r>(iter: impl IntoIterator<Item = &'r Release>) -> Vec<RustRelease> {
-        iter.into_iter()
-            .map(|r| RustRelease::new(r.clone(), "x", &[]))
-            .collect()
+    fn toolchain_context() -> ToolchainContext {
+        ToolchainContext {
+            host: "x",
+            target: "x",
+            components: &[],
+        }
+    }
+
+    fn accepted_versions(releases: &[RustRelease<Stable>]) -> Vec<semver::Version> {
+        releases.iter().map(|r| to_semver(r.version())).collect()
     }
 
     #[test]
@@ -89,14 +104,15 @@ mod tests {
 
         let runner = TestRunner::with_ok("x", &[]);
         let index = ReleaseIndex::from_iter(vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 54, 0), None, []),
         ]);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_rust_releases(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -111,17 +127,19 @@ mod tests {
         let reporter = TestReporterWrapper::default();
 
         let releases = vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 54, 0), None, []),
         ];
 
-        let runner = TestRunner::with_ok("x", releases.iter().map(Release::version));
+        let accepted = accepted_versions(&releases);
+        let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_rust_releases(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -137,20 +155,22 @@ mod tests {
     fn most_recent_only() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = [Release::new_stable(semver::Version::new(1, 56, 0))];
+        let supported_releases = [RustRelease::new(Stable::new(1, 56, 0), None, [])];
 
         let index_of_releases = vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 54, 0), None, []),
         ];
 
-        let runner = TestRunner::with_ok("x", supported_releases.iter().map(Release::version));
+        let accepted = accepted_versions(&supported_releases);
+        let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_rust_releases(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -166,20 +186,22 @@ mod tests {
     fn least_recent_only_expects_rust_backwards_compat() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = [Release::new_stable(semver::Version::new(1, 54, 0))];
+        let supported_releases = [RustRelease::new(Stable::new(1, 54, 0), None, [])];
 
         let index_of_releases = vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 54, 0), None, []),
         ];
 
-        let runner = TestRunner::with_ok("x", supported_releases.iter().map(Release::version));
+        let accepted = accepted_versions(&supported_releases);
+        let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_rust_releases(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -195,20 +217,22 @@ mod tests {
     fn middle_one_only_expects_rust_backwards_compat() {
         let reporter = TestReporterWrapper::default();
 
-        let supported_releases = [Release::new_stable(semver::Version::new(1, 55, 0))];
+        let supported_releases = [RustRelease::new(Stable::new(1, 55, 0), None, [])];
 
         let index_of_releases = [
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 54, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 54, 0), None, []),
         ];
 
-        let runner = TestRunner::with_ok("x", supported_releases.iter().map(Release::version));
+        let accepted = accepted_versions(&supported_releases);
+        let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_rust_releases(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();

@@ -8,6 +8,7 @@
 
 * rust-changelog (default)
 * rust-dist
+* offline
 
 ## Resolver
 

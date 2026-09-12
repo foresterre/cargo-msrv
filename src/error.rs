@@ -9,8 +9,10 @@ use cargo_msrv_context::types::{
     ParseEditionError, ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError,
     ParseReleaseSourceError, ParseTracingTargetOptionError,
 };
+use cargo_msrv_rust_releases::FetchIndexError;
 use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
-use rust_releases::Release;
+
+use crate::rust::{ExcludedRelease, RustRelease, Stable};
 
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
@@ -33,6 +35,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     Env(#[from] env::VarError),
+
+    #[error(transparent)]
+    FetchIndex(#[from] FetchIndexError),
 
     #[error("{0}")]
     GenericMessage(String),
@@ -82,13 +87,6 @@ pub enum CargoMSRVError {
     #[error("Unable to parse Cargo.toml: {0}")]
     ParseToml(#[from] toml_edit::TomlError),
 
-    #[error(transparent)]
-    RustReleasesSource(#[from] rust_releases::RustChangelogError),
-
-    #[error(transparent)]
-    #[cfg(feature = "rust-releases-dist-source")]
-    RustReleasesRustDistSource(#[from] rust_releases::RustDistError),
-
     #[error("Unable to parse rust-releases source from '{0}'")]
     RustReleasesSourceParseError(String),
 
@@ -102,7 +100,7 @@ pub enum CargoMSRVError {
     RustupRunWithCommandFailed,
 
     #[error(transparent)]
-    SemverError(#[from] rust_releases::semver::Error),
+    SemverError(#[from] semver::Error),
 
     #[error(transparent)]
     SetMsrv(#[from] SetMsrvError),
@@ -209,29 +207,50 @@ pub enum SetMsrvError {
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("No Rust releases to check: the filtered search space is empty.{}",
+#[error("No Rust releases to check: the filtered search space is empty.{}{}",
     inner.as_ref().map(|clues| format!("{}", clues)).unwrap_or_default(),
+    unavailable.as_ref().map(|info| format!("{}", info)).unwrap_or_default(),
 )]
 pub struct NoToolchainsToTryError {
-    inner: Option<NoToolchainToTryClues>,
+    inner: Option<SelectedMinMaxVersion>,
+    unavailable: Option<Box<UnavailableToolchainDetails>>,
 }
 
 impl NoToolchainsToTryError {
     pub fn new_empty() -> Self {
-        Self { inner: None }
-    }
-
-    pub fn with_clues(user_min: Option<BareVersion>, user_max: Option<BareVersion>) -> Self {
         Self {
-            inner: Some(NoToolchainToTryClues {
-                min: user_min,
-                max: user_max,
-            }),
+            inner: None,
+            unavailable: None,
         }
     }
 
+    pub fn with_details(user_min: Option<BareVersion>, user_max: Option<BareVersion>) -> Self {
+        Self {
+            inner: Some(SelectedMinMaxVersion {
+                min: user_min,
+                max: user_max,
+            }),
+            unavailable: None,
+        }
+    }
+
+    pub fn with_unavailable_toolchains(
+        mut self,
+        target: &str,
+        components: &[&str],
+        excluded: &[ExcludedRelease],
+    ) -> Self {
+        self.unavailable = Some(Box::new(UnavailableToolchainDetails {
+            target: target.to_string(),
+            components: components.iter().map(|c| c.to_string()).collect(),
+            excluded: excluded.to_vec(),
+        }));
+
+        self
+    }
+
     pub fn has_clues(&self) -> bool {
-        self.inner.is_some()
+        self.inner.is_some() || self.unavailable.is_some()
     }
 }
 
@@ -240,19 +259,48 @@ impl NoToolchainsToTryError {
     min.as_ref().map(|s| format!("{}", s)).unwrap_or_else(|| "<not overridden>".to_string()),
     max.as_ref().map(|s| format!("{}", s)).unwrap_or_else(|| "<not overridden>".to_string()),
 )]
-pub struct NoToolchainToTryClues {
+pub struct SelectedMinMaxVersion {
     min: Option<BareVersion>,
     max: Option<BareVersion>,
+}
+
+const UNAVAILABLE_EXAMPLES: usize = 3;
+
+#[derive(Debug, thiserror::Error)]
+#[error(" Excluded {} release(s) which do not provide the requested toolchain (target '{}'{}): {}",
+    excluded.len(),
+    target,
+    if components.is_empty() { String::new() } else { format!(", component(s) '{}'", components.join(", ")) },
+    format_excluded(excluded),
+)]
+pub struct UnavailableToolchainDetails {
+    target: String,
+    components: Vec<String>,
+    excluded: Vec<ExcludedRelease>,
+}
+
+fn format_excluded(excluded: &[ExcludedRelease]) -> String {
+    let examples = excluded
+        .iter()
+        .take(UNAVAILABLE_EXAMPLES)
+        .map(|release| format!("Rust {} ({})", release.version(), release.reason()))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    match excluded.len().saturating_sub(UNAVAILABLE_EXAMPLES) {
+        0 => examples,
+        remainder => format!("{}, and {} more", examples, remainder),
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
 #[error("No Rust releases match input '{}' (search space: [{}])",
     input,
-    search_space.iter().map(|r| r.version().to_string()).collect::<Vec<_>>().join(", "))
+    search_space.iter().map(|r| r.version().version.to_string()).collect::<Vec<_>>().join(", "))
 ]
 pub struct InvalidMsrvSetError {
     pub(crate) input: BareVersion,
-    pub(crate) search_space: Vec<Release>,
+    pub(crate) search_space: Vec<RustRelease<Stable>>,
 }
 
 impl<T> From<storyteller::EventReporterError<T>> for CargoMSRVError {

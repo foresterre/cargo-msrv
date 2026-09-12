@@ -7,8 +7,8 @@ use crate::common::sub_cmd_find::{
     find_msrv, find_msrv_with_releases, run_cargo_version_which_doesnt_support_lockfile_v2,
 };
 use cargo_msrv::error::CargoMSRVError;
+use cargo_msrv::rust::{RustRelease, Stable};
 use parameterized::parameterized;
-use rust_releases::{Release, semver};
 use std::path::Path;
 
 mod common;
@@ -204,7 +204,7 @@ fn msrv_with_old_lockfile() {
 }
 
 mod minimum_from_edition {
-    use super::{Release, semver};
+    use super::{RustRelease, Stable};
     use crate::common::Fixture;
     use crate::common::sub_cmd_find::find_msrv_with_releases;
 
@@ -226,10 +226,10 @@ mod minimum_from_edition {
         ];
 
         let versions = vec![
-            Release::new_stable(semver::Version::new(1, 32, 0)),
-            Release::new_stable(semver::Version::new(1, 31, 0)),
-            Release::new_stable(semver::Version::new(1, 30, 0)),
-            Release::new_stable(semver::Version::new(1, 29, 0)),
+            RustRelease::new(Stable::new(1, 32, 0), None, []),
+            RustRelease::new(Stable::new(1, 31, 0), None, []),
+            RustRelease::new(Stable::new(1, 30, 0), None, []),
+            RustRelease::new(Stable::new(1, 29, 0), None, []),
         ];
 
         let test_result = find_msrv_with_releases(with_args, versions).unwrap();
@@ -263,8 +263,8 @@ fn msrv_in_a_virtual_workspace_default_check_command(
     let with_args = vec!["cargo", "msrv", "find", "--path", fixture.to_str()];
 
     let versions = vec![
-        Release::new_stable(semver::Version::new(1, 58, 1)),
-        Release::new_stable(semver::Version::new(1, 56, 1)),
+        RustRelease::new(Stable::new(1, 58, 1), None, []),
+        RustRelease::new(Stable::new(1, 56, 1), None, []),
     ];
 
     let test_result = find_msrv_with_releases(with_args, versions).unwrap();
@@ -297,8 +297,8 @@ fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: s
     let with_args = command.iter().flatten().collect::<Vec<_>>();
 
     let versions = vec![
-        Release::new_stable(semver::Version::new(1, 58, 1)),
-        Release::new_stable(semver::Version::new(1, 56, 1)),
+        RustRelease::new(Stable::new(1, 58, 1), None, []),
+        RustRelease::new(Stable::new(1, 56, 1), None, []),
     ];
 
     let test_result = find_msrv_with_releases(with_args, versions).unwrap();
@@ -323,8 +323,8 @@ fn cargo_features_option() {
     ];
 
     let versions = vec![
-        Release::new_stable(semver::Version::new(1, 58, 1)),
-        Release::new_stable(semver::Version::new(1, 56, 1)),
+        RustRelease::new(Stable::new(1, 58, 1), None, []),
+        RustRelease::new(Stable::new(1, 56, 1), None, []),
     ];
 
     let test_result = find_msrv_with_releases(with_args, versions).unwrap();
@@ -357,8 +357,8 @@ fn cargo_all_features_flag() {
     ];
 
     let versions = vec![
-        Release::new_stable(semver::Version::new(1, 58, 1)),
-        Release::new_stable(semver::Version::new(1, 56, 1)),
+        RustRelease::new(Stable::new(1, 58, 1), None, []),
+        RustRelease::new(Stable::new(1, 56, 1), None, []),
     ];
 
     let test_result = find_msrv_with_releases(with_args, versions).unwrap();
@@ -391,8 +391,8 @@ fn cargo_no_default_features_flag() {
     ];
 
     let versions = vec![
-        Release::new_stable(semver::Version::new(1, 58, 1)),
-        Release::new_stable(semver::Version::new(1, 56, 1)),
+        RustRelease::new(Stable::new(1, 58, 1), None, []),
+        RustRelease::new(Stable::new(1, 56, 1), None, []),
     ];
 
     let test_result = find_msrv_with_releases(with_args, versions).unwrap();

@@ -36,5 +36,8 @@ yare = { workspace = true }
 # Enables the `rust-dist` release source
 rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
 
+# Enables the `offline` release source
+rust-releases-offline-source = ["cargo-msrv-context/rust-releases-offline-source"]
+
 # Enables the test reporters and event handlers, for use by dependent crates
 testing = []

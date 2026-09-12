@@ -1,11 +1,9 @@
-use rust_releases::{Release, ReleaseIndex};
-
 use crate::compatibility::IsCompatible;
 use crate::error::{CargoMSRVError, TResult};
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::VerifyResult;
-use crate::rust::Toolchain;
+use crate::rust::{ReleaseIndex, Toolchain, to_semver};
 use crate::sub_command::SubCommand;
 use cargo_msrv_context::VerifyContext;
 use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource};
@@ -60,8 +58,12 @@ fn verify_msrv(
     runner: &impl IsCompatible,
 ) -> TResult<()> {
     let bare_version = rust_version.version();
-    let version =
-        bare_version.try_to_semver(release_index.releases().iter().map(Release::version))?;
+    let available = release_index
+        .stable_releases()
+        .iter()
+        .map(|release| to_semver(release.version()))
+        .collect::<Vec<_>>();
+    let version = bare_version.try_to_semver(available.iter())?;
 
     let target = ctx.toolchain.target;
     let components = ctx.toolchain.components;

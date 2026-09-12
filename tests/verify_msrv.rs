@@ -1,8 +1,8 @@
 #![allow(clippy::items_after_test_module)]
 
 use cargo_msrv::exit_code::ExitCode;
+use cargo_msrv::rust::{RustRelease, Stable};
 use parameterized::parameterized;
-use rust_releases::{Release, semver};
 use std::process::Command;
 
 use crate::common::{Fixture, sub_cmd_verify::run_verify};
@@ -35,11 +35,11 @@ fn verify(folder: &str) {
     let result = run_verify(
         with_args,
         vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 37, 0)),
-            Release::new_stable(semver::Version::new(1, 36, 0)),
-            Release::new_stable(semver::Version::new(1, 35, 0)),
-            Release::new_stable(semver::Version::new(1, 34, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 37, 0), None, []),
+            RustRelease::new(Stable::new(1, 36, 0), None, []),
+            RustRelease::new(Stable::new(1, 35, 0), None, []),
+            RustRelease::new(Stable::new(1, 34, 0), None, []),
         ],
     );
 
@@ -72,8 +72,8 @@ fn verify_workspace_inheritance(folder: &str, package: &str) {
         with_args,
         vec![
             // only stabilized in 1.64.0
-            Release::new_stable(semver::Version::new(1, 64, 0)),
-            Release::new_stable(semver::Version::new(1, 66, 0)),
+            RustRelease::new(Stable::new(1, 64, 0), None, []),
+            RustRelease::new(Stable::new(1, 66, 0), None, []),
         ],
     );
 
@@ -93,11 +93,11 @@ fn verify_failed_no_msrv_specified(folder: &str) {
     let result = run_verify(
         with_args,
         vec![
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 37, 0)),
-            Release::new_stable(semver::Version::new(1, 36, 0)),
-            Release::new_stable(semver::Version::new(1, 35, 0)),
-            Release::new_stable(semver::Version::new(1, 34, 0)),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 37, 0), None, []),
+            RustRelease::new(Stable::new(1, 36, 0), None, []),
+            RustRelease::new(Stable::new(1, 35, 0), None, []),
+            RustRelease::new(Stable::new(1, 34, 0), None, []),
         ],
     );
 
@@ -234,7 +234,7 @@ fn verify_with_rust_version_opt() {
 
     let result = run_verify(
         with_args,
-        vec![Release::new_stable(semver::Version::new(1, 37, 0))],
+        vec![RustRelease::new(Stable::new(1, 37, 0), None, [])],
     );
 
     assert!(result.is_ok());
@@ -259,7 +259,7 @@ fn manifest_path() {
 
     let result = run_verify(
         with_args,
-        vec![Release::new_stable(semver::Version::new(1, 36, 0))],
+        vec![RustRelease::new(Stable::new(1, 36, 0), None, [])],
     );
 
     assert!(result.is_ok());

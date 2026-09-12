@@ -1,0 +1,42 @@
+[package]
+name = "cargo-msrv-rust-releases"
+description = "The index of available Rust releases for cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.96.0"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "rust-releases", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-context = { workspace = true }
+cargo-msrv-reporter = { workspace = true }
+cargo-msrv-types = { workspace = true }
+
+rust-releases = { workspace = true, features = ["rust-changelog", "rust-releases-io", "ureq"] }
+semver = { workspace = true }
+storyteller = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+parameterized = { workspace = true }
+
+[features]
+# Enables the `rust-dist` release source
+rust-releases-dist-source = [
+    "rust-releases/rust-dist",
+    "cargo-msrv-context/rust-releases-dist-source",
+    "cargo-msrv-reporter/rust-releases-dist-source",
+]
+
+# Enables the `offline` release source
+rust-releases-offline-source = [
+    "rust-releases/bundled",
+    "cargo-msrv-context/rust-releases-offline-source",
+    "cargo-msrv-reporter/rust-releases-offline-source",
+]

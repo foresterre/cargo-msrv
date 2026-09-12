@@ -26,6 +26,7 @@ cargo-msrv-cli = { workspace = true } # the command line interface
 cargo-msrv-context = { workspace = true } # the resolved configuration of a run
 cargo-msrv-manifest = { workspace = true } # the Cargo manifest parsing
 cargo-msrv-reporter = { workspace = true } # the user facing output
+cargo-msrv-rust-releases = { workspace = true } # the index of available rust releases
 cargo-msrv-types = { workspace = true } # the types shared with the command line interface
 
 # external
@@ -36,7 +37,7 @@ ctrlc = "3.5.1" # interrupt handling
 dirs = "6.0.0" # common directories
 dunce = { workspace = true } # better canonicalize for Windows
 owo-colors = { workspace = true } # color support for the terminal
-rust-releases = { workspace = true, features = ["rust-changelog"] } # get the available rust versions
+semver = { workspace = true } # the version numbers of the rust releases
 storyteller = { workspace = true } # minimal multi user output architecture
 thiserror = { workspace = true } # error handling
 toml_edit = { workspace = true } # read and write the Cargo.toml
@@ -60,12 +61,18 @@ vergen-gitcl = { version = "10.0.2", default-features = false }
 # ~~~ features ~~~
 
 [features]
-default = ["rust-releases-dist-source"]
+default = ["rust-releases-dist-source", "rust-releases-offline-source"]
 rust-releases-dist-source = [
-    "rust-releases/rust-dist",
     "cargo-msrv-cli/rust-releases-dist-source",
     "cargo-msrv-context/rust-releases-dist-source",
     "cargo-msrv-reporter/rust-releases-dist-source",
+    "cargo-msrv-rust-releases/rust-releases-dist-source",
+]
+rust-releases-offline-source = [
+    "cargo-msrv-cli/rust-releases-offline-source",
+    "cargo-msrv-context/rust-releases-offline-source",
+    "cargo-msrv-reporter/rust-releases-offline-source",
+    "cargo-msrv-rust-releases/rust-releases-offline-source",
 ]
 
 # ~~~ workspace ~~~
@@ -76,6 +83,7 @@ members = [
     "crates/cargo-msrv-context",
     "crates/cargo-msrv-manifest",
     "crates/cargo-msrv-reporter",
+    "crates/cargo-msrv-rust-releases",
     "crates/cargo-msrv-types",
     "crates/msrv",
 ]
@@ -92,6 +100,7 @@ cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.19.3" }
 cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.19.3" }
 cargo-msrv-manifest = { path = "crates/cargo-msrv-manifest", version = "0.19.3" }
 cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.19.3" }
+cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.19.3" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
 camino = "1.2"
@@ -103,7 +112,7 @@ indoc = "2.0.7"
 owo-colors = "4.3.0"
 parameterized = "2.1.0"
 petgraph = "0.8.3"
-rust-releases = { version = "0.32.0", default-features = false }
+rust-releases = { version = "0.34.0", default-features = false }
 semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.150"

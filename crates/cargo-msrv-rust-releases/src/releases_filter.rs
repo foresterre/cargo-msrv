@@ -1,7 +1,6 @@
-use crate::semver;
+use crate::release::to_semver;
 use cargo_msrv_types::bare_version;
-use rust_releases::Release;
-use rust_releases::linear::LatestStableReleases;
+use rust_releases::core::{RustRelease, Stable};
 
 /// Filter releases based on the given configuration.
 pub struct ReleasesFilter<'ctx> {
@@ -25,11 +24,11 @@ impl<'ctx> ReleasesFilter<'ctx> {
     }
 
     /// Filter the given slice of releases, based on the options set for the filter.
-    pub fn filter(&self, releases: &[Release]) -> Vec<Release> {
+    pub fn filter(&self, releases: &[RustRelease<Stable>]) -> Vec<RustRelease<Stable>> {
         let releases = if self.include_all_patch_releases {
             releases.to_vec()
         } else {
-            releases.iter().cloned().latest_stable_releases().collect()
+            latest_patch_releases(releases)
         };
 
         // Pre-filter the [min-version:max-version] range
@@ -37,13 +36,32 @@ impl<'ctx> ReleasesFilter<'ctx> {
             .into_iter()
             .filter(|release| {
                 include_version(
-                    release.version(),
+                    &to_semver(release.version()),
                     self.minimum_version,
                     self.maximum_version,
                 )
             })
             .collect::<Vec<_>>()
     }
+}
+
+fn latest_patch_releases(releases: &[RustRelease<Stable>]) -> Vec<RustRelease<Stable>> {
+    let mut latest: Vec<RustRelease<Stable>> = Vec::new();
+
+    for release in releases {
+        let version = release.version().version;
+
+        let is_same_minor = latest.last().is_some_and(|previous| {
+            let previous = previous.version().version;
+            previous.major() == version.major() && previous.minor() == version.minor()
+        });
+
+        if !is_same_minor {
+            latest.push(release.clone());
+        }
+    }
+
+    latest
 }
 
 fn include_version(
@@ -63,11 +81,34 @@ fn include_version(
 mod tests {
     use cargo_msrv_types::BareVersion;
     use parameterized::{ide, parameterized};
-    use rust_releases::semver::Version;
+    use semver::Version;
 
     use super::*;
 
     ide!();
+
+    fn release(major: u64, minor: u64, patch: u64) -> RustRelease<Stable> {
+        RustRelease::new(Stable::new(major, minor, patch), None, [])
+    }
+
+    #[test]
+    fn latest_patch_release_per_minor_version() {
+        let releases = [
+            release(1, 40, 2),
+            release(1, 40, 1),
+            release(1, 40, 0),
+            release(1, 39, 0),
+            release(1, 38, 1),
+            release(1, 38, 0),
+        ];
+
+        let latest = latest_patch_releases(&releases);
+
+        assert_eq!(
+            latest,
+            vec![release(1, 40, 2), release(1, 39, 0), release(1, 38, 1)]
+        );
+    }
 
     #[test]
     fn max_should_ignore_patch() {

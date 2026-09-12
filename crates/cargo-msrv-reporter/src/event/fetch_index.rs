@@ -56,4 +56,18 @@ mod tests {
             vec![Event::unscoped(Message::FetchIndex(event)),]
         );
     }
+
+    #[cfg(feature = "rust-releases-offline-source")]
+    #[test]
+    fn reported_offline_source() {
+        let reporter = TestReporterWrapper::default();
+        let event = FetchIndex::new(ReleaseSource::Offline);
+
+        reporter.get().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::unscoped(Message::FetchIndex(event)),]
+        );
+    }
 }

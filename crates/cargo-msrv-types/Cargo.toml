@@ -18,5 +18,4 @@ serde = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-rust-releases = { workspace = true }
 yare = { workspace = true }

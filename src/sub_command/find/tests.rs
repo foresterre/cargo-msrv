@@ -9,32 +9,31 @@ use crate::reporter::TestReporterWrapper;
 use camino::Utf8PathBuf;
 use cargo_msrv_context::types::ReleaseSource;
 use cargo_msrv_types::BareVersion;
-use rust_releases::semver;
 use std::iter::FromIterator;
 
 #[test]
 fn bisect_find_only_last() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
-        Release::new_stable(semver::Version::new(1, 51, 0)),
-        Release::new_stable(semver::Version::new(1, 50, 0)),
-        Release::new_stable(semver::Version::new(1, 49, 0)),
-        Release::new_stable(semver::Version::new(1, 48, 0)),
-        Release::new_stable(semver::Version::new(1, 47, 0)),
-        Release::new_stable(semver::Version::new(1, 46, 0)),
-        Release::new_stable(semver::Version::new(1, 45, 0)),
-        Release::new_stable(semver::Version::new(1, 44, 0)),
-        Release::new_stable(semver::Version::new(1, 43, 0)),
-        Release::new_stable(semver::Version::new(1, 42, 0)),
-        Release::new_stable(semver::Version::new(1, 41, 0)),
-        Release::new_stable(semver::Version::new(1, 40, 0)),
-        Release::new_stable(semver::Version::new(1, 39, 0)),
-        Release::new_stable(semver::Version::new(1, 38, 0)),
-        Release::new_stable(semver::Version::new(1, 37, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
+        RustRelease::new(Stable::new(1, 51, 0), None, []),
+        RustRelease::new(Stable::new(1, 50, 0), None, []),
+        RustRelease::new(Stable::new(1, 49, 0), None, []),
+        RustRelease::new(Stable::new(1, 48, 0), None, []),
+        RustRelease::new(Stable::new(1, 47, 0), None, []),
+        RustRelease::new(Stable::new(1, 46, 0), None, []),
+        RustRelease::new(Stable::new(1, 45, 0), None, []),
+        RustRelease::new(Stable::new(1, 44, 0), None, []),
+        RustRelease::new(Stable::new(1, 43, 0), None, []),
+        RustRelease::new(Stable::new(1, 42, 0), None, []),
+        RustRelease::new(Stable::new(1, 41, 0), None, []),
+        RustRelease::new(Stable::new(1, 40, 0), None, []),
+        RustRelease::new(Stable::new(1, 39, 0), None, []),
+        RustRelease::new(Stable::new(1, 38, 0), None, []),
+        RustRelease::new(Stable::new(1, 37, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -68,11 +67,11 @@ fn bisect_find_only_last() {
 #[test]
 fn bisect_find_all_compatible() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -115,11 +114,11 @@ fn bisect_find_all_compatible() {
 #[test]
 fn bisect_none_compatible() {
     let index = ReleaseIndex::from_iter(vec![
-        Release::new_stable(semver::Version::new(1, 56, 0)),
-        Release::new_stable(semver::Version::new(1, 55, 0)),
-        Release::new_stable(semver::Version::new(1, 54, 0)),
-        Release::new_stable(semver::Version::new(1, 53, 0)),
-        Release::new_stable(semver::Version::new(1, 52, 0)),
+        RustRelease::new(Stable::new(1, 56, 0), None, []),
+        RustRelease::new(Stable::new(1, 55, 0), None, []),
+        RustRelease::new(Stable::new(1, 54, 0), None, []),
+        RustRelease::new(Stable::new(1, 53, 0), None, []),
+        RustRelease::new(Stable::new(1, 52, 0), None, []),
     ]);
 
     let reporter = TestReporterWrapper::default();
@@ -159,12 +158,12 @@ mod issue_369_min_more_recent_than_max {
     #[test]
     fn bisect() {
         let releases = vec![
-            Release::new_stable(semver::Version::new(1, 46, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 57, 0)),
-            Release::new_stable(semver::Version::new(1, 58, 1)),
-            Release::new_stable(semver::Version::new(1, 59, 0)),
+            RustRelease::new(Stable::new(1, 46, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 57, 0), None, []),
+            RustRelease::new(Stable::new(1, 58, 1), None, []),
+            RustRelease::new(Stable::new(1, 59, 0), None, []),
         ];
 
         let index = ReleaseIndex::from_iter(releases);
@@ -207,12 +206,12 @@ mod issue_369_min_more_recent_than_max {
     #[test]
     fn linear() {
         let releases = vec![
-            Release::new_stable(semver::Version::new(1, 46, 0)),
-            Release::new_stable(semver::Version::new(1, 55, 0)),
-            Release::new_stable(semver::Version::new(1, 56, 0)),
-            Release::new_stable(semver::Version::new(1, 57, 0)),
-            Release::new_stable(semver::Version::new(1, 58, 1)),
-            Release::new_stable(semver::Version::new(1, 59, 0)),
+            RustRelease::new(Stable::new(1, 46, 0), None, []),
+            RustRelease::new(Stable::new(1, 55, 0), None, []),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+            RustRelease::new(Stable::new(1, 57, 0), None, []),
+            RustRelease::new(Stable::new(1, 58, 1), None, []),
+            RustRelease::new(Stable::new(1, 59, 0), None, []),
         ];
 
         let index = ReleaseIndex::from_iter(releases);
@@ -253,6 +252,80 @@ mod issue_369_min_more_recent_than_max {
     }
 }
 
+mod unavailable_toolchains {
+    use super::*;
+    use crate::rust::release_toolchain::{Channel, Target, Toolchain};
+
+    const HOST: &str = "x86_64-unknown-linux-gnu";
+    const OTHER: &str = "aarch64-apple-darwin";
+
+    fn release(minor: u64, host: &str) -> RustRelease<Stable> {
+        let version = Stable::new(1, minor, 0);
+        let target = Target::try_from_target_triple(host).unwrap();
+
+        RustRelease::new(
+            version.clone(),
+            None,
+            [Toolchain::new(
+                Channel::Stable(version),
+                None,
+                target.clone(),
+                Vec::new().into_iter().collect(),
+                vec![target].into_iter().collect(),
+            )],
+        )
+    }
+
+    fn create_context() -> FindContext {
+        let mut ctx = create_test_context();
+
+        ctx.toolchain = ToolchainContext {
+            host: HOST,
+            target: HOST,
+            components: &[],
+        };
+        ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 57, 0));
+
+        ctx
+    }
+
+    #[test]
+    fn releases_without_the_requested_toolchain_are_not_searched() {
+        let index = ReleaseIndex::from_iter(vec![release(58, HOST), release(57, OTHER)]);
+
+        let reporter = TestReporterWrapper::default();
+        let runner = TestRunner::with_ok(HOST, &[semver::Version::new(1, 58, 0)]);
+
+        let cmd = Find::new(&index, runner);
+        let found = cmd.run(&create_context(), reporter.get()).unwrap();
+
+        assert_eq!(found, semver::Version::new(1, 58, 0));
+    }
+
+    #[test]
+    fn an_empty_search_space_reports_the_excluded_releases() {
+        let index = ReleaseIndex::from_iter(vec![release(58, OTHER), release(57, OTHER)]);
+
+        let reporter = TestReporterWrapper::default();
+        let runner = TestRunner::with_ok(HOST, &[]);
+
+        let cmd = Find::new(&index, runner);
+        let err = cmd.run(&create_context(), reporter.get()).unwrap_err();
+
+        assert!(matches!(err, CargoMSRVError::NoToolchainsToTry(ref inner) if inner.has_clues()));
+
+        assert_eq!(
+            format!("{}", err),
+            "No Rust releases to check: the filtered search space is empty. \
+             Search space limited by user to min Rust '1.57.0', and max Rust '<not overridden>' \
+             Excluded 2 release(s) which do not provide the requested toolchain \
+             (target 'x86_64-unknown-linux-gnu'): \
+             Rust 1.58.0 (no toolchain for host 'x86_64-unknown-linux-gnu'), \
+             Rust 1.57.0 (no toolchain for host 'x86_64-unknown-linux-gnu')"
+        );
+    }
+}
+
 fn create_test_context() -> FindContext {
     FindContext {
         search_method: SearchMethod::Bisect,
@@ -268,6 +341,7 @@ fn create_test_context() -> FindContext {
             release_source: ReleaseSource::RustChangelog,
         },
         toolchain: ToolchainContext {
+            host: "x",
             target: "x",
             components: &[],
         },

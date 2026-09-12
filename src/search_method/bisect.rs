@@ -2,32 +2,44 @@ use bisector::{Bisector, ConvergeTo, Indices, Step};
 
 use crate::TResult;
 use crate::compatibility::IsCompatible;
-use crate::context::SearchMethod;
+use crate::context::{SearchMethod, ToolchainContext};
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{Compatibility, Compatible, Incompatible};
 use crate::reporter::Reporter;
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::rust::RustRelease;
+use crate::rust::{RustRelease, Stable, Toolchain, to_semver};
 use crate::search_method::FindMinimalSupportedRustVersion;
 
-pub struct Bisect<'runner, R: IsCompatible> {
+pub struct Bisect<'runner, 'ctx, R: IsCompatible> {
     runner: &'runner R,
+    toolchain_ctx: &'ctx ToolchainContext,
 }
 
-impl<'runner, R: IsCompatible> Bisect<'runner, R> {
-    pub fn new(runner: &'runner R) -> Self {
-        Self { runner }
+impl<'runner, 'ctx, R: IsCompatible> Bisect<'runner, 'ctx, R> {
+    pub fn new(runner: &'runner R, toolchain_ctx: &'ctx ToolchainContext) -> Self {
+        Self {
+            runner,
+            toolchain_ctx,
+        }
+    }
+
+    fn toolchain_for(&self, release: &RustRelease<Stable>) -> Toolchain {
+        Toolchain::new(
+            to_semver(release.version()),
+            self.toolchain_ctx.target,
+            self.toolchain_ctx.components,
+        )
     }
 
     fn run_check(
-        runner: &R,
-        release: &RustRelease,
+        &self,
+        release: &RustRelease<Stable>,
         _reporter: &impl Reporter,
     ) -> TResult<ConvergeTo<Incompatible, Compatible>> {
-        let toolchain = release.to_toolchain_spec();
+        let toolchain = self.toolchain_for(release);
 
-        match runner.is_compatible(&toolchain) {
+        match self.runner.is_compatible(&toolchain) {
             Ok(outcome) => match outcome {
                 Compatibility::Compatible(outcome) => Ok(ConvergeTo::Right(outcome)),
                 Compatibility::Incompatible(outcome) => Ok(ConvergeTo::Left(outcome)),
@@ -50,10 +62,10 @@ impl<'runner, R: IsCompatible> Bisect<'runner, R> {
     }
 }
 
-impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
+impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, '_, R> {
     fn find_toolchain(
         &self,
-        search_space: &[RustRelease],
+        search_space: &[RustRelease<Stable>],
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         info!(?search_space);
@@ -71,10 +83,8 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
             while let Step {
                 indices: next_indices,
                 result: Some(step),
-            } = searcher.try_bisect(
-                |release| Self::run_check(self.runner, release, reporter),
-                indices,
-            )? {
+            } = searcher.try_bisect(|release| self.run_check(release, reporter), indices)?
+            {
                 iteration += 1;
 
                 info!(?indices, ?next_indices);
@@ -98,14 +108,14 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
             let msrv = if indices.middle() == search_space.len() - 1 {
                 Self::show_progress(iteration + 1, total, indices, reporter)?;
 
-                match Self::run_check(self.runner, converged_to_release, reporter)? {
+                match self.run_check(converged_to_release, reporter)? {
                     ConvergeTo::Left(_outcome) => {
-                        last_compatible_index.map(|i| &search_space[i.middle()])
+                        last_compatible_index.map(|i| self.toolchain_for(&search_space[i.middle()]))
                     }
-                    ConvergeTo::Right(_outcome) => Some(converged_to_release),
+                    ConvergeTo::Right(_outcome) => Some(self.toolchain_for(converged_to_release)),
                 }
             } else {
-                last_compatible_index.map(|i| &search_space[i.middle()])
+                last_compatible_index.map(|i| self.toolchain_for(&search_space[i.middle()]))
             };
 
             Ok(MinimumSupportedRustVersion::from_option(msrv))
@@ -115,22 +125,21 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, R> {
 
 #[cfg(test)]
 mod tests {
-    use rust_releases::Release;
+    use crate::rust::{RustRelease, Stable};
 
     use crate::compatibility::TestRunner;
+    use crate::context::ToolchainContext;
     use crate::reporter::TestReporterWrapper;
-    use crate::rust::RustRelease;
     use crate::search_method::FindMinimalSupportedRustVersion;
-    use crate::semver;
 
     use super::Bisect;
 
     #[yare::parameterized(
         regression288_search_space_of_3_all_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 1)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 1)),
+                RustRelease::new(Stable::new(1, 58, 1), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 1), None, []),
             ], &[
                 semver::Version::new(1, 58, 1),
                 semver::Version::new(1, 57, 0),
@@ -140,7 +149,7 @@ mod tests {
         },
         one_option = {
             &[
-                Release::new_stable(semver::Version::new(1, 56, 1)),
+                RustRelease::new(Stable::new(1, 56, 1), None, []),
             ],
             &[
                 semver::Version::new(1, 56, 1)
@@ -149,9 +158,9 @@ mod tests {
         },
         search_space_of_3_most_recent_two_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
             ],
             &[
                 semver::Version::new(1, 58, 0),
@@ -161,9 +170,9 @@ mod tests {
         },
         search_space_of_3_most_recent_one_succeeds = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
             ],
             &[
                 semver::Version::new(1, 58, 0),
@@ -173,8 +182,8 @@ mod tests {
 
         search_space_of_2_all_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -183,8 +192,8 @@ mod tests {
         },
         search_space_of_2_most_recent_one_succeeds = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
@@ -192,10 +201,10 @@ mod tests {
         },
         search_space_of_4_all_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -206,10 +215,10 @@ mod tests {
         },
         search_space_of_4_most_recent_three_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -219,10 +228,10 @@ mod tests {
         },
         search_space_of_4_most_recent_two_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -231,10 +240,10 @@ mod tests {
         },
         search_space_of_4_most_recent_one_succeeds = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
@@ -242,11 +251,11 @@ mod tests {
         },
         search_space_of_5_all_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
-                Release::new_stable(semver::Version::new(1, 54, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
+                RustRelease::new(Stable::new(1, 54, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -258,11 +267,11 @@ mod tests {
         },
         search_space_of_5_most_recent_four_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
-                Release::new_stable(semver::Version::new(1, 54, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
+                RustRelease::new(Stable::new(1, 54, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -273,11 +282,11 @@ mod tests {
         },
         search_space_of_5_most_recent_three_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
-                Release::new_stable(semver::Version::new(1, 54, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
+                RustRelease::new(Stable::new(1, 54, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -287,11 +296,11 @@ mod tests {
         },
         search_space_of_5_most_recent_two_succeed = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
-                Release::new_stable(semver::Version::new(1, 54, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
+                RustRelease::new(Stable::new(1, 54, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
                 semver::Version::new(1, 57, 0),
@@ -300,11 +309,11 @@ mod tests {
         },
         search_space_of_5_most_recent_one_succeeds = {
             &[
-                Release::new_stable(semver::Version::new(1, 58, 0)),
-                Release::new_stable(semver::Version::new(1, 57, 0)),
-                Release::new_stable(semver::Version::new(1, 56, 0)),
-                Release::new_stable(semver::Version::new(1, 55, 0)),
-                Release::new_stable(semver::Version::new(1, 54, 0)),
+                RustRelease::new(Stable::new(1, 58, 0), None, []),
+                RustRelease::new(Stable::new(1, 57, 0), None, []),
+                RustRelease::new(Stable::new(1, 56, 0), None, []),
+                RustRelease::new(Stable::new(1, 55, 0), None, []),
+                RustRelease::new(Stable::new(1, 54, 0), None, []),
             ], &[
                 semver::Version::new(1, 58, 0),
             ],
@@ -312,23 +321,21 @@ mod tests {
         },
     )]
     fn find_toolchain_with_bisect(
-        search_space: &[Release],
+        search_space: &[RustRelease<Stable>],
         accept: &[semver::Version],
         expected_msrv: semver::Version,
     ) {
         let runner = TestRunner::with_ok("x", accept);
-        let bisect = Bisect::new(&runner);
+        let toolchain = ToolchainContext {
+            host: "x",
+            target: "x",
+            components: &[],
+        };
+        let bisect = Bisect::new(&runner, &toolchain);
 
         let reporter = TestReporterWrapper::default();
 
-        let search_space = search_space
-            .iter()
-            .map(|r| RustRelease::new(r.clone(), "x", &[]))
-            .collect::<Vec<_>>();
-
-        let result = bisect
-            .find_toolchain(&search_space, reporter.get())
-            .unwrap();
+        let result = bisect.find_toolchain(search_space, reporter.get()).unwrap();
 
         assert_eq!(result.unwrap_version(), expected_msrv);
     }

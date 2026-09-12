@@ -1,4 +1,3 @@
-use crate::rust::RustRelease;
 use crate::rust::Toolchain;
 
 /// An enum to represent the minimal compatibility
@@ -14,13 +13,11 @@ pub enum MinimumSupportedRustVersion {
 }
 
 impl MinimumSupportedRustVersion {
-    pub fn toolchain(msrv: &RustRelease) -> Self {
-        let toolchain = msrv.to_toolchain_spec().to_owned();
-
+    pub fn toolchain(toolchain: Toolchain) -> Self {
         Self::Toolchain { toolchain }
     }
 
-    pub fn from_option(msrv: Option<&RustRelease>) -> Self {
+    pub fn from_option(msrv: Option<Toolchain>) -> Self {
         msrv.map_or(
             MinimumSupportedRustVersion::NoCompatibleToolchain,
             MinimumSupportedRustVersion::toolchain,
@@ -30,7 +27,7 @@ impl MinimumSupportedRustVersion {
 
 impl MinimumSupportedRustVersion {
     #[cfg(test)]
-    pub fn unwrap_version(&self) -> rust_releases::semver::Version {
+    pub fn unwrap_version(&self) -> semver::Version {
         if let Self::Toolchain { toolchain, .. } = self {
             return toolchain.version().clone();
         }
@@ -42,18 +39,13 @@ impl MinimumSupportedRustVersion {
 #[cfg(test)]
 mod tests {
     use crate::msrv::MinimumSupportedRustVersion;
-    use crate::rust::RustRelease;
-    use cargo_metadata::semver;
+    use crate::rust::Toolchain;
 
     #[test]
     fn accept() {
         let version = semver::Version::new(1, 2, 3);
-        let rust_release = RustRelease::new(
-            rust_releases::Release::new_stable(version.clone()),
-            "x",
-            &[],
-        );
-        let msrv = MinimumSupportedRustVersion::toolchain(&rust_release);
+        let msrv =
+            MinimumSupportedRustVersion::toolchain(Toolchain::new(version.clone(), "x", &[]));
 
         assert!(matches!(
             msrv,
@@ -63,12 +55,11 @@ mod tests {
     #[test]
     fn accept_from_option() {
         let version = semver::Version::new(1, 2, 3);
-        let rust_release = RustRelease::new(
-            rust_releases::Release::new_stable(version.clone()),
+        let msrv = MinimumSupportedRustVersion::from_option(Some(Toolchain::new(
+            version.clone(),
             "x",
             &[],
-        );
-        let msrv = MinimumSupportedRustVersion::from_option(Some(&rust_release));
+        )));
 
         assert!(matches!(
             msrv,
