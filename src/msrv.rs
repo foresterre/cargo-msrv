@@ -1,5 +1,4 @@
 use crate::rust::Toolchain;
-use crate::rust::ToolchainCandidate;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -14,13 +13,11 @@ pub enum MinimumSupportedRustVersion {
 }
 
 impl MinimumSupportedRustVersion {
-    pub fn toolchain(msrv: &ToolchainCandidate) -> Self {
-        let toolchain = msrv.to_toolchain_spec().to_owned();
-
+    pub fn toolchain(toolchain: Toolchain) -> Self {
         Self::Toolchain { toolchain }
     }
 
-    pub fn from_option(msrv: Option<&ToolchainCandidate>) -> Self {
+    pub fn from_option(msrv: Option<Toolchain>) -> Self {
         msrv.map_or(
             MinimumSupportedRustVersion::NoCompatibleToolchain,
             MinimumSupportedRustVersion::toolchain,
@@ -42,14 +39,13 @@ impl MinimumSupportedRustVersion {
 #[cfg(test)]
 mod tests {
     use crate::msrv::MinimumSupportedRustVersion;
-    use crate::rust::{RustRelease, Stable, ToolchainCandidate};
+    use crate::rust::Toolchain;
 
     #[test]
     fn accept() {
         let version = semver::Version::new(1, 2, 3);
-        let candidate =
-            ToolchainCandidate::new(RustRelease::new(Stable::new(1, 2, 3), None, []), "x", &[]);
-        let msrv = MinimumSupportedRustVersion::toolchain(&candidate);
+        let msrv =
+            MinimumSupportedRustVersion::toolchain(Toolchain::new(version.clone(), "x", &[]));
 
         assert!(matches!(
             msrv,
@@ -59,9 +55,11 @@ mod tests {
     #[test]
     fn accept_from_option() {
         let version = semver::Version::new(1, 2, 3);
-        let candidate =
-            ToolchainCandidate::new(RustRelease::new(Stable::new(1, 2, 3), None, []), "x", &[]);
-        let msrv = MinimumSupportedRustVersion::from_option(Some(&candidate));
+        let msrv = MinimumSupportedRustVersion::from_option(Some(Toolchain::new(
+            version.clone(),
+            "x",
+            &[],
+        )));
 
         assert!(matches!(
             msrv,

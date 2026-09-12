@@ -56,13 +56,12 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
     type Error = Error;
 
     fn try_from(opts: ToolchainOpts) -> TResult<Self> {
-        let target = if let Some(target) = opts.target {
-            target
-        } else {
-            default_target()?
-        };
+        let host: &'static str = String::leak(default_target()?);
 
-        let target: &'static str = String::leak(target);
+        let target: &'static str = match opts.target {
+            Some(target) => String::leak(target),
+            None => host,
+        };
 
         let components: &'static [&'static str] = Vec::leak(
             opts.component
@@ -74,7 +73,11 @@ impl TryFrom<ToolchainOpts> for ToolchainContext {
                 .collect(),
         );
 
-        Ok(Self { target, components })
+        Ok(Self {
+            host,
+            target,
+            components,
+        })
     }
 }
 

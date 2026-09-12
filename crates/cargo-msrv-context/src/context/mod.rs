@@ -148,6 +148,9 @@ impl RustReleasesContext {
 
 #[derive(Debug)]
 pub struct ToolchainContext {
+    /// The platform on which the toolchain is installed and run
+    pub host: &'static str,
+
     /// The target of the toolchain
     pub target: &'static str,
 

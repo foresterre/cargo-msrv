@@ -1,37 +1,48 @@
 use crate::TResult;
 use crate::compatibility::IsCompatible;
-use crate::context::SearchMethod;
+use crate::context::{SearchMethod, ToolchainContext};
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::{FindMsrv, Progress};
-use crate::rust::ToolchainCandidate;
+use crate::rust::{RustRelease, Stable, Toolchain, to_semver};
 use crate::search_method::FindMinimalSupportedRustVersion;
 
-pub struct Linear<'runner, R: IsCompatible> {
+pub struct Linear<'runner, 'ctx, R: IsCompatible> {
     runner: &'runner R,
+    toolchain_ctx: &'ctx ToolchainContext,
 }
 
-impl<'runner, R: IsCompatible> Linear<'runner, R> {
-    pub fn new(runner: &'runner R) -> Self {
-        Self { runner }
+impl<'runner, 'ctx, R: IsCompatible> Linear<'runner, 'ctx, R> {
+    pub fn new(runner: &'runner R, toolchain_ctx: &'ctx ToolchainContext) -> Self {
+        Self {
+            runner,
+            toolchain_ctx,
+        }
+    }
+
+    fn toolchain_for(&self, release: &RustRelease<Stable>) -> Toolchain {
+        Toolchain::new(
+            to_semver(release.version()),
+            self.toolchain_ctx.target,
+            self.toolchain_ctx.components,
+        )
     }
 
     fn run_check(
-        runner: &R,
-        release: &ToolchainCandidate,
+        &self,
+        release: &RustRelease<Stable>,
         _reporter: &impl Reporter,
     ) -> TResult<Compatibility> {
-        let toolchain = release.to_toolchain_spec();
-        runner.is_compatible(&toolchain)
+        self.runner.is_compatible(&self.toolchain_for(release))
     }
 }
 
-impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
+impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, '_, R> {
     fn find_toolchain(
         &self,
-        search_space: &[ToolchainCandidate],
+        search_space: &[RustRelease<Stable>],
         reporter: &impl Reporter,
     ) -> TResult<MinimumSupportedRustVersion> {
         info!(?search_space);
@@ -48,7 +59,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
                 let current = i as u64;
                 reporter.report_event(Progress::new(current, total, current + 1))?;
 
-                let outcome = Self::run_check(self.runner, release, reporter)?;
+                let outcome = self.run_check(release, reporter)?;
 
                 match outcome {
                     Compatibility::Incompatible(_outcome) => {
@@ -60,7 +71,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, R> {
                 last_compatible_index = Some(i);
             }
 
-            let msrv = last_compatible_index.map(|i| &search_space[i]);
+            let msrv = last_compatible_index.map(|i| self.toolchain_for(&search_space[i]));
 
             Ok(MinimumSupportedRustVersion::from_option(msrv))
         })
@@ -72,16 +83,15 @@ mod tests {
     use super::*;
     use crate::compatibility::TestRunner;
     use crate::reporter::TestReporterWrapper;
-    use crate::rust::Toolchain;
-    use crate::rust::{ReleaseIndex, RustRelease, Stable, to_semver};
+    use crate::rust::ReleaseIndex;
     use std::iter::FromIterator;
 
-    fn to_candidates(
-        iter: impl IntoIterator<Item = RustRelease<Stable>>,
-    ) -> Vec<ToolchainCandidate> {
-        iter.into_iter()
-            .map(|r| ToolchainCandidate::new(r, "x", &[]))
-            .collect()
+    fn toolchain_context() -> ToolchainContext {
+        ToolchainContext {
+            host: "x",
+            target: "x",
+            components: &[],
+        }
     }
 
     fn accepted_versions(releases: &[RustRelease<Stable>]) -> Vec<semver::Version> {
@@ -99,9 +109,10 @@ mod tests {
             RustRelease::new(Stable::new(1, 54, 0), None, []),
         ]);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_candidates(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -125,9 +136,10 @@ mod tests {
         let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_candidates(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -155,9 +167,10 @@ mod tests {
         let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_candidates(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -185,9 +198,10 @@ mod tests {
         let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_candidates(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();
@@ -215,9 +229,10 @@ mod tests {
         let runner = TestRunner::with_ok("x", accepted.iter());
         let index = ReleaseIndex::from_iter(index_of_releases);
 
-        let linear_search = Linear::new(&runner);
+        let toolchain = toolchain_context();
+        let linear_search = Linear::new(&runner, &toolchain);
 
-        let search_space = to_candidates(index.releases());
+        let search_space = index.releases();
         let actual = linear_search
             .find_toolchain(&search_space, reporter.get())
             .unwrap();

@@ -1,7 +1,8 @@
 pub(crate) mod setup_toolchain;
 
 pub use cargo_msrv_rust_releases::{
-    ReleaseIndex, RustRelease, Stable, StableReleases, ToolchainCandidate, release_index, to_semver,
+    AvailabilityFilter, ExcludedRelease, ReleaseIndex, RustRelease, Stable, StableReleases,
+    ToolchainAvailability, ToolchainUnavailable, release_index, release_toolchain, to_semver,
 };
 pub use cargo_msrv_types::Toolchain;
 

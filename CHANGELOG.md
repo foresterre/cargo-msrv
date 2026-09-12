@@ -17,6 +17,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Changed
 
 * Updated `rust-releases` to `0.34.0`
+* If toolchain target information is available from the selected rust-releases index, `cargo-msrv` will now only include toolchains which have the provided target (defaults to the host) and components
 
 ### Fixed
 
