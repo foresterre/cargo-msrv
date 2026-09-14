@@ -2105,7 +2105,7 @@ dependencies = [
 name = "msrv"
 version = "0.0.2"
 dependencies = [
- "rust-toolchain 1.1.0",
+ "rust-toolchain",
  "version-number",
 ]
 
@@ -2563,7 +2563,7 @@ version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b5de0871cdfb771716f211f6d907a2733acbd19bc2f67bf21e515dc7bd8c7e0"
 dependencies = [
- "rust-toolchain 3.0.0",
+ "rust-toolchain",
 ]
 
 [[package]]
@@ -2650,17 +2650,6 @@ dependencies = [
  "thiserror 2.0.20",
  "tokio",
  "toml",
-]
-
-[[package]]
-name = "rust-toolchain"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d6eabe35a52d519553f1c990b6c4370c1584d07775b4170885483ca541d856a"
-dependencies = [
- "target-lexicon",
- "thiserror 2.0.20",
- "version-number",
 ]
 
 [[package]]

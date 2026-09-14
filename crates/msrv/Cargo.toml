@@ -10,5 +10,5 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
 rust-version = "1.82"
 
 [dependencies]
-rust-toolchain = "1.1.0"
+rust-toolchain = "3.0.0"
 version-number = "0.4.0"
