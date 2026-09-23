@@ -1,5 +1,7 @@
-use crate::values::release_source;
-use cargo_msrv_context::types::{Edition, ParseEditionError, ReleaseSource};
+use crate::values::{fallback_release_source, release_source};
+use cargo_msrv_context::types::{
+    BundledMaxAge, Edition, FallbackReleaseSource, ParseEditionError, ReleaseSource,
+};
 use cargo_msrv_types::BareVersion;
 use cargo_msrv_types::bare_version;
 use clap::Args;
@@ -36,6 +38,30 @@ pub struct RustReleasesOpts {
         value_name = "SOURCE"
     )]
     pub release_source: ReleaseSource,
+
+    /// Days the bundled releases may be old before the fallback source is fetched
+    ///
+    /// Only used by the `offline-unless-outdated` release source.
+    #[arg(
+        long,
+        value_name = "DAYS",
+        default_value_t = BundledMaxAge::default(),
+        env = "CARGO_MSRV_BUNDLED_MAX_AGE"
+    )]
+    pub bundled_max_age: BundledMaxAge,
+
+    /// Release source to fetch when the bundled releases are outdated
+    ///
+    /// Only used by the `offline-unless-outdated` release source. Fetched releases  are merged with
+    /// the bundled releases, and the bundled releases take precedence over the fetched ones.
+    #[arg(
+        long,
+        value_parser = fallback_release_source::VALUES.parser(),
+        default_value = fallback_release_source::VALUES.default_value(),
+        value_name = "SOURCE",
+        env = "CARGO_MSRV_BUNDLED_FALLBACK_SOURCE"
+    )]
+    pub bundled_fallback_source: FallbackReleaseSource,
 }
 
 #[derive(Clone, Debug)]

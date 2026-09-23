@@ -13,6 +13,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Added
 
 * Added the `offline` release source, which uses a release index bundled with `cargo-msrv`, and requires no network access: `cargo msrv find --release-source offline`
+* Added `offline unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 14 days)
 
 ### Changed
 

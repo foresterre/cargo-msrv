@@ -7,4 +7,9 @@ pub const VALUES: CliValues<ReleaseSource> = CliValues::new(&[
     CliValue::new("rust-dist", ReleaseSource::RustDist),
     #[cfg(feature = "rust-releases-offline-source")]
     CliValue::new("offline", ReleaseSource::Offline),
+    #[cfg(feature = "rust-releases-offline-source")]
+    CliValue::new(
+        "offline-unless-outdated",
+        ReleaseSource::OfflineUnlessOutdated,
+    ),
 ]);

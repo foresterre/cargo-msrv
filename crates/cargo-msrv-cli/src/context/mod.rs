@@ -10,6 +10,7 @@ use cargo_msrv_context::context::error::{
     Error, InvalidUtf8Error, IoError, IoErrorSource, PathError, TResult,
 };
 use cargo_msrv_context::default_target::default_target;
+use cargo_msrv_context::types::BundledFallback;
 use cargo_msrv_context::{
     CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
     RustReleasesContext, SetContext, ShowContext, ToolchainContext, VerifyContext,
@@ -48,6 +49,10 @@ impl From<RustReleasesOpts> for RustReleasesContext {
             maximum_rust_version: opts.max,
             consider_patch_releases: opts.include_all_patch_releases,
             release_source: opts.release_source,
+            bundled_fallback: BundledFallback {
+                max_age: opts.bundled_max_age,
+                source: opts.bundled_fallback_source,
+            },
         }
     }
 }

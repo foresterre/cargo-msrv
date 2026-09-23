@@ -7,6 +7,7 @@
 
 use clap::builder::{PossibleValue, PossibleValuesParser, TypedValueParser};
 
+pub mod fallback_release_source;
 pub mod list_msrv_variant;
 pub mod log_level;
 pub mod output_format;
@@ -98,7 +99,8 @@ pub struct UnknownValueError(String);
 mod tests {
     use super::*;
     use cargo_msrv_context::types::{
-        ListMsrvVariant, LogLevel, OutputFormat, ReleaseSource, TracingTargetOption,
+        FallbackReleaseSource, ListMsrvVariant, LogLevel, OutputFormat, ReleaseSource,
+        TracingTargetOption,
     };
     use std::ffi::OsStr;
 
@@ -168,6 +170,34 @@ mod tests {
             parse(release_source::VALUES, "offline").unwrap(),
             ReleaseSource::Offline
         );
+
+        #[cfg(feature = "rust-releases-offline-source")]
+        assert_eq!(
+            parse(release_source::VALUES, "offline-unless-outdated").unwrap(),
+            ReleaseSource::OfflineUnlessOutdated
+        );
+    }
+
+    #[test]
+    fn parses_fallback_release_source() {
+        assert_eq!(
+            parse(fallback_release_source::VALUES, "rust-changelog").unwrap(),
+            FallbackReleaseSource::RustChangelog
+        );
+
+        #[cfg(feature = "rust-releases-dist-source")]
+        assert_eq!(
+            parse(fallback_release_source::VALUES, "rust-dist").unwrap(),
+            FallbackReleaseSource::RustDist
+        );
+    }
+
+    #[yare::parameterized(
+        offline = { "offline" },
+        offline_unless_outdated = { "offline-unless-outdated" },
+    )]
+    fn bundled_fallback_release_sources_are_rejected(input: &str) {
+        assert!(parse(fallback_release_source::VALUES, input).is_err());
     }
 
     #[test]
@@ -177,6 +207,10 @@ mod tests {
         assert_eq!(tracing_target_option::VALUES.default_value(), "file");
         assert_eq!(list_msrv_variant::VALUES.default_value(), "ordered-by-msrv");
         assert_eq!(release_source::VALUES.default_value(), "rust-changelog");
+        assert_eq!(
+            fallback_release_source::VALUES.default_value(),
+            "rust-changelog"
+        );
     }
 
     #[yare::parameterized(

@@ -7,7 +7,7 @@
 //! Unlike the opts, the context is top down, not bottom up.
 
 use crate::context::error::{Error, IoError, IoErrorSource, TResult};
-use crate::types::{Edition, LogLevel, ReleaseSource, TracingTargetOption};
+use crate::types::{BundledFallback, Edition, LogLevel, ReleaseSource, TracingTargetOption};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_types::BareVersion;
 
@@ -104,6 +104,8 @@ pub struct RustReleasesContext {
 
     /// The release source to use.
     pub release_source: ReleaseSource,
+
+    pub bundled_fallback: BundledFallback,
 }
 
 impl RustReleasesContext {
