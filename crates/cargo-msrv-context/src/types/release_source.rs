@@ -11,6 +11,8 @@ pub enum ReleaseSource {
     RustDist,
     #[cfg(feature = "rust-releases-offline-source")]
     Offline,
+    #[cfg(feature = "rust-releases-offline-source")]
+    OfflineUnlessOutdated,
 }
 
 impl FromStr for ReleaseSource {
@@ -29,6 +31,8 @@ impl From<ReleaseSource> for &'static str {
             ReleaseSource::RustDist => "rust-dist",
             #[cfg(feature = "rust-releases-offline-source")]
             ReleaseSource::Offline => "offline",
+            #[cfg(feature = "rust-releases-offline-source")]
+            ReleaseSource::OfflineUnlessOutdated => "offline-unless-outdated",
         }
     }
 }
@@ -43,6 +47,8 @@ impl TryFrom<&str> for ReleaseSource {
             "rust-dist" => Ok(Self::RustDist),
             #[cfg(feature = "rust-releases-offline-source")]
             "offline" => Ok(Self::Offline),
+            #[cfg(feature = "rust-releases-offline-source")]
+            "offline-unless-outdated" => Ok(Self::OfflineUnlessOutdated),
             s => Err(ParseReleaseSourceError(s.to_string())),
         }
     }
@@ -56,6 +62,8 @@ impl fmt::Display for ReleaseSource {
             Self::RustDist => write!(f, "rust-dist"),
             #[cfg(feature = "rust-releases-offline-source")]
             Self::Offline => write!(f, "offline"),
+            #[cfg(feature = "rust-releases-offline-source")]
+            Self::OfflineUnlessOutdated => write!(f, "offline-unless-outdated"),
         }
     }
 }

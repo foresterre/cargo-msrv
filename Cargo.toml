@@ -109,7 +109,7 @@ cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
 camino = "1.2"
 cargo_metadata = "0.23.1"
-clap = { version = "4.6.0", features = ["derive"] }
+clap = { version = "4.6.0", features = ["derive", "env"] }
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
 dunce = "1.0.5"
 indoc = "2.0.7"

@@ -21,10 +21,12 @@ rust-releases = { workspace = true, features = ["rust-changelog", "rust-releases
 semver = { workspace = true }
 storyteller = { workspace = true }
 thiserror = { workspace = true }
+time = { version = "0.3.55", default-features = false, features = ["std"], optional = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
 parameterized = { workspace = true }
+yare = { workspace = true }
 
 [features]
 # Enables the `rust-dist` release source
@@ -37,6 +39,7 @@ rust-releases-dist-source = [
 # Enables the `offline` release source
 rust-releases-offline-source = [
     "rust-releases/bundled",
+    "dep:time",
     "cargo-msrv-context/rust-releases-offline-source",
     "cargo-msrv-reporter/rust-releases-offline-source",
 ]
