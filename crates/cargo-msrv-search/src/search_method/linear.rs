@@ -1,13 +1,14 @@
 use crate::TResult;
 use crate::compatibility::IsCompatible;
-use crate::context::{SearchMethod, ToolchainContext};
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::Compatibility;
-use crate::reporter::Reporter;
-use crate::reporter::event::{FindMsrv, Progress};
-use crate::rust::{RustRelease, Stable, Toolchain, to_semver};
 use crate::search_method::FindMinimalSupportedRustVersion;
+use cargo_msrv_context::{SearchMethod, ToolchainContext};
+use cargo_msrv_reporter::Reporter;
+use cargo_msrv_reporter::event::{FindMsrv, Progress};
+use cargo_msrv_rust_releases::{RustRelease, Stable, to_semver};
+use cargo_msrv_types::Toolchain;
 
 pub struct Linear<'runner, 'ctx, R: IsCompatible> {
     runner: &'runner R,
@@ -82,8 +83,8 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Linear<'_, '_, R> {
 mod tests {
     use super::*;
     use crate::compatibility::TestRunner;
-    use crate::reporter::TestReporterWrapper;
-    use crate::rust::ReleaseIndex;
+    use cargo_msrv_reporter::TestReporterWrapper;
+    use cargo_msrv_rust_releases::ReleaseIndex;
     use std::iter::FromIterator;
 
     fn toolchain_context() -> ToolchainContext {

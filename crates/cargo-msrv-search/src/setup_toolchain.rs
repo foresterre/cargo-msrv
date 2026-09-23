@@ -1,10 +1,11 @@
+use crate::TResult;
 use crate::error::{
-    RustupAddComponentError, RustupAddTargetError, RustupError, RustupInstallError,
+    Error, RustupAddComponentError, RustupAddTargetError, RustupError, RustupInstallError,
 };
-use crate::external_command::rustup_command::RustupCommand;
-use crate::reporter::event::SetupToolchain as SetupToolchainEvent;
-use crate::rust::Toolchain;
-use crate::{CargoMSRVError, Reporter, TResult};
+use cargo_msrv_reporter::Reporter;
+use cargo_msrv_reporter::event::SetupToolchain as SetupToolchainEvent;
+use cargo_msrv_rustup::RustupCommand;
+use cargo_msrv_types::Toolchain;
 
 pub trait SetupToolchain {
     fn download(&self, toolchain: &Toolchain) -> TResult<()>;
@@ -64,12 +65,10 @@ fn install_toolchain(toolchain: &Toolchain) -> TResult<()> {
             "rustup failed to install toolchain"
         );
 
-        return Err(CargoMSRVError::RustupError(RustupError::Install(
-            RustupInstallError {
-                toolchain_spec: toolchain.spec().to_string(),
-                stderr: rustup.stderr().to_string(),
-            },
-        )));
+        return Err(Error::Rustup(RustupError::Install(RustupInstallError {
+            toolchain_spec: toolchain.spec().to_string(),
+            stderr: rustup.stderr().to_string(),
+        })));
     }
 
     Ok(())
@@ -104,7 +103,7 @@ fn add_target(toolchain: &Toolchain) -> TResult<()> {
             "rustup failed to add target to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupError(RustupError::AddTarget(
+        return Err(Error::Rustup(RustupError::AddTarget(
             RustupAddTargetError {
                 targets: toolchain.target().to_string(),
                 toolchain_spec: toolchain.spec().to_string(),
@@ -149,7 +148,7 @@ fn add_components(toolchain: &Toolchain) -> TResult<()> {
             "rustup failed to add component(s) to toolchain"
         );
 
-        return Err(CargoMSRVError::RustupError(RustupError::AddComponent(
+        return Err(Error::Rustup(RustupError::AddComponent(
             RustupAddComponentError {
                 components: toolchain.components().join(", "),
                 toolchain_spec: toolchain.spec().to_string(),

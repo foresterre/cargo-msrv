@@ -2,14 +2,15 @@ use bisector::{Bisector, ConvergeTo, Indices, Step};
 
 use crate::TResult;
 use crate::compatibility::IsCompatible;
-use crate::context::{SearchMethod, ToolchainContext};
 use crate::error::NoToolchainsToTryError;
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::outcome::{Compatibility, Compatible, Incompatible};
-use crate::reporter::Reporter;
-use crate::reporter::event::{FindMsrv, Progress};
-use crate::rust::{RustRelease, Stable, Toolchain, to_semver};
 use crate::search_method::FindMinimalSupportedRustVersion;
+use cargo_msrv_context::{SearchMethod, ToolchainContext};
+use cargo_msrv_reporter::Reporter;
+use cargo_msrv_reporter::event::{FindMsrv, Progress};
+use cargo_msrv_rust_releases::{RustRelease, Stable, to_semver};
+use cargo_msrv_types::Toolchain;
 
 pub struct Bisect<'runner, 'ctx, R: IsCompatible> {
     runner: &'runner R,
@@ -125,12 +126,12 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, '_, R> {
 
 #[cfg(test)]
 mod tests {
-    use crate::rust::{RustRelease, Stable};
+    use cargo_msrv_rust_releases::{RustRelease, Stable};
 
     use crate::compatibility::TestRunner;
-    use crate::context::ToolchainContext;
-    use crate::reporter::TestReporterWrapper;
     use crate::search_method::FindMinimalSupportedRustVersion;
+    use cargo_msrv_context::ToolchainContext;
+    use cargo_msrv_reporter::TestReporterWrapper;
 
     use super::Bisect;
 

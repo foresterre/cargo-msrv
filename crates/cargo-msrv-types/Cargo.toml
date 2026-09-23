@@ -13,6 +13,7 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "types", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
 
 [dependencies]
+camino = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }

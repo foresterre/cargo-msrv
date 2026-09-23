@@ -7,8 +7,8 @@ use std::collections::HashSet;
 
 use cargo_msrv::Compatibility;
 use cargo_msrv::compatibility::IsCompatible;
-use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::rust::Toolchain;
+use cargo_msrv_search::Error;
 use semver::Version;
 
 pub struct TestRunner {
@@ -26,7 +26,7 @@ impl TestRunner {
 }
 
 impl IsCompatible for TestRunner {
-    fn is_compatible(&self, toolchain: &Toolchain) -> Result<Compatibility, CargoMSRVError> {
+    fn is_compatible(&self, toolchain: &Toolchain) -> Result<Compatibility, Error> {
         let version = toolchain.version();
         let components = toolchain.components();
 

@@ -1,15 +1,15 @@
-use crate::external_command::cargo_command::CargoCommand;
-use crate::rust::Toolchain;
+use cargo_msrv_cargo::CargoCommand;
 use cargo_msrv_context::{CheckCommandContext, FindContext, ToolchainContext, VerifyContext};
+use cargo_msrv_types::Toolchain;
 
 mod rustup_toolchain_check;
-#[cfg(test)]
+#[cfg(any(test, feature = "testing"))]
 mod testing;
 
 use crate::{Compatibility, TResult};
 pub use rustup_toolchain_check::{RunCommand, RustupToolchainCheck};
 
-#[cfg(test)]
+#[cfg(any(test, feature = "testing"))]
 pub use testing::TestRunner;
 
 /// Implementers of this trait must determine whether a Rust toolchain is _supported_

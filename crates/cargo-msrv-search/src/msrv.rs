@@ -1,4 +1,4 @@
-use crate::rust::Toolchain;
+use cargo_msrv_types::Toolchain;
 
 /// An enum to represent the minimal compatibility
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -39,7 +39,7 @@ impl MinimumSupportedRustVersion {
 #[cfg(test)]
 mod tests {
     use crate::msrv::MinimumSupportedRustVersion;
-    use crate::rust::Toolchain;
+    use cargo_msrv_types::Toolchain;
 
     #[test]
     fn accept() {

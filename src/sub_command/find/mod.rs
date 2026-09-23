@@ -12,6 +12,7 @@ use crate::rust::{
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
+use cargo_msrv_search::Error as SearchError;
 use cargo_msrv_types::BareVersion;
 
 pub struct Find<'index, C: IsCompatible> {
@@ -160,10 +161,10 @@ fn run_searcher(
     let minimum_capable = method
         .find_toolchain(releases, reporter)
         .map_err(|err| match err {
-            CargoMSRVError::NoToolchainsToTry(inner) if !inner.has_clues() => {
+            SearchError::NoToolchainsToTry(inner) if !inner.has_clues() => {
                 CargoMSRVError::NoToolchainsToTry(no_toolchains_to_try(ctx, excluded_releases))
             }
-            _ => err,
+            err => err.into(),
         })?;
 
     report_outcome(&minimum_capable, releases, ctx, reporter)?;
