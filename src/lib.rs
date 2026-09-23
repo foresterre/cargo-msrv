@@ -36,18 +36,12 @@ pub use cargo_msrv_context::context;
 pub use cargo_msrv_manifest as manifest;
 pub use cargo_msrv_reporter as reporter;
 pub use cargo_msrv_reporter::{io, typed_bool};
-
-pub mod compatibility;
+pub use cargo_msrv_search::{compatibility, lockfile, msrv, outcome, search_method};
 
 pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
-mod external_command;
-pub mod lockfile;
-pub mod msrv;
-pub mod outcome;
 pub mod rust;
-pub mod search_method;
 pub mod sub_command;
 pub mod writer;
 

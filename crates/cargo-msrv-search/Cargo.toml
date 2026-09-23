@@ -1,0 +1,39 @@
+[package]
+name = "cargo-msrv-search"
+description = "The MSRV search methods and toolchain compatibility check of cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.96.0"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "bisect", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-cargo = { workspace = true }
+cargo-msrv-context = { workspace = true }
+cargo-msrv-reporter = { workspace = true }
+cargo-msrv-rust-releases = { workspace = true }
+cargo-msrv-rustup = { workspace = true }
+cargo-msrv-types = { workspace = true }
+
+bisector = "0.4.0"
+camino = { workspace = true }
+ctrlc = "3.5.1"
+owo-colors = { workspace = true }
+semver = { workspace = true }
+storyteller = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+cargo-msrv-reporter = { workspace = true, features = ["testing"] }
+
+yare = { workspace = true }
+
+[features]
+# Enables the test runner, for use by dependent crates
+testing = []

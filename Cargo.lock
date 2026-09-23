@@ -768,19 +768,16 @@ name = "cargo-msrv"
 version = "0.19.3"
 dependencies = [
  "assert_fs",
- "bisector",
  "camino",
  "cargo-msrv-cli",
  "cargo-msrv-context",
  "cargo-msrv-manifest",
  "cargo-msrv-reporter",
  "cargo-msrv-rust-releases",
+ "cargo-msrv-search",
  "cargo-msrv-types",
  "cargo_metadata",
- "ctrlc",
  "dirs",
- "dunce",
- "owo-colors",
  "parameterized",
  "phenomenon",
  "semver",
@@ -794,6 +791,10 @@ dependencies = [
  "vergen-gitcl",
  "yare",
 ]
+
+[[package]]
+name = "cargo-msrv-cargo"
+version = "0.19.3"
 
 [[package]]
 name = "cargo-msrv-cli"
@@ -878,9 +879,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-msrv-rustup"
+version = "0.19.3"
+dependencies = [
+ "camino",
+ "cargo-msrv-types",
+ "dunce",
+ "tracing",
+]
+
+[[package]]
+name = "cargo-msrv-search"
+version = "0.19.3"
+dependencies = [
+ "bisector",
+ "camino",
+ "cargo-msrv-cargo",
+ "cargo-msrv-context",
+ "cargo-msrv-reporter",
+ "cargo-msrv-rust-releases",
+ "cargo-msrv-rustup",
+ "cargo-msrv-types",
+ "ctrlc",
+ "owo-colors",
+ "semver",
+ "storyteller",
+ "thiserror 2.0.20",
+ "tracing",
+ "yare",
+]
+
+[[package]]
 name = "cargo-msrv-types"
 version = "0.19.3"
 dependencies = [
+ "camino",
  "semver",
  "serde",
  "thiserror 2.0.20",

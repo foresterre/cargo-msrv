@@ -45,11 +45,14 @@ jobs:
     strategy:
       matrix:
         crate: [
+          "cargo-msrv-cargo",
           "cargo-msrv-cli",
           "cargo-msrv-context",
           "cargo-msrv-manifest",
           "cargo-msrv-reporter",
           "cargo-msrv-rust-releases",
+          "cargo-msrv-rustup",
+          "cargo-msrv-search",
           "cargo-msrv-types",
           "msrv",
         ]

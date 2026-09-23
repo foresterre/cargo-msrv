@@ -1,15 +1,16 @@
 use crate::compatibility::IsCompatible;
-use crate::context::EnvironmentContext;
-use crate::error::{IoError, IoErrorSource, LockfileHandlerError};
-use crate::external_command::cargo_command::CargoCommand;
-use crate::external_command::rustup_command::RustupCommand;
+use crate::error::{Error, IoError, IoErrorSource, LockfileHandlerError};
 use crate::lockfile::LockfileHandler;
 use crate::outcome::Incompatible;
-use crate::reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
-use crate::rust::Toolchain;
-use crate::rust::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
-use crate::{CargoMSRVError, Compatibility, Reporter, TResult};
+use crate::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
+use crate::{Compatibility, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_cargo::CargoCommand;
+use cargo_msrv_context::EnvironmentContext;
+use cargo_msrv_reporter::Reporter;
+use cargo_msrv_reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
+use cargo_msrv_rustup::RustupCommand;
+use cargo_msrv_types::Toolchain;
 use std::fmt;
 use std::fmt::Formatter;
 
@@ -127,7 +128,7 @@ fn run_check_command_via_rustup(
         .with_dir(dir)
         .with_stderr()
         .run()
-        .map_err(|_| CargoMSRVError::UnableToRunCheck {
+        .map_err(|_| Error::UnableToRunCheck {
             command: cmd[1..].join(" "),
             cwd: dir.to_path_buf(),
         })?;

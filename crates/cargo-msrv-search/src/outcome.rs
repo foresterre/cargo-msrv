@@ -2,7 +2,7 @@
 //!
 //! [`check`]: crate::compatibility::IsCompatible
 
-use crate::rust::Toolchain;
+use cargo_msrv_types::Toolchain;
 
 #[derive(Clone, Debug)]
 pub enum Compatibility {
@@ -46,19 +46,19 @@ impl Compatibility {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Compatible {
-    pub(crate) toolchain_spec: Toolchain,
+    pub toolchain_spec: Toolchain,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Incompatible {
-    pub(crate) toolchain_spec: Toolchain,
-    pub(crate) error_message: String,
+    pub toolchain_spec: Toolchain,
+    pub error_message: String,
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::Compatibility;
-    use crate::rust::Toolchain;
+    use crate::outcome::Compatibility;
+    use cargo_msrv_types::Toolchain;
 
     #[test]
     fn success_outcome() {

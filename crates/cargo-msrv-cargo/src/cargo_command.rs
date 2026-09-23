@@ -31,10 +31,8 @@ impl CargoCommand {
         self
     }
 
-    /// Intended to be used in conjunction with [`RunCommand`] and/or [`RustupCommand`].
-    ///
-    /// [`RunCommand`]: crate::compatibility::RunCommand
-    /// [`RustupCommand`]: crate::external_command::rustup_command::RustupCommand
+    /// Intended to be used in conjunction with `RunCommand` (`cargo-msrv-search`) and/or
+    /// `RustupCommand` (`cargo-msrv-rustup`).
     // Currently we don't invoke it from here directly, but we might eventually, if
     // we want to also provide some nicer structs around parsing. However compared to
     // some other cargo subcommand crates, we also (currently) need rustup, so the invocation
@@ -75,7 +73,7 @@ impl CargoCommand {
 
 #[cfg(test)]
 mod tests {
-    use crate::external_command::cargo_command::CargoCommand;
+    use crate::cargo_command::CargoCommand;
 
     #[test]
     fn set_features_none() {

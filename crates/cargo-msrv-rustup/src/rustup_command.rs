@@ -1,5 +1,5 @@
-use crate::error::{IoError, IoErrorSource, TResult};
 use camino::Utf8Path;
+use cargo_msrv_types::{IoError, IoErrorSource};
 use std::ffi::{OsStr, OsString};
 use std::process::{Command, Stdio};
 
@@ -59,20 +59,20 @@ impl RustupCommand {
     }
 
     /// Execute `rustup run [...]`
-    pub fn run(self) -> TResult<RustupOutput> {
+    pub fn run(self) -> Result<RustupOutput, IoError> {
         self.execute(OsStr::new("run"))
     }
 
     /// Execute `rustup install [...]`
-    pub fn install(self) -> TResult<RustupOutput> {
+    pub fn install(self) -> Result<RustupOutput, IoError> {
         self.execute(OsStr::new("install"))
     }
 
-    pub fn target(self) -> TResult<RustupOutput> {
+    pub fn target(self) -> Result<RustupOutput, IoError> {
         self.execute(OsStr::new("target"))
     }
 
-    pub fn component(self) -> TResult<RustupOutput> {
+    pub fn component(self) -> Result<RustupOutput, IoError> {
         self.execute(OsStr::new("component"))
     }
 
@@ -81,7 +81,7 @@ impl RustupCommand {
     /// See also:
     /// * [RustupCommand::run](RustupCommand::run)
     /// * [RustupCommand::install](RustupCommand::install)
-    fn execute(mut self, cmd: &OsStr) -> TResult<RustupOutput> {
+    fn execute(mut self, cmd: &OsStr) -> Result<RustupOutput, IoError> {
         let _span = self._span.enter();
 
         debug!(
@@ -118,6 +118,12 @@ impl RustupCommand {
             stdout: std::sync::OnceLock::new(),
             stderr: std::sync::OnceLock::new(),
         })
+    }
+}
+
+impl Default for RustupCommand {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
