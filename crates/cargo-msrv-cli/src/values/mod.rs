@@ -194,7 +194,7 @@ mod tests {
         #[cfg(feature = "rust-releases-github-source")]
         assert_eq!(
             parse(fallback_release_source::VALUES, "github").unwrap(),
-            FallbackReleaseSource::Github
+            FallbackReleaseSource::GitHub
         );
 
         #[cfg(feature = "rust-releases-dist-source")]
