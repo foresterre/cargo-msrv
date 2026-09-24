@@ -12,14 +12,16 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Added
 
-* Added the `offline` release source, which uses a release index bundled with `cargo-msrv`, and requires no network access: `cargo msrv find --release-source offline`
-* Added `offline unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 14 days)
+* Added the `bundled` release source, which uses a release index bundled with `cargo-msrv`
+* Added `bundled unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 7 days)
 * Added `github` release source, which fetches the known set of Rust versions from Rust's GitHub releases page
+* Include the bundled release index by default (so there is a source to fall back to if no other release source cargo feature is enabled)
 
 ### Changed
 
 * Updated `rust-releases` to `0.34.0`
 * If toolchain target information is available from the selected rust-releases index, `cargo-msrv` will now only include toolchains which have the provided target (defaults to the host) and components
+* The `changelog` release index source is now a cargo features compilation flag
 
 ### Fixed
 

@@ -15,7 +15,7 @@ pub struct BundledMaxAge {
 }
 
 impl BundledMaxAge {
-    const DEFAULT_DAYS: u32 = 2 * 7;
+    const DEFAULT_DAYS: u32 = 7;
 
     pub const fn from_days(days: u32) -> Self {
         Self { days }
@@ -54,17 +54,27 @@ pub struct ParseBundledMaxAgeError(String, #[source] ParseIntError);
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum FallbackReleaseSource {
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[default]
     RustChangelog,
     #[cfg(feature = "rust-releases-github-source")]
+    #[cfg_attr(not(feature = "rust-releases-changelog-source"), default)]
     GitHub,
     #[cfg(feature = "rust-releases-dist-source")]
+    #[cfg_attr(
+        not(any(
+            feature = "rust-releases-changelog-source",
+            feature = "rust-releases-github-source"
+        )),
+        default
+    )]
     RustDist,
 }
 
 impl From<FallbackReleaseSource> for ReleaseSource {
     fn from(value: FallbackReleaseSource) -> Self {
         match value {
+            #[cfg(feature = "rust-releases-changelog-source")]
             FallbackReleaseSource::RustChangelog => ReleaseSource::RustChangelog,
             #[cfg(feature = "rust-releases-github-source")]
             FallbackReleaseSource::GitHub => ReleaseSource::GitHub,
@@ -78,6 +88,7 @@ impl From<FallbackReleaseSource> for ReleaseSource {
 mod tests {
     use super::*;
 
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[test]
     fn default_fallback_is_the_default_release_source() {
         assert_eq!(
@@ -109,7 +120,7 @@ mod tests {
     }
 
     #[test]
-    fn default_max_age_is_two_weeks() {
-        assert_eq!(BundledMaxAge::default().days(), 14);
+    fn default_max_age() {
+        assert_eq!(BundledMaxAge::default().days(), 7);
     }
 }

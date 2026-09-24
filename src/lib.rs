@@ -67,11 +67,7 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
 
     match ctx {
         Context::Find(ctx) => {
-            let index = release_index::fetch_index(
-                reporter,
-                ctx.rust_releases.release_source,
-                ctx.rust_releases.bundled_fallback,
-            )?;
+            let index = release_index::fetch_index(reporter, &ctx.rust_releases)?;
 
             let runner = RustupToolchainCheck::new(
                 reporter,
@@ -87,23 +83,14 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
             List.run(ctx, reporter)?;
         }
         Context::Set(ctx) => {
-            let index = release_index::fetch_index(
-                reporter,
-                ctx.rust_releases.release_source,
-                ctx.rust_releases.bundled_fallback,
-            )
-            .ok();
+            let index = release_index::fetch_index(reporter, &ctx.rust_releases).ok();
             Set::new(index.as_ref()).run(ctx, reporter)?;
         }
         Context::Show(ctx) => {
             Show.run(ctx, reporter)?;
         }
         Context::Verify(ctx) => {
-            let index = release_index::fetch_index(
-                reporter,
-                ctx.rust_releases.release_source,
-                ctx.rust_releases.bundled_fallback,
-            )?;
+            let index = release_index::fetch_index(reporter, &ctx.rust_releases)?;
 
             let runner = RustupToolchainCheck::new(
                 reporter,

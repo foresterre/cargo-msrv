@@ -7,7 +7,6 @@ use crate::context::{
 use crate::reporter::Event;
 use crate::reporter::TestReporterWrapper;
 use camino::Utf8PathBuf;
-use cargo_msrv_context::types::{BundledFallback, ReleaseSource};
 use cargo_msrv_types::BareVersion;
 use std::iter::FromIterator;
 
@@ -334,13 +333,7 @@ fn create_test_context() -> FindContext {
         skip_unavailable_toolchains: true,
         no_check_feedback: false,
         write_msrv: false,
-        rust_releases: RustReleasesContext {
-            minimum_rust_version: None,
-            maximum_rust_version: None,
-            consider_patch_releases: false,
-            release_source: ReleaseSource::RustChangelog,
-            bundled_fallback: BundledFallback::default(),
-        },
+        rust_releases: RustReleasesContext::default(),
         toolchain: ToolchainContext {
             host: "x",
             target: "x",

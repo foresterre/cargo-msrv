@@ -30,6 +30,7 @@ mod tests {
     use crate::event::Message;
     use storyteller::EventReporter;
 
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[test]
     fn reported_rust_changelog_source() {
         let reporter = TestReporterWrapper::default();
@@ -71,11 +72,10 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "rust-releases-offline-source")]
     #[test]
-    fn reported_offline_source() {
+    fn reported_bundled_source() {
         let reporter = TestReporterWrapper::default();
-        let event = FetchIndex::new(ReleaseSource::Offline);
+        let event = FetchIndex::new(ReleaseSource::Bundled);
 
         reporter.get().report_event(event.clone()).unwrap();
 
@@ -85,11 +85,15 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "rust-releases-offline-source")]
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[test]
-    fn reported_offline_unless_outdated_source() {
+    fn reported_bundled_unless_outdated_source() {
         let reporter = TestReporterWrapper::default();
-        let event = FetchIndex::new(ReleaseSource::OfflineUnlessOutdated);
+        let event = FetchIndex::new(ReleaseSource::BundledUnlessOutdated);
 
         reporter.get().report_event(event.clone()).unwrap();
 

@@ -7,6 +7,11 @@
 
 use clap::builder::{PossibleValue, PossibleValuesParser, TypedValueParser};
 
+#[cfg(any(
+    feature = "rust-releases-changelog-source",
+    feature = "rust-releases-github-source",
+    feature = "rust-releases-dist-source"
+))]
 pub mod fallback_release_source;
 pub mod list_msrv_variant;
 pub mod log_level;
@@ -98,9 +103,14 @@ pub struct UnknownValueError(String);
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
+    use cargo_msrv_context::types::FallbackReleaseSource;
     use cargo_msrv_context::types::{
-        FallbackReleaseSource, ListMsrvVariant, LogLevel, OutputFormat, ReleaseSource,
-        TracingTargetOption,
+        ListMsrvVariant, LogLevel, OutputFormat, ReleaseSource, TracingTargetOption,
     };
     use std::ffi::OsStr;
 
@@ -154,6 +164,7 @@ mod tests {
 
     #[test]
     fn parses_release_source() {
+        #[cfg(feature = "rust-releases-changelog-source")]
         assert_eq!(
             parse(release_source::VALUES, "rust-changelog").unwrap(),
             ReleaseSource::RustChangelog
@@ -171,21 +182,30 @@ mod tests {
             ReleaseSource::RustDist
         );
 
-        #[cfg(feature = "rust-releases-offline-source")]
         assert_eq!(
-            parse(release_source::VALUES, "offline").unwrap(),
-            ReleaseSource::Offline
+            parse(release_source::VALUES, "bundled").unwrap(),
+            ReleaseSource::Bundled
         );
 
-        #[cfg(feature = "rust-releases-offline-source")]
+        #[cfg(any(
+            feature = "rust-releases-changelog-source",
+            feature = "rust-releases-github-source",
+            feature = "rust-releases-dist-source"
+        ))]
         assert_eq!(
-            parse(release_source::VALUES, "offline-unless-outdated").unwrap(),
-            ReleaseSource::OfflineUnlessOutdated
+            parse(release_source::VALUES, "bundled-unless-outdated").unwrap(),
+            ReleaseSource::BundledUnlessOutdated
         );
     }
 
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[test]
     fn parses_fallback_release_source() {
+        #[cfg(feature = "rust-releases-changelog-source")]
         assert_eq!(
             parse(fallback_release_source::VALUES, "rust-changelog").unwrap(),
             FallbackReleaseSource::RustChangelog
@@ -204,9 +224,14 @@ mod tests {
         );
     }
 
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[yare::parameterized(
-        offline = { "offline" },
-        offline_unless_outdated = { "offline-unless-outdated" },
+        bundled = { "bundled" },
+        bundled_unless_outdated = { "bundled-unless-outdated" },
     )]
     fn bundled_fallback_release_sources_are_rejected(input: &str) {
         assert!(parse(fallback_release_source::VALUES, input).is_err());
@@ -218,11 +243,61 @@ mod tests {
         assert_eq!(log_level::VALUES.default_value(), "info");
         assert_eq!(tracing_target_option::VALUES.default_value(), "file");
         assert_eq!(list_msrv_variant::VALUES.default_value(), "ordered-by-msrv");
+    }
+
+    #[cfg(feature = "rust-releases-changelog-source")]
+    #[test]
+    fn rust_changelog_is_the_default_release_source() {
         assert_eq!(release_source::VALUES.default_value(), "rust-changelog");
         assert_eq!(
             fallback_release_source::VALUES.default_value(),
             "rust-changelog"
         );
+    }
+
+    #[cfg(all(
+        not(feature = "rust-releases-changelog-source"),
+        any(
+            feature = "rust-releases-github-source",
+            feature = "rust-releases-dist-source"
+        )
+    ))]
+    #[test]
+    fn bundled_unless_outdated_is_the_default_release_source_without_rust_changelog() {
+        assert_eq!(
+            release_source::VALUES.default_value(),
+            "bundled-unless-outdated"
+        );
+    }
+
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
+    #[test]
+    fn default_fallback_release_source_is_selectable() {
+        fallback_release_source::VALUES.default_value();
+    }
+
+    #[cfg(not(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    )))]
+    #[test]
+    fn bundled_is_the_default_release_source_without_online_sources() {
+        assert_eq!(release_source::VALUES.default_value(), "bundled");
+    }
+
+    #[cfg(not(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    )))]
+    #[test]
+    fn bundled_unless_outdated_is_rejected_without_online_sources() {
+        assert!(parse(release_source::VALUES, "bundled-unless-outdated").is_err());
     }
 
     #[yare::parameterized(

@@ -347,7 +347,6 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "rust-releases-offline-source")]
     mod bundled {
         use super::*;
         use rust_releases::BundledReleases;

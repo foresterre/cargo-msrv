@@ -29,12 +29,12 @@ tracing = { workspace = true }
 yare = { workspace = true }
 
 [features]
+# Enables the `rust-changelog` release source as a value of the `--release-source` option
+rust-releases-changelog-source = ["cargo-msrv-context/rust-releases-changelog-source"]
+
 # Enables the `rust-dist` release source as a value of the `--release-source` option
 rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
 
 # Enables the `github` release source as a value of the `--release-source` option
 rust-releases-github-source = ["cargo-msrv-context/rust-releases-github-source"]
-
-# Enables the `offline` release source as a value of the `--release-source` option
-rust-releases-offline-source = ["cargo-msrv-context/rust-releases-offline-source"]
 

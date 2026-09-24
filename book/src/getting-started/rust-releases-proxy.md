@@ -10,15 +10,17 @@ distribution bucket.
 The source can be set with the `--release-source <source>` flag. The possible values are respectively `rust-changelog` and `rust-dist`,
 for the Rust GitHub repository and the Rust AWS S3 distribution bucket. For example: `cargo msrv find --release-source rust-changelog`.
 
-A third value, `offline`, reads an index which is bundled with `cargo-msrv` itself. It requires no network access, and
+A third value, `bundled`, reads an index which is bundled with `cargo-msrv` itself. It requires no network access, and
 therefore no proxy configuration, but it is only up-to-date up to the moment the `cargo-msrv` binary was built.
+`bundled-unless-outdated` uses `bundled` unless the max age has been reached, then it fetches from one of the online ones
+and merges the values from the online ones into the `bundled` source.
 
+More options exist, which can be found on the release source page or in the CLI help. 
 
-
-#### Release source: `rust-changelog`
+#### Release source: `rust-changelog` and `github`
 
 [rust-releases](https://github.com/foresterre/rust-releases/) uses [ureq](https://crates.io/crates/ureq) as HTTP client
-for the `rust-changelog` source. From `cargo-msrv 0.17.1` (and [rust-releases 0.29.0](https://github.com/foresterre/rust-releases/releases/tag/v0.29.0)
+for the `rust-changelog` (and `github`) source. From `cargo-msrv 0.17.1` (and [rust-releases 0.29.0](https://github.com/foresterre/rust-releases/releases/tag/v0.29.0)
 respectively), `ureq` has been configured to support configuring a network proxy from the environment.
 
 The environment variable, `ureq` uses [are](https://docs.rs/ureq/2.11.0/src/ureq/proxy.rs.html#87-92):
