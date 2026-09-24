@@ -253,7 +253,7 @@ mod issue_369_min_more_recent_than_max {
 
 mod unavailable_toolchains {
     use super::*;
-    use crate::rust::release_toolchain::{Channel, Target, Toolchain};
+    use cargo_msrv_rust_releases::release_toolchain::{Channel, Target, Toolchain};
 
     const HOST: &str = "x86_64-unknown-linux-gnu";
     const OTHER: &str = "aarch64-apple-darwin";

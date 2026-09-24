@@ -1,7 +1,7 @@
 #![allow(clippy::items_after_test_module)]
 
 use cargo_msrv::exit_code::ExitCode;
-use cargo_msrv::rust::{RustRelease, Stable};
+use cargo_msrv_rust_releases::{RustRelease, Stable};
 use parameterized::parameterized;
 use std::process::Command;
 

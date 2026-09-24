@@ -29,7 +29,7 @@ use crate::compatibility::{RunCommandProvider, RustupToolchainCheck};
 use crate::error::{CargoMSRVError, TResult};
 use crate::reporter::Reporter;
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
-use rust::release_index;
+use cargo_msrv_rust_releases::release_index;
 
 pub use cargo_msrv_cli::cli;
 pub use cargo_msrv_context::context;
@@ -41,7 +41,6 @@ pub use cargo_msrv_search::{compatibility, lockfile, msrv, outcome, search_metho
 pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
-pub mod rust;
 pub mod sub_command;
 pub mod writer;
 

@@ -7,7 +7,7 @@ use crate::common::sub_cmd_find::{
     find_msrv, find_msrv_with_releases, run_cargo_version_which_doesnt_support_lockfile_v2,
 };
 use cargo_msrv::error::CargoMSRVError;
-use cargo_msrv::rust::{RustRelease, Stable};
+use cargo_msrv_rust_releases::{RustRelease, Stable};
 use parameterized::parameterized;
 use std::path::Path;
 

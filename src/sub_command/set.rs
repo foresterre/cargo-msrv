@@ -1,8 +1,5 @@
 use std::io::Write;
 
-use crate::rust::{ReleaseIndex, RustRelease, Stable};
-use toml_edit::{DocumentMut, Item, Value, table, value};
-
 use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
 use crate::manifest::{CargoManifestParser, TomlParser};
@@ -12,7 +9,9 @@ use crate::reporter::event::{
     UnableToConfirmValidReleaseVersion,
 };
 use crate::{CargoMSRVError, SubCommand, TResult};
+use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
 use cargo_msrv_types::BareVersion;
+use toml_edit::{DocumentMut, Item, Value, table, value};
 
 const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56, 0);
 
@@ -922,9 +921,8 @@ edition = "2021"
 
 #[cfg(test)]
 mod valid_release_tests {
+    use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
     use std::iter::FromIterator;
-
-    use crate::rust::{ReleaseIndex, RustRelease, Stable};
 
     use crate::sub_command::set::has_release;
     use cargo_msrv_types::BareVersion;

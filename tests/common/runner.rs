@@ -7,8 +7,8 @@ use std::collections::HashSet;
 
 use cargo_msrv::Compatibility;
 use cargo_msrv::compatibility::IsCompatible;
-use cargo_msrv::rust::Toolchain;
 use cargo_msrv_search::Error;
+use cargo_msrv_types::Toolchain;
 use semver::Version;
 
 pub struct TestRunner {
