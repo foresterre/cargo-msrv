@@ -17,7 +17,7 @@ cargo-msrv-context = { workspace = true }
 cargo-msrv-reporter = { workspace = true }
 cargo-msrv-types = { workspace = true }
 
-rust-releases = { workspace = true, features = ["rust-changelog", "rust-releases-io", "ureq"] }
+rust-releases = { workspace = true, features = ["bundled"] }
 semver = { workspace = true }
 storyteller = { workspace = true }
 thiserror = { workspace = true }
@@ -29,9 +29,19 @@ parameterized = { workspace = true }
 yare = { workspace = true }
 
 [features]
+# Enables the `rust-changelog` release source
+rust-releases-changelog-source = [
+    "rust-releases/rust-changelog",
+    "rust-releases/ureq",
+    "dep:time",
+    "cargo-msrv-context/rust-releases-changelog-source",
+    "cargo-msrv-reporter/rust-releases-changelog-source",
+]
+
 # Enables the `rust-dist` release source
 rust-releases-dist-source = [
     "rust-releases/rust-dist",
+    "dep:time",
     "cargo-msrv-context/rust-releases-dist-source",
     "cargo-msrv-reporter/rust-releases-dist-source",
 ]
@@ -39,14 +49,8 @@ rust-releases-dist-source = [
 # Enables the `github` release source
 rust-releases-github-source = [
     "rust-releases/github",
+    "rust-releases/ureq",
+    "dep:time",
     "cargo-msrv-context/rust-releases-github-source",
     "cargo-msrv-reporter/rust-releases-github-source",
-]
-
-# Enables the `offline` release source
-rust-releases-offline-source = [
-    "rust-releases/bundled",
-    "dep:time",
-    "cargo-msrv-context/rust-releases-offline-source",
-    "cargo-msrv-reporter/rust-releases-offline-source",
 ]

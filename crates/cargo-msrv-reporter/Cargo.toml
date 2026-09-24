@@ -33,14 +33,14 @@ terminal_size = "0.4.3"
 yare = { workspace = true }
 
 [features]
+# Enables the `rust-changelog` release source
+rust-releases-changelog-source = ["cargo-msrv-context/rust-releases-changelog-source"]
+
 # Enables the `rust-dist` release source
 rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
 
 # Enables the `github` release source
 rust-releases-github-source = ["cargo-msrv-context/rust-releases-github-source"]
-
-# Enables the `offline` release source
-rust-releases-offline-source = ["cargo-msrv-context/rust-releases-offline-source"]
 
 # Enables the test reporters and event handlers, for use by dependent crates
 testing = []

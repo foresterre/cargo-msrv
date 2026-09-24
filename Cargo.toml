@@ -59,7 +59,13 @@ vergen-gitcl = { version = "10.0.2", default-features = false }
 # ~~~ features ~~~
 
 [features]
-default = ["rust-releases-dist-source", "rust-releases-github-source", "rust-releases-offline-source"]
+default = ["rust-releases-changelog-source", "rust-releases-dist-source", "rust-releases-github-source"]
+rust-releases-changelog-source = [
+    "cargo-msrv-cli/rust-releases-changelog-source",
+    "cargo-msrv-context/rust-releases-changelog-source",
+    "cargo-msrv-reporter/rust-releases-changelog-source",
+    "cargo-msrv-rust-releases/rust-releases-changelog-source",
+]
 rust-releases-dist-source = [
     "cargo-msrv-cli/rust-releases-dist-source",
     "cargo-msrv-context/rust-releases-dist-source",
@@ -71,12 +77,6 @@ rust-releases-github-source = [
     "cargo-msrv-context/rust-releases-github-source",
     "cargo-msrv-reporter/rust-releases-github-source",
     "cargo-msrv-rust-releases/rust-releases-github-source",
-]
-rust-releases-offline-source = [
-    "cargo-msrv-cli/rust-releases-offline-source",
-    "cargo-msrv-context/rust-releases-offline-source",
-    "cargo-msrv-reporter/rust-releases-offline-source",
-    "cargo-msrv-rust-releases/rust-releases-offline-source",
 ]
 
 # ~~~ workspace ~~~

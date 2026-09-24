@@ -30,6 +30,7 @@ mod tests {
     use crate::event::Message;
     use storyteller::EventReporter;
 
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[test]
     fn reported_rust_changelog_source() {
         let reporter = TestReporterWrapper::default();
@@ -71,7 +72,6 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "rust-releases-offline-source")]
     #[test]
     fn reported_offline_source() {
         let reporter = TestReporterWrapper::default();
@@ -85,7 +85,11 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "rust-releases-offline-source")]
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[test]
     fn reported_offline_unless_outdated_source() {
         let reporter = TestReporterWrapper::default();

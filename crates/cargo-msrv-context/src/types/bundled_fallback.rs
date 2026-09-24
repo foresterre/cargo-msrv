@@ -54,17 +54,27 @@ pub struct ParseBundledMaxAgeError(String, #[source] ParseIntError);
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum FallbackReleaseSource {
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[default]
     RustChangelog,
     #[cfg(feature = "rust-releases-github-source")]
+    #[cfg_attr(not(feature = "rust-releases-changelog-source"), default)]
     GitHub,
     #[cfg(feature = "rust-releases-dist-source")]
+    #[cfg_attr(
+        not(any(
+            feature = "rust-releases-changelog-source",
+            feature = "rust-releases-github-source"
+        )),
+        default
+    )]
     RustDist,
 }
 
 impl From<FallbackReleaseSource> for ReleaseSource {
     fn from(value: FallbackReleaseSource) -> Self {
         match value {
+            #[cfg(feature = "rust-releases-changelog-source")]
             FallbackReleaseSource::RustChangelog => ReleaseSource::RustChangelog,
             #[cfg(feature = "rust-releases-github-source")]
             FallbackReleaseSource::GitHub => ReleaseSource::GitHub,
@@ -78,6 +88,7 @@ impl From<FallbackReleaseSource> for ReleaseSource {
 mod tests {
     use super::*;
 
+    #[cfg(feature = "rust-releases-changelog-source")]
     #[test]
     fn default_fallback_is_the_default_release_source() {
         assert_eq!(

@@ -1,11 +1,12 @@
 use crate::error::FetchIndexError;
-use cargo_msrv_context::types::{BundledFallback, ReleaseSource};
+use cargo_msrv_context::RustReleasesContext;
+use cargo_msrv_context::types::ReleaseSource;
 use cargo_msrv_reporter::Reporter;
 use cargo_msrv_reporter::event::FetchIndex;
-#[cfg(feature = "rust-releases-offline-source")]
 use rust_releases::BundledReleases;
 #[cfg(feature = "rust-releases-github-source")]
 use rust_releases::GithubReleases;
+#[cfg(feature = "rust-releases-changelog-source")]
 use rust_releases::RustChangelog;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
@@ -46,14 +47,15 @@ impl FromIterator<RustRelease<Stable>> for ReleaseIndex {
 
 pub fn fetch_index(
     reporter: &impl Reporter,
-    release_source: ReleaseSource,
-    bundled_fallback: BundledFallback,
+    rust_releases: &RustReleasesContext,
 ) -> Result<ReleaseIndex, FetchIndexError> {
+    let release_source = rust_releases.release_source;
+
     reporter.run_scoped_event(FetchIndex::new(release_source), || {
         let source: &'static str = release_source.into();
         info!(source = source, "fetching index");
 
-        let releases = fetch_releases(release_source, bundled_fallback)?;
+        let releases = fetch_releases(release_source, rust_releases)?;
 
         Ok(ReleaseIndex::from(releases))
     })
@@ -62,40 +64,53 @@ pub fn fetch_index(
 fn fetch_releases(
     release_source: ReleaseSource,
     #[cfg_attr(
-        not(feature = "rust-releases-offline-source"),
+        not(any(
+            feature = "rust-releases-changelog-source",
+            feature = "rust-releases-github-source",
+            feature = "rust-releases-dist-source"
+        )),
         expect(unused_variables)
     )]
-    bundled_fallback: BundledFallback,
+    rust_releases: &RustReleasesContext,
 ) -> Result<StableReleases, FetchIndexError> {
     let releases = match release_source {
+        #[cfg(feature = "rust-releases-changelog-source")]
         ReleaseSource::RustChangelog => RustChangelog::new_ureq_cached_client()?.fetch()?,
         #[cfg(feature = "rust-releases-github-source")]
         ReleaseSource::GitHub => GithubReleases::new_ureq_cached_client()?.fetch()?,
         #[cfg(feature = "rust-releases-dist-source")]
         ReleaseSource::RustDist => RustDist::new_aws_cached_client()?.stable().fetch()?,
-        #[cfg(feature = "rust-releases-offline-source")]
         ReleaseSource::Offline => {
             let bundle = BundledReleases::new();
             info!(generated_on = %bundle.generated_on().ymd(), "using bundled index");
 
             bundle.stable()
         }
-        #[cfg(feature = "rust-releases-offline-source")]
+        #[cfg(any(
+            feature = "rust-releases-changelog-source",
+            feature = "rust-releases-github-source",
+            feature = "rust-releases-dist-source"
+        ))]
         ReleaseSource::OfflineUnlessOutdated => bundled::fetch_unless_outdated(
             BundledReleases::new(),
             time::OffsetDateTime::now_utc().date(),
-            bundled_fallback,
+            rust_releases,
         )?,
     };
 
     Ok(releases)
 }
 
-#[cfg(feature = "rust-releases-offline-source")]
+#[cfg(any(
+    feature = "rust-releases-changelog-source",
+    feature = "rust-releases-github-source",
+    feature = "rust-releases-dist-source"
+))]
 mod bundled {
     use super::fetch_releases;
     use crate::error::FetchIndexError;
-    use cargo_msrv_context::types::{BundledFallback, BundledMaxAge, ReleaseSource};
+    use cargo_msrv_context::RustReleasesContext;
+    use cargo_msrv_context::types::{BundledMaxAge, ReleaseSource};
     use rust_releases::BundledReleases;
     use rust_releases::core::StableReleases;
     use rust_releases::core::merge::builder::MergeBuilder;
@@ -106,8 +121,9 @@ mod bundled {
     pub(super) fn fetch_unless_outdated(
         bundle: BundledReleases,
         today: time::Date,
-        fallback: BundledFallback,
+        rust_releases: &RustReleasesContext,
     ) -> Result<StableReleases, FetchIndexError> {
+        let fallback = rust_releases.bundled_fallback;
         let generated_on = bundle.generated_on();
 
         match age_in_days(&generated_on, today) {
@@ -141,9 +157,10 @@ mod bundled {
         let source: &'static str = fallback_source.into();
         info!(source = source, "fetching fallback index");
 
-        let fetched = fetch_releases(fallback_source, fallback)?;
+        let releases = fetch_releases(fallback_source, rust_releases)?;
+        let preferred = merge_preferring_bundled(bundle.stable(), releases);
 
-        Ok(merge_preferring_bundled(bundle.stable(), fetched))
+        Ok(preferred)
     }
 
     fn age_in_days(generated_on: &Date, today: time::Date) -> Option<i64> {
@@ -316,7 +333,7 @@ mod bundled {
             .unwrap();
 
             let releases =
-                fetch_unless_outdated(bundle, today, BundledFallback::default()).unwrap();
+                fetch_unless_outdated(bundle, today, &RustReleasesContext::default()).unwrap();
 
             assert_eq!(releases, bundle.stable());
         }

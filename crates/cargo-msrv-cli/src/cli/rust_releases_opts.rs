@@ -1,7 +1,17 @@
-use crate::values::{fallback_release_source, release_source};
-use cargo_msrv_context::types::{
-    BundledMaxAge, Edition, FallbackReleaseSource, ParseEditionError, ReleaseSource,
-};
+#[cfg(any(
+    feature = "rust-releases-changelog-source",
+    feature = "rust-releases-github-source",
+    feature = "rust-releases-dist-source"
+))]
+use crate::values::fallback_release_source;
+use crate::values::release_source;
+#[cfg(any(
+    feature = "rust-releases-changelog-source",
+    feature = "rust-releases-github-source",
+    feature = "rust-releases-dist-source"
+))]
+use cargo_msrv_context::types::{BundledMaxAge, FallbackReleaseSource};
+use cargo_msrv_context::types::{Edition, ParseEditionError, ReleaseSource};
 use cargo_msrv_types::BareVersion;
 use cargo_msrv_types::bare_version;
 use clap::Args;
@@ -42,6 +52,11 @@ pub struct RustReleasesOpts {
     /// Days the bundled releases may be old before the fallback source is fetched
     ///
     /// Only used by the `offline-unless-outdated` release source.
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[arg(
         long,
         value_name = "DAYS",
@@ -54,6 +69,11 @@ pub struct RustReleasesOpts {
     ///
     /// Only used by the `offline-unless-outdated` release source. Fetched releases  are merged with
     /// the bundled releases, and the bundled releases take precedence over the fetched ones.
+    #[cfg(any(
+        feature = "rust-releases-changelog-source",
+        feature = "rust-releases-github-source",
+        feature = "rust-releases-dist-source"
+    ))]
     #[arg(
         long,
         value_parser = fallback_release_source::VALUES.parser(),
