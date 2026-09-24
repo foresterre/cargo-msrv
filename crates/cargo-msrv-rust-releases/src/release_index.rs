@@ -4,6 +4,8 @@ use cargo_msrv_reporter::Reporter;
 use cargo_msrv_reporter::event::FetchIndex;
 #[cfg(feature = "rust-releases-offline-source")]
 use rust_releases::BundledReleases;
+#[cfg(feature = "rust-releases-github-source")]
+use rust_releases::GithubReleases;
 use rust_releases::RustChangelog;
 #[cfg(feature = "rust-releases-dist-source")]
 use rust_releases::RustDist;
@@ -67,6 +69,8 @@ fn fetch_releases(
 ) -> Result<StableReleases, FetchIndexError> {
     let releases = match release_source {
         ReleaseSource::RustChangelog => RustChangelog::new_ureq_cached_client()?.fetch()?,
+        #[cfg(feature = "rust-releases-github-source")]
+        ReleaseSource::GitHub => GithubReleases::new_ureq_cached_client()?.fetch()?,
         #[cfg(feature = "rust-releases-dist-source")]
         ReleaseSource::RustDist => RustDist::new_aws_cached_client()?.stable().fetch()?,
         #[cfg(feature = "rust-releases-offline-source")]

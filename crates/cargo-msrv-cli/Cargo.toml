@@ -32,6 +32,9 @@ yare = { workspace = true }
 # Enables the `rust-dist` release source as a value of the `--release-source` option
 rust-releases-dist-source = ["cargo-msrv-context/rust-releases-dist-source"]
 
+# Enables the `github` release source as a value of the `--release-source` option
+rust-releases-github-source = ["cargo-msrv-context/rust-releases-github-source"]
+
 # Enables the `offline` release source as a value of the `--release-source` option
 rust-releases-offline-source = ["cargo-msrv-context/rust-releases-offline-source"]
 

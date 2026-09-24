@@ -6,6 +6,12 @@ pub enum FetchIndexError {
     ),
 
     #[error(transparent)]
+    #[cfg(feature = "rust-releases-github-source")]
+    RustReleasesGithubSource(
+        #[from] rust_releases::GithubReleasesError<rust_releases::HttpCachedClientError>,
+    ),
+
+    #[error(transparent)]
     RustReleasesCacheDir(#[from] rust_releases::BaseCacheDirError),
 
     #[error(transparent)]
