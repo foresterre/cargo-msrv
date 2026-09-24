@@ -8,10 +8,8 @@ use cargo_msrv_context::types::{
     ParseEditionError, ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError,
     ParseReleaseSourceError, ParseTracingTargetOptionError,
 };
-use cargo_msrv_rust_releases::FetchIndexError;
+use cargo_msrv_rust_releases::{FetchIndexError, RustRelease, Stable};
 use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
-
-use crate::rust::{RustRelease, Stable};
 
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,

@@ -3,11 +3,11 @@ use crate::error::{CargoMSRVError, TResult};
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
 use crate::reporter::event::VerifyResult;
-use crate::rust::{ReleaseIndex, Toolchain, to_semver};
 use crate::sub_command::SubCommand;
 use cargo_msrv_context::VerifyContext;
 use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource};
-use cargo_msrv_types::BareVersion;
+use cargo_msrv_rust_releases::{ReleaseIndex, to_semver};
+use cargo_msrv_types::{BareVersion, Toolchain};
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, C: IsCompatible> {

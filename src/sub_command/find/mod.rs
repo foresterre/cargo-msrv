@@ -5,13 +5,13 @@ use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
 use crate::reporter::event::FindResult;
-use crate::rust::releases_filter::ReleasesFilter;
-use crate::rust::{
-    AvailabilityFilter, ExcludedRelease, ReleaseIndex, RustRelease, Stable, to_semver,
-};
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
+use cargo_msrv_rust_releases::releases_filter::ReleasesFilter;
+use cargo_msrv_rust_releases::{
+    AvailabilityFilter, ExcludedRelease, ReleaseIndex, RustRelease, Stable, to_semver,
+};
 use cargo_msrv_search::Error as SearchError;
 use cargo_msrv_types::BareVersion;
 
