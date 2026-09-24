@@ -15,7 +15,7 @@ pub struct BundledMaxAge {
 }
 
 impl BundledMaxAge {
-    const DEFAULT_DAYS: u32 = 2 * 7;
+    const DEFAULT_DAYS: u32 = 7;
 
     pub const fn from_days(days: u32) -> Self {
         Self { days }

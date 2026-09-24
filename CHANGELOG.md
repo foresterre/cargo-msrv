@@ -13,7 +13,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Added
 
 * Added the `offline` release source, which uses a release index bundled with `cargo-msrv`
-* Added `offline unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 14 days)
+* Added `offline unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 7 days)
 * Added `github` release source, which fetches the known set of Rust versions from Rust's GitHub releases page
 * Always bundle the offline release index (so there is a source to fall back to if no other release source cargo feature is enabled)
 
