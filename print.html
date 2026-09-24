@@ -309,6 +309,8 @@ which stable releases and toolchains are available. As an alternative, this data
 distribution bucket.</p>
 <p>The source can be set with the <code>--release-source &lt;source&gt;</code> flag. The possible values are respectively <code>rust-changelog</code> and <code>rust-dist</code>,
 for the Rust GitHub repository and the Rust AWS S3 distribution bucket. For example: <code>cargo msrv find --release-source rust-changelog</code>.</p>
+<p>A third value, <code>offline</code>, reads an index which is bundled with <code>cargo-msrv</code> itself. It requires no network access, and
+therefore no proxy configuration, but it is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
 <h4 id="release-source-rust-changelog"><a class="header" href="#release-source-rust-changelog">Release source: <code>rust-changelog</code></a></h4>
 <p><a href="https://github.com/foresterre/rust-releases/">rust-releases</a> uses <a href="https://crates.io/crates/ureq">ureq</a> as HTTP client
 for the <code>rust-changelog</code> source. From <code>cargo-msrv 0.17.1</code> (and <a href="https://github.com/foresterre/rust-releases/releases/tag/v0.29.0">rust-releases 0.29.0</a>
@@ -771,6 +773,7 @@ removed.</p>
 <ul>
 <li>rust-changelog (default)</li>
 <li>rust-dist</li>
+<li>offline</li>
 </ul>
 <h2 id="resolver"><a class="header" href="#resolver">Resolver</a></h2>
 <ul>
@@ -1503,10 +1506,11 @@ requested format to stdout. The only accepted format is currently &quot;json&quo
 format. When this option is absent, human-readable output will be printed. Diagnostic messages can be disabled entirely
 using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
-<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code> and <code>rust-dist</code>.
-The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will
+<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code>, <code>rust-dist</code> and
+<code>offline</code>. The first will parse the Rust changelog file to determine which Rust releases have been made, the second will
 index
-the Rust S3 distribution bucket.</p>
+the Rust S3 distribution bucket, and the third reads an index which is bundled with <code>cargo-msrv</code> itself, and therefore
+requires no network access. The bundled index is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
 <p><strong><code>--path</code> directory-path</strong></p>
 <p>Path to the cargo project directory. This directory should contain a Cargo manifest (i.e. <code>Cargo.toml</code>) file. The given
 path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like

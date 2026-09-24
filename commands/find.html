@@ -234,10 +234,11 @@ requested format to stdout. The only accepted format is currently &quot;json&quo
 format. When this option is absent, human-readable output will be printed. Diagnostic messages can be disabled entirely
 using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
-<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code> and <code>rust-dist</code>.
-The first will parse the Rust changelog file to determine which Rust releases have been made, while the second will
+<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code>, <code>rust-dist</code> and
+<code>offline</code>. The first will parse the Rust changelog file to determine which Rust releases have been made, the second will
 index
-the Rust S3 distribution bucket.</p>
+the Rust S3 distribution bucket, and the third reads an index which is bundled with <code>cargo-msrv</code> itself, and therefore
+requires no network access. The bundled index is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
 <p><strong><code>--path</code> directory-path</strong></p>
 <p>Path to the cargo project directory. This directory should contain a Cargo manifest (i.e. <code>Cargo.toml</code>) file. The given
 path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like
