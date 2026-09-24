@@ -102,22 +102,7 @@ impl<R: IsCompatible> FindMinimalSupportedRustVersion for Bisect<'_, '_, R> {
                 indices = next_indices;
             }
 
-            let converged_to_release = &search_space[indices.middle()];
-
-            // Work-around for regression:
-            // https://github.com/foresterre/cargo-msrv/issues/288
-            let msrv = if indices.middle() == search_space.len() - 1 {
-                Self::show_progress(iteration + 1, total, indices, reporter)?;
-
-                match self.run_check(converged_to_release, reporter)? {
-                    ConvergeTo::Left(_outcome) => {
-                        last_compatible_index.map(|i| self.toolchain_for(&search_space[i.middle()]))
-                    }
-                    ConvergeTo::Right(_outcome) => Some(self.toolchain_for(converged_to_release)),
-                }
-            } else {
-                last_compatible_index.map(|i| self.toolchain_for(&search_space[i.middle()]))
-            };
+            let msrv = last_compatible_index.map(|i| self.toolchain_for(&search_space[i.middle()]));
 
             Ok(MinimumSupportedRustVersion::from_option(msrv))
         })

@@ -20,7 +20,7 @@ cargo-msrv-rust-releases = { workspace = true }
 cargo-msrv-rustup = { workspace = true }
 cargo-msrv-types = { workspace = true }
 
-bisector = "0.4.0"
+bisector = "1.0.0"
 camino = { workspace = true }
 ctrlc = "3.5.1"
 owo-colors = { workspace = true }
