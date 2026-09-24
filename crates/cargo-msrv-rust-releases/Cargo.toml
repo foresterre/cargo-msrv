@@ -36,6 +36,13 @@ rust-releases-dist-source = [
     "cargo-msrv-reporter/rust-releases-dist-source",
 ]
 
+# Enables the `github` release source
+rust-releases-github-source = [
+    "rust-releases/github",
+    "cargo-msrv-context/rust-releases-github-source",
+    "cargo-msrv-reporter/rust-releases-github-source",
+]
+
 # Enables the `offline` release source
 rust-releases-offline-source = [
     "rust-releases/bundled",

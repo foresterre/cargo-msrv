@@ -159,6 +159,12 @@ mod tests {
             ReleaseSource::RustChangelog
         );
 
+        #[cfg(feature = "rust-releases-github-source")]
+        assert_eq!(
+            parse(release_source::VALUES, "github").unwrap(),
+            ReleaseSource::GitHub
+        );
+
         #[cfg(feature = "rust-releases-dist-source")]
         assert_eq!(
             parse(release_source::VALUES, "rust-dist").unwrap(),
@@ -183,6 +189,12 @@ mod tests {
         assert_eq!(
             parse(fallback_release_source::VALUES, "rust-changelog").unwrap(),
             FallbackReleaseSource::RustChangelog
+        );
+
+        #[cfg(feature = "rust-releases-github-source")]
+        assert_eq!(
+            parse(fallback_release_source::VALUES, "github").unwrap(),
+            FallbackReleaseSource::Github
         );
 
         #[cfg(feature = "rust-releases-dist-source")]

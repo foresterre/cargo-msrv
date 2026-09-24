@@ -43,6 +43,20 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "rust-releases-github-source")]
+    #[test]
+    fn reported_github_source() {
+        let reporter = TestReporterWrapper::default();
+        let event = FetchIndex::new(ReleaseSource::GitHub);
+
+        reporter.get().report_event(event.clone()).unwrap();
+
+        assert_eq!(
+            reporter.wait_for_events(),
+            vec![Event::unscoped(Message::FetchIndex(event)),]
+        );
+    }
+
     #[cfg(feature = "rust-releases-dist-source")]
     #[test]
     fn reported_rust_dist_source() {

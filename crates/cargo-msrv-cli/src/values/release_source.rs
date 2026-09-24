@@ -3,6 +3,8 @@ use cargo_msrv_context::types::ReleaseSource;
 
 pub const VALUES: CliValues<ReleaseSource> = CliValues::new(&[
     CliValue::new("rust-changelog", ReleaseSource::RustChangelog),
+    #[cfg(feature = "rust-releases-github-source")]
+    CliValue::new("github", ReleaseSource::GitHub),
     #[cfg(feature = "rust-releases-dist-source")]
     CliValue::new("rust-dist", ReleaseSource::RustDist),
     #[cfg(feature = "rust-releases-offline-source")]

@@ -30,5 +30,8 @@ yare = { workspace = true }
 # Enables the `rust-dist` release source
 rust-releases-dist-source = []
 
+# Enables the `github` release source
+rust-releases-github-source = []
+
 # Enables the `offline` release source
 rust-releases-offline-source = []
