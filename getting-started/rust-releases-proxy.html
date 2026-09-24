@@ -145,11 +145,14 @@ which stable releases and toolchains are available. As an alternative, this data
 distribution bucket.</p>
 <p>The source can be set with the <code>--release-source &lt;source&gt;</code> flag. The possible values are respectively <code>rust-changelog</code> and <code>rust-dist</code>,
 for the Rust GitHub repository and the Rust AWS S3 distribution bucket. For example: <code>cargo msrv find --release-source rust-changelog</code>.</p>
-<p>A third value, <code>offline</code>, reads an index which is bundled with <code>cargo-msrv</code> itself. It requires no network access, and
-therefore no proxy configuration, but it is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
-<h4 id="release-source-rust-changelog"><a class="header" href="#release-source-rust-changelog">Release source: <code>rust-changelog</code></a></h4>
+<p>A third value, <code>bundled</code>, reads an index which is bundled with <code>cargo-msrv</code> itself. It requires no network access, and
+therefore no proxy configuration, but it is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.
+<code>bundled-unless-outdated</code> uses <code>bundled</code> unless the max age has been reached, then it fetches from one of the online ones
+and merges the values from the online ones into the <code>bundled</code> source.</p>
+<p>More options exist, which can be found on the release source page or in the CLI help. </p>
+<h4 id="release-source-rust-changelog-and-github"><a class="header" href="#release-source-rust-changelog-and-github">Release source: <code>rust-changelog</code> and <code>github</code></a></h4>
 <p><a href="https://github.com/foresterre/rust-releases/">rust-releases</a> uses <a href="https://crates.io/crates/ureq">ureq</a> as HTTP client
-for the <code>rust-changelog</code> source. From <code>cargo-msrv 0.17.1</code> (and <a href="https://github.com/foresterre/rust-releases/releases/tag/v0.29.0">rust-releases 0.29.0</a>
+for the <code>rust-changelog</code> (and <code>github</code>) source. From <code>cargo-msrv 0.17.1</code> (and <a href="https://github.com/foresterre/rust-releases/releases/tag/v0.29.0">rust-releases 0.29.0</a>
 respectively), <code>ureq</code> has been configured to support configuring a network proxy from the environment.</p>
 <p>The environment variable, <code>ureq</code> uses <a href="https://docs.rs/ureq/2.11.0/src/ureq/proxy.rs.html#87-92">are</a>:</p>
 <ul>

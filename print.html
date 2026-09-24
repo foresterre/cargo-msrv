@@ -309,11 +309,14 @@ which stable releases and toolchains are available. As an alternative, this data
 distribution bucket.</p>
 <p>The source can be set with the <code>--release-source &lt;source&gt;</code> flag. The possible values are respectively <code>rust-changelog</code> and <code>rust-dist</code>,
 for the Rust GitHub repository and the Rust AWS S3 distribution bucket. For example: <code>cargo msrv find --release-source rust-changelog</code>.</p>
-<p>A third value, <code>offline</code>, reads an index which is bundled with <code>cargo-msrv</code> itself. It requires no network access, and
-therefore no proxy configuration, but it is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
-<h4 id="release-source-rust-changelog"><a class="header" href="#release-source-rust-changelog">Release source: <code>rust-changelog</code></a></h4>
+<p>A third value, <code>bundled</code>, reads an index which is bundled with <code>cargo-msrv</code> itself. It requires no network access, and
+therefore no proxy configuration, but it is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.
+<code>bundled-unless-outdated</code> uses <code>bundled</code> unless the max age has been reached, then it fetches from one of the online ones
+and merges the values from the online ones into the <code>bundled</code> source.</p>
+<p>More options exist, which can be found on the release source page or in the CLI help. </p>
+<h4 id="release-source-rust-changelog-and-github"><a class="header" href="#release-source-rust-changelog-and-github">Release source: <code>rust-changelog</code> and <code>github</code></a></h4>
 <p><a href="https://github.com/foresterre/rust-releases/">rust-releases</a> uses <a href="https://crates.io/crates/ureq">ureq</a> as HTTP client
-for the <code>rust-changelog</code> source. From <code>cargo-msrv 0.17.1</code> (and <a href="https://github.com/foresterre/rust-releases/releases/tag/v0.29.0">rust-releases 0.29.0</a>
+for the <code>rust-changelog</code> (and <code>github</code>) source. From <code>cargo-msrv 0.17.1</code> (and <a href="https://github.com/foresterre/rust-releases/releases/tag/v0.29.0">rust-releases 0.29.0</a>
 respectively), <code>ureq</code> has been configured to support configuring a network proxy from the environment.</p>
 <p>The environment variable, <code>ureq</code> uses <a href="https://docs.rs/ureq/2.11.0/src/ureq/proxy.rs.html#87-92">are</a>:</p>
 <ul>
@@ -770,11 +773,57 @@ removed.</p>
 <h1 id="-concepts"><a class="header" href="#-concepts">🌱 Concepts</a></h1>
 <h2 id="rust-releases-index"><a class="header" href="#rust-releases-index">Rust Releases Index</a></h2>
 <h3 id="release-source"><a class="header" href="#release-source">Release Source</a></h3>
+<p><code>cargo-msrv</code> requires a list of available Rust releases to determine or verify the MSRV. It can fetch this list
+of releases from several places (which each vary in completeness, correctness, and size/fetch time). </p>
+<p>The following list are all release sources which can be configured (e.g. <code>cargo msrv find --release-source &lt;value&gt;</code>).
+<code>cargo-msrv</code> can be compiled with or without these release sources (our own release includes all), except for <code>bundled</code>
+which is always included.</p>
 <ul>
 <li>rust-changelog (default)</li>
+<li>bundled-unless-outdated</li>
+<li>github</li>
 <li>rust-dist</li>
-<li>offline</li>
+<li>bundled</li>
 </ul>
+<h4 id="rust-changelog"><a class="header" href="#rust-changelog">rust-changelog</a></h4>
+<p>Fetches the <code>RELEASES.md</code> changelog from the official <a href="https://github.com/rust-lang/rust/blob/main/RELEASES.md">rust</a> GitHub
+repository. Does a time check which compares the callers computer date against the latest release date, because the changelog
+may be slightly ahead when the Rust developers are cutting a release.</p>
+<p>This source only provides version numbers and release dates, so toolchains etc. are not included.</p>
+<p>This source is the default because it is a single file (unlike say <code>github</code> releases which needs to consider pagination
+and adhere to the max API limits). It is very fast, consistently up to date and it is reasonably easy to parse.</p>
+<h4 id="bundled-unless-outdated"><a class="header" href="#bundled-unless-outdated">bundled-unless-outdated</a></h4>
+<p>Same as <code>bundled</code>, except that if its configured max age (default is 7 days) has been reached since it was generated, then
+it falls back to the (configured) fallback release source, which is the same list of release sources (defaults follow the
+same ordering rules). </p>
+<p>Note that the bundled source is complete (it's effectively the <code>rust-dist</code> source packaged in a much smaller format, and
+pre-packaged as Rust source code for easy embedding), up to its generation day, and includes not just versions but also
+full toolchain and target information. </p>
+<p>If it is outdated and another source is fetched to amend the bundled source, that source may be much less complete which
+can be a source of confusion if you're combining it with strict filters on e.g. the host target (which the online fetched
+release source may not have). In general <code>cargo-msrv</code> tries to have best effort defaults. If you find a case where it is
+not entirely the case, open an issue (be sure to include your use case and suggested best effort!).</p>
+<h4 id="github"><a class="header" href="#github">github</a></h4>
+<p>Uses the GitHub releases <a href="https://github.com/rust-lang/rust/releases">list</a> via the GitHub API to determine the available
+versions. It takes the release date from the API's release date. NB: For versions prior to Rust 1.47.0, this release date
+is incorrect (for versions <code>&lt;= 1.46.0</code> releases were created in one big batch on 2020-09-10). <code>cargo-msrv</code> barely uses the
+release date so this isn't a problem.</p>
+<h4 id="rust-dist"><a class="header" href="#rust-dist">rust-dist</a></h4>
+<p>The most complete release source. All available Rust release and distribution information can be found here in one place,
+if you're willing to fetch and parse it all. Fetching it takes a long time because it needs to go through a lot of information,
+much of which is not relevant if you only care about releases (and not everything, all distributions ever created contain).</p>
+<p>Usually version information is enough and then <code>rust-dist</code>'s added toolchain data is unnecessary, but if you do stuff like
+cross-compilation, you may want to actually select toolchains which are really available, iso guessing that they are.
+This is the place where the nitty gritty gray areas between the differences of &quot;releases&quot; vs &quot;distributions&quot; start to fade,
+and where a vague general term like &quot;MSRV&quot; (minimum supported Rust version) starts to require a much more guarded definition
+wrt what &quot;Rust&quot; then means (e.g. is it only the language compatibility, or do the underlying platforms matter?).</p>
+<p>The <code>bundled</code> source is generated from <code>rust-dist</code> by the <a href="https://github.com/foresterre/rust-releases/tree/7d3ef7618b53ead14c2945ec8501b9940393a780/crates/rust-releases-bundled-generator">rust-releases' bundled generator</a></p>
+<h3 id="bundled"><a class="header" href="#bundled">bundled</a></h3>
+<p>Same as <code>rust-dist</code>, but generated and embedded as generated Rust code at a certain point in time. Only as up to date
+as the time where (a) <code>rust-releases-bundled</code> was generated and releases, (b) <code>cargo-msrv</code> updated its lockfile to include
+the latest <code>rust-releases-bundled</code> and (c) <code>cargo-msrv</code> was released.</p>
+<p>In general ever new <code>cargo-msrv</code> release should contain the latest generated set, available on or prior to <code>cargo-msrv's</code>
+release date. If it didn't, please open an issue.</p>
 <h2 id="resolver"><a class="header" href="#resolver">Resolver</a></h2>
 <ul>
 <li>run-toolchain resolver (default): resolver which runs actual toolchains against a crate</li>
@@ -1506,11 +1555,12 @@ requested format to stdout. The only accepted format is currently &quot;json&quo
 format. When this option is absent, human-readable output will be printed. Diagnostic messages can be disabled entirely
 using the <code>--no-user-output</code> flag.</p>
 <p><strong><code>--release-source</code> source</strong></p>
-<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code>, <code>rust-dist</code> and
-<code>offline</code>. The first will parse the Rust changelog file to determine which Rust releases have been made, the second will
-index
-the Rust S3 distribution bucket, and the third reads an index which is bundled with <code>cargo-msrv</code> itself, and therefore
-requires no network access. The bundled index is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built.</p>
+<p>Select the rust-releases source to use as the release index. Available options are <code>rust-changelog</code>, <code>rust-dist</code>, <code>github</code>
+and <code>bundled</code>. The first will parse the Rust changelog file to determine which Rust releases have been made, the
+second will index the Rust S3 distribution bucket, the third calls the GitHub API to get the releases list of the repository,
+and the fourth reads an index which is bundled with <code>cargo-msrv</code> itself, and therefore requires no network access.
+The bundled index is only up-to-date up to the moment the <code>cargo-msrv</code> binary was built. The <code>bundled-unless-outdated</code>
+source combines <code>bundled</code> with a configured online source.</p>
 <p><strong><code>--path</code> directory-path</strong></p>
 <p>Path to the cargo project directory. This directory should contain a Cargo manifest (i.e. <code>Cargo.toml</code>) file. The given
 path should end in the Cargo manifest file. A valid path would be <code>/home/user/project</code>. A path like
