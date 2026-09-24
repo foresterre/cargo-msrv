@@ -120,7 +120,7 @@ mod tests {
     }
 
     #[test]
-    fn default_max_age_is_two_weeks() {
-        assert_eq!(BundledMaxAge::default().days(), 14);
+    fn default_max_age() {
+        assert_eq!(BundledMaxAge::default().days(), 7);
     }
 }
