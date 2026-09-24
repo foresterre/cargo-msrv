@@ -8,14 +8,14 @@ pub const VALUES: CliValues<ReleaseSource> = CliValues::new(&[
     CliValue::new("github", ReleaseSource::GitHub),
     #[cfg(feature = "rust-releases-dist-source")]
     CliValue::new("rust-dist", ReleaseSource::RustDist),
-    CliValue::new("offline", ReleaseSource::Offline),
+    CliValue::new("bundled", ReleaseSource::Bundled),
     #[cfg(any(
         feature = "rust-releases-changelog-source",
         feature = "rust-releases-github-source",
         feature = "rust-releases-dist-source"
     ))]
     CliValue::new(
-        "offline-unless-outdated",
-        ReleaseSource::OfflineUnlessOutdated,
+        "bundled-unless-outdated",
+        ReleaseSource::BundledUnlessOutdated,
     ),
 ]);

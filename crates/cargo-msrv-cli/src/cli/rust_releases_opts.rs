@@ -51,7 +51,7 @@ pub struct RustReleasesOpts {
 
     /// Days the bundled releases may be old before the fallback source is fetched
     ///
-    /// Only used by the `offline-unless-outdated` release source.
+    /// Only used by the `bundled-unless-outdated` release source.
     #[cfg(any(
         feature = "rust-releases-changelog-source",
         feature = "rust-releases-github-source",
@@ -67,7 +67,7 @@ pub struct RustReleasesOpts {
 
     /// Release source to fetch when the bundled releases are outdated
     ///
-    /// Only used by the `offline-unless-outdated` release source. Fetched releases  are merged with
+    /// Only used by the `bundled-unless-outdated` release source. Fetched releases  are merged with
     /// the bundled releases, and the bundled releases take precedence over the fetched ones.
     #[cfg(any(
         feature = "rust-releases-changelog-source",

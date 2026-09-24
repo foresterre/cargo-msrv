@@ -73,9 +73,9 @@ mod tests {
     }
 
     #[test]
-    fn reported_offline_source() {
+    fn reported_bundled_source() {
         let reporter = TestReporterWrapper::default();
-        let event = FetchIndex::new(ReleaseSource::Offline);
+        let event = FetchIndex::new(ReleaseSource::Bundled);
 
         reporter.get().report_event(event.clone()).unwrap();
 
@@ -91,9 +91,9 @@ mod tests {
         feature = "rust-releases-dist-source"
     ))]
     #[test]
-    fn reported_offline_unless_outdated_source() {
+    fn reported_bundled_unless_outdated_source() {
         let reporter = TestReporterWrapper::default();
-        let event = FetchIndex::new(ReleaseSource::OfflineUnlessOutdated);
+        let event = FetchIndex::new(ReleaseSource::BundledUnlessOutdated);
 
         reporter.get().report_event(event.clone()).unwrap();
 

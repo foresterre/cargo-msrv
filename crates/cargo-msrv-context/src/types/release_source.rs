@@ -20,14 +20,14 @@ pub enum ReleaseSource {
         )),
         default
     )]
-    Offline,
+    Bundled,
     #[cfg(any(
         feature = "rust-releases-changelog-source",
         feature = "rust-releases-github-source",
         feature = "rust-releases-dist-source"
     ))]
     #[cfg_attr(not(feature = "rust-releases-changelog-source"), default)]
-    OfflineUnlessOutdated,
+    BundledUnlessOutdated,
 }
 
 impl FromStr for ReleaseSource {
@@ -47,13 +47,13 @@ impl From<ReleaseSource> for &'static str {
             ReleaseSource::GitHub => "github",
             #[cfg(feature = "rust-releases-dist-source")]
             ReleaseSource::RustDist => "rust-dist",
-            ReleaseSource::Offline => "offline",
+            ReleaseSource::Bundled => "bundled",
             #[cfg(any(
                 feature = "rust-releases-changelog-source",
                 feature = "rust-releases-github-source",
                 feature = "rust-releases-dist-source"
             ))]
-            ReleaseSource::OfflineUnlessOutdated => "offline-unless-outdated",
+            ReleaseSource::BundledUnlessOutdated => "bundled-unless-outdated",
         }
     }
 }
@@ -69,13 +69,13 @@ impl TryFrom<&str> for ReleaseSource {
             "github" => Ok(Self::GitHub),
             #[cfg(feature = "rust-releases-dist-source")]
             "rust-dist" => Ok(Self::RustDist),
-            "offline" => Ok(Self::Offline),
+            "bundled" => Ok(Self::Bundled),
             #[cfg(any(
                 feature = "rust-releases-changelog-source",
                 feature = "rust-releases-github-source",
                 feature = "rust-releases-dist-source"
             ))]
-            "offline-unless-outdated" => Ok(Self::OfflineUnlessOutdated),
+            "bundled-unless-outdated" => Ok(Self::BundledUnlessOutdated),
             s => Err(ParseReleaseSourceError(s.to_string())),
         }
     }
@@ -90,13 +90,13 @@ impl fmt::Display for ReleaseSource {
             Self::GitHub => write!(f, "github"),
             #[cfg(feature = "rust-releases-dist-source")]
             Self::RustDist => write!(f, "rust-dist"),
-            Self::Offline => write!(f, "offline"),
+            Self::Bundled => write!(f, "bundled"),
             #[cfg(any(
                 feature = "rust-releases-changelog-source",
                 feature = "rust-releases-github-source",
                 feature = "rust-releases-dist-source"
             ))]
-            Self::OfflineUnlessOutdated => write!(f, "offline-unless-outdated"),
+            Self::BundledUnlessOutdated => write!(f, "bundled-unless-outdated"),
         }
     }
 }

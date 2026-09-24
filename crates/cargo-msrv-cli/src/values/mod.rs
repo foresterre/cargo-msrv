@@ -183,8 +183,8 @@ mod tests {
         );
 
         assert_eq!(
-            parse(release_source::VALUES, "offline").unwrap(),
-            ReleaseSource::Offline
+            parse(release_source::VALUES, "bundled").unwrap(),
+            ReleaseSource::Bundled
         );
 
         #[cfg(any(
@@ -193,8 +193,8 @@ mod tests {
             feature = "rust-releases-dist-source"
         ))]
         assert_eq!(
-            parse(release_source::VALUES, "offline-unless-outdated").unwrap(),
-            ReleaseSource::OfflineUnlessOutdated
+            parse(release_source::VALUES, "bundled-unless-outdated").unwrap(),
+            ReleaseSource::BundledUnlessOutdated
         );
     }
 
@@ -230,8 +230,8 @@ mod tests {
         feature = "rust-releases-dist-source"
     ))]
     #[yare::parameterized(
-        offline = { "offline" },
-        offline_unless_outdated = { "offline-unless-outdated" },
+        bundled = { "bundled" },
+        bundled_unless_outdated = { "bundled-unless-outdated" },
     )]
     fn bundled_fallback_release_sources_are_rejected(input: &str) {
         assert!(parse(fallback_release_source::VALUES, input).is_err());
@@ -263,10 +263,10 @@ mod tests {
         )
     ))]
     #[test]
-    fn offline_unless_outdated_is_the_default_release_source_without_rust_changelog() {
+    fn bundled_unless_outdated_is_the_default_release_source_without_rust_changelog() {
         assert_eq!(
             release_source::VALUES.default_value(),
-            "offline-unless-outdated"
+            "bundled-unless-outdated"
         );
     }
 
@@ -286,8 +286,8 @@ mod tests {
         feature = "rust-releases-dist-source"
     )))]
     #[test]
-    fn offline_is_the_default_release_source_without_online_sources() {
-        assert_eq!(release_source::VALUES.default_value(), "offline");
+    fn bundled_is_the_default_release_source_without_online_sources() {
+        assert_eq!(release_source::VALUES.default_value(), "bundled");
     }
 
     #[cfg(not(any(
@@ -296,8 +296,8 @@ mod tests {
         feature = "rust-releases-dist-source"
     )))]
     #[test]
-    fn offline_unless_outdated_is_rejected_without_online_sources() {
-        assert!(parse(release_source::VALUES, "offline-unless-outdated").is_err());
+    fn bundled_unless_outdated_is_rejected_without_online_sources() {
+        assert!(parse(release_source::VALUES, "bundled-unless-outdated").is_err());
     }
 
     #[yare::parameterized(

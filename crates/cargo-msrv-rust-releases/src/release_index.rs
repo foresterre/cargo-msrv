@@ -80,7 +80,7 @@ fn fetch_releases(
         ReleaseSource::GitHub => GithubReleases::new_ureq_cached_client()?.fetch()?,
         #[cfg(feature = "rust-releases-dist-source")]
         ReleaseSource::RustDist => RustDist::new_aws_cached_client()?.stable().fetch()?,
-        ReleaseSource::Offline => {
+        ReleaseSource::Bundled => {
             let bundle = BundledReleases::new();
             info!(generated_on = %bundle.generated_on().ymd(), "using bundled index");
 
@@ -91,7 +91,7 @@ fn fetch_releases(
             feature = "rust-releases-github-source",
             feature = "rust-releases-dist-source"
         ))]
-        ReleaseSource::OfflineUnlessOutdated => bundled::fetch_unless_outdated(
+        ReleaseSource::BundledUnlessOutdated => bundled::fetch_unless_outdated(
             BundledReleases::new(),
             time::OffsetDateTime::now_utc().date(),
             rust_releases,
