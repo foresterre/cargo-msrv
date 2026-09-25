@@ -109,7 +109,7 @@ mod tests {
     use cargo_metadata::PackageId;
     use cargo_msrv_context::context::SearchMethod;
     use cargo_msrv_context::types::ListMsrvVariant;
-    use cargo_msrv_manifest::DependencyGraph;
+    use cargo_msrv_rust_tools::DependencyGraph;
     use cargo_msrv_types::BareVersion;
     use cargo_msrv_types::Toolchain;
     use storyteller::EventHandler;

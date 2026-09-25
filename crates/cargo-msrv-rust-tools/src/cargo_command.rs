@@ -32,7 +32,7 @@ impl CargoCommand {
     }
 
     /// Intended to be used in conjunction with `RunCommand` (`cargo-msrv-search`) and/or
-    /// `RustupCommand` (`cargo-msrv-rustup`).
+    /// `RustupCommand` (`cargo-msrv-rust-tools`)..
     // Currently we don't invoke it from here directly, but we might eventually, if
     // we want to also provide some nicer structs around parsing. However compared to
     // some other cargo subcommand crates, we also (currently) need rustup, so the invocation

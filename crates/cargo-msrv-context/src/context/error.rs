@@ -1,6 +1,6 @@
 use crate::types::ParseEditionError;
 use camino::Utf8PathBuf;
-use cargo_msrv_manifest::ManifestParseError;
+use cargo_msrv_rust_tools::ManifestParseError;
 use std::path::PathBuf;
 
 pub use cargo_msrv_types::{IoError, IoErrorSource};

@@ -2,7 +2,6 @@ use std::io::Write;
 
 use crate::context::SetContext;
 use crate::error::{InvalidMsrvSetError, IoError, IoErrorSource, SetMsrvError};
-use crate::manifest::{CargoManifestParser, TomlParser};
 use crate::reporter::Reporter;
 use crate::reporter::event::{
     AuxiliaryOutput, AuxiliaryOutputItem, Destination, MsrvKind, SetResult,
@@ -10,6 +9,7 @@ use crate::reporter::event::{
 };
 use crate::{CargoMSRVError, SubCommand, TResult};
 use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
+use cargo_msrv_rust_tools::{CargoManifestParser, TomlParser};
 use cargo_msrv_types::BareVersion;
 use toml_edit::{DocumentMut, Item, Value, table, value};
 
@@ -220,11 +220,10 @@ fn discard_current_msrv(document: &mut DocumentMut) {
 
 #[cfg(test)]
 mod set_or_override_msrv_tests {
-    use toml_edit::DocumentMut;
-
-    use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::set_or_override_msrv;
+    use cargo_msrv_rust_tools::{CargoManifestParser, TomlParser};
     use cargo_msrv_types::BareVersion;
+    use toml_edit::DocumentMut;
 
     #[test]
     fn set_rust_version_in_empty_two_component() {
@@ -483,10 +482,9 @@ metadata = { msrv = "1.15" }
 
 #[cfg(test)]
 mod discard_current_msrv_tests {
-    use toml_edit::DocumentMut;
-
-    use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::discard_current_msrv;
+    use cargo_msrv_rust_tools::{CargoManifestParser, TomlParser};
+    use toml_edit::DocumentMut;
 
     #[test]
     fn discard_none() {
@@ -673,11 +671,10 @@ metadata = { msrv = "1.15", other = 1 }
 
 #[cfg(test)]
 mod insert_new_msrv_tests {
-    use toml_edit::{DocumentMut, Item};
-
-    use crate::manifest::{CargoManifestParser, TomlParser};
     use crate::sub_command::set::insert_new_msrv;
+    use cargo_msrv_rust_tools::{CargoManifestParser, TomlParser};
     use cargo_msrv_types::BareVersion;
+    use toml_edit::{DocumentMut, Item};
 
     #[test]
     fn insert_rust_version_in_empty_two_component() {
@@ -763,11 +760,10 @@ edition = "2021"
     // TOML items are used, such as inline tables and regular tables.
     // Only applicable to the [package.manifest] msrv = "..." fallback variant MSRV
     mod insert_package_manifest_msrv_correct_table_type {
-        use toml_edit::{DocumentMut, Item, Value};
-
-        use crate::manifest::{CargoManifestParser, TomlParser};
         use crate::sub_command::set::insert_new_msrv;
+        use cargo_msrv_rust_tools::{CargoManifestParser, TomlParser};
         use cargo_msrv_types::BareVersion;
+        use toml_edit::{DocumentMut, Item, Value};
 
         const METADATA_MSRV: BareVersion = BareVersion::TwoComponents(1, 55);
 

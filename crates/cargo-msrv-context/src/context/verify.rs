@@ -4,7 +4,7 @@ use crate::context::{
 };
 use camino::Utf8PathBuf;
 use cargo_metadata::MetadataCommand;
-use cargo_msrv_manifest::CargoManifest;
+use cargo_msrv_rust_tools::CargoManifest;
 use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 

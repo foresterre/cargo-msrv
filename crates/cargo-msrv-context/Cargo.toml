@@ -13,7 +13,7 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "context", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
 
 [dependencies]
-cargo-msrv-manifest = { workspace = true }
+cargo-msrv-rust-tools = { workspace = true }
 cargo-msrv-types = { workspace = true }
 
 camino = { workspace = true }

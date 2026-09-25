@@ -4,7 +4,7 @@ use crate::event::types::list_result::metadata::{format_version, package_msrv};
 use crate::formatting::table;
 use cargo_metadata::Package;
 use cargo_msrv_context::types::ORDERED_BY_MSRV;
-use cargo_msrv_manifest::DependencyGraph;
+use cargo_msrv_rust_tools::DependencyGraph;
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 use std::fmt;

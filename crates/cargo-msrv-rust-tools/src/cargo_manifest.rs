@@ -1,16 +1,9 @@
-#![deny(clippy::all)]
-#![allow(clippy::uninlined_format_args)]
-
 use cargo_metadata::{Metadata, semver};
 use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use toml_edit::{DocumentMut, TomlError};
 
 use cargo_msrv_types::bare_version;
-
-pub mod dependency_graph;
-
-pub use dependency_graph::DependencyGraph;
 
 pub trait TomlParser {
     type Error;
@@ -106,7 +99,7 @@ fn find_minimum_rust_version(
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::{BareVersion, CargoManifest};
+    use crate::cargo_manifest::{BareVersion, CargoManifest};
     use cargo_metadata::Metadata;
     use std::convert::TryFrom;
 

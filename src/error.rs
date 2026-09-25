@@ -3,7 +3,6 @@ use std::env;
 use std::string::FromUtf8Error;
 
 use crate::cli::rust_releases_opts::ParseEditionOrVersionError;
-use crate::manifest::ManifestParseError;
 use cargo_msrv_context::types::{
     ParseEditionError, ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError,
     ParseReleaseSourceError, ParseTracingTargetOptionError,
@@ -14,6 +13,7 @@ use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
 };
+use cargo_msrv_rust_tools::{CargoMetadataResolveError, ManifestParseError};
 pub use cargo_msrv_search::error::{
     LockfileHandlerError, NoToolchainsToTryError, RustupAddComponentError, RustupAddTargetError,
     RustupError, RustupInstallError,
@@ -240,6 +240,15 @@ impl From<SearchError> for CargoMSRVError {
             SearchError::UnableToRunCheck { command, cwd } => {
                 Self::UnableToRunCheck { command, cwd }
             }
+        }
+    }
+}
+
+impl From<CargoMetadataResolveError> for CargoMSRVError {
+    fn from(error: CargoMetadataResolveError) -> Self {
+        match error {
+            CargoMetadataResolveError::CargoMetadata(error) => Self::CargoMetadata(error),
+            CargoMetadataResolveError::NoCrateRootFound => Self::NoCrateRootFound,
         }
     }
 }

@@ -1,12 +1,10 @@
-use camino::Utf8PathBuf;
-use cargo_metadata::MetadataCommand;
-use std::convert::TryFrom;
-
 use crate::context::ShowContext;
 use crate::error::TResult;
+use camino::Utf8PathBuf;
+use cargo_metadata::MetadataCommand;
+use cargo_msrv_rust_tools::CargoManifest;
 
 use crate::SubCommand;
-use crate::manifest::CargoManifest;
 use crate::reporter::Reporter;
 use crate::reporter::event::ShowResult;
 

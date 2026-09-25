@@ -4,7 +4,7 @@ use crate::error::{
 };
 use cargo_msrv_reporter::Reporter;
 use cargo_msrv_reporter::event::SetupToolchain as SetupToolchainEvent;
-use cargo_msrv_rustup::RustupCommand;
+use cargo_msrv_rust_tools::RustupCommand;
 use cargo_msrv_types::Toolchain;
 
 pub trait SetupToolchain {

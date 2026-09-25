@@ -1,6 +1,6 @@
 use crate::Event;
 use crate::event::Message;
-use cargo_msrv_manifest::DependencyGraph;
+use cargo_msrv_rust_tools::DependencyGraph;
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::Formatter;

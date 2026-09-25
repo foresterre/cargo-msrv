@@ -3,7 +3,7 @@ use super::display_vec;
 use super::metadata::*;
 use crate::formatting::table;
 use cargo_msrv_context::types::DIRECT_DEPS;
-use cargo_msrv_manifest::DependencyGraph;
+use cargo_msrv_rust_tools::DependencyGraph;
 use std::fmt;
 use std::fmt::Formatter;
 use tabled::Tabled;
