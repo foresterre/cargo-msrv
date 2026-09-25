@@ -1,6 +1,6 @@
 [package]
-name = "cargo-msrv-manifest"
-description = "Cargo manifest parsing of cargo-msrv"
+name = "cargo-msrv-rust-tools"
+description = "The cargo and rustup tooling of cargo-msrv"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -9,16 +9,19 @@ repository.workspace = true
 
 rust-version = "1.91.1"
 
-keywords = ["msrv", "rust-version", "cargo-msrv", "manifest", "minimum"]
+keywords = ["msrv", "rust-version", "cargo-msrv", "cargo", "rustup"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
 
 [dependencies]
 cargo-msrv-types = { workspace = true }
 
+camino = { workspace = true }
 cargo_metadata = { workspace = true }
+dunce = { workspace = true }
 petgraph = { workspace = true }
 thiserror = { workspace = true }
 toml_edit = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 semver = { workspace = true }

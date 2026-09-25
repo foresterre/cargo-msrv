@@ -759,9 +759,9 @@ dependencies = [
  "camino",
  "cargo-msrv-cli",
  "cargo-msrv-context",
- "cargo-msrv-manifest",
  "cargo-msrv-reporter",
  "cargo-msrv-rust-releases",
+ "cargo-msrv-rust-tools",
  "cargo-msrv-search",
  "cargo-msrv-types",
  "cargo_metadata",
@@ -779,10 +779,6 @@ dependencies = [
  "vergen-gitcl",
  "yare",
 ]
-
-[[package]]
-name = "cargo-msrv-cargo"
-version = "0.19.3"
 
 [[package]]
 name = "cargo-msrv-cli"
@@ -806,7 +802,7 @@ name = "cargo-msrv-context"
 version = "0.19.3"
 dependencies = [
  "camino",
- "cargo-msrv-manifest",
+ "cargo-msrv-rust-tools",
  "cargo-msrv-types",
  "cargo_metadata",
  "serde",
@@ -817,26 +813,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-msrv-manifest"
-version = "0.19.3"
-dependencies = [
- "cargo-msrv-types",
- "cargo_metadata",
- "petgraph",
- "semver",
- "serde_json",
- "thiserror 2.0.20",
- "toml_edit",
- "yare",
-]
-
-[[package]]
 name = "cargo-msrv-reporter"
 version = "0.19.3"
 dependencies = [
  "camino",
  "cargo-msrv-context",
- "cargo-msrv-manifest",
+ "cargo-msrv-rust-tools",
  "cargo-msrv-types",
  "cargo_metadata",
  "indicatif",
@@ -869,13 +851,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-msrv-rustup"
+name = "cargo-msrv-rust-tools"
 version = "0.19.3"
 dependencies = [
  "camino",
  "cargo-msrv-types",
+ "cargo_metadata",
  "dunce",
+ "petgraph",
+ "semver",
+ "serde_json",
+ "thiserror 2.0.20",
+ "toml_edit",
  "tracing",
+ "yare",
 ]
 
 [[package]]
@@ -884,11 +873,10 @@ version = "0.19.3"
 dependencies = [
  "bisector",
  "camino",
- "cargo-msrv-cargo",
  "cargo-msrv-context",
  "cargo-msrv-reporter",
  "cargo-msrv-rust-releases",
- "cargo-msrv-rustup",
+ "cargo-msrv-rust-tools",
  "cargo-msrv-types",
  "ctrlc",
  "owo-colors",

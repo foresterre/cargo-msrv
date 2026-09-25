@@ -1,5 +1,5 @@
-use cargo_msrv_cargo::CargoCommand;
 use cargo_msrv_context::{CheckCommandContext, FindContext, ToolchainContext, VerifyContext};
+use cargo_msrv_rust_tools::CargoCommand;
 use cargo_msrv_types::Toolchain;
 
 mod rustup_toolchain_check;

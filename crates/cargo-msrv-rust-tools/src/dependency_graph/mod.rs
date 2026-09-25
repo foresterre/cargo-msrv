@@ -1,3 +1,5 @@
+pub mod resolver;
+
 use cargo_metadata::{Package, PackageId};
 use petgraph::visit::Dfs;
 use std::collections::HashMap;

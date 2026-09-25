@@ -1,13 +1,21 @@
 use crate::dependency_graph::DependencyGraph;
-use crate::error::{CargoMSRVError, TResult};
 use camino::Utf8Path;
 use cargo_metadata::MetadataCommand;
 
-pub(crate) trait DependencyResolver {
-    fn resolve(&self) -> TResult<DependencyGraph>;
+pub trait DependencyResolver {
+    fn resolve(&self) -> Result<DependencyGraph, CargoMetadataResolveError>;
 }
 
-pub(crate) struct CargoMetadataResolver {
+#[derive(Debug, thiserror::Error)]
+pub enum CargoMetadataResolveError {
+    #[error(transparent)]
+    CargoMetadata(#[from] cargo_metadata::Error),
+
+    #[error("No crate root found for given crate")]
+    NoCrateRootFound,
+}
+
+pub struct CargoMetadataResolver {
     metadata_command: MetadataCommand,
 }
 
@@ -21,12 +29,12 @@ impl CargoMetadataResolver {
 }
 
 impl DependencyResolver for CargoMetadataResolver {
-    fn resolve(&self) -> TResult<DependencyGraph> {
+    fn resolve(&self) -> Result<DependencyGraph, CargoMetadataResolveError> {
         let result = self.metadata_command.exec()?;
 
         let our_crate = result
             .root_package()
-            .ok_or(CargoMSRVError::NoCrateRootFound)
+            .ok_or(CargoMetadataResolveError::NoCrateRootFound)
             .map(|pkg| pkg.id.clone())?;
 
         if let Some(dependencies) = result.resolve {

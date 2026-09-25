@@ -33,12 +33,10 @@ use cargo_msrv_rust_releases::release_index;
 
 pub use cargo_msrv_cli::cli;
 pub use cargo_msrv_context::context;
-pub use cargo_msrv_manifest as manifest;
 pub use cargo_msrv_reporter as reporter;
 pub use cargo_msrv_reporter::{io, typed_bool};
 pub use cargo_msrv_search::{compatibility, lockfile, msrv, outcome, search_method};
 
-pub mod dependency_graph;
 pub mod error;
 pub mod exit_code;
 pub mod sub_command;

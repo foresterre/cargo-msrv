@@ -13,11 +13,10 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "bisect", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
 
 [dependencies]
-cargo-msrv-cargo = { workspace = true }
 cargo-msrv-context = { workspace = true }
 cargo-msrv-reporter = { workspace = true }
 cargo-msrv-rust-releases = { workspace = true }
-cargo-msrv-rustup = { workspace = true }
+cargo-msrv-rust-tools = { workspace = true }
 cargo-msrv-types = { workspace = true }
 
 bisector = "1.0.0"

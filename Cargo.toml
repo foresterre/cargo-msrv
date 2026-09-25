@@ -24,9 +24,9 @@ tag-name = "v{{version}}"
 # workspace
 cargo-msrv-cli = { workspace = true } # the command line interface
 cargo-msrv-context = { workspace = true } # the resolved configuration of a run
-cargo-msrv-manifest = { workspace = true } # the Cargo manifest parsing
 cargo-msrv-reporter = { workspace = true } # the user facing output
 cargo-msrv-rust-releases = { workspace = true } # the index of available rust releases
+cargo-msrv-rust-tools = { workspace = true } # the cargo and rustup tooling, Cargo manifest parsing and dependency graph
 cargo-msrv-search = { workspace = true } # the msrv search methods and toolchain compatibility check
 cargo-msrv-types = { workspace = true } # the types shared with the command line interface
 
@@ -83,13 +83,11 @@ rust-releases-github-source = [
 
 [workspace]
 members = [
-    "crates/cargo-msrv-cargo",
     "crates/cargo-msrv-cli",
     "crates/cargo-msrv-context",
-    "crates/cargo-msrv-manifest",
     "crates/cargo-msrv-reporter",
     "crates/cargo-msrv-rust-releases",
-    "crates/cargo-msrv-rustup",
+    "crates/cargo-msrv-rust-tools",
     "crates/cargo-msrv-search",
     "crates/cargo-msrv-types",
     "crates/msrv",
@@ -103,13 +101,11 @@ edition = "2024"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [workspace.dependencies]
-cargo-msrv-cargo = { path = "crates/cargo-msrv-cargo", version = "0.19.3" }
 cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.19.3" }
 cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.19.3" }
-cargo-msrv-manifest = { path = "crates/cargo-msrv-manifest", version = "0.19.3" }
 cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.19.3" }
 cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.19.3" }
-cargo-msrv-rustup = { path = "crates/cargo-msrv-rustup", version = "0.19.3" }
+cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.19.3" }
 cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.19.3" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
