@@ -770,7 +770,7 @@ dependencies = [
  "phenomenon",
  "semver",
  "storyteller",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "toml_edit",
  "tracing",
  "tracing-appender",
@@ -792,7 +792,7 @@ dependencies = [
  "clap-cargo",
  "dunce",
  "indoc",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "tracing",
  "yare",
 ]
@@ -806,7 +806,7 @@ dependencies = [
  "cargo-msrv-types",
  "cargo_metadata",
  "serde",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "toml_edit",
  "tracing",
  "yare",
@@ -844,7 +844,7 @@ dependencies = [
  "rust-releases",
  "semver",
  "storyteller",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "time",
  "tracing",
  "yare",
@@ -861,7 +861,7 @@ dependencies = [
  "petgraph",
  "semver",
  "serde_json",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "toml_edit",
  "tracing",
  "yare",
@@ -882,7 +882,7 @@ dependencies = [
  "owo-colors",
  "semver",
  "storyteller",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "tracing",
  "yare",
 ]
@@ -894,7 +894,7 @@ dependencies = [
  "camino",
  "semver",
  "serde",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "yare",
 ]
 
@@ -918,7 +918,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2494,7 +2494,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60dc65c0ff1a7ae1294b0c67b9f14baf70b644404010370171787bfac1038fc0"
 dependencies = [
  "libredox",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2583,7 +2583,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b0bd16b0052ce4e5b85ca19f8e3227534d754c6fafa92a69326504bd9e1df25"
 dependencies = [
  "rust-release",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2596,7 +2596,7 @@ dependencies = [
  "rust-releases-io",
  "serde",
  "serde_json",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2607,7 +2607,7 @@ checksum = "de45f42ca2216243304f2101db1486ea2bd99a787feea00d371ee908e1e00678"
 dependencies = [
  "directories-next",
  "http",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "ureq",
 ]
 
@@ -2619,7 +2619,7 @@ checksum = "8a40f94d29e878e8451dea11aa256cd8367fe9582be824cb7dfd2dee7d9e80c7"
 dependencies = [
  "rust-releases-core",
  "rust-releases-io",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "time",
 ]
 
@@ -2634,7 +2634,7 @@ dependencies = [
  "rust-releases-core",
  "rust-releases-io",
  "serde",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "tokio",
  "toml",
 ]
@@ -2646,7 +2646,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c311578ef6dbe86b6a5ae6ac17dc48588087659b8991121013d23ab95832000"
 dependencies = [
  "target-lexicon",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "version-number",
 ]
 
@@ -3127,11 +3127,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.20"
+version = "2.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec86235f5fcc2a73650310756d2ac5b138a5780bbbdfae3eeccec992c435ba4f"
+checksum = "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e"
 dependencies = [
- "thiserror-impl 2.0.20",
+ "thiserror-impl 2.0.21",
 ]
 
 [[package]]
@@ -3147,9 +3147,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.20"
+version = "2.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc04cd3e1236dd4a98afca4569f2deb3f120e5422a4023be2cb683f8486292af"
+checksum = "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3351,7 +3351,7 @@ checksum = "050686193eb999b4bb3bc2acfa891a13da00f79734704c4b8b4ef1a10b368a3c"
 dependencies = [
  "crossbeam-channel",
  "symlink",
- "thiserror 2.0.20",
+ "thiserror 2.0.21",
  "time",
  "tracing-subscriber",
 ]
