@@ -28,6 +28,8 @@ cargo-msrv-reporter = { workspace = true } # the user facing output
 cargo-msrv-rust-releases = { workspace = true } # the index of available rust releases
 cargo-msrv-rust-tools = { workspace = true } # the cargo and rustup tooling, Cargo manifest parsing and dependency graph
 cargo-msrv-search = { workspace = true } # the msrv search methods and toolchain compatibility check
+cargo-msrv-source-scan = { workspace = true } # the estimate of the msrv from the source code
+cargo-msrv-std-since = { workspace = true, features = ["download"] } # the rust versions of the standard library items
 cargo-msrv-types = { workspace = true } # the types shared with the command line interface
 
 # external
@@ -89,6 +91,9 @@ members = [
     "crates/cargo-msrv-rust-releases",
     "crates/cargo-msrv-rust-tools",
     "crates/cargo-msrv-search",
+    "crates/cargo-msrv-source-scan",
+    "crates/cargo-msrv-std-since",
+    "crates/cargo-msrv-std-since-generator",
     "crates/cargo-msrv-types",
     "crates/msrv",
 ]
@@ -107,6 +112,8 @@ cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.19.3" 
 cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.19.3" }
 cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.19.3" }
 cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.19.3" }
+cargo-msrv-source-scan = { path = "crates/cargo-msrv-source-scan", version = "0.19.3" }
+cargo-msrv-std-since = { path = "crates/cargo-msrv-std-since", version = "0.19.3" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
 camino = "1.2"

@@ -3,6 +3,7 @@ use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::values::list_msrv_variant;
+use cargo_msrv_context::HeuristicSource;
 use cargo_msrv_context::types::ListMsrvVariant;
 use cargo_msrv_types::BareVersion;
 use clap::{Args, Parser, Subcommand};
@@ -129,14 +130,29 @@ pub struct FindOpts {
     /// When the search space is sufficiently large, which is common, this is much
     /// faster than a linear search. A binary search will approximately halve the search
     /// space for each Rust version checked for compatibility.
-    #[arg(long, conflicts_with = "linear")]
+    #[arg(long, conflicts_with_all = ["linear", "heuristic"])]
     pub bisect: bool,
 
     /// Use a linear search to find the MSRV
     ///
     /// This method checks toolchain from the most recent release to the earliest.
-    #[arg(long, conflicts_with = "bisect")]
+    #[arg(long, conflicts_with_all = ["bisect", "heuristic"])]
     pub linear: bool,
+
+    /// Use the source code of the crate to estimate the MSRV (experimental)
+    ///
+    /// The source code is scanned for language features and standard library items which
+    /// require at least a certain Rust version. The highest of these versions is taken as
+    /// the MSRV, without checking any toolchain. Since this is an estimate, it may be wrong.
+    #[arg(long, conflicts_with_all = ["bisect", "linear"])]
+    pub heuristic: bool,
+
+    /// Where the heuristic gets the Rust versions of the standard library items from
+    ///
+    /// Either `bundled` (the default), which is bundled with cargo-msrv, `latest`, which is
+    /// downloaded and cached for a day, or the path to a local file.
+    #[arg(long, value_name = "bundled|latest|PATH", requires = "heuristic")]
+    pub heuristic_source: Option<HeuristicSource>,
 
     /// Pin the MSRV by writing the version to a rust-toolchain file
     ///

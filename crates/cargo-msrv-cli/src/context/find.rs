@@ -23,9 +23,12 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
         Ok(Self {
             search_method: if find_opts.linear {
                 SearchMethod::Linear
+            } else if find_opts.heuristic {
+                SearchMethod::Heuristic
             } else {
                 SearchMethod::Bisect
             },
+            heuristic_source: find_opts.heuristic_source.unwrap_or_default(),
             write_toolchain_file: find_opts.write_toolchain_file,
             ignore_lockfile: find_opts.ignore_lockfile,
             skip_unavailable_toolchains: find_opts.skip_unavailable_toolchains,

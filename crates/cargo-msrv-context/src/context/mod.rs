@@ -24,7 +24,7 @@ pub mod set;
 pub mod show;
 pub mod verify;
 
-pub use find::FindContext;
+pub use find::{FindContext, HeuristicSource};
 pub use list::ListContext;
 pub use set::SetContext;
 pub use show::ShowContext;
@@ -268,6 +268,9 @@ pub enum SearchMethod {
     Linear,
     #[default]
     Bisect,
+    /// Take the lower bound estimated by scanning the source code as the MSRV, without
+    /// checking any toolchain.
+    Heuristic,
 }
 
 impl From<SearchMethod> for &'static str {
@@ -275,6 +278,7 @@ impl From<SearchMethod> for &'static str {
         match method {
             SearchMethod::Linear => "linear",
             SearchMethod::Bisect => "bisect",
+            SearchMethod::Heuristic => "heuristic",
         }
     }
 }

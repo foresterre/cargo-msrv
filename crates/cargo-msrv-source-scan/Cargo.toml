@@ -1,0 +1,28 @@
+[package]
+name = "cargo-msrv-source-scan"
+description = "Estimates the minimum Rust version a crate requires, by scanning its source code, for cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.96.0"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "heuristic", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+cargo-msrv-std-since = { workspace = true }
+
+camino = { workspace = true }
+# `span-locations` provides the line numbers of the evidence
+proc-macro2 = { version = "1.0.107", features = ["span-locations"] }
+semver = { workspace = true }
+syn = { version = "2.0.119", default-features = false, features = ["full", "parsing", "printing", "visit"] }
+thiserror = { workspace = true }
+toml_edit = { workspace = true }
+
+[dev-dependencies]
+assert_fs = "1.1.3"
+yare = { workspace = true }

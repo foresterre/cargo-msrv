@@ -1,0 +1,20 @@
+[package]
+name = "cargo-msrv-std-since-generator"
+description = "Generates the collection of cargo-msrv-std-since, from the rustdoc JSON of the Rust standard library"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.96.0"
+
+# A maintainer tool, which updates the collection bundled with cargo-msrv-std-since
+publish = false
+
+[dependencies]
+cargo-msrv-std-since = { workspace = true }
+
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

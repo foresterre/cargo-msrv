@@ -1,4 +1,4 @@
-pub use {bisect::Bisect, linear::Linear};
+pub use {bisect::Bisect, heuristic::Heuristic, linear::Linear};
 
 use crate::TResult;
 use crate::msrv::MinimumSupportedRustVersion;
@@ -8,6 +8,9 @@ use cargo_msrv_rust_releases::{RustRelease, Stable};
 /// Use a bisection method to find the MSRV. By using a binary search, we halve our search space each
 /// step, making this an efficient search function.
 pub mod bisect;
+/// Take a lower bound, which is estimated from the source code of the crate, as the MSRV.
+/// No toolchain is checked, so the MSRV may be wrong.
+pub mod heuristic;
 /// Find the MSRV by stepping through the most-recent to least-recent version, one-by-one. This is
 /// not very efficient, but is useful as a baseline, or if you're certain the MSRV is very close to
 /// the head.

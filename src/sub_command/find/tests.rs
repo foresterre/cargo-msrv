@@ -328,6 +328,7 @@ mod unavailable_toolchains {
 fn create_test_context() -> FindContext {
     FindContext {
         search_method: SearchMethod::Bisect,
+        heuristic_source: cargo_msrv_context::HeuristicSource::Bundled,
         write_toolchain_file: false,
         ignore_lockfile: false,
         skip_unavailable_toolchains: true,

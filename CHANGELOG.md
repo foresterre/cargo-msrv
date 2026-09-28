@@ -16,6 +16,8 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added `bundled unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 7 days)
 * Added `github` release source, which fetches the known set of Rust versions from Rust's GitHub releases page
 * Include the bundled release index by default (so there is a source to fall back to if no other release source cargo feature is enabled)
+* Added the experimental `--heuristic` search method to `cargo msrv find`, which scans the source code for language features and standard library items that require a minimum Rust version
+* Added the `--heuristic-source` option to `cargo msrv find`, which selects where the `--heuristic` search method gets the Rust versions of the standard library items from: `bundled` (the default), `latest` (downloaded and cached for a day), or a path to a local file
 
 ### Changed
 
