@@ -57,6 +57,15 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     InvalidMsrvSet(#[from] InvalidMsrvSetError),
 
+    #[error("Unable to estimate the MSRV from the source code: {0}")]
+    SourceScan(#[from] cargo_msrv_source_scan::ScanError),
+
+    #[error("Unable to load the Rust versions of the standard library items: {0}")]
+    StdSince(#[from] cargo_msrv_std_since::source::SourceError),
+
+    #[error("Unable to access the cache folder")]
+    UnableToAccessCacheFolder,
+
     #[error(transparent)]
     InvalidUTF8(#[from] FromUtf8Error),
 

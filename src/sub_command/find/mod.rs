@@ -5,14 +5,17 @@ use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
 use crate::reporter::event::FindResult;
-use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
+use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Heuristic, Linear};
 use crate::writer::toolchain_file::write_toolchain_file;
 use crate::writer::write_msrv::write_msrv;
+use cargo_msrv_context::HeuristicSource;
 use cargo_msrv_rust_releases::releases_filter::ReleasesFilter;
 use cargo_msrv_rust_releases::{
     AvailabilityFilter, ExcludedRelease, ReleaseIndex, RustRelease, Stable, to_semver,
 };
 use cargo_msrv_search::Error as SearchError;
+use cargo_msrv_source_scan::Confidence;
+use cargo_msrv_std_since::source as std_since;
 use cargo_msrv_types::BareVersion;
 
 pub struct Find<'index, C: IsCompatible> {
@@ -148,7 +151,69 @@ fn run_with_search_method(
             ctx,
             reporter,
         ),
+        SearchMethod::Heuristic => run_searcher(
+            &Heuristic::new(&ctx.toolchain, estimate_lower_bound(ctx)?),
+            included_releases,
+            excluded_releases,
+            ctx,
+            reporter,
+        ),
     }
+}
+
+/// Estimates the lower bound of the MSRV by scanning the source code of the crate.
+///
+/// Only the evidence with a high confidence is used. The evidence with a low confidence is
+/// reported, but it's likely wrong, e.g. a method call which only matches by name.
+fn estimate_lower_bound(ctx: &FindContext) -> TResult<Option<semver::Version>> {
+    let archive = load_std_since(&ctx.heuristic_source)?;
+    let index = archive.index()?;
+    info!(
+        source = ?ctx.heuristic_source,
+        toolchain = index.toolchain(),
+        "loaded the Rust versions of the standard library items"
+    );
+
+    let scan = cargo_msrv_source_scan::scan_crate(ctx.environment.root(), &index)?;
+
+    for file in scan.skipped_files() {
+        warn!(path = %file.path, reason = %file.reason, "unable to scan file");
+    }
+
+    for evidence in scan.evidence() {
+        info!(%evidence, "found evidence of a minimum Rust version");
+    }
+
+    let lower_bound = scan
+        .lower_bound(Confidence::High)
+        .map(|evidence| evidence.version.clone());
+
+    if let Some(evidence) = scan
+        .lower_bound(Confidence::Low)
+        .filter(|evidence| lower_bound.as_ref().is_none_or(|v| evidence.version > *v))
+    {
+        info!(%evidence, "evidence with a low confidence suggests a higher lower bound");
+    }
+
+    info!(?lower_bound, "estimated the lower bound of the MSRV");
+
+    Ok(lower_bound)
+}
+
+fn load_std_since(source: &HeuristicSource) -> TResult<std_since::Archive> {
+    let archive = match source {
+        HeuristicSource::Bundled => std_since::bundled(),
+        HeuristicSource::Latest => {
+            let cache_file = dirs::cache_dir()
+                .ok_or(CargoMSRVError::UnableToAccessCacheFolder)?
+                .join("cargo-msrv")
+                .join("std_since.rkyv");
+            std_since::latest(&cache_file)?
+        }
+        HeuristicSource::File(path) => std_since::from_file(path.as_std_path())?,
+    };
+
+    Ok(archive)
 }
 
 fn run_searcher(

@@ -1,0 +1,28 @@
+[package]
+name = "cargo-msrv-std-since"
+description = "The Rust versions in which items of the Rust standard library were stabilized, for cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+rust-version = "1.96.0"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "stdlib", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+
+[dependencies]
+# The collection is an rkyv archive, which is accessed without deserializing it
+rkyv = "0.8"
+semver = { workspace = true }
+thiserror = { workspace = true }
+ureq = { version = "3.4.2", optional = true }
+
+[dev-dependencies]
+assert_fs = "1.1.3"
+yare = { workspace = true }
+
+[features]
+# Download the latest collection
+download = ["dep:ureq"]

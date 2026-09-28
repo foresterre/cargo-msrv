@@ -1,11 +1,41 @@
 use crate::context::{
     CheckCommandContext, EnvironmentContext, RustReleasesContext, SearchMethod, ToolchainContext,
 };
+use camino::Utf8PathBuf;
+use std::convert::Infallible;
+use std::str::FromStr;
+
+/// Where the heuristic search method gets the Rust versions of the standard library items from.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub enum HeuristicSource {
+    /// The collection bundled with cargo-msrv
+    #[default]
+    Bundled,
+    /// The latest collection, which is downloaded, and cached for a day
+    Latest,
+    /// A collection in a local file
+    File(Utf8PathBuf),
+}
+
+impl FromStr for HeuristicSource {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "bundled" => Self::Bundled,
+            "latest" => Self::Latest,
+            path => Self::File(Utf8PathBuf::from(path)),
+        })
+    }
+}
 
 #[derive(Debug)]
 pub struct FindContext {
     /// Use a binary (bisect) or linear search to find the MSRV
     pub search_method: SearchMethod,
+
+    /// Where the heuristic search method gets the Rust versions of the standard library items from
+    pub heuristic_source: HeuristicSource,
 
     /// Write the toolchain file if the MSRV is found
     pub write_toolchain_file: bool,
