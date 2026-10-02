@@ -26,7 +26,7 @@ pub use cargo_msrv_context::types::{OutputFormat, TracingTargetOption};
 pub use cargo_msrv_context::{Context, TracingOptions};
 
 use crate::compatibility::{RunCommandProvider, RustupToolchainCheck};
-use crate::error::{CargoMSRVError, TResult};
+use crate::error::TResult;
 use crate::reporter::Reporter;
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
 use cargo_msrv_rust_releases::release_index;
@@ -40,7 +40,6 @@ pub use cargo_msrv_search::{compatibility, lockfile, msrv, outcome, search_metho
 pub mod error;
 pub mod exit_code;
 pub mod sub_command;
-pub mod writer;
 
 const UNKNOWN_VERSION: &str = "?";
 

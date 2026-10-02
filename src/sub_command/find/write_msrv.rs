@@ -30,7 +30,7 @@ mod tests {
     use crate::context::{EnvironmentContext, RustReleasesContext, WorkspacePackages};
     use crate::error::CargoMSRVError;
     use crate::reporter::FakeTestReporter;
-    use crate::writer::write_msrv::write_msrv;
+    use crate::sub_command::find::write_msrv::write_msrv;
     use assert_fs::prelude::*;
     use camino::Utf8Path;
     use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};

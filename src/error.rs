@@ -13,7 +13,9 @@ use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
 };
-use cargo_msrv_rust_tools::{CargoMetadataResolveError, ManifestParseError};
+use cargo_msrv_rust_tools::{
+    CargoMetadataResolveError, ManifestParseError, WriteManifestMsrvError,
+};
 pub use cargo_msrv_search::error::{
     LockfileHandlerError, NoToolchainsToTryError, RustupAddComponentError, RustupAddTargetError,
     RustupError, RustupInstallError,
@@ -249,6 +251,17 @@ impl From<CargoMetadataResolveError> for CargoMSRVError {
         match error {
             CargoMetadataResolveError::CargoMetadata(error) => Self::CargoMetadata(error),
             CargoMetadataResolveError::NoCrateRootFound => Self::NoCrateRootFound,
+        }
+    }
+}
+
+impl From<WriteManifestMsrvError> for CargoMSRVError {
+    fn from(error: WriteManifestMsrvError) -> Self {
+        match error {
+            WriteManifestMsrvError::Io(error) => Self::Io(error),
+            WriteManifestMsrvError::ParseToml(error) => Self::ParseToml(error),
+            WriteManifestMsrvError::WorkspaceFound => Self::WorkspaceFound,
+            WriteManifestMsrvError::NotATable => Self::SetMsrv(SetMsrvError::NotATable),
         }
     }
 }
