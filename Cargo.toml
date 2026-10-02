@@ -109,6 +109,7 @@ cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.19
 cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.19.3" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.19.3" }
 
+assert_fs = "1.1.4"
 camino = "1.2"
 cargo_metadata = "0.23.1"
 clap = { version = "4.6.0", features = ["derive", "env"] }

@@ -4,16 +4,20 @@ use crate::context::{FindContext, SearchMethod};
 use crate::error::{CargoMSRVError, NoToolchainsToTryError, TResult};
 use crate::msrv::MinimumSupportedRustVersion;
 use crate::reporter::Reporter;
-use crate::reporter::event::FindResult;
+use crate::reporter::event::{
+    AuxiliaryOutput, AuxiliaryOutputItem, Destination, FindResult, ToolchainFileKind,
+};
 use crate::search_method::{Bisect, FindMinimalSupportedRustVersion, Linear};
-use crate::writer::toolchain_file::write_toolchain_file;
-use crate::writer::write_msrv::write_msrv;
 use cargo_msrv_rust_releases::releases_filter::ReleasesFilter;
 use cargo_msrv_rust_releases::{
     AvailabilityFilter, ExcludedRelease, ReleaseIndex, RustRelease, Stable, to_semver,
 };
+use cargo_msrv_rust_tools::write_toolchain_file;
 use cargo_msrv_search::Error as SearchError;
 use cargo_msrv_types::BareVersion;
+use write_msrv::write_msrv;
+
+mod write_msrv;
 
 pub struct Find<'index, C: IsCompatible> {
     release_index: &'index ReleaseIndex,
@@ -65,7 +69,12 @@ fn find_msrv(
             if ctx.write_toolchain_file {
                 let crate_root = ctx.environment.root();
 
-                write_toolchain_file(reporter, version, crate_root)?;
+                let path = write_toolchain_file(version, crate_root)?;
+
+                reporter.report_event(AuxiliaryOutput::new(
+                    Destination::file(path),
+                    AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
+                ))?;
             }
 
             if ctx.write_msrv {

@@ -1,10 +1,5 @@
-use crate::TResult;
-use crate::error::{IoError, IoErrorSource};
-use crate::reporter::Reporter;
-use crate::reporter::event::{
-    AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
-};
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_types::{IoError, IoErrorSource};
 use std::fmt;
 
 const TOOLCHAIN_FILE: &str = "rust-toolchain";
@@ -15,10 +10,9 @@ const TOOLCHAIN_FILE_TOML: &str = "rust-toolchain.toml";
 // - consider: do not simply override, also support components, targets, profile
 //     - in reverse: use the values from rust-toolchain file to auto configure config
 pub fn write_toolchain_file(
-    reporter: &impl Reporter,
     stable_version: &semver::Version,
     crate_root: &Utf8Path,
-) -> TResult<()> {
+) -> Result<Utf8PathBuf, IoError> {
     let path = toolchain_file(crate_root);
     let content = format_toolchain_file(stable_version);
 
@@ -27,12 +21,7 @@ pub fn write_toolchain_file(
         source: IoErrorSource::WriteFile(path.clone()),
     })?;
 
-    reporter.report_event(AuxiliaryOutput::new(
-        Destination::file(path),
-        AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
-    ))?;
-
-    Ok(())
+    Ok(path)
 }
 
 /// Determine whether we should use a .toml extension or no extension for the rust-toolchain file.
@@ -68,30 +57,22 @@ channel = "{}"
 
 #[cfg(test)]
 mod write_toolchain_file_tests {
-    use super::IoError;
-    use crate::CargoMSRVError;
-    use crate::error::IoErrorSource;
-    use crate::reporter::Event;
-    use crate::reporter::event::{
-        AuxiliaryOutput, AuxiliaryOutputItem, Destination, ToolchainFileKind,
-    };
-    use crate::reporter::{FakeTestReporter, TestReporterWrapper};
     use crate::writer::toolchain_file::write_toolchain_file;
     use assert_fs::prelude::*;
-    use camino::{Utf8Path, Utf8PathBuf};
+    use camino::Utf8Path;
+    use cargo_msrv_types::{IoError, IoErrorSource};
 
     #[test]
     fn no_toolchain_file_yet() {
         let tmp = assert_fs::TempDir::new().unwrap();
         let root = Utf8Path::from_path(tmp.path()).unwrap();
 
-        let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 22, 44);
 
         let toolchain_file = tmp.join("rust-toolchain");
         assert!(!toolchain_file.exists()); // should not exist yet
 
-        write_toolchain_file(&fake_reporter, &version, root).unwrap();
+        write_toolchain_file(&version, root).unwrap();
         assert!(toolchain_file.exists()); // now should exist
 
         let contents = std::fs::read_to_string(&toolchain_file).unwrap();
@@ -112,14 +93,13 @@ channel = "1.22.44"
         let root = tmp.path();
         let root = Utf8Path::from_path(root).unwrap();
 
-        let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 33, 55);
 
         let toolchain_file = tmp.join("rust-toolchain");
         let metadata = std::fs::metadata(&toolchain_file).unwrap(); // panics if file does not exist
         assert_eq!(metadata.len(), 0); // created empty
 
-        write_toolchain_file(&fake_reporter, &version, root).unwrap();
+        write_toolchain_file(&version, root).unwrap();
         assert!(toolchain_file.exists()); // should still exist
 
         let contents = std::fs::read_to_string(&toolchain_file).unwrap();
@@ -139,14 +119,13 @@ channel = "1.33.55"
 
         let root = Utf8Path::from_path(tmp.path()).unwrap();
 
-        let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 44, 66);
 
         let toolchain_file_toml = tmp.join("rust-toolchain.toml");
         let metadata = std::fs::metadata(&toolchain_file_toml).unwrap(); // panics if file does not exist
         assert_eq!(metadata.len(), 0); // created empty
 
-        write_toolchain_file(&fake_reporter, &version, root).unwrap();
+        write_toolchain_file(&version, root).unwrap();
         assert!(toolchain_file_toml.exists()); // should still exist
 
         let contents = std::fs::read_to_string(&toolchain_file_toml).unwrap();
@@ -167,7 +146,6 @@ channel = "1.44.66"
 
         let root = Utf8Path::from_path(tmp.path()).unwrap();
 
-        let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(1, 55, 77);
 
         let toolchain_file = tmp.join("rust-toolchain");
@@ -178,7 +156,7 @@ channel = "1.44.66"
         assert_eq!(metadata.len(), 0); // created empty
         assert_eq!(metadata_toml.len(), 0); // created empty
 
-        write_toolchain_file(&fake_reporter, &version, root).unwrap();
+        write_toolchain_file(&version, root).unwrap();
         assert!(toolchain_file.exists()); // should still exist
         assert!(toolchain_file_toml.exists()); // should still exist
 
@@ -195,27 +173,17 @@ channel = "1.55.77"
     }
 
     #[test]
-    fn check_reporter_event() {
+    fn returns_written_path() {
         let tmp = assert_fs::TempDir::new().unwrap();
         tmp.child("rust-toolchain").touch().unwrap();
 
         let root = Utf8Path::from_path(tmp.path()).unwrap();
 
-        let test_reporter = TestReporterWrapper::default();
         let version = semver::Version::new(2, 0, 5);
 
-        write_toolchain_file(test_reporter.get(), &version, root).unwrap();
+        let path = write_toolchain_file(&version, root).unwrap();
 
-        let events = test_reporter.wait_for_events();
-        let expected: Vec<Event> = vec![
-            AuxiliaryOutput::new(
-                Destination::file(Utf8PathBuf::from_path_buf(tmp.join("rust-toolchain")).unwrap()),
-                AuxiliaryOutputItem::toolchain_file(ToolchainFileKind::Toml),
-            )
-            .into(),
-        ];
-
-        phenomenon::contains_at_least_ordered(events, expected).assert_this();
+        assert_eq!(path, root.join("rust-toolchain"));
     }
 
     #[test]
@@ -225,18 +193,17 @@ channel = "1.55.77"
 
         let root = Utf8Path::from_path(tmp.path()).unwrap();
 
-        let fake_reporter = FakeTestReporter::default();
         let version = semver::Version::new(2, 0, 5);
 
-        let error = write_toolchain_file(&fake_reporter, &version, root).unwrap_err();
+        let error = write_toolchain_file(&version, root).unwrap_err();
         let expected_path = tmp.join("rust-toolchain");
 
         assert!(matches!(
             error,
-            CargoMSRVError::Io(IoError {
+            IoError {
                 error: _,
                 source: IoErrorSource::WriteFile(_),
-            })
+            }
         ));
 
         let message = format!("{error}");
