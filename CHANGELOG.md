@@ -26,6 +26,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Fixed
 
 * The `sha_short` build metadata is now reported again by the `meta` event
+* Fix issue where `cargo-msrv find` could no longer be used outside a Cargo project, unless `--min` was provided (must still be runnable via `rustup run`)
 
 ## 0.19.3 - 2026-03-25
 
