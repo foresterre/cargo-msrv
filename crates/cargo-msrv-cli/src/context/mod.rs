@@ -5,7 +5,7 @@ use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_context::context::error::{
     Error, InvalidUtf8Error, IoError, IoErrorSource, PathError, TResult,
 };
@@ -17,9 +17,9 @@ use cargo_msrv_context::default_target::default_target;
 ))]
 use cargo_msrv_context::types::BundledFallback;
 use cargo_msrv_context::{
-    CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
-    RustReleasesContext, SetContext, ShowContext, ToolchainContext, VerifyContext,
-    WorkspacePackages,
+    CargoProject, CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
+    Package, Project, RustReleasesContext, SetContext, ShowContext, ToolchainContext,
+    VerifyContext,
 };
 use std::convert::{TryFrom, TryInto};
 use std::env;
@@ -140,40 +140,87 @@ impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
             .try_into()
             .map_err(|err| Error::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err))))?;
 
-        // Only select packages if this is a Cargo project.
-        // For now, to be pragmatic, we'll take a shortcut and say that it is so,
-        // if the cargo metadata command succeeds. If it doesn't, we'll fall
-        // back to just the default package.
-        let workspace_packages = if let Ok(metadata) = cargo_metadata::MetadataCommand::new()
-            .manifest_path(root_crate_path.join("Cargo.toml"))
-            .exec()
-        {
-            let partition = opts.workspace.partition_packages(&metadata);
-            let selected = partition.0.into_iter().cloned().collect();
-            let excluded = partition.1;
-
-            tracing::info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = true,
-                ?selected,
-                ?excluded
-            );
-
-            WorkspacePackages::from_vec(selected)
-        } else {
-            tracing::info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = false,
-            );
-
-            WorkspacePackages::default()
-        };
+        let project = resolve_project(opts, &root_crate_path)?;
 
         Ok(Self {
             root_crate_path,
-            workspace_packages,
+            project,
         })
     }
+}
+
+fn resolve_project(opts: &SharedOpts, root: &Utf8Path) -> TResult<Project> {
+    let manifest_path = root.join("Cargo.toml");
+
+    let is_cargo_project = manifest_path.try_exists().map_err(|error| IoError {
+        error,
+        source: IoErrorSource::ReadFile(manifest_path.clone()),
+    })?;
+
+    if !is_cargo_project {
+        tracing::info!(
+            action = "detect_cargo_workspace_packages",
+            method = "cargo_metadata",
+            cargo_project = false,
+        );
+
+        return match cargo_flag(opts) {
+            Some(flag) => Err(Error::CargoFlagWithoutCargoProject {
+                flag,
+                root: root.to_path_buf(),
+            }),
+            None => Ok(Project::Bare),
+        };
+    }
+
+    let metadata = cargo_metadata::MetadataCommand::new()
+        .manifest_path(&manifest_path)
+        .exec()
+        .map_err(|source| Error::CargoMetadata {
+            path: manifest_path.clone(),
+            source,
+        })?;
+
+    let members = metadata.workspace_packages();
+
+    if let Some(unknown) = opts.workspace.package.iter().find(|name| {
+        !members
+            .iter()
+            .any(|member| member.name.as_str() == name.as_str())
+    }) {
+        return Err(Error::UnknownPackage(unknown.clone()));
+    }
+
+    let (selected, excluded) = opts.workspace.to_clap_cargo().partition_packages(&metadata);
+
+    tracing::info!(
+        action = "detect_cargo_workspace_packages",
+        method = "cargo_metadata",
+        cargo_project = true,
+        selected = ?selected.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
+        excluded = ?excluded.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
+    );
+
+    let packages = selected
+        .into_iter()
+        .map(Package::try_from)
+        .collect::<TResult<Vec<_>>>()?;
+
+    let project = CargoProject::new(metadata.workspace_root.clone(), packages)?;
+
+    Ok(Project::Cargo(project))
+}
+
+fn cargo_flag(opts: &SharedOpts) -> Option<&'static str> {
+    let workspace = &opts.workspace;
+
+    [
+        (workspace.workspace, "--workspace"),
+        (workspace.all, "--all"),
+        (!workspace.package.is_empty(), "--package"),
+        (!workspace.exclude.is_empty(), "--exclude"),
+        (opts.manifest_path.is_some(), "--manifest-path"),
+    ]
+    .into_iter()
+    .find_map(|(used, flag)| used.then_some(flag))
 }

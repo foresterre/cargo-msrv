@@ -1,6 +1,6 @@
 use crate::common::reporter::EventTestDevice;
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::compatibility::{RunCommandProvider, RustupToolchainCheck};
+use cargo_msrv::compatibility::{CheckTarget, RustupToolchainCheck};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Context, Find, SubCommand};
@@ -66,21 +66,19 @@ pub fn find_msrv_with_releases<
 
     let device = EventTestDevice::default();
 
-    let ignore_toolchain = find_ctx.ignore_lockfile;
-    let no_check_feedback = find_ctx.no_check_feedback;
-    let env = &find_ctx.environment;
-
-    let runner = RustupToolchainCheck::new(
-        device.reporter(),
-        ignore_toolchain,
-        no_check_feedback,
-        true, /* Marking unavailable versions as incompatible  */
-        env,
-        find_ctx.provide_run_command(),
-    );
+    let check_for = |target: CheckTarget| {
+        RustupToolchainCheck::new(
+            device.reporter(),
+            find_ctx.ignore_lockfile,
+            find_ctx.no_check_feedback,
+            true, /* Marking unavailable versions as incompatible  */
+            find_ctx.environment.lock(),
+            target,
+        )
+    };
 
     // Determine the MSRV from the index of available releases.
-    let cmd = Find::new(&available_versions, runner);
+    let cmd = Find::new(&available_versions, check_for);
 
     cmd.run(&find_ctx, device.reporter())?;
 
@@ -96,6 +94,8 @@ pub fn find_msrv_with_releases<
                 test_result.add_failure(res.toolchain().version().clone());
             }
             Message::SubcommandResult(SubcommandResult::Find(res)) => {
+                test_result
+                    .add_package_msrv(res.package().map(|p| p.name.clone()), res.msrv().cloned());
                 test_result.set_msrv(res.msrv().cloned())
             }
             _ => {}
@@ -110,6 +110,7 @@ pub struct TestResult {
     successful_checks: Vec<semver::Version>,
     failed_checks: Vec<semver::Version>,
     msrv: Option<semver::Version>,
+    package_msrvs: Vec<(Option<String>, Option<semver::Version>)>,
 }
 
 impl TestResult {
@@ -123,6 +124,14 @@ impl TestResult {
 
     pub fn set_msrv(&mut self, version: Option<semver::Version>) {
         self.msrv = version;
+    }
+
+    pub fn add_package_msrv(&mut self, package: Option<String>, version: Option<semver::Version>) {
+        self.package_msrvs.push((package, version));
+    }
+
+    pub fn package_msrvs(&self) -> &[(Option<String>, Option<semver::Version>)] {
+        &self.package_msrvs
     }
 
     pub fn successful_checks(&self) -> &[semver::Version] {

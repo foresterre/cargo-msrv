@@ -1,6 +1,6 @@
 use crate::common::reporter::EventTestDevice;
 use cargo_msrv::cli::CargoCli;
-use cargo_msrv::compatibility::{RunCommandProvider, RustupToolchainCheck};
+use cargo_msrv::compatibility::{CheckTarget, RustupToolchainCheck};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::{Context, SubCommand, Verify};
 use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
@@ -25,21 +25,19 @@ where
 
     let device = EventTestDevice::default();
 
-    let ignore_toolchain = verify_ctx.ignore_lockfile;
-    let no_check_feedback = verify_ctx.no_check_feedback;
-    let env = &verify_ctx.environment;
-
-    let runner = RustupToolchainCheck::new(
-        device.reporter(),
-        ignore_toolchain,
-        no_check_feedback,
-        false, /* Marking unavailable versions as incompatible, which is always false for `verify`  */
-        env,
-        verify_ctx.provide_run_command(),
-    );
+    let check_for = |target: CheckTarget| {
+        RustupToolchainCheck::new(
+            device.reporter(),
+            verify_ctx.ignore_lockfile,
+            verify_ctx.no_check_feedback,
+            false, /* Marking unavailable versions as incompatible, which is always false for `verify`  */
+            verify_ctx.environment.lock(),
+            target,
+        )
+    };
 
     // Determine the MSRV from the index of available releases.
-    let cmd = Verify::new(&available_versions, runner);
+    let cmd = Verify::new(&available_versions, check_for);
 
     cmd.run(&verify_ctx, device.reporter())
 }

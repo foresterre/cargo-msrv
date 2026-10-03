@@ -16,17 +16,27 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added `bundled unless outdated` release source which also uses the release index bunclded with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 7 days)
 * Added `github` release source, which fetches the known set of Rust versions from Rust's GitHub releases page
 * Include the bundled release index by default (so there is a source to fall back to if no other release source cargo feature is enabled)
+* `cargo msrv find`, `verify`, `show` and `set` now act on every selected workspace package, picked like cargo does, or with `--workspace`, `--package` and `--exclude`
+* Added `cargo msrv set --workspace-root`, which sets the MSRV in the `workspace.package` table of the workspace root manifest
+* Subcommand results now report the package they belong to
 
 ### Changed
 
 * Updated `rust-releases` to `0.34.0`
 * If toolchain target information is available from the selected rust-releases index, `cargo-msrv` will now only include toolchains which have the provided target (defaults to the host) and components
+* The `--workspace`, `--package` and `--exclude` flags can now also be given after the subcommand, like `cargo msrv find --package a`
+* `cargo msrv find --write-toolchain-file` now writes the toolchain file to the workspace root
+* `cargo msrv find --ignore-lockfile` and `cargo msrv verify --ignore-lockfile` now move the workspace's lockfile
+* `cargo msrv set` and `cargo msrv find --write-msrv` no longer overwrite a `rust-version` which is inherited from the workspace
+* Uunknown `--package`, an empty selection, or workspace flags outside a Cargo project are now reported as errors
+* A Cargo project for which `cargo metadata` fails is now reported as an error, instead of being treated as a project without Cargo
 * The `changelog` release index source is now a cargo features compilation flag
 
 ### Fixed
 
 * The `sha_short` build metadata is now reported again by the `meta` event
 * Fix issue where `cargo-msrv find` could no longer be used outside a Cargo project, unless `--min` was provided (must still be runnable via `rustup run`)
+* The `edition` field inherited from `workspace.package` is now used to limit the search space of `cargo msrv find`
 
 ## 0.19.3 - 2026-03-25
 

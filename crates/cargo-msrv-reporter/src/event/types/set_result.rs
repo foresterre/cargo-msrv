@@ -2,22 +2,35 @@ use crate::Event;
 use crate::event::Message;
 use crate::event::subcommand_result::SubcommandResult;
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_types::BareVersion;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct SetResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    package: Option<SelectedPackage>,
     result: ResultDetails,
 }
 
 impl SetResult {
     pub fn new(version: impl Into<BareVersion>, manifest_path: Utf8PathBuf) -> Self {
         Self {
+            package: None,
             result: ResultDetails {
                 version: version.into(),
                 manifest_path,
             },
         }
+    }
+
+    pub fn with_package(mut self, package: Option<SelectedPackage>) -> Self {
+        self.package = package;
+        self
+    }
+
+    pub fn package(&self) -> Option<&SelectedPackage> {
+        self.package.as_ref()
     }
 
     pub fn version(&self) -> &BareVersion {

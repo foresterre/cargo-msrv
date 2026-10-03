@@ -2,10 +2,12 @@ use crate::Event;
 use crate::Message;
 use crate::event::SubcommandResult;
 use crate::io::SendWriter;
+use cargo_msrv_context::SelectedPackage;
 use std::io;
 use std::io::{Stderr, Stdout};
 #[cfg(test)]
 use std::sync::MutexGuard;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use storyteller::EventHandler;
 
@@ -19,6 +21,7 @@ use storyteller::EventHandler;
 pub struct MinimalOutputHandler<S: SendWriter, F: SendWriter> {
     success_writer: Arc<Mutex<S>>,
     failure_writer: Arc<Mutex<F>>, // should we split the writer ??
+    multiple_packages: AtomicBool,
 }
 
 #[cfg(test)]
@@ -27,6 +30,7 @@ impl<S: SendWriter, F: SendWriter> MinimalOutputHandler<S, F> {
         Self {
             success_writer: Arc::new(Mutex::new(success_writer)),
             failure_writer: Arc::new(Mutex::new(failure_writer)),
+            multiple_packages: AtomicBool::new(false),
         }
     }
 }
@@ -36,6 +40,7 @@ impl MinimalOutputHandler<Stdout, Stderr> {
         Self {
             success_writer: Arc::new(Mutex::new(io::stdout())),
             failure_writer: Arc::new(Mutex::new(io::stderr())),
+            multiple_packages: AtomicBool::new(false),
         }
     }
 }
@@ -73,28 +78,40 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
             }};
         }
 
+        if let Message::SelectedPackages(selected) = event.message() {
+            self.multiple_packages
+                .store(selected.len() > 1, Ordering::SeqCst);
+        }
+
+        let prefix = |package: Option<&SelectedPackage>| match package {
+            Some(package) if self.multiple_packages.load(Ordering::SeqCst) => {
+                format!("{} ", package.name)
+            }
+            _ => String::new(),
+        };
+
         if let Message::SubcommandResult(result) = event.message() {
             match result {
                 SubcommandResult::Find(inner) => match inner.msrv() {
                     Some(v) => {
-                        success_writeln!("{}", v)
+                        success_writeln!("{}{}", prefix(inner.package()), v)
                     }
-                    None => failure_writeln!("{}", "none"),
+                    None => failure_writeln!("{}{}", prefix(inner.package()), "none"),
                 },
                 SubcommandResult::List(_inner) => {
                     failure_writeln!("unsupported")
                 }
                 SubcommandResult::Set(inner) => {
-                    success_writeln!("{}", inner.version())
+                    success_writeln!("{}{}", prefix(inner.package()), inner.version())
                 }
                 SubcommandResult::Show(inner) => {
-                    success_writeln!("{}", inner.version())
+                    success_writeln!("{}{}", prefix(inner.package()), inner.version())
                 }
                 SubcommandResult::Verify(inner) if inner.is_compatible() => {
-                    success_writeln!("true")
+                    success_writeln!("{}true", prefix(inner.package()))
                 }
-                SubcommandResult::Verify(_inner) /* if !inner.is_compatible() */ => {
-                    failure_writeln!("false")
+                SubcommandResult::Verify(inner) /* if !inner.is_compatible() */ => {
+                    failure_writeln!("{}false", prefix(inner.package()))
                 }
             }
         }
@@ -103,7 +120,9 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 
 #[cfg(test)]
 mod tests {
-    use crate::event::{FindResult, ListResult, Progress, SetResult, ShowResult, VerifyResult};
+    use crate::event::{
+        FindResult, ListResult, Progress, SelectedPackages, SetResult, ShowResult, VerifyResult,
+    };
     use crate::ui::minimal::MinimalOutputHandler;
     use camino::Utf8Path;
     use cargo_metadata::PackageId;
@@ -289,6 +308,67 @@ mod tests {
         let f = handler.inner_failure_writer().clone();
         let f = String::from_utf8_lossy(&f);
         assert_eq!(f.as_ref(), "false\n");
+    }
+
+    fn package(name: &str) -> Option<cargo_msrv_context::SelectedPackage> {
+        Some(cargo_msrv_context::SelectedPackage {
+            name: name.to_string(),
+            path: Utf8Path::new(name).join("Cargo.toml"),
+        })
+    }
+
+    #[test]
+    fn show_output_single_package_has_no_prefix() {
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
+        handler.handle(SelectedPackages::new(Some(vec![package("a").unwrap()])).into());
+        handler.handle(
+            ShowResult::new(
+                BareVersion::TwoComponents(1, 40),
+                Utf8Path::new("a/Cargo.toml").to_path_buf(),
+            )
+            .with_package(package("a"))
+            .into(),
+        );
+
+        let s = handler.inner_success_writer().clone();
+        assert_eq!(String::from_utf8_lossy(&s).as_ref(), "1.40\n");
+    }
+
+    #[test]
+    fn show_output_multiple_packages_are_prefixed() {
+        let s = Vec::new();
+        let f = Vec::new();
+        let handler = MinimalOutputHandler::new(s, f);
+        handler.handle(
+            SelectedPackages::new(Some(vec![package("a").unwrap(), package("b").unwrap()])).into(),
+        );
+
+        for (name, minor) in [("a", 40), ("b", 50)] {
+            handler.handle(
+                ShowResult::new(
+                    BareVersion::TwoComponents(1, minor),
+                    Utf8Path::new(name).join("Cargo.toml"),
+                )
+                .with_package(package(name))
+                .into(),
+            );
+        }
+        handler.handle(
+            VerifyResult::incompatible(
+                Toolchain::new(semver::Version::new(1, 2, 3), "test_target", &[]),
+                None,
+            )
+            .with_package(package("b"))
+            .into(),
+        );
+
+        let s = handler.inner_success_writer().clone();
+        assert_eq!(String::from_utf8_lossy(&s).as_ref(), "a 1.40\nb 1.50\n");
+
+        let f = handler.inner_failure_writer().clone();
+        assert_eq!(String::from_utf8_lossy(&f).as_ref(), "b false\n");
     }
 
     #[test]

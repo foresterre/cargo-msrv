@@ -1,7 +1,7 @@
 use cargo_msrv_types::BareVersion;
 use std::str::FromStr;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Edition {
     Edition2015,
     Edition2018,

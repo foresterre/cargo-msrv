@@ -25,7 +25,7 @@ pub use crate::sub_command::{Find, List, Set, Show, SubCommand, Verify};
 pub use cargo_msrv_context::types::{OutputFormat, TracingTargetOption};
 pub use cargo_msrv_context::{Context, TracingOptions};
 
-use crate::compatibility::{RunCommandProvider, RustupToolchainCheck};
+use crate::compatibility::{CheckTarget, RustupToolchainCheck};
 use crate::error::TResult;
 use crate::reporter::Reporter;
 use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
@@ -57,7 +57,7 @@ fn meta() -> Meta {
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(meta())?;
     reporter.report_event(SelectedPackages::new(
-        ctx.environment_context().workspace_packages.selected(),
+        ctx.environment_context().selected_packages(),
     ))?;
     reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
@@ -65,15 +65,17 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
         Context::Find(ctx) => {
             let index = release_index::fetch_index(reporter, &ctx.rust_releases)?;
 
-            let runner = RustupToolchainCheck::new(
-                reporter,
-                ctx.ignore_lockfile,
-                ctx.no_check_feedback,
-                ctx.skip_unavailable_toolchains,
-                &ctx.environment,
-                ctx.provide_run_command(),
-            );
-            Find::new(&index, runner).run(ctx, reporter)?;
+            let check_for = |target: CheckTarget| {
+                RustupToolchainCheck::new(
+                    reporter,
+                    ctx.ignore_lockfile,
+                    ctx.no_check_feedback,
+                    ctx.skip_unavailable_toolchains,
+                    ctx.environment.lock(),
+                    target,
+                )
+            };
+            Find::new(&index, check_for).run(ctx, reporter)?;
         }
         Context::List(ctx) => {
             List.run(ctx, reporter)?;
@@ -88,16 +90,18 @@ pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
         Context::Verify(ctx) => {
             let index = release_index::fetch_index(reporter, &ctx.rust_releases)?;
 
-            let runner = RustupToolchainCheck::new(
-                reporter,
-                ctx.ignore_lockfile,
-                ctx.no_check_feedback,
-                false,
-                &ctx.environment,
-                ctx.provide_run_command(),
-            );
+            let check_for = |target: CheckTarget| {
+                RustupToolchainCheck::new(
+                    reporter,
+                    ctx.ignore_lockfile,
+                    ctx.no_check_feedback,
+                    false,
+                    ctx.environment.lock(),
+                    target,
+                )
+            };
 
-            Verify::new(&index, runner).run(ctx, reporter)?;
+            Verify::new(&index, check_for).run(ctx, reporter)?;
         }
     }
 

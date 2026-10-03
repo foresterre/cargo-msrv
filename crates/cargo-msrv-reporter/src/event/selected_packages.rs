@@ -12,6 +12,14 @@ impl SelectedPackages {
     pub fn new(package_names: Option<Vec<SelectedPackage>>) -> Self {
         Self { package_names }
     }
+
+    pub fn len(&self) -> usize {
+        self.package_names.as_ref().map_or(0, Vec::len)
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl From<SelectedPackages> for Event {
