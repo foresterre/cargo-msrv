@@ -50,7 +50,7 @@ impl RustVersion {
 
     pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
         let manifest_path = env.manifest();
-        
+
         if let Ok(false) = manifest_path.try_exists() {
             return Err(Error::NoCargoManifest(manifest_path));
         }
