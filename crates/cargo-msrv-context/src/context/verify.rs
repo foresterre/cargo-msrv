@@ -50,6 +50,10 @@ impl RustVersion {
 
     pub fn try_from_environment(env: &EnvironmentContext) -> TResult<Self> {
         let manifest_path = env.manifest();
+        
+        if let Ok(false) = manifest_path.try_exists() {
+            return Err(Error::NoCargoManifest(manifest_path));
+        }
 
         let metadata = MetadataCommand::new()
             .manifest_path(&manifest_path)
@@ -87,4 +91,27 @@ pub enum RustVersionSource {
 
     #[error("as MSRV in the Cargo manifest located at '{0}'")]
     Manifest(Utf8PathBuf),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::context::WorkspacePackages;
+    use assert_fs::TempDir;
+
+    #[test]
+    fn rust_version_without_manifest() {
+        let dir = TempDir::new().unwrap();
+        let root = Utf8PathBuf::from_path_buf(dir.path().to_path_buf()).unwrap();
+        let env = EnvironmentContext {
+            root_crate_path: root.clone(),
+            workspace_packages: WorkspacePackages::default(),
+        };
+
+        let result = RustVersion::try_from_environment(&env);
+
+        assert!(
+            matches!(result, Err(Error::NoCargoManifest(path)) if path == root.join("Cargo.toml"))
+        );
+    }
 }
