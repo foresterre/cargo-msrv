@@ -1,9 +1,12 @@
 use crate::event::{
-    CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit, SubcommandResult,
+    CheckPackage, CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit,
+    SubcommandResult,
 };
 use crate::{Event, table_settings};
+use cargo_msrv_context::SelectedPackage;
 use owo_colors::OwoColorize;
 use std::fmt::Display;
+use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 use storyteller::EventHandler;
@@ -11,6 +14,7 @@ use storyteller::EventHandler;
 pub struct HumanProgressHandler {
     pb: indicatif::ProgressBar,
     sequence_number: AtomicU32,
+    summary: Mutex<Vec<SummaryRow>>,
 }
 
 impl Default for HumanProgressHandler {
@@ -20,6 +24,7 @@ impl Default for HumanProgressHandler {
         Self {
             pb: mp,
             sequence_number: AtomicU32::new(1),
+            summary: Mutex::new(Vec::new()),
         }
     }
 }
@@ -50,6 +55,24 @@ impl HumanProgressHandler {
     fn println(&self, message: impl Display) {
         self.pb.suspend(|| println!("{message}"))
     }
+
+    fn add_to_summary(&self, package: Option<&SelectedPackage>, result: String) {
+        if let Some(package) = package {
+            let mut summary = self.summary.lock().unwrap_or_else(|e| e.into_inner());
+            summary.push(SummaryRow {
+                package: package.name.clone(),
+                result,
+            });
+        }
+    }
+
+    fn print_summary(&self) {
+        let rows = std::mem::take(&mut *self.summary.lock().unwrap_or_else(|e| e.into_inner()));
+
+        if rows.len() > 1 {
+            self.println(format!("\n{}\n{}", "Summary:".bold(), summary_table(&rows)));
+        }
+    }
 }
 
 impl EventHandler for HumanProgressHandler {
@@ -69,6 +92,10 @@ impl EventHandler for HumanProgressHandler {
             Message::UnableToConfirmValidReleaseVersion(_) => {
                 let message = Status::info("Unable to verify if provided version is an existing Rust release version");
                 self.println(message);
+            }
+            Message::CheckPackage(it) if event.is_scope_start() => {
+                self.sequence_number.store(1, Ordering::SeqCst);
+                self.println(it.header());
             }
             Message::CheckToolchain(it) if event.is_scope_start() => {
                 self.println(it.header(self.sequence_number.load(Ordering::SeqCst)));
@@ -92,13 +119,19 @@ impl EventHandler for HumanProgressHandler {
             }
             Message::SubcommandResult(result) => self.handle_subcommand_result(result),
             Message::TerminateWithFailure(termination) if termination.should_highlight() => {
+                self.print_summary();
                 self.println(format!("\n\n{}", termination.as_message().red()));
             }
             Message::TerminateWithFailure(termination) if !termination.should_highlight() => {
+                self.print_summary();
                 self.println(format!("\n\n{}", termination.as_message().dimmed().bold()));
             }
             _ => {}
         };
+    }
+
+    fn finish(&self) {
+        self.print_summary();
     }
 }
 
@@ -107,28 +140,61 @@ impl HumanProgressHandler {
         match result {
             SubcommandResult::Find(inner) => {
                 self.println(format!("\n{}\n", inner.summary()));
+
+                let msrv = inner
+                    .msrv()
+                    .map_or_else(|| format!("{}", "N/A".red()), |v| format!("{}", v.green()));
+                self.add_to_summary(inner.package(), msrv);
             }
             SubcommandResult::List(inner) => {
                 self.println(inner);
             }
             SubcommandResult::Set(inner) => {
-                let message = Status::with_lead(
-                    "Set".bright_green(),
-                    format_args!("Rust {}", inner.version()),
-                );
+                let message = match inner.package() {
+                    Some(package) => Status::with_lead(
+                        "Set".bright_green(),
+                        format_args!("Rust {} for '{}'", inner.version(), package.name),
+                    ),
+                    None => Status::with_lead(
+                        "Set".bright_green(),
+                        format_args!("Rust {}", inner.version()),
+                    ),
+                };
                 self.println(message);
+                self.add_to_summary(inner.package(), inner.version().to_string());
             }
             SubcommandResult::Show(inner) => {
-                let message = Status::with_lead(
-                    "Show".bright_green(),
-                    format_args!("MSRV is Rust {}", inner.version()),
-                );
+                let message = match inner.package() {
+                    Some(package) => Status::with_lead(
+                        "Show".bright_green(),
+                        format_args!("MSRV of '{}' is Rust {}", package.name, inner.version()),
+                    ),
+                    None => Status::with_lead(
+                        "Show".bright_green(),
+                        format_args!("MSRV is Rust {}", inner.version()),
+                    ),
+                };
                 self.println(message);
+                self.add_to_summary(inner.package(), inner.version().to_string());
             }
-            SubcommandResult::Verify(_inner) => {
-                // tbd.
+            SubcommandResult::Verify(inner) => {
+                let version = inner.toolchain().version();
+                let result = if inner.is_compatible() {
+                    format!("{} {}", version, "(compatible)".green())
+                } else {
+                    format!("{} {}", version, "(incompatible)".red())
+                };
+                self.add_to_summary(inner.package(), result);
             }
         }
+    }
+}
+
+impl CheckPackage {
+    fn header(&self) -> String {
+        format!("\nPackage '{}' ({})", self.package.name, self.package.path)
+            .bold()
+            .to_string()
     }
 }
 
@@ -147,7 +213,11 @@ impl CheckToolchain {
 
 impl FindResult {
     fn summary(&self) -> String {
-        let title = "Result:".bold();
+        let title = match self.package() {
+            Some(package) => format!("Result for '{}':", package.name),
+            None => "Result:".to_string(),
+        };
+        let title = title.bold();
         let table = result_table(self);
 
         format!("{}\n{}", title, table)
@@ -262,6 +332,34 @@ fn result_table(result: &FindResult) -> String {
         .with(table_settings!())
         .with(Alignment::left())
         .with(Alignment::top())
+        .with(Margin::new(2, 0, 0, 1))
+        .to_string()
+}
+
+struct SummaryRow {
+    package: String,
+    result: String,
+}
+
+fn summary_table(rows: &[SummaryRow]) -> String {
+    use tabled::builder::Builder;
+    use tabled::settings::{Alignment, Margin, Style};
+
+    let mut builder = Builder::default();
+    builder.push_record([
+        format!("{}", "Package".dimmed()),
+        format!("{}", "MSRV".dimmed()),
+    ]);
+
+    for row in rows {
+        builder.push_record([row.package.clone(), row.result.clone()]);
+    }
+
+    builder
+        .build()
+        .with(Style::blank())
+        .with(table_settings!())
+        .with(Alignment::left())
         .with(Margin::new(2, 0, 0, 1))
         .to_string()
 }

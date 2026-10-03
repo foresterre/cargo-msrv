@@ -47,3 +47,29 @@ fn event() {
     let actual = serde_json::to_value(event).unwrap();
     assert_eq!(actual, expected);
 }
+
+#[test]
+fn event_with_package() {
+    let event = ShowResult::new(
+        BareVersion::ThreeComponents(1, 10, 100),
+        Utf8Path::new("/ws/a/Cargo.toml").to_path_buf(),
+    )
+    .with_package(Some(cargo_msrv_context::SelectedPackage {
+        name: "a".to_string(),
+        path: Utf8Path::new("/ws/a/Cargo.toml").to_path_buf(),
+    }));
+
+    let expected = serde_json::json!({
+        "package": {
+            "name": "a",
+            "path": "/ws/a/Cargo.toml"
+        },
+        "result": {
+            "version": "1.10.100",
+            "manifest_path": "/ws/a/Cargo.toml"
+        }
+    });
+
+    let actual = serde_json::to_value(event).unwrap();
+    assert_eq!(actual, expected);
+}

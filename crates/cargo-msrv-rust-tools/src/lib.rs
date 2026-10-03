@@ -20,6 +20,6 @@ pub use dependency_graph::{
 };
 pub use rustup_command::{RustupCommand, RustupOutput};
 pub use writer::{
-    manifest_msrv::{WriteManifestMsrvError, write_manifest_msrv},
+    manifest_msrv::{WriteManifestMsrvError, write_manifest_msrv, write_workspace_msrv},
     toolchain_file::write_toolchain_file,
 };

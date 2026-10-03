@@ -56,6 +56,12 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     InvalidRustVersionNumber(#[from] std::num::ParseIntError),
 
+    #[error(
+        "Package '{package}' inherits its MSRV from the workspace. \
+         Use `cargo msrv set --workspace-msrv <version>` to change it for all members."
+    )]
+    InheritedMsrv { package: String },
+
     #[error(transparent)]
     InvalidMsrvSet(#[from] InvalidMsrvSetError),
 
@@ -74,8 +80,15 @@ pub enum CargoMSRVError {
     #[error(transparent)]
     NoToolchainsToTry(#[from] NoToolchainsToTryError),
 
-    #[error("Unable to set MSRV for workspace, try setting it for individual packages instead.")]
+    #[error(
+        "Unable to set the MSRV for a virtual workspace manifest. \
+         Use `cargo msrv set --workspace-msrv <version>` to set it for all members, \
+         or select a package with `--package <name>`."
+    )]
     WorkspaceFound,
+
+    #[error("Unable to set the MSRV in the workspace root: no [workspace] table found in '{0}'")]
+    NoWorkspaceTable(Utf8PathBuf),
 
     #[error(transparent)]
     NoVersionMatchesManifestMSRV(#[from] NoVersionMatchesManifestMsrvError),
@@ -138,14 +151,15 @@ pub enum CargoMSRVError {
     #[error(
         r#"Unable to find a Minimum Supported Rust Version (MSRV).
 
-If you think this result is erroneous, please run: `{command}` manually.
+If you think this result is erroneous, please run: `{}` manually.
 
 If the above does succeed, or you think cargo-msrv errored in another way, please feel free to
 report the issue at: https://github.com/foresterre/cargo-msrv/issues
 
-Thank you in advance!"#
+Thank you in advance!"#,
+        .commands.join("`, `")
     )]
-    UnableToFindAnyGoodVersion { command: String },
+    UnableToFindAnyGoodVersion { commands: Vec<String> },
 
     #[error("Unable to parse the CLI arguments. Use `cargo msrv help` for more info.")]
     UnableToParseCliArgs,
@@ -261,6 +275,8 @@ impl From<WriteManifestMsrvError> for CargoMSRVError {
             WriteManifestMsrvError::Io(error) => Self::Io(error),
             WriteManifestMsrvError::ParseToml(error) => Self::ParseToml(error),
             WriteManifestMsrvError::WorkspaceFound => Self::WorkspaceFound,
+            WriteManifestMsrvError::InheritedMsrv { package } => Self::InheritedMsrv { package },
+            WriteManifestMsrvError::NoWorkspaceTable(path) => Self::NoWorkspaceTable(path),
             WriteManifestMsrvError::NotATable => Self::SetMsrv(SetMsrvError::NotATable),
         }
     }

@@ -5,7 +5,7 @@ use crate::cli::rust_releases_opts::RustReleasesOpts;
 use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::cli::{CargoMsrvOpts, SubCommand};
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_context::context::error::{
     Error, InvalidUtf8Error, IoError, IoErrorSource, PathError, TResult,
 };
@@ -17,9 +17,9 @@ use cargo_msrv_context::default_target::default_target;
 ))]
 use cargo_msrv_context::types::BundledFallback;
 use cargo_msrv_context::{
-    CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
-    RustReleasesContext, SetContext, ShowContext, ToolchainContext, VerifyContext,
-    WorkspacePackages,
+    CargoProject, CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
+    Package, Project, RustReleasesContext, SetContext, ShowContext, ToolchainContext,
+    VerifyContext,
 };
 use std::convert::{TryFrom, TryInto};
 use std::env;
@@ -39,7 +39,7 @@ impl TryFrom<CargoMsrvOpts> for Context {
             SubCommand::Find(_) => Self::Find(FindContext::try_from(opts)?),
             SubCommand::List(_) => Self::List(ListContext::try_from(opts)?),
             SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),
-            SubCommand::Show => Self::Show(ShowContext::try_from(opts)?),
+            SubCommand::Show(_) => Self::Show(ShowContext::try_from(opts)?),
             SubCommand::Verify(_) => Self::Verify(VerifyContext::try_from(opts)?),
         };
 
@@ -107,73 +107,121 @@ impl From<CustomCheckOpts> for CheckCommandContext {
     }
 }
 
-impl<'shared_opts> TryFrom<&'shared_opts SharedOpts> for EnvironmentContext {
-    type Error = Error;
-
-    fn try_from(opts: &'shared_opts SharedOpts) -> TResult<Self> {
-        let path = if let Some(path) = opts.path.as_ref() {
-            // Use `--path` if specified. This is the oldest supported option.
-            // This option refers to the root of a crate.
-            Ok(path.clone())
-        } else if let Some(path) = opts.manifest_path.as_ref() {
-            // Use `--manifest-path` if specified. This was added later, and can not be specified
-            // together with `--path`. This option refers to the `Cargo.toml` document
-            // of a crate ("manifest").
-            dunce::canonicalize(path)
-                .map_err(|_| Error::Path(PathError::DoesNotExist(path.to_path_buf())))
-                .and_then(|p| {
-                    p.parent()
-                        .map(Path::to_path_buf)
-                        .ok_or_else(|| Error::Path(PathError::NoParent(path.to_path_buf())))
-                })
-        } else {
-            // Otherwise, fall back to the current directory.
-            env::current_dir().map_err(|error| {
-                Error::Io(IoError {
-                    error,
-                    source: IoErrorSource::CurrentDir,
-                })
+fn make_environment_ctx(
+    opts: &SharedOpts,
+    workspace: &clap_cargo::Workspace,
+) -> TResult<EnvironmentContext> {
+    let path = if let Some(path) = opts.path.as_ref() {
+        // Use `--path` if specified. This is the oldest supported option.
+        // This option refers to the root of a crate.
+        Ok(path.clone())
+    } else if let Some(path) = opts.manifest_path.as_ref() {
+        // Use `--manifest-path` if specified. This was added later, and can not be specified
+        // together with `--path`. This option refers to the `Cargo.toml` document
+        // of a crate ("manifest").
+        dunce::canonicalize(path)
+            .map_err(|_| Error::Path(PathError::DoesNotExist(path.to_path_buf())))
+            .and_then(|p| {
+                p.parent()
+                    .map(Path::to_path_buf)
+                    .ok_or_else(|| Error::Path(PathError::NoParent(path.to_path_buf())))
             })
-        }?;
-
-        let root_crate_path: Utf8PathBuf = path
-            .try_into()
-            .map_err(|err| Error::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err))))?;
-
-        // Only select packages if this is a Cargo project.
-        // For now, to be pragmatic, we'll take a shortcut and say that it is so,
-        // if the cargo metadata command succeeds. If it doesn't, we'll fall
-        // back to just the default package.
-        let workspace_packages = if let Ok(metadata) = cargo_metadata::MetadataCommand::new()
-            .manifest_path(root_crate_path.join("Cargo.toml"))
-            .exec()
-        {
-            let partition = opts.workspace.partition_packages(&metadata);
-            let selected = partition.0.into_iter().cloned().collect();
-            let excluded = partition.1;
-
-            tracing::info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = true,
-                ?selected,
-                ?excluded
-            );
-
-            WorkspacePackages::from_vec(selected)
-        } else {
-            tracing::info!(
-                action = "detect_cargo_workspace_packages",
-                method = "cargo_metadata",
-                success = false,
-            );
-
-            WorkspacePackages::default()
-        };
-
-        Ok(Self {
-            root_crate_path,
-            workspace_packages,
+    } else {
+        // Otherwise, fall back to the current directory.
+        env::current_dir().map_err(|error| {
+            Error::Io(IoError {
+                error,
+                source: IoErrorSource::CurrentDir,
+            })
         })
+    }?;
+
+    let root_crate_path: Utf8PathBuf = path
+        .try_into()
+        .map_err(|err| Error::Path(PathError::InvalidUtf8(InvalidUtf8Error::from(err))))?;
+
+    let project = resolve_project(opts, workspace, &root_crate_path)?;
+
+    Ok(EnvironmentContext {
+        root_crate_path,
+        project,
+    })
+}
+
+fn resolve_project(
+    opts: &SharedOpts,
+    workspace: &clap_cargo::Workspace,
+    root: &Utf8Path,
+) -> TResult<Project> {
+    let manifest_path = root.join("Cargo.toml");
+
+    let is_cargo_project = manifest_path.try_exists().map_err(|error| IoError {
+        error,
+        source: IoErrorSource::ReadFile(manifest_path.clone()),
+    })?;
+
+    if !is_cargo_project {
+        tracing::info!(
+            action = "detect_cargo_workspace_packages",
+            method = "cargo_metadata",
+            cargo_project = false,
+        );
+
+        return match make_cargo_flag(opts, workspace) {
+            Some(flag) => Err(Error::CargoFlagWithoutCargoProject {
+                flag,
+                root: root.to_path_buf(),
+            }),
+            None => Ok(Project::Bare),
+        };
     }
+
+    let metadata = cargo_metadata::MetadataCommand::new()
+        .manifest_path(&manifest_path)
+        .exec()
+        .map_err(|source| Error::CargoMetadata {
+            path: manifest_path.clone(),
+            source,
+        })?;
+
+    let members = metadata.workspace_packages();
+
+    if let Some(unknown) = workspace.package.iter().find(|name| {
+        !members
+            .iter()
+            .any(|member| member.name.as_str() == name.as_str())
+    }) {
+        return Err(Error::UnknownPackage(unknown.clone()));
+    }
+
+    let (selected, excluded) = workspace.partition_packages(&metadata);
+
+    tracing::info!(
+        action = "detect_cargo_workspace_packages",
+        method = "cargo_metadata",
+        cargo_project = true,
+        selected = ?selected.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
+        excluded = ?excluded.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
+    );
+
+    let packages = selected
+        .into_iter()
+        .map(Package::try_from)
+        .collect::<TResult<Vec<_>>>()?;
+
+    let project = CargoProject::new(metadata.workspace_root.clone(), packages)?;
+
+    Ok(Project::Cargo(project))
+}
+
+fn make_cargo_flag(opts: &SharedOpts, workspace: &clap_cargo::Workspace) -> Option<&'static str> {
+    [
+        (workspace.workspace, "--workspace"),
+        (workspace.all, "--all"),
+        (!workspace.package.is_empty(), "--package"),
+        (!workspace.exclude.is_empty(), "--exclude"),
+        (opts.manifest_path.is_some(), "--manifest-path"),
+    ]
+    .into_iter()
+    .find_map(|(used, flag)| used.then_some(flag))
 }

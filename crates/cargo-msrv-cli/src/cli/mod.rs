@@ -113,7 +113,7 @@ pub enum SubCommand {
     /// Set the MSRV of the current crate to a given Rust version
     Set(SetOpts),
     /// Show the MSRV of your crate, as specified in the Cargo manifest
-    Show,
+    Show(ShowOpts),
     /// Verify whether the MSRV is satisfiable.
     ///
     ///  The MSRV must be specified via the `--rust-version` option, or via the 'package.rust-version' or 'package.metadata.msrv' keys in the Cargo.toml manifest.
@@ -175,6 +175,9 @@ pub struct FindOpts {
     #[arg(long, visible_alias = "set")]
     pub write_msrv: bool,
 
+    #[command(flatten, next_help_heading = "Package selection")]
+    pub workspace: clap_cargo::Workspace,
+
     #[command(flatten)]
     pub rust_releases_opts: RustReleasesOpts,
 
@@ -209,8 +212,23 @@ pub struct SetOpts {
     #[arg(value_name = "MSRV")]
     pub msrv: BareVersion,
 
+    /// Set the MSRV in the `workspace.package` table of the workspace root manifest
+    ///
+    /// Workspace members which use `rust-version.workspace = true` inherit this MSRV.
+    #[arg(long)]
+    pub workspace_msrv: bool,
+
+    #[command(flatten, next_help_heading = "Package selection")]
+    pub workspace: clap_cargo::Workspace,
+
     #[command(flatten)]
     pub rust_releases_opts: RustReleasesOpts,
+}
+
+#[derive(Debug, Args)]
+pub struct ShowOpts {
+    #[command(flatten, next_help_heading = "Package selection")]
+    pub workspace: clap_cargo::Workspace,
 }
 
 #[derive(Debug, Args)]
@@ -237,6 +255,9 @@ pub struct VerifyOpts {
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
     #[arg(long, value_name = "rust-version")]
     pub rust_version: Option<BareVersion>,
+
+    #[command(flatten, next_help_heading = "Package selection")]
+    pub workspace: clap_cargo::Workspace,
 
     #[command(flatten)]
     pub toolchain_opts: ToolchainOpts,

@@ -1,50 +1,71 @@
-use crate::compatibility::IsCompatible;
+use crate::compatibility::{CheckTarget, IsCompatible};
 use crate::error::{CargoMSRVError, TResult};
 use crate::outcome::Compatibility;
 use crate::reporter::Reporter;
-use crate::reporter::event::VerifyResult;
+use crate::reporter::event::{CheckPackage, VerifyResult};
 use crate::sub_command::SubCommand;
-use cargo_msrv_context::VerifyContext;
-use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource};
+use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource, VerifyCheck};
+use cargo_msrv_context::{SelectedPackage, VerifyContext};
 use cargo_msrv_rust_releases::{ReleaseIndex, to_semver};
 use cargo_msrv_types::{BareVersion, Toolchain};
+use std::fmt;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
-pub struct Verify<'index, C: IsCompatible> {
+pub struct Verify<'index, F> {
     release_index: &'index ReleaseIndex,
-    runner: C,
+    check_for: F,
 }
 
-impl<'index, C: IsCompatible> Verify<'index, C> {
-    /// Instantiate the verifier using a release index and a runner.
+impl<'index, F> Verify<'index, F> {
+    /// Instantiate the verifier using a release index and a way to create a runner for each check.
     ///
     /// The runner is used to determine whether a given Rust version will be deemed compatible or not.
-    pub fn new(release_index: &'index ReleaseIndex, runner: C) -> Self {
+    pub fn new(release_index: &'index ReleaseIndex, check_for: F) -> Self {
         Self {
             release_index,
-            runner,
+            check_for,
         }
     }
 }
 
-impl<C: IsCompatible> SubCommand for Verify<'_, C> {
+impl<F, C> SubCommand for Verify<'_, F>
+where
+    F: Fn(CheckTarget) -> C,
+    C: IsCompatible,
+{
     type Context = VerifyContext;
     type Output = ();
 
     /// Run the verifier against a Rust version which is obtained from the config.
     fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
-        // todo!
-        let rust_version = ctx.rust_version.clone();
+        let mut failures = Vec::new();
 
-        verify_msrv(
-            reporter,
-            ctx,
-            self.release_index,
-            rust_version,
-            &self.runner,
-        )?;
+        for check in &ctx.checks {
+            let package = check.package.as_ref();
+            let target =
+                CheckTarget::new(&ctx.check_cmd, &ctx.toolchain, &ctx.environment, package);
+            let runner = (self.check_for)(target);
 
-        Ok(())
+            let verified = match package {
+                Some(package) => reporter
+                    .run_scoped_event(CheckPackage::new(SelectedPackage::from(package)), || {
+                        verify_msrv(reporter, ctx, self.release_index, check, &runner)
+                    })?,
+                None => verify_msrv(reporter, ctx, self.release_index, check, &runner)?,
+            };
+
+            if let Err(failed) = verified {
+                failures.push(failed);
+            }
+        }
+
+        if failures.is_empty() {
+            Ok(())
+        } else {
+            Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
+                VerifyFailures(failures),
+            )))
+        }
     }
 }
 
@@ -54,9 +75,10 @@ fn verify_msrv(
     reporter: &impl Reporter,
     ctx: &VerifyContext,
     release_index: &ReleaseIndex,
-    rust_version: RustVersion,
+    check: &VerifyCheck,
     runner: &impl IsCompatible,
-) -> TResult<()> {
+) -> TResult<Result<(), VerifyFailed>> {
+    let rust_version = &check.rust_version;
     let bare_version = rust_version.version();
     let available = release_index
         .stable_releases()
@@ -68,42 +90,50 @@ fn verify_msrv(
     let target = ctx.toolchain.target;
     let components = ctx.toolchain.components;
     let toolchain = Toolchain::new(version.clone(), target, components);
+    let package = check.package.as_ref().map(SelectedPackage::from);
 
     match runner.is_compatible(&toolchain)? {
-        Compatibility::Compatible(_) => success(reporter, toolchain),
+        Compatibility::Compatible(_) => {
+            reporter.report_event(VerifyResult::compatible(toolchain).with_package(package))?;
+            Ok(Ok(()))
+        }
         Compatibility::Incompatible(f) => {
-            failure(reporter, toolchain, rust_version, Some(f.error_message))
+            reporter.report_event(
+                VerifyResult::incompatible(toolchain, Some(f.error_message))
+                    .with_package(package.clone()),
+            )?;
+            Ok(Err(VerifyFailed::new(package, rust_version.clone())))
         }
     }
-}
-
-// Report the successful verification to the user
-fn success(reporter: &impl Reporter, toolchain: Toolchain) -> TResult<()> {
-    reporter.report_event(VerifyResult::compatible(toolchain))?;
-    Ok(())
-}
-
-// Report the failed verification to the user, and return a VerifyFailed error
-fn failure(
-    reporter: &impl Reporter,
-    toolchain: Toolchain,
-    rust_version: RustVersion,
-    error: Option<String>,
-) -> TResult<()> {
-    reporter.report_event(VerifyResult::incompatible(toolchain, error))?;
-
-    Err(CargoMSRVError::SubCommandVerify(Error::VerifyFailed(
-        VerifyFailed::from(rust_version),
-    )))
 }
 
 /// Error which can be returned if the verifier deemed the tested Rust version incompatible.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(
-        "Crate source was found to be incompatible with Rust version '{}' specified {}", .0.rust_version, .0.source
-    )]
-    VerifyFailed(VerifyFailed),
+    #[error("{0}")]
+    VerifyFailed(VerifyFailures),
+}
+
+#[derive(Debug)]
+pub struct VerifyFailures(Vec<VerifyFailed>);
+
+impl VerifyFailures {
+    pub fn failures(&self) -> &[VerifyFailed] {
+        &self.0
+    }
+}
+
+impl fmt::Display for VerifyFailures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let lines = self
+            .0
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        f.write_str(&lines)
+    }
 }
 
 /// Data structure which contains information about which version failed to verify, and where
@@ -113,17 +143,40 @@ pub enum Error {
 /// used to find this tested Rust version.
 #[derive(Debug)]
 pub struct VerifyFailed {
+    package: Option<SelectedPackage>,
     rust_version: BareVersion,
     source: RustVersionSource,
 }
 
-impl From<RustVersion> for VerifyFailed {
-    fn from(value: RustVersion) -> Self {
-        let (rust_version, source) = value.into_parts();
+impl VerifyFailed {
+    fn new(package: Option<SelectedPackage>, rust_version: RustVersion) -> Self {
+        let (rust_version, source) = rust_version.into_parts();
 
-        VerifyFailed {
+        Self {
+            package,
             rust_version,
             source,
+        }
+    }
+
+    pub fn package(&self) -> Option<&SelectedPackage> {
+        self.package.as_ref()
+    }
+}
+
+impl fmt::Display for VerifyFailed {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.package {
+            Some(package) => write!(
+                f,
+                "Package '{}' was found to be incompatible with Rust version '{}' specified {}",
+                package.name, self.rust_version, self.source
+            ),
+            None => write!(
+                f,
+                "Crate source was found to be incompatible with Rust version '{}' specified {}",
+                self.rust_version, self.source
+            ),
         }
     }
 }

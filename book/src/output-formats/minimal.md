@@ -14,6 +14,15 @@ This output format can be summarized by the following two statements:
 You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.
 
+When more than one package of a Cargo workspace is selected, each result is printed on its own line,
+starting with the package name. For example, `cargo msrv show --workspace --output-format minimal` may print:
+
+```shell
+# stdout
+a 1.56
+b 1.58
+```
+
 # Output by subcommand
 
 ## \# cargo msrv (find)
