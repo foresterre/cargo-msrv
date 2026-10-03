@@ -21,6 +21,11 @@ pub enum Error {
     #[error(transparent)]
     ManifestParseError(#[from] ManifestParseError),
 
+    #[error(
+        "No Cargo.toml manifest found at '{0}'. Use '--rust-version <VERSION>' to verify projects which don't use cargo."
+    )]
+    NoCargoManifest(Utf8PathBuf),
+
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
     NoMSRVKeyInCargoToml(Utf8PathBuf),
 
