@@ -134,10 +134,19 @@ impl RustReleasesContext {
 
         // Precedence 2: Read from manifest
         let manifest = env.manifest();
-        let contents = std::fs::read_to_string(&manifest).map_err(|error| IoError {
-            error,
-            source: IoErrorSource::ReadFile(manifest.clone()),
-        })?;
+        let contents = match std::fs::read_to_string(&manifest) {
+            Ok(contents) => contents,
+            // Projects checked with a custom (non cargo) `rustup run` command don't need a Cargo manifest,
+            // so there is no edition to restrict the search space with in that case
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => {
+                return Err(IoError {
+                    error,
+                    source: IoErrorSource::ReadFile(manifest),
+                }
+                .into());
+            }
+        };
 
         let document = contents
             .parse::<toml_edit::DocumentMut>()
@@ -307,5 +316,54 @@ impl TracingOptions {
 
     pub fn level(&self) -> &LogLevel {
         &self.level
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::TempDir;
+    use assert_fs::prelude::*;
+
+    fn environment(dir: &TempDir) -> EnvironmentContext {
+        EnvironmentContext {
+            root_crate_path: Utf8PathBuf::from_path_buf(dir.path().to_path_buf()).unwrap(),
+            workspace_packages: WorkspacePackages::default(),
+        }
+    }
+
+    #[test]
+    fn minimum_version_without_manifest() {
+        let dir = TempDir::new().unwrap();
+
+        let min = RustReleasesContext::default()
+            .resolve_minimum_version(&environment(&dir))
+            .unwrap();
+
+        assert!(min.is_none());
+    }
+
+    #[test]
+    fn minimum_version_from_manifest_edition() {
+        let dir = TempDir::new().unwrap();
+        dir.child("Cargo.toml")
+            .write_str("[package]\nname = \"a\"\nedition = \"2021\"\n")
+            .unwrap();
+
+        let min = RustReleasesContext::default()
+            .resolve_minimum_version(&environment(&dir))
+            .unwrap();
+
+        assert_eq!(min, Some(BareVersion::ThreeComponents(1, 56, 0)));
+    }
+
+    #[test]
+    fn minimum_version_with_unreadable_manifest() {
+        let dir = TempDir::new().unwrap();
+        dir.child("Cargo.toml").create_dir_all().unwrap();
+
+        let result = RustReleasesContext::default().resolve_minimum_version(&environment(&dir));
+
+        assert!(matches!(result, Err(Error::Io(_))));
     }
 }

@@ -800,6 +800,7 @@ dependencies = [
 name = "cargo-msrv-context"
 version = "0.19.3"
 dependencies = [
+ "assert_fs",
  "camino",
  "cargo-msrv-rust-tools",
  "cargo-msrv-types",
