@@ -19,13 +19,44 @@ pub struct SharedOpts {
     pub manifest_path: Option<PathBuf>,
 
     #[command(flatten)]
-    pub workspace: clap_cargo::Workspace,
+    pub workspace: WorkspaceOpts,
 
     #[command(flatten)]
     pub user_output_opts: UserOutputOpts,
 
     #[command(flatten)]
     pub debug_output_opts: DebugOutputOpts,
+}
+
+#[derive(Debug, Args)]
+#[command(next_help_heading = "Package selection")]
+pub struct WorkspaceOpts {
+    /// Package to process
+    #[arg(short, long, value_name = "SPEC", global = true)]
+    pub package: Vec<String>,
+
+    /// Process all packages in the workspace
+    #[arg(long, global = true)]
+    pub workspace: bool,
+
+    /// Process all packages in the workspace
+    #[arg(long, hide = true, global = true)]
+    pub all: bool,
+
+    /// Exclude packages from being processed
+    #[arg(long, value_name = "SPEC", global = true)]
+    pub exclude: Vec<String>,
+}
+
+impl WorkspaceOpts {
+    pub fn to_clap_cargo(&self) -> clap_cargo::Workspace {
+        let mut workspace = clap_cargo::Workspace::default();
+        workspace.package = self.package.clone();
+        workspace.workspace = self.workspace;
+        workspace.all = self.all;
+        workspace.exclude = self.exclude.clone();
+        workspace
+    }
 }
 
 #[derive(Debug, Args)]

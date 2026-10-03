@@ -1,4 +1,5 @@
 use crate::context::SetContext;
+use crate::context::set::SetTarget;
 use crate::error::InvalidMsrvSetError;
 use crate::reporter::Reporter;
 use crate::reporter::event::{
@@ -6,8 +7,10 @@ use crate::reporter::event::{
     UnableToConfirmValidReleaseVersion,
 };
 use crate::{SubCommand, TResult};
+use camino::Utf8Path;
+use cargo_msrv_context::{Project, SelectedPackage};
 use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
-use cargo_msrv_rust_tools::write_manifest_msrv;
+use cargo_msrv_rust_tools::{write_manifest_msrv, write_workspace_msrv};
 use cargo_msrv_types::BareVersion;
 
 pub struct Set<'index> {
@@ -25,20 +28,50 @@ impl SubCommand for Set<'_> {
     type Output = ();
 
     fn run(&self, ctx: &Self::Context, reporter: &impl Reporter) -> TResult<Self::Output> {
-        let configured_msrv = &ctx.msrv;
+        let msrv = &ctx.msrv;
 
-        match self.release_index {
-            Some(index) if has_release(configured_msrv, index) => {
-                set_msrv(ctx, reporter, configured_msrv)
+        self.check_release(msrv, reporter)?;
+
+        match (&ctx.target, &ctx.environment.project) {
+            (SetTarget::WorkspaceRoot(cargo_toml), _) => {
+                write_workspace_msrv(cargo_toml, msrv)?;
+                report_set_msrv(reporter, cargo_toml, None, msrv)
             }
+            (SetTarget::Packages, Project::Cargo(project)) => {
+                for package in project.packages() {
+                    set_msrv(
+                        reporter,
+                        &package.manifest_path,
+                        Some(SelectedPackage::from(package)),
+                        msrv,
+                    )?;
+                }
+
+                Ok(())
+            }
+            (SetTarget::Packages, Project::Bare) => {
+                set_msrv(reporter, &ctx.environment.manifest(), None, msrv)
+            }
+        }
+    }
+}
+
+impl Set<'_> {
+    pub(crate) fn check_release(
+        &self,
+        msrv: &BareVersion,
+        reporter: &impl Reporter,
+    ) -> TResult<()> {
+        match self.release_index {
+            Some(index) if has_release(msrv, index) => Ok(()),
             Some(index) => Err(InvalidMsrvSetError {
-                input: configured_msrv.clone(),
+                input: msrv.clone(),
                 search_space: index.releases(),
             }
             .into()),
             None => {
                 reporter.report_event(UnableToConfirmValidReleaseVersion {})?;
-                set_msrv(ctx, reporter, configured_msrv)
+                Ok(())
             }
         }
     }
@@ -61,18 +94,31 @@ fn matches_release(msrv: &BareVersion, release: &RustRelease<Stable>) -> bool {
     major_match && minor_match && patch_match
 }
 
-fn set_msrv(ctx: &SetContext, reporter: &impl Reporter, msrv: &BareVersion) -> TResult<()> {
-    let cargo_toml = ctx.environment.manifest();
+pub(crate) fn set_msrv(
+    reporter: &impl Reporter,
+    cargo_toml: &Utf8Path,
+    package: Option<SelectedPackage>,
+    msrv: &BareVersion,
+) -> TResult<()> {
+    write_manifest_msrv(cargo_toml, msrv)?;
+    report_set_msrv(reporter, cargo_toml, package, msrv)
+}
 
-    write_manifest_msrv(&cargo_toml, msrv)?;
-
+fn report_set_msrv(
+    reporter: &impl Reporter,
+    cargo_toml: &Utf8Path,
+    package: Option<SelectedPackage>,
+    msrv: &BareVersion,
+) -> TResult<()> {
     reporter.report_event(AuxiliaryOutput::new(
-        Destination::file(cargo_toml.clone()),
+        Destination::file(cargo_toml.to_path_buf()),
         AuxiliaryOutputItem::msrv(MsrvKind::RustVersion),
     ))?;
 
     // Report that the MSRV was set
-    reporter.report_event(SetResult::new(msrv.clone(), cargo_toml))?;
+    reporter.report_event(
+        SetResult::new(msrv.clone(), cargo_toml.to_path_buf()).with_package(package),
+    )?;
 
     Ok(())
 }

@@ -5,6 +5,7 @@ use cargo_msrv_types::Toolchain;
 use semver::Version;
 use std::collections::HashSet;
 
+#[derive(Clone)]
 pub struct TestRunner {
     accept_versions: HashSet<Version>,
     target: &'static str,

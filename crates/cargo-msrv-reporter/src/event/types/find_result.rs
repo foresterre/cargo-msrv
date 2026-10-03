@@ -2,6 +2,7 @@ use crate::Event;
 use crate::event::Message;
 use crate::event::subcommand_result::SubcommandResult;
 use crate::typed_bool::{False, True};
+use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_context::context::SearchMethod;
 use cargo_msrv_types::BareVersion;
 
@@ -16,6 +17,9 @@ pub struct FindResult {
     pub maximum_version: BareVersion,
     #[serde(skip)]
     pub search_method: SearchMethod,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    package: Option<SelectedPackage>,
 
     result: ResultDetails,
 }
@@ -34,6 +38,8 @@ impl FindResult {
             maximum_version: max,
 
             search_method,
+
+            package: None,
 
             result: ResultDetails::Determined {
                 version,
@@ -55,8 +61,19 @@ impl FindResult {
 
             search_method,
 
+            package: None,
+
             result: ResultDetails::Undetermined { success: False },
         }
+    }
+
+    pub fn with_package(mut self, package: Option<SelectedPackage>) -> Self {
+        self.package = package;
+        self
+    }
+
+    pub fn package(&self) -> Option<&SelectedPackage> {
+        self.package.as_ref()
     }
 
     pub fn msrv(&self) -> Option<&semver::Version> {

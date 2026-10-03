@@ -9,11 +9,23 @@ pub type TResult<T> = Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(transparent)]
-    CargoMetadata(#[from] cargo_metadata::Error),
+    #[error("Unable to read the Cargo workspace at '{path}': {source}")]
+    CargoMetadata {
+        path: Utf8PathBuf,
+        source: cargo_metadata::Error,
+    },
+
+    #[error("The '{flag}' flag requires a Cargo project, but no Cargo.toml was found at '{root}'")]
+    CargoFlagWithoutCargoProject {
+        flag: &'static str,
+        root: Utf8PathBuf,
+    },
 
     #[error("The default host triple (target) could not be found.")]
     DefaultHostTripleNotFound,
+
+    #[error("No packages selected. Did `--exclude` remove every workspace member?")]
+    EmptySelection,
 
     #[error(transparent)]
     Io(#[from] IoError),
@@ -29,14 +41,19 @@ pub enum Error {
     #[error("Unable to find key 'package.rust-version' (or 'package.metadata.msrv') in '{0}'")]
     NoMSRVKeyInCargoToml(Utf8PathBuf),
 
+    #[error(
+        "The selected packages have different MSRVs, but a custom check command runs once for all of them. Use '--rust-version <VERSION>', or select a single package with '--package <NAME>'."
+    )]
+    MixedMSRVs,
+
     #[error(transparent)]
     ParseEdition(#[from] ParseEditionError),
 
-    #[error("Unable to parse Cargo.toml: {0}")]
-    ParseToml(#[from] toml_edit::TomlError),
-
     #[error(transparent)]
     Path(#[from] PathError),
+
+    #[error("Package '{0}' is not a member of this workspace")]
+    UnknownPackage(String),
 }
 
 #[derive(Debug, thiserror::Error)]

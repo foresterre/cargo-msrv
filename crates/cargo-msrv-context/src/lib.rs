@@ -6,7 +6,7 @@ pub mod default_target;
 pub mod types;
 
 pub use context::{
-    CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
-    RustReleasesContext, SearchMethod, SelectedPackage, SetContext, ShowContext, ToolchainContext,
-    TracingOptions, VerifyContext, WorkspacePackages,
+    CargoProject, CheckCommandContext, Context, EnvironmentContext, FindContext, ListContext,
+    Package, Project, RustReleasesContext, SearchMethod, SelectedPackage, SetContext, ShowContext,
+    ToolchainContext, TracingOptions, VerifyContext,
 };

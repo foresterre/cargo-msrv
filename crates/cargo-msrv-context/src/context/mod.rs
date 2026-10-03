@@ -6,7 +6,7 @@
 //!
 //! Unlike the opts, the context is top down, not bottom up.
 
-use crate::context::error::{Error, IoError, IoErrorSource, TResult};
+use crate::context::error::{Error, TResult};
 #[cfg(any(
     feature = "rust-releases-changelog-source",
     feature = "rust-releases-github-source",
@@ -15,6 +15,7 @@ use crate::context::error::{Error, IoError, IoErrorSource, TResult};
 use crate::types::BundledFallback;
 use crate::types::{Edition, LogLevel, ReleaseSource, TracingTargetOption};
 use camino::{Utf8Path, Utf8PathBuf};
+use cargo_msrv_rust_tools::CargoManifest;
 use cargo_msrv_types::BareVersion;
 
 pub mod error;
@@ -120,51 +121,10 @@ pub struct RustReleasesContext {
 }
 
 impl RustReleasesContext {
-    // This is necessary because we need to fetch the minimum version possibly from the Cargo.toml
-    // via the edition key; but where that file should be located is only after we have an
-    // EnvironmentContext.
-    pub fn resolve_minimum_version(
-        &self,
-        env: &EnvironmentContext,
-    ) -> TResult<Option<BareVersion>> {
-        // Precedence 1: Supplied values take precedence over all else.
-        if let Some(min) = &self.minimum_rust_version {
-            return Ok(Some(min.clone()));
-        }
-
-        // Precedence 2: Read from manifest
-        let manifest = env.manifest();
-        let contents = match std::fs::read_to_string(&manifest) {
-            Ok(contents) => contents,
-            // Projects checked with a custom (non cargo) `rustup run` command don't need a Cargo manifest,
-            // so there is no edition to restrict the search space with in that case
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-            Err(error) => {
-                return Err(IoError {
-                    error,
-                    source: IoErrorSource::ReadFile(manifest),
-                }
-                .into());
-            }
-        };
-
-        let document = contents
-            .parse::<toml_edit::DocumentMut>()
-            .map_err(Error::ParseToml)?;
-
-        if let Some(edition) = document
-            .as_table()
-            .get("package")
-            .and_then(toml_edit::Item::as_table)
-            .and_then(|package_table| package_table.get("edition"))
-            .and_then(toml_edit::Item::as_str)
-        {
-            let edition = edition.parse::<Edition>()?;
-
-            return Ok(Some(edition.as_bare_version()));
-        }
-
-        Ok(None)
+    pub fn resolve_minimum_version(&self, package: Option<&Package>) -> Option<BareVersion> {
+        self.minimum_rust_version
+            .clone()
+            .or_else(|| package.map(|p| p.edition.as_bare_version()))
     }
 }
 
@@ -194,16 +154,13 @@ pub struct CheckCommandContext {
 
 #[derive(Clone, Debug)]
 pub struct EnvironmentContext {
-    // TODO: Some parts assume a Cargo crate, but that's not strictly a requirement
-    //  of cargo-msrv (only rustup is). We should fix this.
     /// The path to the root of a crate.
     ///
     /// Does not include a manifest file like Cargo.toml, so it's easy to append
     /// a file path like `Cargo.toml` or `Cargo.lock`.
     pub root_crate_path: Utf8PathBuf,
 
-    /// Resolved workspace
-    pub workspace_packages: WorkspacePackages,
+    pub project: Project,
 }
 
 impl EnvironmentContext {
@@ -217,50 +174,99 @@ impl EnvironmentContext {
         self.root_crate_path.join("Cargo.toml")
     }
 
-    /// The path to the Cargo lock file
-    pub fn lock(&self) -> Utf8PathBuf {
-        self.root_crate_path.join("Cargo.lock")
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct WorkspacePackages {
-    selected: Option<Vec<cargo_metadata::Package>>,
-}
-
-impl WorkspacePackages {
-    pub fn from_vec(selected: Vec<cargo_metadata::Package>) -> Self {
-        Self {
-            selected: Some(selected),
+    /// `None` for a bare project, which has no lockfile.
+    pub fn lock(&self) -> Option<Utf8PathBuf> {
+        match &self.project {
+            Project::Cargo(p) => Some(p.workspace_root.join("Cargo.lock")),
+            Project::Bare => None,
         }
     }
 
-    pub fn selected(&self) -> Option<Vec<SelectedPackage>> {
-        self.selected.as_deref().map(|pks| {
-            pks.iter()
-                .map(|pkg| SelectedPackage {
-                    name: pkg.name.to_string(),
-                    path: pkg.manifest_path.to_path_buf(),
-                })
-                .collect()
+    pub fn workspace_root(&self) -> &Utf8Path {
+        match &self.project {
+            Project::Cargo(p) => &p.workspace_root,
+            Project::Bare => &self.root_crate_path,
+        }
+    }
+
+    pub fn packages_to_check(&self, check_cmd: &CheckCommandContext) -> Vec<Option<&Package>> {
+        match &self.project {
+            Project::Cargo(p) if check_cmd.rustup_command.is_none() => {
+                p.packages().map(Some).collect()
+            }
+            Project::Cargo(_) | Project::Bare => vec![None],
+        }
+    }
+
+    pub fn oldest_edition_package(&self) -> Option<&Package> {
+        match &self.project {
+            Project::Cargo(p) => p.packages().min_by_key(|p| p.edition),
+            Project::Bare => None,
+        }
+    }
+
+    pub fn selected_packages(&self) -> Option<Vec<SelectedPackage>> {
+        match &self.project {
+            Project::Cargo(p) => Some(p.packages().map(SelectedPackage::from).collect()),
+            Project::Bare => None,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Project {
+    /// No `Cargo.toml` at the root; only a custom check command can be used.
+    Bare,
+    Cargo(CargoProject),
+}
+
+#[derive(Clone, Debug)]
+pub struct CargoProject {
+    /// `metadata.workspace_root`, home of the shared `Cargo.lock` and toolchain file.
+    pub workspace_root: Utf8PathBuf,
+    /// The first package is kept apart, so the list can never be empty.
+    pub first: Package,
+    pub rest: Vec<Package>,
+}
+
+impl CargoProject {
+    pub fn new(workspace_root: Utf8PathBuf, packages: Vec<Package>) -> TResult<Self> {
+        let mut packages = packages.into_iter();
+        let first = packages.next().ok_or(Error::EmptySelection)?;
+
+        Ok(Self {
+            workspace_root,
+            first,
+            rest: packages.collect(),
         })
     }
 
-    /// The default package is used when either:
-    /// 1. No packages were selected (e.g. because we are not in a cargo workspace or do not use cargo)
-    /// 2. No workspace flags like --workspace, --package, --all or --exclude are used
-    ///
-    /// See [clap_cargo::Workspace](https://docs.rs/clap-cargo/latest/clap_cargo/struct.Workspace.html) which is
-    /// currently used for the selection.
-    pub fn use_default_package(&self) -> bool {
-        self.selected_packages().is_empty()
+    pub fn packages(&self) -> impl Iterator<Item = &Package> {
+        std::iter::once(&self.first).chain(self.rest.iter())
     }
+}
 
-    /// The slice of selected packages.
-    /// If empty, either no workspace selection flag was used, or cargo_metadata failed,
-    /// for example because it wasn't a cargo workspace.
-    pub fn selected_packages(&self) -> &[cargo_metadata::Package] {
-        self.selected.as_deref().unwrap_or_default()
+#[derive(Clone, Debug)]
+pub struct Package {
+    pub name: String,
+    pub manifest_path: Utf8PathBuf,
+    /// Already resolved by cargo, so `rust-version.workspace = true` works.
+    pub rust_version: Option<BareVersion>,
+    pub edition: Edition,
+}
+
+impl TryFrom<&cargo_metadata::Package> for Package {
+    type Error = Error;
+
+    fn try_from(package: &cargo_metadata::Package) -> TResult<Self> {
+        let manifest = CargoManifest::for_package(package)?;
+
+        Ok(Self {
+            name: package.name.to_string(),
+            manifest_path: package.manifest_path.clone(),
+            rust_version: manifest.minimum_rust_version().cloned(),
+            edition: package.edition.as_str().parse()?,
+        })
     }
 }
 
@@ -269,6 +275,15 @@ impl WorkspacePackages {
 pub struct SelectedPackage {
     pub name: String,
     pub path: Utf8PathBuf,
+}
+
+impl From<&Package> for SelectedPackage {
+    fn from(package: &Package) -> Self {
+        Self {
+            name: package.name.clone(),
+            path: package.manifest_path.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, serde::Serialize)]
@@ -322,48 +337,130 @@ impl TracingOptions {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_fs::TempDir;
-    use assert_fs::prelude::*;
 
-    fn environment(dir: &TempDir) -> EnvironmentContext {
-        EnvironmentContext {
-            root_crate_path: Utf8PathBuf::from_path_buf(dir.path().to_path_buf()).unwrap(),
-            workspace_packages: WorkspacePackages::default(),
+    fn package(edition: Edition) -> Package {
+        Package {
+            name: "a".to_string(),
+            manifest_path: Utf8PathBuf::from("a/Cargo.toml"),
+            rust_version: None,
+            edition,
         }
     }
 
     #[test]
-    fn minimum_version_without_manifest() {
-        let dir = TempDir::new().unwrap();
-
-        let min = RustReleasesContext::default()
-            .resolve_minimum_version(&environment(&dir))
-            .unwrap();
+    fn minimum_version_without_package() {
+        let min = RustReleasesContext::default().resolve_minimum_version(None);
 
         assert!(min.is_none());
     }
 
     #[test]
-    fn minimum_version_from_manifest_edition() {
-        let dir = TempDir::new().unwrap();
-        dir.child("Cargo.toml")
-            .write_str("[package]\nname = \"a\"\nedition = \"2021\"\n")
-            .unwrap();
-
+    fn minimum_version_from_package_edition() {
         let min = RustReleasesContext::default()
-            .resolve_minimum_version(&environment(&dir))
-            .unwrap();
+            .resolve_minimum_version(Some(&package(Edition::Edition2021)));
 
         assert_eq!(min, Some(BareVersion::ThreeComponents(1, 56, 0)));
     }
 
     #[test]
-    fn minimum_version_with_unreadable_manifest() {
-        let dir = TempDir::new().unwrap();
-        dir.child("Cargo.toml").create_dir_all().unwrap();
+    fn minimum_version_given_wins_from_edition() {
+        let ctx = RustReleasesContext {
+            minimum_rust_version: Some(BareVersion::TwoComponents(1, 40)),
+            ..RustReleasesContext::default()
+        };
 
-        let result = RustReleasesContext::default().resolve_minimum_version(&environment(&dir));
+        let min = ctx.resolve_minimum_version(Some(&package(Edition::Edition2021)));
 
-        assert!(matches!(result, Err(Error::Io(_))));
+        assert_eq!(min, Some(BareVersion::TwoComponents(1, 40)));
+    }
+
+    #[test]
+    fn empty_selection() {
+        let result = CargoProject::new(Utf8PathBuf::from("ws"), vec![]);
+
+        assert!(matches!(result, Err(Error::EmptySelection)));
+    }
+
+    #[test]
+    fn packages_in_selection_order() {
+        let mut b = package(Edition::Edition2018);
+        b.name = "b".to_string();
+
+        let project = CargoProject::new(
+            Utf8PathBuf::from("ws"),
+            vec![package(Edition::Edition2021), b],
+        )
+        .unwrap();
+
+        let names = project
+            .packages()
+            .map(|p| p.name.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(names, ["a", "b"]);
+    }
+
+    fn cargo_environment(packages: Vec<Package>) -> EnvironmentContext {
+        EnvironmentContext {
+            root_crate_path: Utf8PathBuf::from("ws"),
+            project: Project::Cargo(CargoProject::new(Utf8PathBuf::from("ws"), packages).unwrap()),
+        }
+    }
+
+    fn check_cmd(custom: Option<Vec<String>>) -> CheckCommandContext {
+        CheckCommandContext {
+            cargo_features: None,
+            cargo_all_features: false,
+            cargo_no_default_features: false,
+            rustup_command: custom,
+        }
+    }
+
+    #[test]
+    fn each_package_is_checked_with_the_default_command() {
+        let mut b = package(Edition::Edition2018);
+        b.name = "b".to_string();
+        let env = cargo_environment(vec![package(Edition::Edition2021), b]);
+
+        let names = env
+            .packages_to_check(&check_cmd(None))
+            .into_iter()
+            .map(|p| p.map(|p| p.name.as_str()))
+            .collect::<Vec<_>>();
+
+        assert_eq!(names, [Some("a"), Some("b")]);
+    }
+
+    #[test]
+    fn custom_command_checks_the_project_once() {
+        let env = cargo_environment(vec![package(Edition::Edition2021)]);
+
+        let packages = env.packages_to_check(&check_cmd(Some(vec!["make".to_string()])));
+
+        assert!(matches!(packages.as_slice(), [None]));
+    }
+
+    #[test]
+    fn bare_project_is_checked_once() {
+        let env = EnvironmentContext {
+            root_crate_path: Utf8PathBuf::from("ws"),
+            project: Project::Bare,
+        };
+
+        assert!(matches!(
+            env.packages_to_check(&check_cmd(None)).as_slice(),
+            [None]
+        ));
+        assert!(env.lock().is_none());
+        assert_eq!(env.workspace_root(), Utf8Path::new("ws"));
+        assert!(env.selected_packages().is_none());
+    }
+
+    #[test]
+    fn oldest_edition_package() {
+        let mut b = package(Edition::Edition2018);
+        b.name = "b".to_string();
+        let env = cargo_environment(vec![package(Edition::Edition2021), b]);
+
+        assert_eq!(env.oldest_edition_package().unwrap().name, "b");
     }
 }

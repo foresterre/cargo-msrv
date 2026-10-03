@@ -209,6 +209,12 @@ pub struct SetOpts {
     #[arg(value_name = "MSRV")]
     pub msrv: BareVersion,
 
+    /// Set the MSRV in the `workspace.package` table of the workspace root manifest
+    ///
+    /// Workspace members which use `rust-version.workspace = true` inherit this MSRV.
+    #[arg(long)]
+    pub workspace_root: bool,
+
     #[command(flatten)]
     pub rust_releases_opts: RustReleasesOpts,
 }
