@@ -4,7 +4,7 @@ use crate::event::subcommand_result::SubcommandResult;
 use crate::typed_bool::{False, True};
 use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_context::context::SearchMethod;
-use cargo_msrv_types::BareVersion;
+use version_number::Version;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -12,9 +12,9 @@ pub struct FindResult {
     #[serde(skip)]
     pub target: String,
     #[serde(skip)]
-    pub minimum_version: BareVersion,
+    pub minimum_version: Version,
     #[serde(skip)]
-    pub maximum_version: BareVersion,
+    pub maximum_version: Version,
     #[serde(skip)]
     pub search_method: SearchMethod,
 
@@ -28,8 +28,8 @@ impl FindResult {
     pub fn new_msrv(
         version: semver::Version,
         target: impl Into<String>,
-        min: BareVersion,
-        max: BareVersion,
+        min: Version,
+        max: Version,
         search_method: SearchMethod,
     ) -> Self {
         Self {
@@ -50,8 +50,8 @@ impl FindResult {
 
     pub fn none(
         target: impl Into<String>,
-        min: BareVersion,
-        max: BareVersion,
+        min: Version,
+        max: Version,
         search_method: SearchMethod,
     ) -> Self {
         Self {
@@ -125,8 +125,8 @@ mod tests {
     fn reported_msrv_determined_event() {
         let reporter = TestReporterWrapper::default();
         let version = semver::Version::new(1, 3, 0);
-        let min = BareVersion::TwoComponents(1, 0);
-        let max = BareVersion::ThreeComponents(1, 4, 0);
+        let min = Version::new_base_version(1, 0);
+        let max = Version::new_full_version(1, 4, 0);
 
         let event = FindResult::new_msrv(version, "x", min, max, SearchMethod::Linear);
         reporter.get().report_event(event.clone()).unwrap();
@@ -148,8 +148,8 @@ mod tests {
     #[test]
     fn reported_msrv_undetermined_event() {
         let reporter = TestReporterWrapper::default();
-        let min = BareVersion::TwoComponents(1, 0);
-        let max = BareVersion::ThreeComponents(1, 4, 0);
+        let min = Version::new_base_version(1, 0);
+        let max = Version::new_full_version(1, 4, 0);
 
         let event = FindResult::none("x", min, max, SearchMethod::Linear);
 

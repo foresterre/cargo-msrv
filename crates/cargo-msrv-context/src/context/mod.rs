@@ -16,7 +16,7 @@ use crate::types::BundledFallback;
 use crate::types::{Edition, LogLevel, ReleaseSource, TracingTargetOption};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_rust_tools::CargoManifest;
-use cargo_msrv_types::BareVersion;
+use version_number::Version;
 
 pub mod error;
 pub mod find;
@@ -101,10 +101,10 @@ impl Context {
 #[derive(Clone, Debug, Default)]
 pub struct RustReleasesContext {
     /// The minimum Rust version to consider.
-    pub minimum_rust_version: Option<BareVersion>,
+    pub minimum_rust_version: Option<Version>,
 
     /// The maximum Rust version to consider (inclusive).
-    pub maximum_rust_version: Option<BareVersion>,
+    pub maximum_rust_version: Option<Version>,
 
     /// Whether to consider patch releases as separate versions.
     pub consider_patch_releases: bool,
@@ -121,10 +121,10 @@ pub struct RustReleasesContext {
 }
 
 impl RustReleasesContext {
-    pub fn resolve_minimum_version(&self, package: Option<&Package>) -> Option<BareVersion> {
+    pub fn resolve_minimum_version(&self, package: Option<&Package>) -> Option<Version> {
         self.minimum_rust_version
             .clone()
-            .or_else(|| package.map(|p| p.edition.as_bare_version()))
+            .or_else(|| package.map(|p| p.edition.as_version()))
     }
 }
 
@@ -251,7 +251,7 @@ pub struct Package {
     pub name: String,
     pub manifest_path: Utf8PathBuf,
     /// Already resolved by cargo, so `rust-version.workspace = true` works.
-    pub rust_version: Option<BareVersion>,
+    pub rust_version: Option<Version>,
     pub edition: Edition,
 }
 
@@ -359,19 +359,19 @@ mod tests {
         let min = RustReleasesContext::default()
             .resolve_minimum_version(Some(&package(Edition::Edition2021)));
 
-        assert_eq!(min, Some(BareVersion::ThreeComponents(1, 56, 0)));
+        assert_eq!(min, Some(Version::new_full_version(1, 56, 0)));
     }
 
     #[test]
     fn minimum_version_given_wins_from_edition() {
         let ctx = RustReleasesContext {
-            minimum_rust_version: Some(BareVersion::TwoComponents(1, 40)),
+            minimum_rust_version: Some(Version::new_base_version(1, 40)),
             ..RustReleasesContext::default()
         };
 
         let min = ctx.resolve_minimum_version(Some(&package(Edition::Edition2021)));
 
-        assert_eq!(min, Some(BareVersion::TwoComponents(1, 40)));
+        assert_eq!(min, Some(Version::new_base_version(1, 40)));
     }
 
     #[test]

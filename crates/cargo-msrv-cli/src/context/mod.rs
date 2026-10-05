@@ -50,7 +50,7 @@ impl TryFrom<CargoMsrvOpts> for Context {
 impl From<RustReleasesOpts> for RustReleasesContext {
     fn from(opts: RustReleasesOpts) -> Self {
         Self {
-            minimum_rust_version: opts.min.map(|min| min.as_bare_version()),
+            minimum_rust_version: opts.min.map(|min| min.as_version()),
             maximum_rust_version: opts.max,
             consider_patch_releases: opts.include_all_patch_releases,
             release_source: opts.release_source,

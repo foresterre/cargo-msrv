@@ -24,6 +24,7 @@ dunce = { workspace = true }
 indoc = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+version-number = { workspace = true }
 
 [dev-dependencies]
 yare = { workspace = true }

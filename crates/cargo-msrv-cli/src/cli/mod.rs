@@ -4,10 +4,10 @@ use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::values::list_msrv_variant;
 use cargo_msrv_context::types::ListMsrvVariant;
-use cargo_msrv_types::BareVersion;
 use clap::{Args, Parser, Subcommand};
 use clap_cargo::style::CLAP_STYLING;
 use std::ffi::{OsStr, OsString};
+use version_number::Version;
 
 pub mod custom_check_opts;
 pub mod rust_releases_opts;
@@ -210,7 +210,7 @@ pub struct SetOpts {
     /// in the Cargo manifest. MSRV's greater or equal to 1.56 will be written to
     /// `package.rust-version` in the Cargo manifest.
     #[arg(value_name = "MSRV")]
-    pub msrv: BareVersion,
+    pub msrv: Version,
 
     /// Set the MSRV in the `workspace.package` table of the workspace root manifest
     ///
@@ -254,7 +254,7 @@ pub struct VerifyOpts {
     ///
     /// If not set, the MSRV will be parsed from the Cargo manifest instead.
     #[arg(long, value_name = "rust-version")]
-    pub rust_version: Option<BareVersion>,
+    pub rust_version: Option<Version>,
 
     #[command(flatten, next_help_heading = "Package selection")]
     pub workspace: clap_cargo::Workspace,

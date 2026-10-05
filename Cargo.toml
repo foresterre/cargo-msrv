@@ -41,6 +41,7 @@ toml_edit = { workspace = true } # read and write the Cargo.toml
 tracing = { workspace = true } # tracing
 tracing-appender = "0.2" # tracing
 tracing-subscriber = { version = "0.3", features = ["json"] }
+version-number = { workspace = true }
 
 [dev-dependencies]
 cargo-msrv-reporter = { workspace = true, features = ["testing"] }
@@ -127,6 +128,7 @@ storyteller = "2.0.0-beta.1"
 thiserror = "2.0.18"
 toml_edit = "0.25.5"
 tracing = "0.1"
+version-number = "1.0.0"
 yare = "3.0.0"
 
 # ~~~ profile ~~~

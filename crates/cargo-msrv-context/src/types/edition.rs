@@ -1,5 +1,5 @@
-use cargo_msrv_types::BareVersion;
 use std::str::FromStr;
+use version_number::Version;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Edition {
@@ -24,13 +24,13 @@ impl FromStr for Edition {
 }
 
 impl Edition {
-    pub fn as_bare_version(&self) -> BareVersion {
+    pub fn as_version(&self) -> Version {
         match self {
-            Self::Edition2015 => BareVersion::ThreeComponents(1, 0, 0),
-            Self::Edition2018 => BareVersion::ThreeComponents(1, 31, 0),
-            Self::Edition2021 => BareVersion::ThreeComponents(1, 56, 0),
+            Self::Edition2015 => Version::new_full_version(1, 0, 0),
+            Self::Edition2018 => Version::new_full_version(1, 31, 0),
+            Self::Edition2021 => Version::new_full_version(1, 56, 0),
             // Actual stable version is pending; planning: https://doc.rust-lang.org/nightly/edition-guide/rust-2024/index.html
-            Self::Edition2024 => BareVersion::ThreeComponents(1, 85, 0),
+            Self::Edition2024 => Version::new_full_version(1, 85, 0),
         }
     }
 }

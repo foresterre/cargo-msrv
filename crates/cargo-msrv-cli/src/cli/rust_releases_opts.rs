@@ -12,10 +12,9 @@ use crate::values::release_source;
 ))]
 use cargo_msrv_context::types::{BundledMaxAge, FallbackReleaseSource};
 use cargo_msrv_context::types::{Edition, ParseEditionError, ReleaseSource};
-use cargo_msrv_types::BareVersion;
-use cargo_msrv_types::bare_version;
 use clap::Args;
 use std::str::FromStr;
+use version_number::Version;
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Rust releases options")]
@@ -35,7 +34,7 @@ pub struct RustReleasesOpts {
     /// Given version must match a valid Rust toolchain, and be semver compatible, or
     /// be a two component `major.minor` version.
     #[arg(long, value_name = "VERSION_SPEC", alias = "maximum")]
-    pub max: Option<BareVersion>,
+    pub max: Option<Version>,
 
     /// Include all patch releases, instead of only the last
     #[arg(long)]
@@ -87,13 +86,13 @@ pub struct RustReleasesOpts {
 #[derive(Clone, Debug)]
 pub enum EditionOrVersion {
     Edition(Edition),
-    Version(BareVersion),
+    Version(Version),
 }
 
 impl EditionOrVersion {
-    pub fn as_bare_version(&self) -> BareVersion {
+    pub fn as_version(&self) -> Version {
         match self {
-            Self::Edition(edition) => edition.as_bare_version(),
+            Self::Edition(edition) => edition.as_version(),
             Self::Version(version) => version.clone(),
         }
     }
@@ -107,7 +106,7 @@ impl FromStr for EditionOrVersion {
             .parse::<Edition>()
             .map(EditionOrVersion::Edition)
             .or_else(|edition_err| {
-                BareVersion::from_str(input)
+                Version::from_str(input)
                     .map(EditionOrVersion::Version)
                     .map_err(|parse_version_err| {
                         ParseEditionOrVersionError::EditionOrVersion(
@@ -123,5 +122,5 @@ impl FromStr for EditionOrVersion {
 #[derive(Debug, thiserror::Error)]
 pub enum ParseEditionOrVersionError {
     #[error("Value '{0}' could not be parsed as a valid Rust version: {1} + {2}")]
-    EditionOrVersion(String, ParseEditionError, bare_version::Error),
+    EditionOrVersion(String, ParseEditionError, version_number::Error),
 }

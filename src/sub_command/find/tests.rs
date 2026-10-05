@@ -6,8 +6,8 @@ use crate::context::{
 use crate::reporter::Event;
 use crate::reporter::TestReporterWrapper;
 use camino::{Utf8Path, Utf8PathBuf};
-use cargo_msrv_types::BareVersion;
 use std::iter::FromIterator;
+use version_number::Version;
 
 #[test]
 fn bisect_find_only_last() {
@@ -42,7 +42,7 @@ fn bisect_find_only_last() {
     context.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
     // which now is 2021, i.e. >= 1.56, and that breaks the tests
-    context.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 37, 0));
+    context.rust_releases.minimum_rust_version = Some(Version::new_full_version(1, 37, 0));
 
     let found = cmd.run(&context, reporter.get()).unwrap();
     assert_eq!(found, semver::Version::new(1, 56, 0));
@@ -52,8 +52,8 @@ fn bisect_find_only_last() {
         FindResult::new_msrv(
             semver::Version::new(1, 56, 0),
             "x",
-            BareVersion::ThreeComponents(1, 37, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
+            Version::new_full_version(1, 37, 0),
+            Version::new_full_version(1, 56, 0),
             SearchMethod::Bisect,
         )
         .into(),
@@ -89,7 +89,7 @@ fn bisect_find_all_compatible() {
     ctx.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
     // which now is 2021, i.e. >= 1.56, and that breaks the tests
-    ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 52, 0));
+    ctx.rust_releases.minimum_rust_version = Some(Version::new_full_version(1, 52, 0));
 
     let found = cmd.run(&ctx, reporter.get()).unwrap();
     assert_eq!(found, semver::Version::new(1, 52, 0));
@@ -99,8 +99,8 @@ fn bisect_find_all_compatible() {
         FindResult::new_msrv(
             semver::Version::new(1, 52, 0),
             "x",
-            BareVersion::ThreeComponents(1, 52, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
+            Version::new_full_version(1, 52, 0),
+            Version::new_full_version(1, 56, 0),
             SearchMethod::Bisect,
         )
         .into(),
@@ -127,7 +127,7 @@ fn bisect_none_compatible() {
     ctx.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
     // which now is 2021, i.e. >= 1.56, and that breaks the tests
-    ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 52, 0));
+    ctx.rust_releases.minimum_rust_version = Some(Version::new_full_version(1, 52, 0));
 
     let result = cmd.run(&ctx, reporter.get());
     assert!(result.is_err());
@@ -136,8 +136,8 @@ fn bisect_none_compatible() {
     let expected: Vec<Event> = vec![
         FindResult::none(
             "x",
-            BareVersion::ThreeComponents(1, 52, 0),
-            BareVersion::ThreeComponents(1, 56, 0),
+            Version::new_full_version(1, 52, 0),
+            Version::new_full_version(1, 56, 0),
             SearchMethod::Bisect,
         )
         .into(),
@@ -173,8 +173,8 @@ mod issue_369_min_more_recent_than_max {
         let mut ctx = create_test_context();
 
         // Create a negative search space, by setting min > max, effectively emptying it.
-        ctx.rust_releases.minimum_rust_version = Some(BareVersion::TwoComponents(1, 56));
-        ctx.rust_releases.maximum_rust_version = Some(BareVersion::ThreeComponents(1, 54, 0));
+        ctx.rust_releases.minimum_rust_version = Some(Version::new_base_version(1, 56));
+        ctx.rust_releases.maximum_rust_version = Some(Version::new_full_version(1, 54, 0));
         ctx.search_method = SearchMethod::Bisect;
 
         let result = cmd.run(&ctx, reporter.get());
@@ -192,8 +192,8 @@ mod issue_369_min_more_recent_than_max {
 
         let unexpected_event: Event = FindResult::none(
             "x",
-            BareVersion::TwoComponents(1, 56),
-            BareVersion::ThreeComponents(1, 54, 0),
+            Version::new_base_version(1, 56),
+            Version::new_full_version(1, 54, 0),
             SearchMethod::Bisect,
         )
         .into();
@@ -221,8 +221,8 @@ mod issue_369_min_more_recent_than_max {
         let mut ctx = create_test_context();
 
         // Create a negative search space, by setting min > max, effectively emptying it.
-        ctx.rust_releases.minimum_rust_version = Some(BareVersion::TwoComponents(1, 56));
-        ctx.rust_releases.maximum_rust_version = Some(BareVersion::ThreeComponents(1, 54, 0));
+        ctx.rust_releases.minimum_rust_version = Some(Version::new_base_version(1, 56));
+        ctx.rust_releases.maximum_rust_version = Some(Version::new_full_version(1, 54, 0));
         ctx.search_method = SearchMethod::Linear;
 
         let result = cmd.run(&ctx, reporter.get());
@@ -240,8 +240,8 @@ mod issue_369_min_more_recent_than_max {
 
         let unexpected_event: Event = FindResult::none(
             "x",
-            BareVersion::TwoComponents(1, 56),
-            BareVersion::ThreeComponents(1, 54, 0),
+            Version::new_base_version(1, 56),
+            Version::new_full_version(1, 54, 0),
             SearchMethod::Linear,
         )
         .into();
@@ -282,7 +282,7 @@ mod unavailable_toolchains {
             target: HOST,
             components: &[],
         };
-        ctx.rust_releases.minimum_rust_version = Some(BareVersion::ThreeComponents(1, 57, 0));
+        ctx.rust_releases.minimum_rust_version = Some(Version::new_full_version(1, 57, 0));
 
         ctx
     }

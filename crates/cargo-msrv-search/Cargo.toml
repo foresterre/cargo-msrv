@@ -27,6 +27,7 @@ semver = { workspace = true }
 storyteller = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+version-number = { workspace = true }
 
 [dev-dependencies]
 cargo-msrv-reporter = { workspace = true, features = ["testing"] }

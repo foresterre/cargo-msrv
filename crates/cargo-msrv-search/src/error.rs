@@ -1,7 +1,7 @@
 use camino::Utf8PathBuf;
 use cargo_msrv_rust_releases::ExcludedRelease;
-use cargo_msrv_types::BareVersion;
 use owo_colors::OwoColorize;
+use version_number::Version;
 
 pub use cargo_msrv_context::context::error::{IoError, IoErrorSource};
 
@@ -52,7 +52,7 @@ impl NoToolchainsToTryError {
         }
     }
 
-    pub fn with_details(user_min: Option<BareVersion>, user_max: Option<BareVersion>) -> Self {
+    pub fn with_details(user_min: Option<Version>, user_max: Option<Version>) -> Self {
         Self {
             inner: Some(SelectedMinMaxVersion {
                 min: user_min,
@@ -88,8 +88,8 @@ impl NoToolchainsToTryError {
     max.as_ref().map(|s| format!("{}", s)).unwrap_or_else(|| "<not overridden>".to_string()),
 )]
 pub struct SelectedMinMaxVersion {
-    min: Option<BareVersion>,
-    max: Option<BareVersion>,
+    min: Option<Version>,
+    max: Option<Version>,
 }
 
 const UNAVAILABLE_EXAMPLES: usize = 3;

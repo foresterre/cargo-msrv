@@ -16,7 +16,7 @@ use cargo_msrv_rust_releases::{
 };
 use cargo_msrv_rust_tools::write_toolchain_file;
 use cargo_msrv_search::Error as SearchError;
-use cargo_msrv_types::BareVersion;
+use version_number::Version;
 use write_msrv::write_msrv;
 
 mod write_msrv;
@@ -126,7 +126,7 @@ fn find_package_msrv(
 
                 write_msrv(
                     reporter,
-                    BareVersion::two_component_from_semver(toolchain.version()),
+                    Version::new_base_version(toolchain.version().major, toolchain.version().minor),
                     Some(release_index), // Reuse the already obtained index
                     &cargo_toml,
                     package.map(SelectedPackage::from),
@@ -306,7 +306,7 @@ fn report_outcome(
     Ok(())
 }
 
-fn min_max_releases(rust_releases: &[RustRelease<Stable>]) -> TResult<(BareVersion, BareVersion)> {
+fn min_max_releases(rust_releases: &[RustRelease<Stable>]) -> TResult<(Version, Version)> {
     let min = rust_releases
         .last()
         .map(|v| to_semver(v.version()))
@@ -316,7 +316,10 @@ fn min_max_releases(rust_releases: &[RustRelease<Stable>]) -> TResult<(BareVersi
         .map(|v| to_semver(v.version()))
         .ok_or(CargoMSRVError::RustReleasesEmptyReleaseSet)?;
 
-    Ok(((&min).into(), (&max).into()))
+    Ok((
+        Version::new_full_version(min.major, min.minor, min.patch),
+        Version::new_full_version(max.major, max.minor, max.patch),
+    ))
 }
 
 #[cfg(test)]

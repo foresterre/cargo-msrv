@@ -1,13 +1,13 @@
 use crate::JsonHandler;
 use crate::event::ShowResult;
 use camino::Utf8Path;
-use cargo_msrv_types::BareVersion;
 use storyteller::EventHandler;
+use version_number::Version;
 
 #[test]
 fn handler() {
     let event = ShowResult::new(
-        BareVersion::ThreeComponents(1, 2, 3),
+        Version::new_full_version(1, 2, 3),
         Utf8Path::new("/hello/world").to_path_buf(),
     );
 
@@ -33,7 +33,7 @@ fn handler() {
 #[test]
 fn event() {
     let event = ShowResult::new(
-        BareVersion::ThreeComponents(1, 10, 100),
+        Version::new_full_version(1, 10, 100),
         Utf8Path::new("/hello/world").to_path_buf(),
     );
 
@@ -51,7 +51,7 @@ fn event() {
 #[test]
 fn event_with_package() {
     let event = ShowResult::new(
-        BareVersion::ThreeComponents(1, 10, 100),
+        Version::new_full_version(1, 10, 100),
         Utf8Path::new("/ws/a/Cargo.toml").to_path_buf(),
     )
     .with_package(Some(cargo_msrv_context::SelectedPackage {

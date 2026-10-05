@@ -1,8 +1,8 @@
 use crate::JsonHandler;
 use crate::event::FindResult;
 use cargo_msrv_context::context::SearchMethod;
-use cargo_msrv_types::BareVersion;
 use storyteller::EventHandler;
+use version_number::Version;
 
 #[test]
 fn compatible_handler() {
@@ -11,8 +11,8 @@ fn compatible_handler() {
     let event = FindResult::new_msrv(
         version,
         "x",
-        BareVersion::TwoComponents(1, 0),
-        BareVersion::TwoComponents(1, 10),
+        Version::new_base_version(1, 0),
+        Version::new_base_version(1, 10),
         SearchMethod::Linear,
     );
 
@@ -39,8 +39,8 @@ fn compatible_handler() {
 fn incompatible_handler() {
     let event = FindResult::none(
         "x",
-        BareVersion::TwoComponents(1, 0),
-        BareVersion::TwoComponents(1, 10),
+        Version::new_base_version(1, 0),
+        Version::new_base_version(1, 10),
         SearchMethod::Bisect,
     );
 
@@ -68,8 +68,8 @@ fn compatible() {
     let event = FindResult::new_msrv(
         version,
         "x",
-        BareVersion::TwoComponents(1, 0),
-        BareVersion::TwoComponents(1, 10),
+        Version::new_base_version(1, 0),
+        Version::new_base_version(1, 10),
         SearchMethod::Bisect,
     );
 
@@ -88,8 +88,8 @@ fn compatible() {
 fn incompatible() {
     let event = FindResult::none(
         "x",
-        BareVersion::TwoComponents(1, 0),
-        BareVersion::TwoComponents(1, 10),
+        Version::new_base_version(1, 0),
+        Version::new_base_version(1, 10),
         SearchMethod::Bisect,
     );
 

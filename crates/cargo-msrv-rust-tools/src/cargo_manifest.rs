@@ -1,9 +1,7 @@
 use cargo_metadata::{Metadata, Package, semver};
-use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use toml_edit::{DocumentMut, TomlError};
-
-use cargo_msrv_types::bare_version;
+use version_number::{FromSemverError, FullVersion, Version};
 
 pub trait TomlParser {
     type Error;
@@ -14,11 +12,11 @@ pub trait TomlParser {
 /// A structure for owning the values in a `Cargo.toml` manifest relevant for `cargo-msrv`.
 #[derive(Debug)]
 pub struct CargoManifest {
-    minimum_rust_version: Option<BareVersion>,
+    minimum_rust_version: Option<Version>,
 }
 
 impl CargoManifest {
-    pub fn minimum_rust_version(&self) -> Option<&BareVersion> {
+    pub fn minimum_rust_version(&self) -> Option<&Version> {
         self.minimum_rust_version.as_ref()
     }
 }
@@ -42,15 +40,12 @@ impl TomlParser for CargoManifestParser {
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("The minimum rust version in your manifest file could not be parsed: {inner}")]
-pub struct ManifestParseError {
-    pub inner: bare_version::Error,
-}
+pub enum ManifestParseError {
+    #[error("The minimum rust version in your manifest file could not be parsed: {0}")]
+    MetadataMsrv(#[from] version_number::Error),
 
-impl From<bare_version::Error> for ManifestParseError {
-    fn from(bare: bare_version::Error) -> Self {
-        Self { inner: bare }
-    }
+    #[error("The rust-version in your manifest file is not supported: {0}")]
+    RustVersion(#[from] FromSemverError),
 }
 
 impl TryFrom<Metadata> for CargoManifest {
@@ -77,9 +72,7 @@ impl CargoManifest {
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` metadata.
-fn find_minimum_rust_version(
-    package: &Package,
-) -> Result<Option<BareVersion>, bare_version::Error> {
+fn find_minimum_rust_version(package: &Package) -> Result<Option<Version>, ManifestParseError> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
@@ -96,16 +89,16 @@ fn find_minimum_rust_version(
     // Parse the MSRV from the `package.rust-version` key if it exists,
     // and try to fallback to our own `package.metadata.msrv` if it doesn't
     match find_rust_version(package) {
-        Some(version) => Ok(Some(BareVersion::from(version))),
-        None => find_metadata_msrv(package)
-            .map(BareVersion::try_from)
-            .transpose(),
+        Some(version) => Ok(Some(Version::from(FullVersion::try_from(version)?))),
+        None => Ok(find_metadata_msrv(package)
+            .map(Version::parse)
+            .transpose()?),
     }
 }
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::cargo_manifest::{BareVersion, CargoManifest};
+    use crate::cargo_manifest::{CargoManifest, Version};
     use cargo_metadata::Metadata;
     use std::convert::TryFrom;
 
@@ -163,7 +156,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
+        assert_eq!(version, Version::new_full_version(1, 56, 0));
     }
 
     #[test]
@@ -186,7 +179,7 @@ mod minimal_version_tests {
         let version = manifest.minimum_rust_version.unwrap();
 
         // going through cargo_metadata means it gets turned into 3 components
-        assert_eq!(version, BareVersion::ThreeComponents(1, 56, 0));
+        assert_eq!(version, Version::new_full_version(1, 56, 0));
     }
 
     #[test]
@@ -197,7 +190,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, BareVersion::ThreeComponents(1, 51, 0));
+        assert_eq!(version, Version::new_full_version(1, 51, 0));
     }
 
     #[test]
@@ -208,7 +201,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, BareVersion::TwoComponents(1, 51));
+        assert_eq!(version, Version::new_base_version(1, 51));
     }
 
     #[yare::parameterized(
@@ -230,118 +223,5 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata);
 
         assert!(manifest.is_err());
-    }
-}
-
-#[cfg(test)]
-mod bare_version_tests {
-    use cargo_msrv_types::BareVersion;
-    use yare::parameterized;
-
-    fn available_versions() -> Vec<semver::Version> {
-        vec![
-            semver::Version::new(2, 56, 0),
-            semver::Version::new(1, 56, 0),
-            semver::Version::new(1, 55, 0),
-            semver::Version::new(1, 54, 2),
-            semver::Version::new(1, 54, 1),
-            semver::Version::new(1, 0, 0),
-        ]
-    }
-
-    #[parameterized(
-        two_component_two_fifty_six = { "2.56", BareVersion::TwoComponents(2, 56) },
-        three_component_two_fifty_six = { "2.56.0", BareVersion::ThreeComponents(2, 56, 0) },
-        two_component_one_fifty_five = { "1.55", BareVersion::TwoComponents(1, 55) },
-        three_component_one_fifty_five = { "1.55.0", BareVersion::ThreeComponents(1, 55, 0) },
-        three_component_one_fifty_four = { "1.54.0", BareVersion::ThreeComponents(1, 54, 0) },
-        three_component_one_fifty_four_p1 = { "1.54.1", BareVersion::ThreeComponents(1, 54, 1) },
-        three_component_one_fifty_four_p10 = { "1.54.10", BareVersion::ThreeComponents(1, 54, 10) },
-        two_component_zeros = { "0.0", BareVersion::TwoComponents(0, 0) },
-        three_component_zeros = { "0.0.0", BareVersion::ThreeComponents(0, 0, 0) },
-        two_component_large_major = { "18446744073709551615.0", BareVersion::TwoComponents(18_446_744_073_709_551_615, 0) },
-        two_component_large_minor = { "0.18446744073709551615", BareVersion::TwoComponents(0, 18_446_744_073_709_551_615) },
-        three_component_large_major = { "18446744073709551615.0.0", BareVersion::ThreeComponents(18_446_744_073_709_551_615, 0, 0) },
-        three_component_large_minor = { "0.18446744073709551615.0", BareVersion::ThreeComponents(0, 18_446_744_073_709_551_615, 0) },
-        three_component_large_patch = { "0.0.18446744073709551615", BareVersion::ThreeComponents(0, 0, 18_446_744_073_709_551_615) },
-    )]
-    fn try_from_ok(version: &str, expected: BareVersion) {
-        use std::convert::TryFrom;
-
-        let version = BareVersion::try_from(version).unwrap();
-
-        assert_eq!(version, expected);
-    }
-
-    #[parameterized(
-        empty = { "" }, // no first component
-        no_components_space = { "1 36 0" },
-        no_components_comma = { "1,36,0" },
-        first_component_nan = { "x.0.0" },
-        no_second_component = { "1." },
-        second_component_nan = { "1.x" },
-        no_third_component = { "1.0." },
-        third_component_nan = { "1.36.x" },
-        too_large_int_major_2c = { "18446744073709551616.0" },
-        too_large_int_minor_2c = { "0.18446744073709551616" },
-        too_large_int_major_3c = { "18446744073709551616.0.0" },
-        too_large_int_minor_3c = { "0.18446744073709551616.0" },
-        too_large_int_patch_3c = { "0.0.18446744073709551616" },
-        neg_int_major = { "-1.0.0" },
-        neg_int_minor = { "0.-1.0" },
-        neg_int_patch = { "0.0.-1" },
-        build_postfix_without_pre_release_id = { "0.0.0+some" },
-        two_component_pre_release_id_variant_1 = { "0.0-nightly" },
-        two_component_pre_release_id_variant_2 = { "0.0-beta.0" },
-        two_component_pre_release_id_variant_3 = { "0.0-beta.1" },
-        two_component_pre_release_id_variant_4 = { "0.0-anything", },
-        two_component_pre_release_id_variant_5 = { "0.0-anything+build" },
-        three_component_pre_release_id_variant_2 = { "0.0.0-beta.0" },
-        three_component_pre_release_id_variant_3 = { "0.0.0-beta.1" },
-        three_component_pre_release_id_variant_1 = { "0.0.0-nightly" },
-        three_component_pre_release_id_variant_4 = { "0.0.0-anything" },
-        three_component_pre_release_id_variant_5 = { "0.0.0-anything+build" },
-    )]
-    fn try_from_err(version: &str) {
-        use std::convert::TryFrom;
-
-        let res = BareVersion::try_from(version);
-
-        assert!(res.is_err());
-    }
-
-    #[parameterized(
-        two_fifty_six = {  BareVersion::TwoComponents(2, 56), semver::Version::new(2, 56, 0) },
-        one_fifty_six = {  BareVersion::TwoComponents(1, 56), semver::Version::new(1, 56, 0) },
-        one_fifty_five = {  BareVersion::TwoComponents(1, 55), semver::Version::new(1, 55, 0) },
-        one_fifty_four_p2 = {  BareVersion::TwoComponents(1, 54), semver::Version::new(1, 54, 2) },
-        one_fifty_four_p1 = {  BareVersion::TwoComponents(1, 54), semver::Version::new(1, 54, 2) },
-        one_fifty_four_p0 = {  BareVersion::TwoComponents(1, 54), semver::Version::new(1, 54, 2) },
-        one = {  BareVersion::TwoComponents(1, 0), semver::Version::new(1, 0, 0) },
-    )]
-    fn two_components_to_semver(version: BareVersion, expected: semver::Version) {
-        let versions = available_versions();
-        let available = versions.iter();
-
-        let v = version.try_to_semver(available).unwrap();
-
-        assert_eq!(v, &expected);
-    }
-
-    #[parameterized(
-        two_fifty_six = {  BareVersion::ThreeComponents(2, 56, 0), semver::Version::new(2, 56, 0) },
-        one_fifty_six = {  BareVersion::ThreeComponents(1, 56, 0), semver::Version::new(1, 56, 0) },
-        one_fifty_five = {  BareVersion::ThreeComponents(1, 55, 0), semver::Version::new(1, 55, 0) },
-        one_fifty_four_p2 = {  BareVersion::ThreeComponents(1, 54, 2), semver::Version::new(1, 54, 2) },
-        one_fifty_four_p1 = {  BareVersion::ThreeComponents(1, 54, 1), semver::Version::new(1, 54, 1) },
-        one = {  BareVersion::ThreeComponents(1, 0, 0), semver::Version::new(1, 0, 0) },
-    )]
-    fn three_components_to_semver(version: BareVersion, expected: semver::Version) {
-        let versions = available_versions();
-        let available = versions.iter();
-
-        let v = version.try_to_semver(available).unwrap();
-
-        assert_eq!(v, &expected);
     }
 }
