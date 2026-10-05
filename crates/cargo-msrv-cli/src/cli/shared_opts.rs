@@ -19,9 +19,6 @@ pub struct SharedOpts {
     pub manifest_path: Option<PathBuf>,
 
     #[command(flatten)]
-    pub workspace: clap_cargo::Workspace,
-
-    #[command(flatten)]
     pub user_output_opts: UserOutputOpts,
 
     #[command(flatten)]

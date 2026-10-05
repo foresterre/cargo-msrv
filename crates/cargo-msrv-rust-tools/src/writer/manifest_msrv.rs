@@ -8,13 +8,26 @@ const RUST_VERSION_SUPPORTED_SINCE: semver::Version = semver::Version::new(1, 56
 
 #[derive(Debug, thiserror::Error)]
 pub enum WriteManifestMsrvError {
+    #[error(
+        "Package '{package}' inherits its MSRV from the workspace. \
+         Use `cargo msrv set --workspace-msrv <version>` to change it for all members."
+    )]
+    InheritedMsrv { package: String },
+
     #[error(transparent)]
     Io(#[from] IoError),
+
+    #[error("Unable to set the MSRV in the workspace root: no [workspace] table found in '{0}'")]
+    NoWorkspaceTable(camino::Utf8PathBuf),
 
     #[error("Unable to parse Cargo.toml: {0}")]
     ParseToml(#[from] TomlError),
 
-    #[error("Unable to set MSRV for workspace, try setting it for individual packages instead.")]
+    #[error(
+        "Unable to set the MSRV in a virtual workspace manifest. \
+         Use `cargo msrv set --workspace-msrv <version>` to set it for all members, \
+         or select a package with `--package <name>`."
+    )]
     WorkspaceFound,
 
     #[error(
@@ -28,6 +41,43 @@ pub fn write_manifest_msrv(
     cargo_toml: &Utf8Path,
     msrv: &BareVersion,
 ) -> Result<(), WriteManifestMsrvError> {
+    let mut manifest = read_manifest(cargo_toml)?;
+    check_workspace(&manifest)?;
+    check_inherited(&manifest, cargo_toml)?;
+
+    // Set the MSRV
+    set_or_override_msrv(&mut manifest, msrv)?;
+
+    write_manifest(cargo_toml, &manifest)
+}
+
+pub fn write_workspace_msrv(
+    cargo_toml: &Utf8Path,
+    msrv: &BareVersion,
+) -> Result<(), WriteManifestMsrvError> {
+    let mut manifest = read_manifest(cargo_toml)?;
+
+    let workspace = manifest
+        .as_table_mut()
+        .get_mut("workspace")
+        .and_then(Item::as_table_like_mut)
+        .ok_or_else(|| WriteManifestMsrvError::NoWorkspaceTable(cargo_toml.to_path_buf()))?;
+
+    if workspace.get("package").is_none() {
+        workspace.insert("package", table());
+    }
+
+    let package = workspace
+        .get_mut("package")
+        .and_then(Item::as_table_like_mut)
+        .ok_or(WriteManifestMsrvError::NotATable)?;
+
+    package.insert("rust-version", value(msrv.to_string()));
+
+    write_manifest(cargo_toml, &manifest)
+}
+
+fn read_manifest(cargo_toml: &Utf8Path) -> Result<DocumentMut, WriteManifestMsrvError> {
     // Read the Cargo manifest to a String
     let contents = std::fs::read_to_string(cargo_toml).map_err(|error| IoError {
         error,
@@ -35,12 +85,13 @@ pub fn write_manifest_msrv(
     })?;
 
     // Parse the Cargo manifest contents, in particular the MSRV value
-    let mut manifest = CargoManifestParser.parse::<DocumentMut>(&contents)?;
-    check_workspace(&manifest)?;
+    Ok(CargoManifestParser.parse::<DocumentMut>(&contents)?)
+}
 
-    // Set the MSRV
-    set_or_override_msrv(&mut manifest, msrv)?;
-
+fn write_manifest(
+    cargo_toml: &Utf8Path,
+    manifest: &DocumentMut,
+) -> Result<(), WriteManifestMsrvError> {
     // Open the Cargo manifest file with write permissions and truncate the current its contents
     let mut file = std::fs::OpenOptions::new()
         .write(true)
@@ -65,6 +116,29 @@ fn check_workspace(manifest: &DocumentMut) -> Result<(), WriteManifestMsrvError>
         && manifest.as_table().get("workspace").is_some()
     {
         Err(WriteManifestMsrvError::WorkspaceFound)
+    } else {
+        Ok(())
+    }
+}
+
+fn check_inherited(
+    manifest: &DocumentMut,
+    cargo_toml: &Utf8Path,
+) -> Result<(), WriteManifestMsrvError> {
+    let package = manifest.as_table().get("package");
+
+    let inherited = package
+        .and_then(|package| package.get("rust-version"))
+        .and_then(Item::as_table_like)
+        .is_some_and(|rust_version| rust_version.contains_key("workspace"));
+
+    if inherited {
+        let package = package
+            .and_then(|package| package.get("name"))
+            .and_then(Item::as_str)
+            .map_or_else(|| cargo_toml.to_string(), str::to_string);
+
+        Err(WriteManifestMsrvError::InheritedMsrv { package })
     } else {
         Ok(())
     }
@@ -875,5 +949,86 @@ edition = "2021"
             .unwrap();
 
         assert_eq!(msrv, &METADATA_MSRV.to_string());
+    }
+}
+
+#[cfg(test)]
+mod write_tests {
+    use crate::{WriteManifestMsrvError, write_manifest_msrv, write_workspace_msrv};
+    use assert_fs::TempDir;
+    use assert_fs::prelude::*;
+    use camino::Utf8Path;
+    use cargo_msrv_types::BareVersion;
+
+    fn manifest(dir: &TempDir, contents: &str) -> camino::Utf8PathBuf {
+        let child = dir.child("Cargo.toml");
+        child.write_str(contents).unwrap();
+        Utf8Path::from_path(child.path()).unwrap().to_path_buf()
+    }
+
+    #[yare::parameterized(
+        dotted = { "[package]\nname = \"b\"\nrust-version.workspace = true\n" },
+        inline = { "[package]\nname = \"b\"\nrust-version = { workspace = true }\n" },
+    )]
+    fn inherited_rust_version_is_not_replaced(contents: &str) {
+        let dir = TempDir::new().unwrap();
+        let path = manifest(&dir, contents);
+
+        let err = write_manifest_msrv(&path, &BareVersion::TwoComponents(1, 70)).unwrap_err();
+
+        assert!(
+            matches!(err, WriteManifestMsrvError::InheritedMsrv { ref package } if package == "b")
+        );
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), contents);
+    }
+
+    #[test]
+    fn virtual_manifest_points_to_workspace_root() {
+        let dir = TempDir::new().unwrap();
+        let path = manifest(&dir, "[workspace]\nmembers = [\"a\"]\n");
+
+        let err = write_manifest_msrv(&path, &BareVersion::TwoComponents(1, 70)).unwrap_err();
+
+        assert!(matches!(err, WriteManifestMsrvError::WorkspaceFound));
+        assert!(err.to_string().contains("--workspace-msrv"));
+    }
+
+    #[test]
+    fn workspace_msrv_without_package_table() {
+        let dir = TempDir::new().unwrap();
+        let path = manifest(&dir, "[workspace]\nmembers = [\"a\"]\n");
+
+        write_workspace_msrv(&path, &BareVersion::TwoComponents(1, 70)).unwrap();
+
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "[workspace]\nmembers = [\"a\"]\n\n[workspace.package]\nrust-version = \"1.70\"\n"
+        );
+    }
+
+    #[test]
+    fn workspace_msrv_replaces_existing() {
+        let dir = TempDir::new().unwrap();
+        let path = manifest(
+            &dir,
+            "[workspace]\nmembers = [\"a\"]\n\n[workspace.package]\nedition = \"2021\"\nrust-version = \"1.60\"\n",
+        );
+
+        write_workspace_msrv(&path, &BareVersion::ThreeComponents(1, 70, 1)).unwrap();
+
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "[workspace]\nmembers = [\"a\"]\n\n[workspace.package]\nedition = \"2021\"\nrust-version = \"1.70.1\"\n"
+        );
+    }
+
+    #[test]
+    fn workspace_msrv_without_workspace_table() {
+        let dir = TempDir::new().unwrap();
+        let path = manifest(&dir, "[package]\nname = \"a\"\n");
+
+        let err = write_workspace_msrv(&path, &BareVersion::TwoComponents(1, 70)).unwrap_err();
+
+        assert!(matches!(err, WriteManifestMsrvError::NoWorkspaceTable(_)));
     }
 }

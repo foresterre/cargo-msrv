@@ -1,12 +1,11 @@
 use super::*;
 use crate::compatibility::TestRunner;
 use crate::context::{
-    CheckCommandContext, EnvironmentContext, RustReleasesContext, ToolchainContext,
-    WorkspacePackages,
+    CheckCommandContext, EnvironmentContext, Project, RustReleasesContext, ToolchainContext,
 };
 use crate::reporter::Event;
 use crate::reporter::TestReporterWrapper;
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_types::BareVersion;
 use std::iter::FromIterator;
 
@@ -38,7 +37,7 @@ fn bisect_find_only_last() {
     let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok("x", &[semver::Version::new(1, 56, 0)]);
 
-    let cmd = Find::new(&index, runner);
+    let cmd = Find::new(&index, |_| &runner);
     let mut context = create_test_context();
     context.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
@@ -85,7 +84,7 @@ fn bisect_find_all_compatible() {
         ],
     );
 
-    let cmd = Find::new(&index, runner);
+    let cmd = Find::new(&index, |_| &runner);
     let mut ctx = create_test_context();
     ctx.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
@@ -123,7 +122,7 @@ fn bisect_none_compatible() {
     let reporter = TestReporterWrapper::default();
     let runner = TestRunner::with_ok("x", &[]);
 
-    let cmd = Find::new(&index, runner);
+    let cmd = Find::new(&index, |_| &runner);
     let mut ctx = create_test_context();
     ctx.search_method = SearchMethod::Bisect;
     // necessary currently, otherwise our own cargo manifest edition is used (ugh),
@@ -170,7 +169,7 @@ mod issue_369_min_more_recent_than_max {
         let reporter = TestReporterWrapper::default();
         let runner = TestRunner::with_ok("x", &[]);
 
-        let cmd = Find::new(&index, runner);
+        let cmd = Find::new(&index, |_| &runner);
         let mut ctx = create_test_context();
 
         // Create a negative search space, by setting min > max, effectively emptying it.
@@ -218,7 +217,7 @@ mod issue_369_min_more_recent_than_max {
         let reporter = TestReporterWrapper::default();
         let runner = TestRunner::with_ok("x", &[]);
 
-        let cmd = Find::new(&index, runner);
+        let cmd = Find::new(&index, |_| &runner);
         let mut ctx = create_test_context();
 
         // Create a negative search space, by setting min > max, effectively emptying it.
@@ -295,7 +294,7 @@ mod unavailable_toolchains {
         let reporter = TestReporterWrapper::default();
         let runner = TestRunner::with_ok(HOST, &[semver::Version::new(1, 58, 0)]);
 
-        let cmd = Find::new(&index, runner);
+        let cmd = Find::new(&index, |_| &runner);
         let found = cmd.run(&create_context(), reporter.get()).unwrap();
 
         assert_eq!(found, semver::Version::new(1, 58, 0));
@@ -308,7 +307,7 @@ mod unavailable_toolchains {
         let reporter = TestReporterWrapper::default();
         let runner = TestRunner::with_ok(HOST, &[]);
 
-        let cmd = Find::new(&index, runner);
+        let cmd = Find::new(&index, |_| &runner);
         let err = cmd.run(&create_context(), reporter.get()).unwrap_err();
 
         assert!(matches!(err, CargoMSRVError::NoToolchainsToTry(ref inner) if inner.has_clues()));
@@ -322,6 +321,198 @@ mod unavailable_toolchains {
              Rust 1.58.0 (no toolchain for host 'x86_64-unknown-linux-gnu'), \
              Rust 1.57.0 (no toolchain for host 'x86_64-unknown-linux-gnu')"
         );
+    }
+}
+
+mod workspace {
+    use super::*;
+    use crate::reporter::Message;
+    use crate::reporter::event::SubcommandResult;
+    use assert_fs::prelude::*;
+    use cargo_msrv_context::types::Edition;
+    use cargo_msrv_context::{CargoProject, Package};
+
+    fn index() -> ReleaseIndex {
+        ReleaseIndex::from_iter(vec![
+            RustRelease::new(Stable::new(1, 58, 0), None, []),
+            RustRelease::new(Stable::new(1, 57, 0), None, []),
+            RustRelease::new(Stable::new(1, 56, 0), None, []),
+        ])
+    }
+
+    fn package(root: &Utf8Path, name: &str) -> Package {
+        Package {
+            name: name.to_string(),
+            manifest_path: root.join(name).join("Cargo.toml"),
+            rust_version: None,
+            edition: Edition::Edition2021,
+        }
+    }
+
+    fn workspace(tmp: &assert_fs::TempDir) -> FindContext {
+        for name in ["a", "b"] {
+            tmp.child(name)
+                .child("Cargo.toml")
+                .write_str(&format!("[package]\nname = \"{name}\"\n"))
+                .unwrap();
+        }
+
+        let root = Utf8Path::from_path(tmp.path()).unwrap();
+        let project = CargoProject::new(
+            root.to_path_buf(),
+            vec![package(root, "a"), package(root, "b")],
+        )
+        .unwrap();
+
+        let mut ctx = create_test_context();
+        ctx.environment = EnvironmentContext {
+            root_crate_path: root.to_path_buf(),
+            project: Project::Cargo(project),
+        };
+        ctx
+    }
+
+    fn runner_for(target: CheckTarget) -> TestRunner {
+        let command = target.run_command.components().join(" ");
+        let accepted = if command.contains("--package a") {
+            vec![
+                semver::Version::new(1, 56, 0),
+                semver::Version::new(1, 57, 0),
+                semver::Version::new(1, 58, 0),
+            ]
+        } else if command.contains("--package b") {
+            vec![semver::Version::new(1, 58, 0)]
+        } else {
+            vec![]
+        };
+
+        TestRunner::with_ok("x", &accepted)
+    }
+
+    fn found_msrvs(events: &[Event]) -> Vec<(String, Option<semver::Version>)> {
+        events
+            .iter()
+            .filter_map(|event| match event.message() {
+                Message::SubcommandResult(SubcommandResult::Find(result)) => Some((
+                    result.package().unwrap().name.clone(),
+                    result.msrv().cloned(),
+                )),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn each_package_has_its_own_msrv() {
+        let tmp = assert_fs::TempDir::new().unwrap();
+        let ctx = workspace(&tmp);
+        let index = index();
+        let reporter = TestReporterWrapper::default();
+
+        let found = Find::new(&index, runner_for)
+            .run(&ctx, reporter.get())
+            .unwrap();
+
+        assert_eq!(found, semver::Version::new(1, 58, 0));
+
+        let events = reporter.wait_for_events();
+        assert_eq!(
+            found_msrvs(&events),
+            [
+                ("a".to_string(), Some(semver::Version::new(1, 56, 0))),
+                ("b".to_string(), Some(semver::Version::new(1, 58, 0))),
+            ]
+        );
+
+        let package_scopes = events
+            .iter()
+            .filter(|event| matches!(event.message(), Message::CheckPackage(_)))
+            .count();
+        assert_eq!(
+            package_scopes, 4,
+            "expected a start and end event for each package"
+        );
+    }
+
+    #[test]
+    fn write_msrv_per_package_and_highest_toolchain_file() {
+        let tmp = assert_fs::TempDir::new().unwrap();
+        let mut ctx = workspace(&tmp);
+        ctx.write_msrv = true;
+        ctx.write_toolchain_file = true;
+        let index = index();
+        let reporter = TestReporterWrapper::default();
+
+        Find::new(&index, runner_for)
+            .run(&ctx, reporter.get())
+            .unwrap();
+
+        tmp.child("a/Cargo.toml")
+            .assert("[package]\nname = \"a\"\nrust-version = \"1.56\"\n");
+        tmp.child("b/Cargo.toml")
+            .assert("[package]\nname = \"b\"\nrust-version = \"1.58\"\n");
+        tmp.child("rust-toolchain")
+            .assert("[toolchain]\nchannel = \"1.58.0\"\n");
+    }
+
+    #[test]
+    fn a_failing_package_does_not_stop_the_others() {
+        let tmp = assert_fs::TempDir::new().unwrap();
+        let mut ctx = workspace(&tmp);
+        let Project::Cargo(project) = &mut ctx.environment.project else {
+            unreachable!()
+        };
+        project.first.name = "c".to_string();
+        ctx.write_toolchain_file = true;
+        let index = index();
+        let reporter = TestReporterWrapper::default();
+
+        let err = Find::new(&index, runner_for)
+            .run(&ctx, reporter.get())
+            .unwrap_err();
+
+        assert!(matches!(
+            err,
+            CargoMSRVError::UnableToFindAnyGoodVersion { ref commands }
+                if commands == &["cargo check --package c --target x"]
+        ));
+        assert_eq!(
+            found_msrvs(&reporter.wait_for_events()),
+            [
+                ("c".to_string(), None),
+                ("b".to_string(), Some(semver::Version::new(1, 58, 0))),
+            ]
+        );
+        assert!(!tmp.child("rust-toolchain").path().exists());
+    }
+
+    #[test]
+    fn custom_command_runs_once_for_the_workspace() {
+        let tmp = assert_fs::TempDir::new().unwrap();
+        let mut ctx = workspace(&tmp);
+        ctx.check_cmd.rustup_command = Some(vec!["cargo".into(), "check".into()]);
+        let index = index();
+        let reporter = TestReporterWrapper::default();
+
+        let found = Find::new(&index, |_| {
+            TestRunner::with_ok("x", &[semver::Version::new(1, 57, 0)])
+        })
+        .run(&ctx, reporter.get())
+        .unwrap();
+
+        assert_eq!(found, semver::Version::new(1, 57, 0));
+
+        let results = reporter
+            .wait_for_events()
+            .into_iter()
+            .filter_map(|event| match event.message() {
+                Message::SubcommandResult(SubcommandResult::Find(result)) => {
+                    Some(result.package().is_none())
+                }
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(results, [true]);
     }
 }
 
@@ -347,7 +538,7 @@ fn create_test_context() -> FindContext {
         },
         environment: EnvironmentContext {
             root_crate_path: Utf8PathBuf::new(),
-            workspace_packages: WorkspacePackages::default(),
+            project: Project::Bare,
         },
     }
 }

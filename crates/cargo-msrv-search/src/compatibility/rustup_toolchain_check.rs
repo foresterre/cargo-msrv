@@ -1,11 +1,10 @@
-use crate::compatibility::IsCompatible;
+use crate::compatibility::{CheckTarget, IsCompatible};
 use crate::error::{Error, IoError, IoErrorSource, LockfileHandlerError};
 use crate::lockfile::LockfileHandler;
 use crate::outcome::Incompatible;
 use crate::setup_toolchain::{SetupRustupToolchain, SetupToolchain};
 use crate::{Compatibility, TResult};
 use camino::{Utf8Path, Utf8PathBuf};
-use cargo_msrv_context::EnvironmentContext;
 use cargo_msrv_reporter::Reporter;
 use cargo_msrv_reporter::event::{CheckMethod, CheckResult, CheckToolchain, Method};
 use cargo_msrv_rust_tools::CargoCommand;
@@ -14,19 +13,19 @@ use cargo_msrv_types::Toolchain;
 use std::fmt;
 use std::fmt::Formatter;
 
-pub struct RustupToolchainCheck<'reporter, 'env, R: Reporter> {
+pub struct RustupToolchainCheck<'reporter, R: Reporter> {
     reporter: &'reporter R,
-    settings: Settings<'env>,
+    settings: Settings,
 }
 
-impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
+impl<'reporter, R: Reporter> RustupToolchainCheck<'reporter, R> {
     pub fn new(
         reporter: &'reporter R,
         ignore_lockfile: bool,
         no_check_feedback: bool,
         skip_unavailable_toolchains: bool,
-        environment: &'env EnvironmentContext,
-        run_command: RunCommand,
+        lockfile: Option<Utf8PathBuf>,
+        target: CheckTarget,
     ) -> Self {
         Self {
             reporter,
@@ -34,14 +33,14 @@ impl<'reporter, 'env, R: Reporter> RustupToolchainCheck<'reporter, 'env, R> {
                 ignore_lockfile,
                 no_check_feedback,
                 skip_unavailable_toolchains,
-                environment,
-                check_cmd: run_command,
+                lockfile,
+                target,
             },
         }
     }
 }
 
-impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
+impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, R> {
     fn is_compatible(&self, toolchain: &Toolchain) -> TResult<Compatibility> {
         let settings = &self.settings;
 
@@ -51,7 +50,7 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
 
                 // temporarily move the lockfile if the user opted to ignore it, and it exists
                 let ignore_lockfile = settings.ignore_lockfile();
-                let handle_wrap = create_lockfile_handle(ignore_lockfile, settings.environment)?
+                let handle_wrap = create_lockfile_handle(ignore_lockfile, settings.lockfile())?
                     .map(|handle| handle.move_lockfile())
                     .transpose()?;
 
@@ -68,12 +67,12 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
                     Err(err) => Err(err),
                 }?;
 
-                if handle_wrap.is_some() {
-                    remove_lockfile(&settings.lockfile_path())?;
+                if let Some(lockfile) = settings.lockfile().filter(|_| handle_wrap.is_some()) {
+                    remove_lockfile(lockfile)?;
                 }
 
                 let crate_root = settings.crate_root_path();
-                let cmd = &self.settings.check_cmd;
+                let cmd = &settings.target.run_command;
 
                 let outcome = run_check_command_via_rustup(
                     self.reporter,
@@ -95,7 +94,7 @@ impl<R: Reporter> IsCompatible for RustupToolchainCheck<'_, '_, R> {
     }
 }
 
-impl<R: Reporter> fmt::Debug for RustupToolchainCheck<'_, '_, R> {
+impl<R: Reporter> fmt::Debug for RustupToolchainCheck<'_, R> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("{:?}", self.settings))
     }
@@ -188,11 +187,10 @@ fn report_outcome(
 /// to ignore it.
 fn create_lockfile_handle(
     ignore_lockfile: bool,
-    env: &EnvironmentContext,
+    lockfile: Option<&Utf8Path>,
 ) -> Result<Option<LockfileHandler>, LockfileHandlerError> {
-    ignore_lockfile
-        .then(|| env.lock())
-        .filter(|lockfile| lockfile.is_file())
+    lockfile
+        .filter(|lockfile| ignore_lockfile && lockfile.is_file())
         .map(LockfileHandler::try_new)
         .transpose()
 }
@@ -209,16 +207,16 @@ fn remove_lockfile(lock_file: &Utf8Path) -> TResult<()> {
 }
 
 #[derive(Debug)]
-struct Settings<'env> {
+struct Settings {
     ignore_lockfile: bool,
     no_check_feedback: bool,
     skip_unavailable_toolchains: bool,
 
-    environment: &'env EnvironmentContext,
-    check_cmd: RunCommand,
+    lockfile: Option<Utf8PathBuf>,
+    target: CheckTarget,
 }
 
-impl Settings<'_> {
+impl Settings {
     pub fn ignore_lockfile(&self) -> bool {
         self.ignore_lockfile
     }
@@ -232,11 +230,11 @@ impl Settings<'_> {
     }
 
     pub fn crate_root_path(&self) -> &Utf8Path {
-        self.environment.root()
+        &self.target.dir
     }
 
-    pub fn lockfile_path(&self) -> Utf8PathBuf {
-        self.environment.lock()
+    pub fn lockfile(&self) -> Option<&Utf8Path> {
+        self.lockfile.as_deref()
     }
 }
 

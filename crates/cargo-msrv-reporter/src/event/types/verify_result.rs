@@ -2,25 +2,39 @@ use crate::Event;
 use crate::event::Message;
 use crate::event::shared::compatibility::Compatibility;
 use crate::event::subcommand_result::SubcommandResult;
+use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_types::Toolchain;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VerifyResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    package: Option<SelectedPackage>,
     pub result: Compatibility,
 }
 
 impl VerifyResult {
     pub fn compatible(toolchain: impl Into<Toolchain>) -> Self {
         Self {
+            package: None,
             result: Compatibility::compatible(toolchain),
         }
     }
 
     pub fn incompatible(toolchain: impl Into<Toolchain>, error: Option<String>) -> Self {
         Self {
+            package: None,
             result: Compatibility::incompatible(toolchain, error),
         }
+    }
+
+    pub fn with_package(mut self, package: Option<SelectedPackage>) -> Self {
+        self.package = package;
+        self
+    }
+
+    pub fn package(&self) -> Option<&SelectedPackage> {
+        self.package.as_ref()
     }
 
     pub fn toolchain(&self) -> &Toolchain {

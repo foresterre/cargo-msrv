@@ -1,4 +1,5 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::context::make_environment_ctx;
 use cargo_msrv_context::context::error::{Error, TResult};
 use cargo_msrv_context::{FindContext, SearchMethod};
 use std::convert::{TryFrom, TryInto};
@@ -18,7 +19,7 @@ impl TryFrom<CargoMsrvOpts> for FindContext {
         };
 
         let toolchain = find_opts.toolchain_opts.try_into()?;
-        let environment = (&shared_opts).try_into()?;
+        let environment = make_environment_ctx(&shared_opts, &find_opts.workspace)?;
 
         Ok(Self {
             search_method: if find_opts.linear {

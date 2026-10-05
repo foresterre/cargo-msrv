@@ -12,6 +12,7 @@ pub use auxiliary_output::{
     AuxiliaryOutput, Destination, Item as AuxiliaryOutputItem, MsrvKind, ToolchainFileKind,
 };
 pub use check_method::{CheckMethod, Method};
+pub use check_package::CheckPackage;
 pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
 pub use fetch_index::FetchIndex;
@@ -43,6 +44,7 @@ mod types;
 // specific events
 mod auxiliary_output;
 mod check_method;
+mod check_package;
 mod check_result;
 mod check_toolchain;
 mod fetch_index;
@@ -136,6 +138,7 @@ pub enum Message {
     //       with: reason, reduction
 
     // runner, setup of toolchain, method, result
+    CheckPackage(CheckPackage),
     CheckToolchain(CheckToolchain),
     SetupToolchain(SetupToolchain),
     CheckMethod(CheckMethod),

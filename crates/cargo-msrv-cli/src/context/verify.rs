@@ -1,7 +1,8 @@
 use crate::cli::{CargoMsrvOpts, SubCommand};
+use crate::context::make_environment_ctx;
 use cargo_msrv_context::VerifyContext;
 use cargo_msrv_context::context::error::{Error, TResult};
-use cargo_msrv_context::context::verify::RustVersion;
+use cargo_msrv_context::context::verify::VerifyCheck;
 use std::convert::{TryFrom, TryInto};
 
 impl TryFrom<CargoMsrvOpts> for VerifyContext {
@@ -19,20 +20,19 @@ impl TryFrom<CargoMsrvOpts> for VerifyContext {
         };
 
         let toolchain = verify_opts.toolchain_opts.try_into()?;
-        let environment = (&shared_opts).try_into()?;
+        let environment = make_environment_ctx(&shared_opts, &verify_opts.workspace)?;
+        let check_cmd = verify_opts.custom_check_opts.into();
 
-        let rust_version = match verify_opts.rust_version {
-            Some(v) => RustVersion::from_arg(v),
-            None => RustVersion::try_from_environment(&environment)?,
-        };
+        let checks =
+            VerifyCheck::resolve(verify_opts.rust_version.as_ref(), &check_cmd, &environment)?;
 
         Ok(Self {
-            rust_version,
+            checks,
             ignore_lockfile: verify_opts.ignore_lockfile,
             no_check_feedback: verify_opts.no_check_feedback,
             rust_releases: verify_opts.rust_releases_opts.into(),
             toolchain,
-            check_cmd: verify_opts.custom_check_opts.into(),
+            check_cmd,
             environment,
         })
     }

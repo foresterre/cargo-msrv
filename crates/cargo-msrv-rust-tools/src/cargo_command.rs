@@ -1,5 +1,6 @@
 #[derive(Debug, Default)]
 pub struct CargoCommand {
+    package: Option<String>,
     features: Option<Vec<String>>,
     all_features: bool,
     no_default_features: bool,
@@ -7,6 +8,11 @@ pub struct CargoCommand {
 }
 
 impl CargoCommand {
+    pub fn package(mut self, name: Option<impl ToString>) -> Self {
+        self.package = name.map(|n| n.to_string());
+        self
+    }
+
     /// Set the features to be forwarded as `cargo <cmd> --features`
     pub fn features(mut self, features: Option<Vec<String>>) -> Self {
         self.features = features;
@@ -45,6 +51,10 @@ impl CargoCommand {
         // Alternatives can be set when using cargo msrv -- custom cmd
         // This value does open the path to use cargo build for Rust < 1.16
         args.extend_from_slice(&["cargo".to_string(), "check".to_string()]);
+
+        if let Some(name) = self.package {
+            args.extend(["--package".into(), name]);
+        }
 
         if let Some(features) = self.features {
             let features = features.join(",");
@@ -147,15 +157,35 @@ mod tests {
     }
 
     #[test]
+    fn set_package_none() {
+        let cargo_command = CargoCommand::default().package(None::<String>);
+        assert_eq!(
+            cargo_command.into_args().join(" "),
+            "cargo check".to_string()
+        );
+    }
+
+    #[test]
+    fn set_package_some() {
+        let cargo_command = CargoCommand::default().package(Some("a"));
+        assert_eq!(
+            cargo_command.into_args().join(" "),
+            "cargo check --package a".to_string()
+        );
+    }
+
+    #[test]
     fn combination_of_everything() {
         let cargo_command = CargoCommand::default();
         let cargo_command = cargo_command
             .features(Some(vec!["pika".to_string(), "chu".to_string()]))
             .all_features(true)
             .no_default_features(true)
-            .target(Some("pickme"));
+            .target(Some("pickme"))
+            .package(Some("pkg"));
 
         let cmd = cargo_command.into_args().join(" ");
+        assert!(cmd.starts_with("cargo check --package pkg"));
         assert!(cmd.contains("--all-features"));
         assert!(cmd.contains("--features pika,chu"));
         assert!(cmd.contains("--no-default-features"));

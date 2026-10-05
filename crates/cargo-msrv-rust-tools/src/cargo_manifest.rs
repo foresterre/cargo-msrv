@@ -1,4 +1,4 @@
-use cargo_metadata::{Metadata, semver};
+use cargo_metadata::{Metadata, Package, semver};
 use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use toml_edit::{DocumentMut, TomlError};
@@ -57,7 +57,18 @@ impl TryFrom<Metadata> for CargoManifest {
     type Error = ManifestParseError;
 
     fn try_from(metadata: Metadata) -> Result<Self, Self::Error> {
-        let minimum_rust_version = find_minimum_rust_version(&metadata)?;
+        match metadata.root_package() {
+            Some(package) => Self::for_package(package),
+            None => Ok(Self {
+                minimum_rust_version: None,
+            }),
+        }
+    }
+}
+
+impl CargoManifest {
+    pub fn for_package(package: &Package) -> Result<Self, ManifestParseError> {
+        let minimum_rust_version = find_minimum_rust_version(package)?;
 
         Ok(Self {
             minimum_rust_version,
@@ -67,31 +78,26 @@ impl TryFrom<Metadata> for CargoManifest {
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` metadata.
 fn find_minimum_rust_version(
-    metadata: &Metadata,
+    package: &Package,
 ) -> Result<Option<BareVersion>, bare_version::Error> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-    fn find_rust_version(metadata: &Metadata) -> Option<&semver::Version> {
-        metadata.root_package()?.rust_version.as_ref()
+    fn find_rust_version(package: &Package) -> Option<&semver::Version> {
+        package.rust_version.as_ref()
     }
 
     /// Parses the MSRV as supported by `cargo-msrv`, since prior to the release of Rust
     /// 1.56.0
-    fn find_metadata_msrv(metadata: &Metadata) -> Option<&str> {
-        metadata
-            .root_package()?
-            .metadata
-            .as_object()?
-            .get("msrv")?
-            .as_str()
+    fn find_metadata_msrv(package: &Package) -> Option<&str> {
+        package.metadata.as_object()?.get("msrv")?.as_str()
     }
 
     // Parse the MSRV from the `package.rust-version` key if it exists,
     // and try to fallback to our own `package.metadata.msrv` if it doesn't
-    match find_rust_version(metadata) {
+    match find_rust_version(package) {
         Some(version) => Ok(Some(BareVersion::from(version))),
-        None => find_metadata_msrv(metadata)
+        None => find_metadata_msrv(package)
             .map(BareVersion::try_from)
             .transpose(),
     }

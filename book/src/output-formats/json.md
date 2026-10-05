@@ -100,6 +100,38 @@ reports that the index is being fetched, and details which source is used.
 }
 ```
 
+## Event: `CheckPackage`
+
+**type:** check_package
+
+**description:** When a check is run for a single package of a Cargo workspace, for example by `cargo msrv find` or
+`cargo msrv verify`, the `CheckPackage` event is wrapped around all checks of that package. It is a scoped event.
+It is not reported when the project is checked as a whole, for example when a custom check command is used.
+
+**fields:**
+
+| name              | description                         |
+|-------------------|-------------------------------------|
+| package           | The package which is checked        |
+| package.name      | The name of the package             |
+| package.path      | The path to the package's manifest  |
+
+**example:**
+
+```json lines
+{
+  "type": "check_package",
+  "package": {
+    "name": "a",
+    "path": "/workspace/a/Cargo.toml"
+  },
+  "scope": {
+    "id": 1,
+    "marker": "start"
+  }
+}
+```
+
 ## Event: `CheckToolchain`
 
 **type:** check_toolchain
@@ -332,6 +364,9 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 | name                     | optional | condition                                                     | description                                                               |
 |--------------------------|----------|---------------------------------------------------------------|---------------------------------------------------------------------------|
 | subcommand_id            | no       |                                                               | A name identifying the subcommand                                         |
+| package                  | yes      | subcommand_id = `find`, `set`, `show` or `verify`             | The package this result is for, absent if there is no single package     |
+| package.name             | no       | package is present                                            | The name of the package                                                   |
+| package.path             | no       | package is present                                            | The path to the package's manifest                                        |
 |                          |          |                                                               |                                                                           |
 | result                   | no       | subcommand_id = `find`                                        | Result of find command                                                    |
 | result.success           | no       | subcommand_id = `find`                                        | Whether the MSRV was found or not                                         |
