@@ -210,6 +210,30 @@ reports that the index is being fetched, and details which source is used.</p>
   &quot;scope&quot;: &quot;end&quot;
 }
 </code></pre>
+<h2 id="event-checkpackage"><a class="header" href="#event-checkpackage">Event: <code>CheckPackage</code></a></h2>
+<p><strong>type:</strong> check_package</p>
+<p><strong>description:</strong> When a check is run for a single package of a Cargo workspace, for example by <code>cargo msrv find</code> or
+<code>cargo msrv verify</code>, the <code>CheckPackage</code> event is wrapped around all checks of that package. It is a scoped event.
+It is not reported when the project is checked as a whole, for example when a custom check command is used.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
+<tr><td>package</td><td>The package which is checked</td></tr>
+<tr><td>package.name</td><td>The name of the package</td></tr>
+<tr><td>package.path</td><td>The path to the package's manifest</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_package&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;a&quot;,
+    &quot;path&quot;: &quot;/workspace/a/Cargo.toml&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 1,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+</code></pre>
 <h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: <code>CheckToolchain</code></a></h2>
 <p><strong>type:</strong> check_toolchain</p>
 <p><strong>description:</strong> The primary way for <code>cargo-msrv</code> to determine whether a given Rust toolchain is compatible with your
@@ -384,6 +408,9 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
+<tr><td>package</td><td>yes</td><td>subcommand_id = <code>find</code>, <code>set</code>, <code>show</code> or <code>verify</code></td><td>The package this result is for, absent if there is no single package</td></tr>
+<tr><td>package.name</td><td>no</td><td>package is present</td><td>The name of the package</td></tr>
+<tr><td>package.path</td><td>no</td><td>package is present</td><td>The path to the package's manifest</td></tr>
 <tr><td></td><td></td><td></td><td></td></tr>
 <tr><td>result</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Result of find command</td></tr>
 <tr><td>result.success</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Whether the MSRV was found or not</td></tr>

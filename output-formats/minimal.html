@@ -150,6 +150,12 @@ to <code>stderr</code>.</li>
 </ul>
 <p>You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.</p>
+<p>When more than one package of a Cargo workspace is selected, each result is printed on its own line,
+starting with the package name. For example, <code>cargo msrv show --workspace --output-format minimal</code> may print:</p>
+<pre><code class="language-shell"># stdout
+a 1.56
+b 1.58
+</code></pre>
 <h1 id="output-by-subcommand"><a class="header" href="#output-by-subcommand">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find"><a class="header" href="#cargo-msrv-find"># cargo msrv (find)</a></h2>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.

@@ -240,67 +240,71 @@ acceptable Rust releases. If you require additional options, please refer to the
 <a href="getting-started/../commands/index.html"><code>cargo-msrv commands</code></a> section, or run <code>cargo msrv help</code> to view the program's help
 output.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="cargo-workspace"><a class="header" href="#cargo-workspace">Cargo Workspace</a></h3>
-<p>When developing a Rust project with cargo, you may use a cargo <a href="https://doc.rust-lang.org/cargo/reference/workspaces.html">workspace</a>
-to manage a set of related packages together.</p>
-<p><code>cargo-msrv</code> currently partially supports cargo workspaces although full support is on the way.</p>
-<h4 id="finding-the-msrv-of-a-workspace-member"><a class="header" href="#finding-the-msrv-of-a-workspace-member">Finding the MSRV of a workspace member</a></h4>
-<p>To find the MSRV of a workspace crate, you can run:</p>
-<pre><code class="language-shell">cargo msrv find -- cargo check -p $crate_name
-</code></pre>
-<p>To verify the MSRV of a workspace, you can run:</p>
-<pre><code class="language-shell">cargo msrv verify -- cargo check -p $crate_name
-</code></pre>
-<h4 id="workspace-support-in-cargo-msrv"><a class="header" href="#workspace-support-in-cargo-msrv">Workspace support in cargo-msrv</a></h4>
-<p><code>cargo-msrv</code> should support the follow for a cargo workspace:</p>
+<p>If you're in a <code>Cargo</code> <a href="https://doc.rust-lang.org/cargo/reference/workspaces.html">workspace</a> while using <code>cargo-msrv</code>, you
+can use the same flags <code>Cargo</code> offers to select a set of packages.</p>
+<p><code>cargo-msrv</code> aims to select packages like <code>cargo</code>. If you don't provide workspace specific flags, it will:</p>
 <ul>
-<li>Run <code>cargo msrv find</code> on a workspace, and find the MSRV of all, or the selected workspace packages</li>
-<li>Run <code>cargo msrv find --write-msrv</code> to write the found MSRV's of the selected workspace packages</li>
-<li>Run <code>cargo msrv verify</code> on a workspace, and verify the MSRV of all, or the selected workspace packages</li>
+<li>in a virtual workspace every (default) member is selected</li>
+<li>at the root of a workspace with a root package the root is selected</li>
+<li>in a member directory, the member is selected</li>
+</ul>
+<h4 id="selecting-packages"><a class="header" href="#selecting-packages">Selecting packages</a></h4>
+<p><code>cargo-msrv</code> mirrors <code>cargo's</code> flags:</p>
+<pre><code class="language-shell"># Find the MSRV of every workspace member
+cargo msrv find --workspace
+
+# Find the MSRV of a specific workspace member
+cargo msrv find --package $crate_name
+
+# Verify every member, excluding one
+cargo msrv verify --workspace --exclude $crate_name
+</code></pre>
+<h4 id="find-and-verify"><a class="header" href="#find-and-verify">Find and Verify</a></h4>
+<p><code>cargo msrv find</code> finds the MSRV for each of the selected workspace packages. <code>cargo msrv verify</code> checks each package
+against its defined MSRV, unless you provide a <code>--rust-version</code> (then, that will be the MSRV checked for every
+selected package). </p>
+<h4 id="set"><a class="header" href="#set">Set</a></h4>
+<p><code>cargo msrv set &lt;version&gt;</code> and <code>cargo msrv find --write-msrv</code> write the MSRV of each selected package to their own
+manifests. <code>cargo msrv find --write-toolchain-file</code> writes the highest MSRV it found to the toolchain file at the
+workspace root, since the toolchain file applies to the whole workspace.</p>
+<p>If a package inherits its MSRV from the workspace (<code>rust-version.workspace = true</code>), <code>cargo-msrv</code> won't replace it.
+If you want, you can set the workspace MSRV (i.e. <code>rust-version</code> in the <code>[workspace.package]</code> table of the workspace
+root manifest) with:</p>
+<pre><code class="language-shell">cargo msrv set --workspace-msrv $version
+</code></pre>
+<h4 id="custom-check-commands"><a class="header" href="#custom-check-commands">Custom check commands</a></h4>
+<p><code>cargo-msrv</code> isn't workspace aware when custom check commands are used. Custom check command can be anything (that can
+be run with <code>rustup run &lt;target&gt; &lt;cmd&gt;</code>, and this includes non-cargo commands. <code>cargo-msrv</code> currently doesn't try to
+infer that you provided a <code>cargo</code> custom check command, if you did.</p>
+<p>For workspace crates it is recommended that you use <code>cargo-msrv</code> without custom check commands. If that's not possible,
+please open a <a href="https://github.com/foresterre/cargo-msrv/discussions/categories/feature-requests">topic</a> in the discussions
+forum, and describe your use case.</p>
+<h4 id="workspace-support-in-cargo-msrv"><a class="header" href="#workspace-support-in-cargo-msrv">Workspace support in cargo-msrv</a></h4>
+<p><code>cargo-msrv</code> supports the following for a cargo workspace:</p>
+<ul>
+<li>Run <code>cargo msrv find</code> on a workspace to find the MSRV of the default workspace members</li>
+<li>Run <code>cargo msrv find --write-msrv</code> to write the found MSRV's of the default workspace members</li>
+<li>Run <code>cargo msrv verify</code> on a workspace, and verify the MSRV of the default workspace members</li>
 <li>Run <code>cargo msrv set --package &lt;x&gt;</code> to set the MSRV of a specific package in the workspace</li>
 <li>Run <code>cargo msrv show</code> on a workspace, and present the MSRV of all, or the selected workspace packages, to the user</li>
-<li>Add <code>cargo msrv --workspace</code>, <code>cargo msrv --package &lt;x&gt;</code>, <code>cargo msrv --exclude &lt;x&gt;</code> flags to select workspace packages
+<li>Run with <code>cargo msrv --workspace</code>, <code>cargo msrv --package &lt;x&gt;</code>, <code>cargo msrv --exclude &lt;x&gt;</code> flags to select workspace packages
 <ul>
-<li>User selection of workspace packages was added in <a href="https://github.com/foresterre/cargo-msrv/pull/1025/files">#1025</a></li>
-<li>JSON reporting of the selected workspace was added in <a href="https://github.com/foresterre/cargo-msrv/pull/1030/files">#1030</a> </li>
+<li>Follows <code>cargo</code> conventions</li>
 </ul>
 </li>
-<li><code>cargo msrv find</code>, <code>cargo msrv verify</code> and others should support <code>workspace.package</code> <a href="https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table">inheritance</a>, for example for:
+<li><code>cargo msrv find</code>, <code>cargo msrv verify</code> read from <code>workspace.package</code> <a href="https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table">inheritance</a>, for example:
 <ul>
 <li>the <code>rust-version</code> field, used by <code>cargo msrv verify</code> to detect the MSRV to verify</li>
 <li>the <code>edition</code> field, used by <code>cargo msrv find</code> to restrict the search space</li>
-<li>the <code>include</code> and <code>exclude</code> fields to define the workspace members</li>
+<li>the <code>include</code> and <code>exclude</code> fields which impact the workspace members</li>
 </ul>
 </li>
+<li>Run <code>cargo msrv set --workspace-msrv &lt;value&gt;</code> to set the MSRV in the <code>workspace.package</code> table</li>
 </ul>
-<p>The following features are under consideration:</p>
-<ul>
-<li>Run <code>cargo msrv set --workspace &lt;value&gt;</code> on a workspace to set a common MSRV</li>
-<li>Run <code>cargo msrv set --workspace-package &lt;x&gt;</code> to set the MSRV to the workspace.package table, if in a workspace
-<ul>
-<li>TODO: determine the name of the flag</li>
-</ul>
-</li>
-<li>Run <code>cargo msrv list</code> on a workspace to list the MSRV of dependencies of each of the workspace crates.</li>
-</ul>
-<p>Please open an <a href="https://github.com/foresterre/cargo-msrv/issues">issue</a> if your use case is not described in the above list.</p>
-<h4 id="follow-progress-on-github"><a class="header" href="#follow-progress-on-github">Follow progress on GitHub</a></h4>
-<p>Tracking issue: <a href="https://github.com/foresterre/cargo-msrv/issues/1026">#1026</a></p>
-<p><strong>cargo msrv find &amp; cargo msrv verify</strong></p>
-<ul>
-<li><a href="https://github.com/foresterre/cargo-msrv/issues/873">Add --workspace flag to subcommand find #873</a></li>
-</ul>
-<p><strong>cargo msrv list</strong></p>
-<ul>
-<li>No dedicated issue yet</li>
-</ul>
-<p><strong>cargo msrv set</strong></p>
-<ul>
-<li>No dedicated issue yet</li>
-</ul>
-<p><strong>cargo msrv show</strong></p>
-<ul>
-<li><a href="https://github.com/foresterre/cargo-msrv/issues/1024">cargo msrv show should show all workspace crate MSRV's #1024</a></li>
-</ul>
+<p>Please open a <a href="https://github.com/foresterre/cargo-msrv/discussions/categories/feature-requests">topic</a> if your use
+case is not described in the above list.</p>
+<h5 id="not-supported-yet"><a class="header" href="#not-supported-yet">Not supported yet</a></h5>
+<p><code>cargo msrv list</code> doesn't operate on workspace packages yet. </p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="rust-releases-http-proxy"><a class="header" href="#rust-releases-http-proxy">Rust Releases: HTTP PROXY</a></h3>
 <p><code>cargo-msrv</code> depends on the <a href="https://github.com/foresterre/rust-releases/">rust-releases</a> crate to determine which Rust versions exist. This is a necessary evil for
 the <code>cargo msrv find</code> and <code>cargo msrv verify</code> subcommands.</p>
@@ -979,6 +983,30 @@ reports that the index is being fetched, and details which source is used.</p>
   &quot;scope&quot;: &quot;end&quot;
 }
 </code></pre>
+<h2 id="event-checkpackage"><a class="header" href="#event-checkpackage">Event: <code>CheckPackage</code></a></h2>
+<p><strong>type:</strong> check_package</p>
+<p><strong>description:</strong> When a check is run for a single package of a Cargo workspace, for example by <code>cargo msrv find</code> or
+<code>cargo msrv verify</code>, the <code>CheckPackage</code> event is wrapped around all checks of that package. It is a scoped event.
+It is not reported when the project is checked as a whole, for example when a custom check command is used.</p>
+<p><strong>fields:</strong></p>
+<table><thead><tr><th>name</th><th>description</th></tr></thead><tbody>
+<tr><td>package</td><td>The package which is checked</td></tr>
+<tr><td>package.name</td><td>The name of the package</td></tr>
+<tr><td>package.path</td><td>The path to the package's manifest</td></tr>
+</tbody></table>
+<p><strong>example:</strong></p>
+<pre><code class="language-json lines">{
+  &quot;type&quot;: &quot;check_package&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;a&quot;,
+    &quot;path&quot;: &quot;/workspace/a/Cargo.toml&quot;
+  },
+  &quot;scope&quot;: {
+    &quot;id&quot;: 1,
+    &quot;marker&quot;: &quot;start&quot;
+  }
+}
+</code></pre>
 <h2 id="event-checktoolchain"><a class="header" href="#event-checktoolchain">Event: <code>CheckToolchain</code></a></h2>
 <p><strong>type:</strong> check_toolchain</p>
 <p><strong>description:</strong> The primary way for <code>cargo-msrv</code> to determine whether a given Rust toolchain is compatible with your
@@ -1153,6 +1181,9 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
+<tr><td>package</td><td>yes</td><td>subcommand_id = <code>find</code>, <code>set</code>, <code>show</code> or <code>verify</code></td><td>The package this result is for, absent if there is no single package</td></tr>
+<tr><td>package.name</td><td>no</td><td>package is present</td><td>The name of the package</td></tr>
+<tr><td>package.path</td><td>no</td><td>package is present</td><td>The path to the package's manifest</td></tr>
 <tr><td></td><td></td><td></td><td></td></tr>
 <tr><td>result</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Result of find command</td></tr>
 <tr><td>result.success</td><td>no</td><td>subcommand_id = <code>find</code></td><td>Whether the MSRV was found or not</td></tr>
@@ -1364,6 +1395,12 @@ to <code>stderr</code>.</li>
 </ul>
 <p>You may also refer to the 🚧 TODO 🚧 section to determine which kind of errors result in a non-zero
 exit code, and how different errors are categorised.</p>
+<p>When more than one package of a Cargo workspace is selected, each result is printed on its own line,
+starting with the package name. For example, <code>cargo msrv show --workspace --output-format minimal</code> may print:</p>
+<pre><code class="language-shell"># stdout
+a 1.56
+b 1.58
+</code></pre>
 <h1 id="output-by-subcommand-1"><a class="header" href="#output-by-subcommand-1">Output by subcommand</a></h1>
 <h2 id="cargo-msrv-find-1"><a class="header" href="#cargo-msrv-find-1"># cargo msrv (find)</a></h2>
 <p>If the MSRV was found, we report this minimal supported Rust version by writing it to <code>stdout</code>.
