@@ -5,8 +5,9 @@ use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::values::list_msrv_variant;
 use cargo_msrv_context::types::ListMsrvVariant;
 use cargo_msrv_types::BareVersion;
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_cargo::style::CLAP_STYLING;
+use clap_complete::Shell;
 use std::ffi::{OsStr, OsString};
 
 pub mod custom_check_opts;
@@ -118,6 +119,23 @@ pub enum SubCommand {
     ///
     ///  The MSRV must be specified via the `--rust-version` option, or via the 'package.rust-version' or 'package.metadata.msrv' keys in the Cargo.toml manifest.
     Verify(VerifyOpts),
+    /// Generate shell completions for `cargo-msrv` and print them to stdout
+    #[command(hide = true)]
+    Completions {
+        /// The shell to generate completions for
+        shell: Shell,
+    },
+}
+
+/// Prints completions for the `cargo-msrv` binary (i.e. `cargo-msrv find --...`) to stdout.
+pub fn print_completions(shell: Shell) {
+    let mut cmd = CargoCli::command()
+        .find_subcommand("msrv")
+        .expect("the `msrv` subcommand is always defined")
+        .clone()
+        .name("cargo-msrv")
+        .bin_name("cargo-msrv");
+    clap_complete::generate(shell, &mut cmd, "cargo-msrv", &mut std::io::stdout());
 }
 
 // Cli Options for top-level cargo-msrv (find) command

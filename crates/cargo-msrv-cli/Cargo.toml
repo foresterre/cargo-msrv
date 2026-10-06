@@ -20,6 +20,7 @@ camino = { workspace = true }
 cargo_metadata = { workspace = true }
 clap = { workspace = true }
 clap-cargo = { workspace = true }
+clap_complete = { workspace = true }
 dunce = { workspace = true }
 indoc = { workspace = true }
 thiserror = { workspace = true }

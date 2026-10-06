@@ -114,6 +114,7 @@ camino = "1.2"
 cargo_metadata = "0.23.1"
 clap = { version = "4.6.0", features = ["derive", "env"] }
 clap-cargo = { version = "0.18.3", features = ["cargo_metadata"] }
+clap_complete = "4.6.0"
 dunce = "1.0.5"
 indoc = "2.0.7"
 owo-colors = "4.3.0"

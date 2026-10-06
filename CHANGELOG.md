@@ -19,6 +19,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Properly support Cargo workspaces for `cargo msrv find`, `verify`, `show` and `set` (excluding custom check command)
 * Added `cargo msrv set --workspace-msrv`, which sets the MSRV in the `workspace.package` table of the workspace root of the Cargo manifest
 * Subcommand results now report the package they belong to
+* Added a hidden `cargo-msrv completions <SHELL>` subcommand which prints shell completions for `cargo-msrv` to stdout
 
 ### Changed
 
