@@ -55,6 +55,13 @@ You can use the following commands for building and running via Docker:
 
 Docker images are also available on [Docker Hub](https://hub.docker.com/r/foresterre/cargo-msrv).
 
+#### Shell completions
+
+`cargo-msrv completions <SHELL>` prints shell completions for the `cargo-msrv` binary.
+Supported shells are `bash`, `elvish`, `fish`, `powershell` and `zsh`. For example:
+
+* `$ cargo-msrv completions fish > ~/.config/fish/completions/cargo-msrv.fish`
+
 ### Usage
 
 <sup>⌘ [preview](#preview) - [prerequisites](#prerequisites) - [install](#install) - [usage](#usage) - [JSON output format](#json-format) - [a short history](#a-short-history) - [license](#license)</sup>

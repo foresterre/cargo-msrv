@@ -21,6 +21,9 @@ pub enum Error {
         root: Utf8PathBuf,
     },
 
+    #[error("Shell completions do not have an analysis context.")]
+    CompletionsHaveNoContext,
+
     #[error("The default host triple (target) could not be found.")]
     DefaultHostTripleNotFound,
 
