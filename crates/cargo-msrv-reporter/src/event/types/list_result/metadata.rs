@@ -1,8 +1,8 @@
 use cargo_metadata::{MetadataCommand, Package};
 use cargo_msrv_rust_tools::CargoManifest;
-use cargo_msrv_types::BareVersion;
 use std::convert::TryFrom;
 use std::path::Path;
+use version_number::Version;
 
 pub fn package_msrv(package: &Package) -> Option<semver::Version> {
     package
@@ -26,7 +26,7 @@ pub fn parse_manifest_workaround<P: AsRef<Path>>(path: P) -> Option<semver::Vers
             .ok()
             .and_then(|metadata| CargoManifest::try_from(metadata).ok())
             .and_then(|manifest| manifest.minimum_rust_version().map(ToOwned::to_owned))
-            .map(|version: BareVersion| version.to_semver_version())
+            .map(|version: Version| semver::Version::from(version.to_full_version_lossy()))
     }
 
     parse(path.as_ref())

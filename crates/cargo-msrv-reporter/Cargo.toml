@@ -28,6 +28,7 @@ serde_json = { workspace = true }
 storyteller = { workspace = true }
 tabled = { version = "~0.16.0", features = ["ansi"] }
 terminal_size = "0.4.3"
+version-number = { workspace = true, features = ["semver", "serde"] }
 
 [dev-dependencies]
 yare = { workspace = true }

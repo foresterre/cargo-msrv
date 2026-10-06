@@ -11,4 +11,4 @@ rust-version = "1.94"
 
 [dependencies]
 rust-toolchain = "3.0.0"
-version-number = "0.4.0"
+version-number = { workspace = true }

@@ -129,15 +129,15 @@ mod tests {
     use cargo_msrv_context::context::SearchMethod;
     use cargo_msrv_context::types::ListMsrvVariant;
     use cargo_msrv_rust_tools::DependencyGraph;
-    use cargo_msrv_types::BareVersion;
     use cargo_msrv_types::Toolchain;
     use storyteller::EventHandler;
+    use version_number::Version;
 
     #[test]
     fn find_with_result() {
         let msrv = semver::Version::new(1, 10, 100);
-        let min_available = BareVersion::ThreeComponents(1, 0, 0);
-        let max_available = BareVersion::ThreeComponents(2, 0, 0);
+        let min_available = Version::new_full_version(1, 0, 0);
+        let max_available = Version::new_full_version(2, 0, 0);
 
         let event = FindResult::new_msrv(
             msrv,
@@ -163,8 +163,8 @@ mod tests {
 
     #[test]
     fn find_without_result() {
-        let min_available = BareVersion::ThreeComponents(1, 0, 0);
-        let max_available = BareVersion::ThreeComponents(2, 0, 0);
+        let min_available = Version::new_full_version(1, 0, 0);
+        let max_available = Version::new_full_version(2, 0, 0);
 
         let event = FindResult::none("x", min_available, max_available, SearchMethod::Linear);
 
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     fn set_output() {
         let event = SetResult::new(
-            BareVersion::TwoComponents(1, 20),
+            Version::new_base_version(1, 20),
             Utf8Path::new("/my/path").to_path_buf(),
         );
 
@@ -228,7 +228,7 @@ mod tests {
     #[test]
     fn show_output() {
         let event = ShowResult::new(
-            BareVersion::ThreeComponents(1, 40, 3),
+            Version::new_full_version(1, 40, 3),
             Utf8Path::new("/my/path").to_path_buf(),
         );
 
@@ -325,7 +325,7 @@ mod tests {
         handler.handle(SelectedPackages::new(Some(vec![package("a").unwrap()])).into());
         handler.handle(
             ShowResult::new(
-                BareVersion::TwoComponents(1, 40),
+                Version::new_base_version(1, 40),
                 Utf8Path::new("a/Cargo.toml").to_path_buf(),
             )
             .with_package(package("a"))
@@ -348,7 +348,7 @@ mod tests {
         for (name, minor) in [("a", 40), ("b", 50)] {
             handler.handle(
                 ShowResult::new(
-                    BareVersion::TwoComponents(1, minor),
+                    Version::new_base_version(1, minor),
                     Utf8Path::new(name).join("Cargo.toml"),
                 )
                 .with_package(package(name))

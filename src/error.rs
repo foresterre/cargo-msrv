@@ -8,7 +8,8 @@ use cargo_msrv_context::types::{
     ParseReleaseSourceError, ParseTracingTargetOptionError,
 };
 use cargo_msrv_rust_releases::{FetchIndexError, RustRelease, Stable};
-use cargo_msrv_types::{BareVersion, NoVersionMatchesManifestMsrvError};
+use cargo_msrv_types::NoVersionMatchesManifestMsrvError;
+use version_number::Version;
 
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
@@ -30,7 +31,7 @@ pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 #[derive(Debug, thiserror::Error)]
 pub enum CargoMSRVError {
     #[error("Unable to parse minimum rust version: {0}")]
-    BareVersionParse(#[from] cargo_msrv_types::bare_version::Error),
+    VersionParse(#[from] version_number::Error),
 
     #[error(transparent)]
     CargoMetadata(#[from] cargo_metadata::Error),
@@ -231,7 +232,7 @@ pub enum SetMsrvError {
     search_space.iter().map(|r| r.version().version.to_string()).collect::<Vec<_>>().join(", "))
 ]
 pub struct InvalidMsrvSetError {
-    pub(crate) input: BareVersion,
+    pub(crate) input: Version,
     pub(crate) search_space: Vec<RustRelease<Stable>>,
 }
 

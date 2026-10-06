@@ -23,6 +23,7 @@ storyteller = { workspace = true }
 thiserror = { workspace = true }
 time = { version = "0.3.55", default-features = false, features = ["std"], optional = true }
 tracing = { workspace = true }
+version-number = { workspace = true }
 
 [dev-dependencies]
 parameterized = { workspace = true }

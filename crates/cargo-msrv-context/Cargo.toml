@@ -21,6 +21,7 @@ cargo_metadata = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+version-number = { workspace = true }
 
 [dev-dependencies]
 assert_fs = { workspace = true }

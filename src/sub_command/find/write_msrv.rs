@@ -5,14 +5,14 @@ use crate::sub_command::set::set_msrv;
 use camino::Utf8Path;
 use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_rust_releases::ReleaseIndex;
-use cargo_msrv_types::BareVersion;
+use version_number::Version;
 
 /// Write the MSRV to the Cargo manifest
 ///
 /// Repurposes the Set MSRV subcommand for this action.
 pub fn write_msrv(
     reporter: &impl Reporter,
-    msrv: BareVersion,
+    msrv: Version,
     release_index: Option<&ReleaseIndex>,
     cargo_toml: &Utf8Path,
     package: Option<SelectedPackage>,
@@ -29,8 +29,8 @@ mod tests {
     use assert_fs::prelude::*;
     use camino::Utf8Path;
     use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
-    use cargo_msrv_types::BareVersion;
     use std::iter::FromIterator;
+    use version_number::Version;
 
     #[test]
     fn set_release_in_index() {
@@ -43,7 +43,7 @@ mod tests {
         let manifest_path = Utf8Path::from_path(&manifest).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
-        let version = BareVersion::ThreeComponents(2, 0, 5);
+        let version = Version::new_full_version(2, 0, 5);
 
         let index = ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(2, 0, 5), None, [])]);
 
@@ -64,7 +64,7 @@ mod tests {
         let manifest_path = Utf8Path::from_path(&manifest).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
-        let version = BareVersion::ThreeComponents(2, 0, 5);
+        let version = Version::new_full_version(2, 0, 5);
 
         let index = ReleaseIndex::from_iter(vec![]);
 
@@ -85,7 +85,7 @@ mod tests {
         let manifest_path = Utf8Path::from_path(&manifest).unwrap();
 
         let fake_reporter = FakeTestReporter::default();
-        let version = BareVersion::ThreeComponents(2, 0, 5);
+        let version = Version::new_full_version(2, 0, 5);
 
         write_msrv(&fake_reporter, version, None, manifest_path, None).unwrap();
 

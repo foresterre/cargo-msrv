@@ -4,7 +4,7 @@ use crate::context::{
     ToolchainContext,
 };
 use camino::Utf8PathBuf;
-use cargo_msrv_types::BareVersion;
+use version_number::Version;
 
 #[derive(Debug)]
 pub struct VerifyContext {
@@ -37,7 +37,7 @@ pub struct VerifyCheck {
 
 impl VerifyCheck {
     pub fn resolve(
-        rust_version: Option<&BareVersion>,
+        rust_version: Option<&Version>,
         check_cmd: &CheckCommandContext,
         env: &EnvironmentContext,
     ) -> TResult<Vec<Self>> {
@@ -95,12 +95,12 @@ impl From<&Package> for PackageWithoutMsrv {
 /// locate this version.
 #[derive(Clone, Debug)]
 pub struct RustVersion {
-    rust_version: BareVersion,
+    rust_version: Version,
     source: RustVersionSource,
 }
 
 impl RustVersion {
-    pub fn from_arg(rust_version: BareVersion) -> Self {
+    pub fn from_arg(rust_version: Version) -> Self {
         Self {
             rust_version,
             source: RustVersionSource::Arg,
@@ -142,17 +142,17 @@ impl RustVersion {
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
-    pub fn version(&self) -> &BareVersion {
+    pub fn version(&self) -> &Version {
         &self.rust_version
     }
 
     /// Get the version and discard all else.
-    pub fn into_version(self) -> BareVersion {
+    pub fn into_version(self) -> Version {
         self.rust_version
     }
 
     /// Get the version and the source which was used to locate it.
-    pub fn into_parts(self) -> (BareVersion, RustVersionSource) {
+    pub fn into_parts(self) -> (Version, RustVersionSource) {
         (self.rust_version, self.source)
     }
 }
@@ -176,7 +176,7 @@ mod tests {
     use crate::context::CargoProject;
     use crate::types::Edition;
 
-    fn package(name: &str, rust_version: Option<BareVersion>) -> Package {
+    fn package(name: &str, rust_version: Option<Version>) -> Package {
         Package {
             name: name.to_string(),
             manifest_path: Utf8PathBuf::from(format!("{name}/Cargo.toml")),
@@ -201,8 +201,8 @@ mod tests {
         }
     }
 
-    fn v(minor: u64) -> BareVersion {
-        BareVersion::TwoComponents(1, minor)
+    fn v(minor: u64) -> Version {
+        Version::new_base_version(1, minor)
     }
 
     #[test]
