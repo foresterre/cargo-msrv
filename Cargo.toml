@@ -95,20 +95,20 @@ members = [
 ]
 
 [workspace.package]
-version = "0.20.0-beta.1"
+version = "0.20.0-beta.2"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 license = "Apache-2.0 OR MIT"
 edition = "2024"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [workspace.dependencies]
-cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.20.0-beta.1" }
-cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.20.0-beta.1" }
-cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.20.0-beta.1" }
-cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.20.0-beta.1" }
-cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.20.0-beta.1" }
-cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.20.0-beta.1" }
-cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.20.0-beta.1" }
+cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.20.0-beta.2" }
+cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.20.0-beta.2" }
+cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.20.0-beta.2" }
+cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.20.0-beta.2" }
+cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.20.0-beta.2" }
+cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.20.0-beta.2" }
+cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.20.0-beta.2" }
 
 assert_fs = "1.1.4"
 camino = "1.2"
