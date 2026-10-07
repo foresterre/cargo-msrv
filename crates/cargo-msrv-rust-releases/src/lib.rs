@@ -11,6 +11,7 @@ pub mod error;
 pub mod release;
 pub mod release_index;
 pub mod releases_filter;
+pub mod version_match;
 
 pub use availability_filter::{
     AvailabilityFilter, AvailabilityOutcome, ExcludedRelease, ToolchainAvailability,
@@ -20,6 +21,7 @@ pub use error::FetchIndexError;
 pub use release::to_semver;
 pub use release_index::{ReleaseIndex, fetch_index};
 pub use releases_filter::ReleasesFilter;
+pub use version_match::{FindMatchingVersion, NoVersionMatchesManifestMsrvError};
 
 pub use rust_releases::core::rust_release::toolchain as release_toolchain;
 pub use rust_releases::core::{RustRelease, Stable, StableReleases};

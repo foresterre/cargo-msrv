@@ -6,8 +6,8 @@ use crate::reporter::event::{CheckPackage, VerifyResult};
 use crate::sub_command::SubCommand;
 use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource, VerifyCheck};
 use cargo_msrv_context::{SelectedPackage, VerifyContext};
-use cargo_msrv_rust_releases::{ReleaseIndex, to_semver};
-use cargo_msrv_types::{Toolchain, find_matching_version};
+use cargo_msrv_rust_releases::{FindMatchingVersion, ReleaseIndex, to_semver};
+use cargo_msrv_types::Toolchain;
 use std::fmt;
 use version_number::Version;
 
@@ -85,7 +85,7 @@ fn verify_msrv(
         .iter()
         .map(|release| to_semver(release.version()))
         .collect::<Vec<_>>();
-    let version = find_matching_version(rust_version.version(), available.iter())?;
+    let version = rust_version.version().find_matching_version(&available)?;
 
     let target = ctx.toolchain.target;
     let components = ctx.toolchain.components;

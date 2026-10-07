@@ -1,33 +1,39 @@
 use std::convert::TryFrom;
 use version_number::{FullVersion, Version};
 
-/// Find the first version in `available` which matches the `requested` version.
-///
-/// A two-component version matches any version with the same major and minor version, while a
-/// three-component version only matches the exact same version.
-///
-/// If `available` is ordered from most-recent to least-recent, it will return the highest matching
-/// semver version for two-component versions, and the exact matching version for three-component versions.
-///
-/// That is, when our list of available versions is `[0.14.1, 0.14.0, 0.13.0]`, if we supply
-/// a two-component version `0.14`, we will get the result `0.14.1`, while if we supply
-/// the three-component `0.14.0`, we would get the result `0.14.0`.
-pub fn find_matching_version<'s, I>(
-    requested: &Version,
-    available: I,
-) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError>
-where
-    I: Iterator<Item = &'s semver::Version> + Clone,
-{
-    available
-        .clone()
-        .find(|version| {
-            FullVersion::try_from(*version).is_ok_and(|version| requested.matches(&version))
-        })
-        .ok_or_else(|| NoVersionMatchesManifestMsrvError {
-            requested: requested.clone(),
-            available: available.cloned().collect(),
-        })
+pub trait FindMatchingVersion {
+    /// Find the first version in `available` which matches this version.
+    ///
+    /// A two-component version matches any version with the same major and minor version, while a
+    /// three-component version only matches the exact same version.
+    ///
+    /// If `available` is ordered from most-recent to least-recent, it will return the highest matching
+    /// semver version for two-component versions, and the exact matching version for three-component versions.
+    ///
+    /// That is, when our list of available versions is `[0.14.1, 0.14.0, 0.13.0]`, if we supply
+    /// a two-component version `0.14`, we will get the result `0.14.1`, while if we supply
+    /// the three-component `0.14.0`, we would get the result `0.14.0`.
+    fn find_matching_version<'s>(
+        &self,
+        available: &'s [semver::Version],
+    ) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError>;
+}
+
+impl FindMatchingVersion for Version {
+    fn find_matching_version<'s>(
+        &self,
+        available: &'s [semver::Version],
+    ) -> Result<&'s semver::Version, NoVersionMatchesManifestMsrvError> {
+        available
+            .iter()
+            .find(|version| {
+                FullVersion::try_from(*version).is_ok_and(|version| self.matches(&version))
+            })
+            .ok_or_else(|| NoVersionMatchesManifestMsrvError {
+                requested: self.clone(),
+                available: available.to_vec(),
+            })
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -39,7 +45,7 @@ pub struct NoVersionMatchesManifestMsrvError {
 
 #[cfg(test)]
 mod tests {
-    use super::find_matching_version;
+    use super::FindMatchingVersion;
     use version_number::Version;
     use yare::parameterized;
 
@@ -64,7 +70,7 @@ mod tests {
     fn two_components(version: Version, expected: semver::Version) {
         let versions = available_versions();
 
-        let v = find_matching_version(&version, versions.iter()).unwrap();
+        let v = version.find_matching_version(&versions).unwrap();
 
         assert_eq!(v, &expected);
     }
@@ -80,7 +86,7 @@ mod tests {
     fn three_components(version: Version, expected: semver::Version) {
         let versions = available_versions();
 
-        let v = find_matching_version(&version, versions.iter()).unwrap();
+        let v = version.find_matching_version(&versions).unwrap();
 
         assert_eq!(v, &expected);
     }
@@ -92,7 +98,7 @@ mod tests {
     fn not_in_index(version: Version) {
         let versions = available_versions();
 
-        assert!(find_matching_version(&version, versions.iter()).is_err())
+        assert!(version.find_matching_version(&versions).is_err())
     }
 
     #[test]
@@ -102,7 +108,9 @@ mod tests {
             semver::Version::new(1, 56, 0),
         ];
 
-        let v = find_matching_version(&Version::new_base_version(1, 56), versions.iter()).unwrap();
+        let v = Version::new_base_version(1, 56)
+            .find_matching_version(&versions)
+            .unwrap();
 
         assert_eq!(v, &semver::Version::new(1, 56, 0));
     }
