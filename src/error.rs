@@ -7,8 +7,9 @@ use cargo_msrv_context::types::{
     ParseEditionError, ParseListMsrvVariantError, ParseLogLevelError, ParseOutputFormatError,
     ParseReleaseSourceError, ParseTracingTargetOptionError,
 };
-use cargo_msrv_rust_releases::{FetchIndexError, RustRelease, Stable};
-use cargo_msrv_types::NoVersionMatchesManifestMsrvError;
+use cargo_msrv_rust_releases::{
+    FetchIndexError, NoVersionMatchesManifestMsrvError, RustRelease, Stable,
+};
 use version_number::Version;
 
 pub use cargo_msrv_context::context::error::{

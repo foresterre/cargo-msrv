@@ -902,8 +902,6 @@ dependencies = [
  "semver",
  "serde",
  "thiserror 2.0.21",
- "version-number 1.0.0",
- "yare",
 ]
 
 [[package]]

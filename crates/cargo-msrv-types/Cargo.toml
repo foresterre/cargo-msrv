@@ -17,7 +17,3 @@ camino = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
-version-number = { workspace = true, features = ["semver"] }
-
-[dev-dependencies]
-yare = { workspace = true }
