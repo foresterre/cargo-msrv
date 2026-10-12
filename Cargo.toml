@@ -29,6 +29,7 @@ cargo-msrv-rust-releases = { workspace = true } # the index of available rust re
 cargo-msrv-rust-tools = { workspace = true } # the cargo and rustup tooling, Cargo manifest parsing and dependency graph
 cargo-msrv-search = { workspace = true } # the msrv search methods and toolchain compatibility check
 cargo-msrv-types = { workspace = true } # the types shared with the command line interface
+msrv = { workspace = true } # the minimum supported Rust version type
 
 # external
 camino = { workspace = true } # utf-8 paths
@@ -109,6 +110,7 @@ cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version =
 cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.20.0-beta.2" }
 cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.20.0-beta.2" }
 cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.20.0-beta.2" }
+msrv = { path = "crates/msrv", version = "0.0.2" }
 
 assert_fs = "1.1.4"
 camino = "1.2"

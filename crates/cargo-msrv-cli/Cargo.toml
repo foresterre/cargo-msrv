@@ -15,6 +15,7 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 [dependencies]
 cargo-msrv-context = { workspace = true }
 cargo-msrv-types = { workspace = true }
+msrv = { workspace = true }
 
 camino = { workspace = true }
 cargo_metadata = { workspace = true }

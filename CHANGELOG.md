@@ -32,6 +32,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * A Cargo project for which `cargo metadata` fails is now reported as an error, instead of being treated as a project without Cargo
 * The `changelog` release index source is now a conditional compilation 'features' flag
 * Rust versions now reject leading zeros, e.g. `1.05`, like Cargo
+* The `package.metadata.msrv` key which can be used as a fallback for Rust versions where the `package.rust-version` isn't available yet now only accept full (three component) or short (two component) versions, like `rust-version`
 
 ### Fixed
 

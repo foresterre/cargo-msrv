@@ -10,7 +10,9 @@ use cargo_msrv::{Context, Set, Show, SubCommand};
 use cargo_msrv_context::types::Edition;
 use cargo_msrv_context::{Package, Project};
 use cargo_msrv_rust_releases::{RustRelease, Stable};
+use msrv::MSRV;
 use std::convert::TryFrom;
+use version_number::FullVersion;
 
 mod common;
 
@@ -302,8 +304,14 @@ fn find_every_member_of_a_virtual_workspace() {
     assert_eq!(
         test_result.package_msrvs(),
         [
-            (Some("a".to_string()), Some(semver::Version::new(1, 56, 1))),
-            (Some("b".to_string()), Some(semver::Version::new(1, 58, 1))),
+            (
+                Some("a".to_string()),
+                Some(MSRV::from(FullVersion::new(1, 56, 1)))
+            ),
+            (
+                Some("b".to_string()),
+                Some(MSRV::from(FullVersion::new(1, 58, 1)))
+            ),
         ]
     );
 }
@@ -407,6 +415,6 @@ fn bare_project_find_with_custom_command() {
 
     assert_eq!(
         test_result.package_msrvs(),
-        [(None, Some(semver::Version::new(1, 56, 1)))]
+        [(None, Some(MSRV::from(FullVersion::new(1, 56, 1))))]
     );
 }

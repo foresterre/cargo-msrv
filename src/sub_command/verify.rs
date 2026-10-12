@@ -8,8 +8,8 @@ use cargo_msrv_context::context::verify::{RustVersion, RustVersionSource, Verify
 use cargo_msrv_context::{SelectedPackage, VerifyContext};
 use cargo_msrv_rust_releases::{FindMatchingVersion, ReleaseIndex, to_semver};
 use cargo_msrv_types::Toolchain;
+use msrv::MSRV;
 use std::fmt;
-use version_number::Version;
 
 /// Verifier which determines whether a given Rust version is deemed compatible or not.
 pub struct Verify<'index, F> {
@@ -85,7 +85,10 @@ fn verify_msrv(
         .iter()
         .map(|release| to_semver(release.version()))
         .collect::<Vec<_>>();
-    let version = rust_version.version().find_matching_version(&available)?;
+    let version = rust_version
+        .as_msrv()
+        .version()
+        .find_matching_version(&available)?;
 
     let target = ctx.toolchain.target;
     let components = ctx.toolchain.components;
@@ -144,7 +147,7 @@ impl fmt::Display for VerifyFailures {
 #[derive(Debug)]
 pub struct VerifyFailed {
     package: Option<SelectedPackage>,
-    rust_version: Version,
+    rust_version: MSRV,
     source: RustVersionSource,
 }
 

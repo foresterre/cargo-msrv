@@ -11,7 +11,7 @@ use camino::Utf8Path;
 use cargo_msrv_context::{Project, SelectedPackage};
 use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
 use cargo_msrv_rust_tools::{write_manifest_msrv, write_workspace_msrv};
-use version_number::Version;
+use msrv::MSRV;
 
 pub struct Set<'index> {
     release_index: Option<&'index ReleaseIndex>,
@@ -57,7 +57,7 @@ impl SubCommand for Set<'_> {
 }
 
 impl Set<'_> {
-    pub(super) fn check_release(&self, msrv: &Version, reporter: &impl Reporter) -> TResult<()> {
+    pub(super) fn check_release(&self, msrv: &MSRV, reporter: &impl Reporter) -> TResult<()> {
         match self.release_index {
             Some(index) if has_release(msrv, index) => Ok(()),
             Some(index) => Err(InvalidMsrvSetError {
@@ -73,15 +73,16 @@ impl Set<'_> {
     }
 }
 
-fn has_release(configured_msrv: &Version, release_index: &ReleaseIndex) -> bool {
+fn has_release(configured_msrv: &MSRV, release_index: &ReleaseIndex) -> bool {
     release_index
         .stable_releases()
         .iter()
         .any(|release| matches_release(configured_msrv, release))
 }
 
-fn matches_release(msrv: &Version, release: &RustRelease<Stable>) -> bool {
+fn matches_release(msrv: &MSRV, release: &RustRelease<Stable>) -> bool {
     let version = release.version().version;
+    let msrv = msrv.version();
 
     let major_match = version.major() == msrv.major();
     let minor_match = version.minor() == msrv.minor();
@@ -94,7 +95,7 @@ pub(super) fn set_msrv(
     reporter: &impl Reporter,
     cargo_toml: &Utf8Path,
     package: Option<SelectedPackage>,
-    msrv: &Version,
+    msrv: &MSRV,
 ) -> TResult<()> {
     write_manifest_msrv(cargo_toml, msrv)?;
     report_set_msrv(reporter, cargo_toml, package, msrv)
@@ -104,7 +105,7 @@ fn report_set_msrv(
     reporter: &impl Reporter,
     cargo_toml: &Utf8Path,
     package: Option<SelectedPackage>,
-    msrv: &Version,
+    msrv: &MSRV,
 ) -> TResult<()> {
     reporter.report_event(AuxiliaryOutput::new(
         Destination::file(cargo_toml.to_path_buf()),
@@ -125,11 +126,12 @@ mod valid_release_tests {
     use std::iter::FromIterator;
 
     use crate::sub_command::set::has_release;
-    use version_number::Version;
+    use msrv::MSRV;
+    use version_number::{BaseVersion, FullVersion};
 
     #[test]
     fn releases_include_bare() {
-        let bare = Version::new_base_version(1, 55);
+        let bare = MSRV::from(BaseVersion::new(1, 55));
         let index =
             ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 0), None, [])]);
 
@@ -138,7 +140,7 @@ mod valid_release_tests {
 
     #[test]
     fn releases_does_not_include_bare() {
-        let bare = Version::new_base_version(1, 55);
+        let bare = MSRV::from(BaseVersion::new(1, 55));
         let index =
             ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 54, 0), None, [])]);
 
@@ -147,7 +149,7 @@ mod valid_release_tests {
 
     #[test]
     fn releases_includes_bare_with_patch() {
-        let bare = Version::new_full_version(1, 55, 100);
+        let bare = MSRV::from(FullVersion::new(1, 55, 100));
         let index =
             ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 100), None, [])]);
 
@@ -156,7 +158,7 @@ mod valid_release_tests {
 
     #[test]
     fn releases_does_not_include_bare_with_patch() {
-        let bare = Version::new_full_version(1, 55, 100);
+        let bare = MSRV::from(FullVersion::new(1, 55, 100));
         let index =
             ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(1, 55, 0), None, [])]);
 

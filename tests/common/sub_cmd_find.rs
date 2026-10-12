@@ -5,13 +5,14 @@ use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
 use cargo_msrv::{Context, Find, SubCommand};
 use cargo_msrv_rust_releases::{ReleaseIndex, RustRelease, Stable};
+use msrv::MSRV;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::FromIterator;
 
 pub fn find_msrv<I: IntoIterator<Item = T>, T: Into<OsString> + Clone>(
     with_args: I,
-) -> Result<Option<semver::Version>, CargoMSRVError> {
+) -> Result<Option<MSRV>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_thirty_four_to_one_thirty_eight())
         .map(|res| res.msrv().cloned())
 }
@@ -21,7 +22,7 @@ pub fn run_cargo_version_which_doesnt_support_lockfile_v2<
     T: Into<OsString> + Clone,
 >(
     with_args: I,
-) -> Result<Option<semver::Version>, CargoMSRVError> {
+) -> Result<Option<MSRV>, CargoMSRVError> {
     find_msrv_with_releases(with_args, releases_one_twenty_eight_to_one_thirty_nine())
         .map(|res| res.msrv().cloned())
 }
@@ -109,8 +110,8 @@ pub fn find_msrv_with_releases<
 pub struct TestResult {
     successful_checks: Vec<semver::Version>,
     failed_checks: Vec<semver::Version>,
-    msrv: Option<semver::Version>,
-    package_msrvs: Vec<(Option<String>, Option<semver::Version>)>,
+    msrv: Option<MSRV>,
+    package_msrvs: Vec<(Option<String>, Option<MSRV>)>,
 }
 
 impl TestResult {
@@ -122,15 +123,15 @@ impl TestResult {
         self.successful_checks.push(version);
     }
 
-    pub fn set_msrv(&mut self, version: Option<semver::Version>) {
+    pub fn set_msrv(&mut self, version: Option<MSRV>) {
         self.msrv = version;
     }
 
-    pub fn add_package_msrv(&mut self, package: Option<String>, version: Option<semver::Version>) {
+    pub fn add_package_msrv(&mut self, package: Option<String>, version: Option<MSRV>) {
         self.package_msrvs.push((package, version));
     }
 
-    pub fn package_msrvs(&self) -> &[(Option<String>, Option<semver::Version>)] {
+    pub fn package_msrvs(&self) -> &[(Option<String>, Option<MSRV>)] {
         &self.package_msrvs
     }
 
@@ -142,7 +143,7 @@ impl TestResult {
         &self.failed_checks
     }
 
-    pub fn msrv(&self) -> Option<&semver::Version> {
+    pub fn msrv(&self) -> Option<&MSRV> {
         self.msrv.as_ref()
     }
 }

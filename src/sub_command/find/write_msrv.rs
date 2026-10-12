@@ -5,14 +5,14 @@ use crate::sub_command::set::set_msrv;
 use camino::Utf8Path;
 use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_rust_releases::ReleaseIndex;
-use version_number::Version;
+use msrv::MSRV;
 
 /// Write the MSRV to the Cargo manifest
 ///
 /// Repurposes the Set MSRV subcommand for this action.
 pub fn write_msrv(
     reporter: &impl Reporter,
-    msrv: Version,
+    msrv: MSRV,
     release_index: Option<&ReleaseIndex>,
     cargo_toml: &Utf8Path,
     package: Option<SelectedPackage>,
@@ -47,7 +47,14 @@ mod tests {
 
         let index = ReleaseIndex::from_iter(vec![RustRelease::new(Stable::new(2, 0, 5), None, [])]);
 
-        write_msrv(&fake_reporter, version, Some(&index), manifest_path, None).unwrap();
+        write_msrv(
+            &fake_reporter,
+            version.into(),
+            Some(&index),
+            manifest_path,
+            None,
+        )
+        .unwrap();
 
         let content = std::fs::read_to_string(&manifest).unwrap();
         assert_eq!(content, "[package]\nrust-version = \"2.0.5\"\n");
@@ -68,8 +75,14 @@ mod tests {
 
         let index = ReleaseIndex::from_iter(vec![]);
 
-        let err =
-            write_msrv(&fake_reporter, version, Some(&index), manifest_path, None).unwrap_err();
+        let err = write_msrv(
+            &fake_reporter,
+            version.into(),
+            Some(&index),
+            manifest_path,
+            None,
+        )
+        .unwrap_err();
 
         assert!(matches!(err, CargoMSRVError::InvalidMsrvSet(_)));
     }
@@ -87,7 +100,7 @@ mod tests {
         let fake_reporter = FakeTestReporter::default();
         let version = Version::new_full_version(2, 0, 5);
 
-        write_msrv(&fake_reporter, version, None, manifest_path, None).unwrap();
+        write_msrv(&fake_reporter, version.into(), None, manifest_path, None).unwrap();
 
         let content = std::fs::read_to_string(&manifest).unwrap();
         assert_eq!(content, "[package]\nrust-version = \"2.0.5\"\n");

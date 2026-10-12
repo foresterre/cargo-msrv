@@ -3,7 +3,7 @@ use crate::event::Message;
 use crate::event::subcommand_result::SubcommandResult;
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_context::SelectedPackage;
-use version_number::Version;
+use msrv::MSRV;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -14,7 +14,7 @@ pub struct SetResult {
 }
 
 impl SetResult {
-    pub fn new(version: impl Into<Version>, manifest_path: Utf8PathBuf) -> Self {
+    pub fn new(version: impl Into<MSRV>, manifest_path: Utf8PathBuf) -> Self {
         Self {
             package: None,
             result: ResultDetails {
@@ -33,7 +33,7 @@ impl SetResult {
         self.package.as_ref()
     }
 
-    pub fn version(&self) -> &Version {
+    pub fn version(&self) -> &MSRV {
         &self.result.version
     }
 
@@ -56,7 +56,7 @@ impl From<SetResult> for Event {
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 struct ResultDetails {
-    version: Version,
+    version: MSRV,
     manifest_path: Utf8PathBuf,
 }
 
@@ -66,6 +66,7 @@ mod tests {
     use crate::TestReporterWrapper;
     use crate::event::Message;
     use storyteller::EventReporter;
+    use version_number::Version;
 
     #[test]
     fn reported_event() {
@@ -85,7 +86,7 @@ mod tests {
         );
 
         if let Message::SubcommandResult(SubcommandResult::Set(msg)) = &events[0].message {
-            assert_eq!(msg.version(), &Version::new_base_version(14, 10));
+            assert_eq!(msg.version(), &MSRV::new(Version::new_base_version(14, 10)));
             assert_eq!(&msg.manifest_path(), &Utf8Path::new("wave"));
         }
     }

@@ -39,7 +39,7 @@ impl TryFrom<CargoMsrvOpts> for SetContext {
         };
 
         Ok(Self {
-            msrv: set_opts.msrv,
+            msrv: set_opts.msrv.into(),
             target,
             rust_releases: set_opts.rust_releases_opts.into(),
             environment,

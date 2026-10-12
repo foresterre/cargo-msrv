@@ -10,5 +10,11 @@ keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
 rust-version = "1.94"
 
 [dependencies]
-rust-toolchain = "3.0.0"
+serde = { workspace = true, optional = true }
 version-number = { workspace = true }
+
+[features]
+serde = ["dep:serde", "version-number/serde"]
+
+[dev-dependencies]
+yare.workspace = true

@@ -751,6 +751,7 @@ dependencies = [
  "cargo-msrv-types",
  "cargo_metadata",
  "dirs",
+ "msrv",
  "parameterized",
  "phenomenon",
  "semver",
@@ -778,6 +779,7 @@ dependencies = [
  "clap-cargo",
  "dunce",
  "indoc",
+ "msrv",
  "thiserror 2.0.21",
  "tracing",
  "version-number 1.0.0",
@@ -793,6 +795,7 @@ dependencies = [
  "cargo-msrv-rust-tools",
  "cargo-msrv-types",
  "cargo_metadata",
+ "msrv",
  "serde",
  "thiserror 2.0.21",
  "tracing",
@@ -810,6 +813,7 @@ dependencies = [
  "cargo-msrv-types",
  "cargo_metadata",
  "indicatif",
+ "msrv",
  "owo-colors",
  "petgraph",
  "semver",
@@ -849,6 +853,7 @@ dependencies = [
  "cargo-msrv-types",
  "cargo_metadata",
  "dunce",
+ "msrv",
  "petgraph",
  "semver",
  "serde_json",
@@ -2056,8 +2061,9 @@ dependencies = [
 name = "msrv"
 version = "0.0.2"
 dependencies = [
- "rust-toolchain",
+ "serde",
  "version-number 1.0.0",
+ "yare",
 ]
 
 [[package]]
