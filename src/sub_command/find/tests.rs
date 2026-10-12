@@ -6,8 +6,9 @@ use crate::context::{
 use crate::reporter::Event;
 use crate::reporter::TestReporterWrapper;
 use camino::{Utf8Path, Utf8PathBuf};
+use msrv::MSRV;
 use std::iter::FromIterator;
-use version_number::Version;
+use version_number::{FullVersion, Version};
 
 #[test]
 fn bisect_find_only_last() {
@@ -50,7 +51,7 @@ fn bisect_find_only_last() {
     let events = reporter.wait_for_events();
     let expected: Vec<Event> = vec![
         FindResult::new_msrv(
-            semver::Version::new(1, 56, 0),
+            MSRV::from(FullVersion::new(1, 56, 0)),
             "x",
             Version::new_full_version(1, 37, 0),
             Version::new_full_version(1, 56, 0),
@@ -97,7 +98,7 @@ fn bisect_find_all_compatible() {
     let events = reporter.wait_for_events();
     let expected: Vec<Event> = vec![
         FindResult::new_msrv(
-            semver::Version::new(1, 52, 0),
+            MSRV::from(FullVersion::new(1, 52, 0)),
             "x",
             Version::new_full_version(1, 52, 0),
             Version::new_full_version(1, 56, 0),
@@ -389,7 +390,7 @@ mod workspace {
         TestRunner::with_ok("x", &accepted)
     }
 
-    fn found_msrvs(events: &[Event]) -> Vec<(String, Option<semver::Version>)> {
+    fn found_msrvs(events: &[Event]) -> Vec<(String, Option<MSRV>)> {
         events
             .iter()
             .filter_map(|event| match event.message() {
@@ -419,8 +420,14 @@ mod workspace {
         assert_eq!(
             found_msrvs(&events),
             [
-                ("a".to_string(), Some(semver::Version::new(1, 56, 0))),
-                ("b".to_string(), Some(semver::Version::new(1, 58, 0))),
+                (
+                    "a".to_string(),
+                    Some(MSRV::from(FullVersion::new(1, 56, 0)))
+                ),
+                (
+                    "b".to_string(),
+                    Some(MSRV::from(FullVersion::new(1, 58, 0)))
+                ),
             ]
         );
 
@@ -480,7 +487,10 @@ mod workspace {
             found_msrvs(&reporter.wait_for_events()),
             [
                 ("c".to_string(), None),
-                ("b".to_string(), Some(semver::Version::new(1, 58, 0))),
+                (
+                    "b".to_string(),
+                    Some(MSRV::from(FullVersion::new(1, 58, 0)))
+                ),
             ]
         );
         assert!(!tmp.child("rust-toolchain").path().exists());

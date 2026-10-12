@@ -16,6 +16,7 @@ use crate::types::BundledFallback;
 use crate::types::{Edition, LogLevel, ReleaseSource, TracingTargetOption};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_msrv_rust_tools::CargoManifest;
+use msrv::MSRV;
 use version_number::Version;
 
 pub mod error;
@@ -251,7 +252,7 @@ pub struct Package {
     pub name: String,
     pub manifest_path: Utf8PathBuf,
     /// Already resolved by cargo, so `rust-version.workspace = true` works.
-    pub rust_version: Option<Version>,
+    pub rust_version: Option<MSRV>,
     pub edition: Edition,
 }
 

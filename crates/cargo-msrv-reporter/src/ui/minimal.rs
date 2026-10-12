@@ -130,12 +130,13 @@ mod tests {
     use cargo_msrv_context::types::ListMsrvVariant;
     use cargo_msrv_rust_tools::DependencyGraph;
     use cargo_msrv_types::Toolchain;
+    use msrv::MSRV;
     use storyteller::EventHandler;
     use version_number::Version;
 
     #[test]
     fn find_with_result() {
-        let msrv = semver::Version::new(1, 10, 100);
+        let msrv = MSRV::new(Version::new_full_version(1, 10, 100));
         let min_available = Version::new_full_version(1, 0, 0);
         let max_available = Version::new_full_version(2, 0, 0);
 

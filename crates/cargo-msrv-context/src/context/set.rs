@@ -1,11 +1,11 @@
 use crate::context::{EnvironmentContext, RustReleasesContext};
 use camino::Utf8PathBuf;
-use version_number::Version;
+use msrv::MSRV;
 
 #[derive(Debug)]
 pub struct SetContext {
     /// MSRV to set.
-    pub msrv: Version,
+    pub msrv: MSRV,
 
     pub target: SetTarget,
 

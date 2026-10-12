@@ -3,6 +3,7 @@ use crate::context::make_environment_ctx;
 use cargo_msrv_context::VerifyContext;
 use cargo_msrv_context::context::error::{Error, TResult};
 use cargo_msrv_context::context::verify::VerifyCheck;
+use msrv::MSRV;
 use std::convert::{TryFrom, TryInto};
 
 impl TryFrom<CargoMsrvOpts> for VerifyContext {
@@ -23,8 +24,8 @@ impl TryFrom<CargoMsrvOpts> for VerifyContext {
         let environment = make_environment_ctx(&shared_opts, &verify_opts.workspace)?;
         let check_cmd = verify_opts.custom_check_opts.into();
 
-        let checks =
-            VerifyCheck::resolve(verify_opts.rust_version.as_ref(), &check_cmd, &environment)?;
+        let rust_version = verify_opts.rust_version.map(MSRV::from);
+        let checks = VerifyCheck::resolve(rust_version.as_ref(), &check_cmd, &environment)?;
 
         Ok(Self {
             checks,

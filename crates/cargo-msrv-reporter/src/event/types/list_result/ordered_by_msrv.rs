@@ -5,6 +5,7 @@ use crate::formatting::table;
 use cargo_metadata::Package;
 use cargo_msrv_context::types::ORDERED_BY_MSRV;
 use cargo_msrv_rust_tools::DependencyGraph;
+use msrv::MSRV;
 use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 use std::fmt;
@@ -48,7 +49,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
     let root_index = graph.index()[package_id].into();
     let mut bfs = Bfs::new(graph.packages(), root_index);
 
-    let mut version_map: BTreeMap<Option<semver::Version>, Vec<&Package>> = BTreeMap::new();
+    let mut version_map: BTreeMap<Option<MSRV>, Vec<&Package>> = BTreeMap::new();
 
     while let Some(nx) = bfs.next(graph.packages()) {
         let package = &graph.packages()[nx];

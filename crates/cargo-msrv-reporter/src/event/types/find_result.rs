@@ -4,6 +4,7 @@ use crate::event::subcommand_result::SubcommandResult;
 use crate::typed_bool::{False, True};
 use cargo_msrv_context::SelectedPackage;
 use cargo_msrv_context::context::SearchMethod;
+use msrv::MSRV;
 use version_number::Version;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
@@ -26,7 +27,7 @@ pub struct FindResult {
 
 impl FindResult {
     pub fn new_msrv(
-        version: semver::Version,
+        version: MSRV,
         target: impl Into<String>,
         min: Version,
         max: Version,
@@ -76,7 +77,7 @@ impl FindResult {
         self.package.as_ref()
     }
 
-    pub fn msrv(&self) -> Option<&semver::Version> {
+    pub fn msrv(&self) -> Option<&MSRV> {
         if let Self {
             result: ResultDetails::Determined { version, .. },
             ..
@@ -105,13 +106,8 @@ impl From<FindResult> for Event {
 #[serde(rename_all = "snake_case")]
 #[serde(untagged)]
 enum ResultDetails {
-    Determined {
-        version: semver::Version,
-        success: True,
-    },
-    Undetermined {
-        success: False,
-    },
+    Determined { version: MSRV, success: True },
+    Undetermined { success: False },
 }
 
 #[cfg(test)]
@@ -124,7 +120,7 @@ mod tests {
     #[test]
     fn reported_msrv_determined_event() {
         let reporter = TestReporterWrapper::default();
-        let version = semver::Version::new(1, 3, 0);
+        let version = MSRV::new(Version::new_full_version(1, 3, 0));
         let min = Version::new_base_version(1, 0);
         let max = Version::new_full_version(1, 4, 0);
 
@@ -141,7 +137,7 @@ mod tests {
 
         let inner = &events[0].message;
         assert!(
-            matches!(inner, Message::SubcommandResult(SubcommandResult::Find(res)) if res.msrv() == Some(&semver::Version::new(1, 3, 0)))
+            matches!(inner, Message::SubcommandResult(SubcommandResult::Find(res)) if res.msrv() == Some(&MSRV::new(Version::new_full_version(1, 3, 0))))
         );
     }
 

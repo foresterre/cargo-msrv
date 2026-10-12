@@ -1,4 +1,5 @@
 use cargo_metadata::{Metadata, Package, semver};
+use msrv::MSRV;
 use std::convert::TryFrom;
 use toml_edit::{DocumentMut, TomlError};
 use version_number::{FromSemverError, FullVersion, Version};
@@ -12,11 +13,11 @@ pub trait TomlParser {
 /// A structure for owning the values in a `Cargo.toml` manifest relevant for `cargo-msrv`.
 #[derive(Debug)]
 pub struct CargoManifest {
-    minimum_rust_version: Option<Version>,
+    minimum_rust_version: Option<MSRV>,
 }
 
 impl CargoManifest {
-    pub fn minimum_rust_version(&self) -> Option<&Version> {
+    pub fn minimum_rust_version(&self) -> Option<&MSRV> {
         self.minimum_rust_version.as_ref()
     }
 }
@@ -72,7 +73,7 @@ impl CargoManifest {
 }
 
 /// Parse the minimum supported Rust version (MSRV) from `Cargo.toml` metadata.
-fn find_minimum_rust_version(package: &Package) -> Result<Option<Version>, ManifestParseError> {
+fn find_minimum_rust_version(package: &Package) -> Result<Option<MSRV>, ManifestParseError> {
     /// Parses the `MSRV` as supported by Cargo since Rust 1.56.0
     ///
     /// [`Cargo`]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
@@ -89,16 +90,17 @@ fn find_minimum_rust_version(package: &Package) -> Result<Option<Version>, Manif
     // Parse the MSRV from the `package.rust-version` key if it exists,
     // and try to fallback to our own `package.metadata.msrv` if it doesn't
     match find_rust_version(package) {
-        Some(version) => Ok(Some(Version::from(FullVersion::try_from(version)?))),
+        Some(version) => Ok(Some(MSRV::from(FullVersion::try_from(version)?))),
         None => Ok(find_metadata_msrv(package)
             .map(Version::parse)
-            .transpose()?),
+            .transpose()?
+            .map(MSRV::from)),
     }
 }
 
 #[cfg(test)]
 mod minimal_version_tests {
-    use crate::cargo_manifest::{CargoManifest, Version};
+    use crate::cargo_manifest::{CargoManifest, MSRV, Version};
     use cargo_metadata::Metadata;
     use std::convert::TryFrom;
 
@@ -156,7 +158,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, Version::new_full_version(1, 56, 0));
+        assert_eq!(version, MSRV::new(Version::new_full_version(1, 56, 0)));
     }
 
     #[test]
@@ -179,7 +181,7 @@ mod minimal_version_tests {
         let version = manifest.minimum_rust_version.unwrap();
 
         // going through cargo_metadata means it gets turned into 3 components
-        assert_eq!(version, Version::new_full_version(1, 56, 0));
+        assert_eq!(version, MSRV::new(Version::new_full_version(1, 56, 0)));
     }
 
     #[test]
@@ -190,7 +192,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, Version::new_full_version(1, 51, 0));
+        assert_eq!(version, MSRV::new(Version::new_full_version(1, 51, 0)));
     }
 
     #[test]
@@ -201,7 +203,7 @@ mod minimal_version_tests {
         let manifest = CargoManifest::try_from(metadata).unwrap();
         let version = manifest.minimum_rust_version.unwrap();
 
-        assert_eq!(version, Version::new_base_version(1, 51));
+        assert_eq!(version, MSRV::new(Version::new_base_version(1, 51)));
     }
 
     #[yare::parameterized(

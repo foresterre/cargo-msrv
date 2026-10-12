@@ -16,7 +16,8 @@ use cargo_msrv_rust_releases::{
 };
 use cargo_msrv_rust_tools::write_toolchain_file;
 use cargo_msrv_search::Error as SearchError;
-use version_number::Version;
+use msrv::MSRV;
+use version_number::{BaseVersion, FullVersion, Version};
 use write_msrv::write_msrv;
 
 mod write_msrv;
@@ -126,7 +127,10 @@ fn find_package_msrv(
 
                 write_msrv(
                     reporter,
-                    Version::new_base_version(toolchain.version().major, toolchain.version().minor),
+                    MSRV::from(BaseVersion::new(
+                        toolchain.version().major,
+                        toolchain.version().minor,
+                    )),
                     Some(release_index), // Reuse the already obtained index
                     &cargo_toml,
                     package.map(SelectedPackage::from),
@@ -278,10 +282,15 @@ fn report_outcome(
     match minimum_capable {
         MinimumSupportedRustVersion::Toolchain { toolchain } => {
             let version = toolchain.version();
+            let msrv = MSRV::from(FullVersion::new(
+                version.major,
+                version.minor,
+                version.patch,
+            ));
 
             reporter.report_event(
                 FindResult::new_msrv(
-                    version.clone(),
+                    msrv,
                     target,
                     minimum_considered,
                     maximum_considered,

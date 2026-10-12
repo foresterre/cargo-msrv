@@ -1,12 +1,13 @@
 use crate::JsonHandler;
 use crate::event::FindResult;
 use cargo_msrv_context::context::SearchMethod;
+use msrv::MSRV;
 use storyteller::EventHandler;
 use version_number::Version;
 
 #[test]
 fn compatible_handler() {
-    let version = semver::Version::new(1, 2, 3);
+    let version = MSRV::new(Version::new_full_version(1, 2, 3));
 
     let event = FindResult::new_msrv(
         version,
@@ -64,7 +65,7 @@ fn incompatible_handler() {
 
 #[test]
 fn compatible() {
-    let version = semver::Version::new(1, 2, 3);
+    let version = MSRV::new(Version::new_full_version(1, 2, 3));
     let event = FindResult::new_msrv(
         version,
         "x",

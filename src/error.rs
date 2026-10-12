@@ -10,7 +10,7 @@ use cargo_msrv_context::types::{
 use cargo_msrv_rust_releases::{
     FetchIndexError, NoVersionMatchesManifestMsrvError, RustRelease, Stable,
 };
-use version_number::Version;
+use msrv::MSRV;
 
 pub use cargo_msrv_context::context::error::{
     Error as ContextError, InvalidUtf8Error, IoError, IoErrorSource, PathError,
@@ -233,7 +233,7 @@ pub enum SetMsrvError {
     search_space.iter().map(|r| r.version().version.to_string()).collect::<Vec<_>>().join(", "))
 ]
 pub struct InvalidMsrvSetError {
-    pub(crate) input: Version,
+    pub(crate) input: MSRV,
     pub(crate) search_space: Vec<RustRelease<Stable>>,
 }
 

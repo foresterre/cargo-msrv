@@ -8,8 +8,10 @@ use crate::common::sub_cmd_find::{
 };
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv_rust_releases::{RustRelease, Stable};
+use msrv::MSRV;
 use parameterized::parameterized;
 use std::path::Path;
+use version_number::FullVersion;
 
 mod common;
 
@@ -23,17 +25,17 @@ mod common;
         "1.38.0",
     },
     expected_version = {
-        semver::Version::new(1,35,0),
-        semver::Version::new(1,36,0),
-        semver::Version::new(1,37,0),
-        semver::Version::new(1,38,0),
+        MSRV::from(FullVersion::new(1, 35, 0)),
+        MSRV::from(FullVersion::new(1, 36, 0)),
+        MSRV::from(FullVersion::new(1, 37, 0)),
+        MSRV::from(FullVersion::new(1, 38, 0)),
     }
 )]
 #[cfg_attr(
     all(target_os = "macos", target_arch = "aarch64"),
     ignore = "toolchain unavailable on aarch64-apple-darwin"
 )]
-fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
+fn msrv_using_linear_method(folder: &str, expected_version: MSRV) {
     let fixture = Fixture::new(folder);
 
     let with_args = vec![
@@ -59,17 +61,17 @@ fn msrv_using_linear_method(folder: &str, expected_version: semver::Version) {
         "1.38.0",
     },
     expected_version = {
-        semver::Version::new(1,35,0),
-        semver::Version::new(1,36,0),
-        semver::Version::new(1,37,0),
-        semver::Version::new(1,38,0),
+        MSRV::from(FullVersion::new(1, 35, 0)),
+        MSRV::from(FullVersion::new(1, 36, 0)),
+        MSRV::from(FullVersion::new(1, 37, 0)),
+        MSRV::from(FullVersion::new(1, 38, 0)),
     }
 )]
 #[cfg_attr(
     all(target_os = "macos", target_arch = "aarch64"),
     ignore = "toolchain unavailable on aarch64-apple-darwin"
 )]
-fn msrv_using_bisect_method(folder: &str, expected_version: semver::Version) {
+fn msrv_using_bisect_method(folder: &str, expected_version: MSRV) {
     let fixture = Fixture::new(folder);
 
     let with_args = vec![
@@ -108,17 +110,17 @@ fn msrv_unsupported() {
         "1.38.0",
     },
     expected_version = {
-        semver::Version::new(1,35,0),
-        semver::Version::new(1,36,0),
-        semver::Version::new(1,37,0),
-        semver::Version::new(1,38,0),
+        MSRV::from(FullVersion::new(1, 35, 0)),
+        MSRV::from(FullVersion::new(1, 36, 0)),
+        MSRV::from(FullVersion::new(1, 37, 0)),
+        MSRV::from(FullVersion::new(1, 38, 0)),
     }
 )]
 #[cfg_attr(
     all(target_os = "macos", target_arch = "aarch64"),
     ignore = "toolchain unavailable on aarch64-apple-darwin"
 )]
-fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
+fn msrv_with_custom_command(folder: &str, expected_version: MSRV) {
     let fixture = Fixture::new(folder);
 
     let with_args = vec![
@@ -149,15 +151,15 @@ fn msrv_with_custom_command(folder: &str, expected_version: semver::Version) {
         "1.38.0"
     },
     expected_version = {
-        semver::Version::new(1,38,0),
-        semver::Version::new(1,38,0),
+        MSRV::from(FullVersion::new(1, 38, 0)),
+        MSRV::from(FullVersion::new(1, 38, 0)),
     }
 )]
 #[cfg_attr(
     all(target_os = "macos", target_arch = "aarch64"),
     ignore = "toolchain unavailable on aarch64-apple-darwin"
 )]
-fn msrv_with_release_source(release_source: &str, folder: &str, expected_version: semver::Version) {
+fn msrv_with_release_source(release_source: &str, folder: &str, expected_version: MSRV) {
     let fixture = Fixture::new(folder);
 
     let with_args = vec![
@@ -200,7 +202,7 @@ fn msrv_with_old_lockfile() {
     ];
 
     let result = run_cargo_version_which_doesnt_support_lockfile_v2(with_args).unwrap();
-    assert_eq!(result.unwrap().minor, 29);
+    assert_eq!(result.unwrap().version().minor(), 29);
 }
 
 mod minimum_from_edition {
@@ -234,7 +236,7 @@ mod minimum_from_edition {
 
         let test_result = find_msrv_with_releases(with_args, versions).unwrap();
 
-        assert_eq!(test_result.msrv().unwrap().minor, 31);
+        assert_eq!(test_result.msrv().unwrap().version().minor(), 31);
         assert_eq!(
             test_result.successful_checks(),
             &[
@@ -251,14 +253,11 @@ mod minimum_from_edition {
         "b",
     },
     expected_version = {
-        semver::Version::new(1,56,1), // `a` has an MSRV of 1.56.1
-        semver::Version::new(1,58,1), // `b` has an MSRV of 1.58.1
+        MSRV::from(FullVersion::new(1, 56, 1)), // `a` has an MSRV of 1.56.1
+        MSRV::from(FullVersion::new(1, 58, 1)), // `b` has an MSRV of 1.58.1
     }
 )]
-fn msrv_in_a_virtual_workspace_default_check_command(
-    package: &str,
-    expected_version: semver::Version,
-) {
+fn msrv_in_a_virtual_workspace_default_check_command(package: &str, expected_version: MSRV) {
     let fixture = Fixture::new(Path::new("virtual-workspace").join(package));
     let with_args = vec!["cargo", "msrv", "find", "--path", fixture.to_str()];
 
@@ -274,12 +273,12 @@ fn msrv_in_a_virtual_workspace_default_check_command(
 }
 
 #[yare::parameterized(
-    a_regular = {"cargo check", "a",  semver::Version::new(1,56,1) }, // `a` has an MSRV of 1.56.1
-    b_regular = {"cargo check", "b", semver::Version::new(1,58,1) }, // `b` has an MSRV of 1.58.1
-    a_workspace = {"cargo check --workspace", "a", semver::Version::new(1,58,1) }, // since `b` has a greater MSRV than `a`, the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
-    b_workspace = {"cargo check --workspace", "b", semver::Version::new(1,58,1)}, // the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
+    a_regular = {"cargo check", "a",  MSRV::from(FullVersion::new(1, 56, 1)) }, // `a` has an MSRV of 1.56.1
+    b_regular = {"cargo check", "b", MSRV::from(FullVersion::new(1, 58, 1)) }, // `b` has an MSRV of 1.58.1
+    a_workspace = {"cargo check --workspace", "a", MSRV::from(FullVersion::new(1, 58, 1)) }, // since `b` has a greater MSRV than `a`, the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
+    b_workspace = {"cargo check --workspace", "b", MSRV::from(FullVersion::new(1, 58, 1))}, // the greatest common MSRV of the workspace is the MSRV of `b`: 1.58.1
 )]
-fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: semver::Version) {
+fn msrv_in_a_virtual_workspace(command: &str, package: &str, expected_version: MSRV) {
     let fixture = Fixture::new("virtual-workspace");
     let package = fixture.tmp_path(package);
 
@@ -331,8 +330,8 @@ fn cargo_features_option() {
 
     let version = test_result.msrv().unwrap();
 
-    assert_eq!(version.major, 1);
-    assert_eq!(version.minor, 56);
+    assert_eq!(version.version().major(), 1);
+    assert_eq!(version.version().minor(), 56);
     assert_eq!(
         test_result.successful_checks(),
         &[
@@ -365,8 +364,8 @@ fn cargo_all_features_flag() {
 
     let version = test_result.msrv().unwrap();
 
-    assert_eq!(version.major, 1);
-    assert_eq!(version.minor, 56);
+    assert_eq!(version.version().major(), 1);
+    assert_eq!(version.version().minor(), 56);
     assert_eq!(
         test_result.successful_checks(),
         &[
@@ -399,8 +398,8 @@ fn cargo_no_default_features_flag() {
 
     let version = test_result.msrv().unwrap();
 
-    assert_eq!(version.major, 1);
-    assert_eq!(version.minor, 56);
+    assert_eq!(version.version().major(), 1);
+    assert_eq!(version.version().minor(), 56);
     assert_eq!(
         test_result.successful_checks(),
         &[

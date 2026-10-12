@@ -4,7 +4,7 @@ use crate::context::{
     ToolchainContext,
 };
 use camino::Utf8PathBuf;
-use version_number::Version;
+use msrv::MSRV;
 
 #[derive(Debug)]
 pub struct VerifyContext {
@@ -37,7 +37,7 @@ pub struct VerifyCheck {
 
 impl VerifyCheck {
     pub fn resolve(
-        rust_version: Option<&Version>,
+        rust_version: Option<&MSRV>,
         check_cmd: &CheckCommandContext,
         env: &EnvironmentContext,
     ) -> TResult<Vec<Self>> {
@@ -95,12 +95,12 @@ impl From<&Package> for PackageWithoutMsrv {
 /// locate this version.
 #[derive(Clone, Debug)]
 pub struct RustVersion {
-    rust_version: Version,
+    rust_version: MSRV,
     source: RustVersionSource,
 }
 
 impl RustVersion {
-    pub fn from_arg(rust_version: Version) -> Self {
+    pub fn from_arg(rust_version: MSRV) -> Self {
         Self {
             rust_version,
             source: RustVersionSource::Arg,
@@ -142,17 +142,17 @@ impl RustVersion {
     }
 
     /// Get the bare (two- or three component) version specifying the Rust version.
-    pub fn version(&self) -> &Version {
+    pub fn as_msrv(&self) -> &MSRV {
         &self.rust_version
     }
 
     /// Get the version and discard all else.
-    pub fn into_version(self) -> Version {
+    pub fn into_msrv(self) -> MSRV {
         self.rust_version
     }
 
     /// Get the version and the source which was used to locate it.
-    pub fn into_parts(self) -> (Version, RustVersionSource) {
+    pub fn into_parts(self) -> (MSRV, RustVersionSource) {
         (self.rust_version, self.source)
     }
 }
@@ -175,8 +175,9 @@ mod tests {
     use super::*;
     use crate::context::CargoProject;
     use crate::types::Edition;
+    use version_number::BaseVersion;
 
-    fn package(name: &str, rust_version: Option<Version>) -> Package {
+    fn package(name: &str, rust_version: Option<MSRV>) -> Package {
         Package {
             name: name.to_string(),
             manifest_path: Utf8PathBuf::from(format!("{name}/Cargo.toml")),
@@ -201,8 +202,8 @@ mod tests {
         }
     }
 
-    fn v(minor: u64) -> Version {
-        Version::new_base_version(1, minor)
+    fn v(minor: u64) -> MSRV {
+        MSRV::from(BaseVersion::new(1, minor))
     }
 
     #[test]
@@ -233,7 +234,7 @@ mod tests {
 
         assert_eq!(checks.len(), 1);
         assert!(checks[0].package.is_none());
-        assert_eq!(checks[0].rust_version.version(), &v(60));
+        assert_eq!(checks[0].rust_version.as_msrv(), &v(60));
     }
 
     #[test]
@@ -247,7 +248,7 @@ mod tests {
             .map(|c| {
                 (
                     c.package.as_ref().unwrap().name.as_str(),
-                    c.rust_version.version(),
+                    c.rust_version.as_msrv(),
                 )
             })
             .collect::<Vec<_>>();
@@ -260,7 +261,7 @@ mod tests {
 
         let checks = VerifyCheck::resolve(Some(&v(70)), &check_cmd(None), &env).unwrap();
 
-        assert!(checks.iter().all(|c| c.rust_version.version() == &v(70)));
+        assert!(checks.iter().all(|c| c.rust_version.as_msrv() == &v(70)));
     }
 
     fn without_msrv(result: TResult<Vec<VerifyCheck>>) -> Vec<String> {
@@ -335,7 +336,7 @@ mod tests {
 
         assert_eq!(checks.len(), 1);
         assert!(checks[0].package.is_none());
-        assert_eq!(checks[0].rust_version.version(), &v(56));
+        assert_eq!(checks[0].rust_version.as_msrv(), &v(56));
     }
 
     #[test]
