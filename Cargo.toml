@@ -34,7 +34,7 @@ msrv = { workspace = true } # the minimum supported Rust version type
 # external
 camino = { workspace = true } # utf-8 paths
 cargo_metadata = { workspace = true } # resolving Cargo manifest metadata (consider `guppy`!)
-dirs = "6.0.0" # common directories
+dirs = "7.0.0" # common directories
 semver = { workspace = true } # the version numbers of the rust releases
 storyteller = { workspace = true } # minimal multi user output architecture
 thiserror = { workspace = true } # error handling
