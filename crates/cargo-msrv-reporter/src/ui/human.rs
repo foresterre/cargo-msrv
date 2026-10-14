@@ -60,9 +60,25 @@ impl HumanProgressHandler {
         if let Some(package) = package {
             let mut summary = self.summary.lock().unwrap_or_else(|e| e.into_inner());
             summary.push(SummaryRow {
-                package: package.name.clone(),
+                package: package.clone(),
                 result,
             });
+        }
+    }
+
+    fn add_written_to_summary(&self, package: Option<&SelectedPackage>, version: String) {
+        let Some(package) = package else {
+            return;
+        };
+
+        let mut summary = self.summary.lock().unwrap_or_else(|e| e.into_inner());
+
+        match summary.iter_mut().find(|row| &row.package == package) {
+            Some(row) => row.result = format!("{} {}", row.result, "✓ written".green()),
+            None => summary.push(SummaryRow {
+                package: package.clone(),
+                result: version,
+            }),
         }
     }
 
@@ -161,7 +177,7 @@ impl HumanProgressHandler {
                     ),
                 };
                 self.println(message);
-                self.add_to_summary(inner.package(), inner.version().to_string());
+                self.add_written_to_summary(inner.package(), inner.version().to_string());
             }
             SubcommandResult::Show(inner) => {
                 let message = match inner.package() {
@@ -337,7 +353,7 @@ fn result_table(result: &FindResult) -> String {
 }
 
 struct SummaryRow {
-    package: String,
+    package: SelectedPackage,
     result: String,
 }
 
@@ -352,7 +368,7 @@ fn summary_table(rows: &[SummaryRow]) -> String {
     ]);
 
     for row in rows {
-        builder.push_record([row.package.clone(), row.result.clone()]);
+        builder.push_record([row.package.name.clone(), row.result.clone()]);
     }
 
     builder
