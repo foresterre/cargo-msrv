@@ -1,13 +1,16 @@
 [package]
 name = "msrv"
-version = "0.0.2"
-authors = ["Martijn Gribnau <garm@ilumeo.com>"]
-description = "Find your minimum supported Rust version (MSRV), library edition! See cargo-msrv!"
-license = "Apache-2.0 OR MIT"
-edition = "2024"
-repository = "https://github.com/foresterre/cargo-msrv"
-keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
+description = "A data type for the minimum supported Rust version (MSRV)"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
 rust-version = "1.94"
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "datatype", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
 
 [dependencies]
 serde = { workspace = true, optional = true }
