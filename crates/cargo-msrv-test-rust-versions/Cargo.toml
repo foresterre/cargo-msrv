@@ -1,0 +1,21 @@
+[package]
+name = "cargo-msrv-test-rust-versions"
+description = "Test for finding MSRV's for specific Rust version features"
+version = "0.0.0"
+authors = ["Martijn Gribnau <garm@ilumeo.com>"]
+license = "Apache-2.0 OR MIT"
+edition = "2024"
+repository = "https://github.com/foresterre/cargo-msrv"
+publish = false
+
+rust-version = "1.96"
+
+[dev-dependencies]
+assert_fs = "1.1.4"
+cargo_metadata = "0.23.1"
+yare = "3.0.0"
+
+# The crate is intentionally not part of the root workspace, because we don't want to run it by accident with
+# `cargo test --workspace`, since it requires a lot of toolchains (>10GB) to be present, and these tests take relatively
+# long to run if not all toolchains are already present.
+[workspace]
