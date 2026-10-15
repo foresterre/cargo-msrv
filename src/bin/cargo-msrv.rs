@@ -7,7 +7,7 @@ use std::sync::Arc;
 use storyteller::{DisconnectToken, EventHandler, EventListener, HandlerGuard};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
-use cargo_msrv::cli::{CargoCli, CargoMsrvOpts};
+use cargo_msrv::cli::{CargoCli, CargoMsrvOpts, SubCommand, print_completions};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
@@ -38,6 +38,11 @@ fn setup_opts_and_tracing<I: IntoIterator<Item = OsString>, F: FnOnce() -> I + C
 ) -> Result<(Option<TracingGuard>, ExitCode), SetupError> {
     let matches = CargoCli::parse_args(args());
     let opts = matches.to_cargo_msrv_cli().to_opts();
+
+    if let SubCommand::Completions { shell } = opts.subcommand {
+        print_completions(shell);
+        return Ok((None, ExitCode::Success));
+    }
 
     // NB: We must collect the guard of the non-blocking tracing appender, since it will only live as
     // long as the lifetime of the worker guard. If we don't do this, the guard would be dropped after

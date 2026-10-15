@@ -41,6 +41,9 @@ impl TryFrom<CargoMsrvOpts> for Context {
             SubCommand::Set(_) => Self::Set(SetContext::try_from(opts)?),
             SubCommand::Show(_) => Self::Show(ShowContext::try_from(opts)?),
             SubCommand::Verify(_) => Self::Verify(VerifyContext::try_from(opts)?),
+            SubCommand::Completions { .. } => {
+                return Err(Error::CompletionsHaveNoContext);
+            }
         };
 
         Ok(ctx)
