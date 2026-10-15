@@ -1,0 +1,24 @@
+name: "ci-test-rust-versions"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "00 04 * * 6"
+jobs:
+  test_rust_versions:
+    name: test_rust_versions
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: checkout_repository
+        uses: actions/checkout@v7
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: fetch
+        run: |
+          cargo fetch --verbose
+          cargo fetch --verbose --manifest-path crates/cargo-msrv-test-rust-versions/Cargo.toml
+
+      - name: test_rust_versions
+        run: cargo test --verbose --manifest-path crates/cargo-msrv-test-rust-versions/Cargo.toml -- --test-threads=1
