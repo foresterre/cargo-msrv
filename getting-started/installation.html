@@ -181,6 +181,11 @@ cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./tar
 cd cargo-msrv
 cargo install cargo-msrv --path . # OR cargo build --release &amp;&amp; mv ./target/cargo-msrv ./my/install/directory
 </code></pre>
+<h3 id="shell-completions"><a class="header" href="#shell-completions">Shell completions</a></h3>
+<p>cargo-msrv can print completions for the <code>cargo-msrv</code> binary. Supported shells are <code>bash</code>, <code>elvish</code>, <code>fish</code>, <code>powershell</code> and <code>zsh</code>. You can redirect them to wherever your shell loads completions from.</p>
+<p><strong>Example fish completions setup:</strong></p>
+<pre><code class="language-shell">cargo-msrv completions fish &gt; ~/.config/fish/completions/cargo-msrv.fish
+</code></pre>
 <p>You may find additional installation options in the <a href="https://github.com/foresterre/cargo-msrv#install">README</a>.</p>
 
                     </main>
