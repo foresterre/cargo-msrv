@@ -927,7 +927,7 @@ may be slightly ahead when the Rust developers are cutting a release.</p>
 <p>This source is the default because it is a single file (unlike say <code>github</code> releases which needs to consider pagination
 and adhere to the max API limits). It is very fast, consistently up to date and it is reasonably easy to parse.</p>
 <h4 id="bundled-unless-outdated"><a class="header" href="#bundled-unless-outdated">bundled-unless-outdated</a></h4>
-<p>Same as <code>bundled</code>, except that if its configured max age (default is 7 days) has been reached since it was generated, then
+<p>Same as <code>bundled</code>, except that if its configured max age (default is 42 days) has been reached since it was generated, then
 it falls back to the (configured) fallback release source, which is the same list of release sources (defaults follow the
 same ordering rules). </p>
 <p>Note that the bundled source is complete (it's effectively the <code>rust-dist</code> source packaged in a much smaller format, and
