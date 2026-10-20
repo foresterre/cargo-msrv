@@ -28,7 +28,7 @@ pub use cargo_msrv_context::{Context, TracingOptions};
 use crate::compatibility::{CheckTarget, RustupToolchainCheck};
 use crate::error::TResult;
 use crate::reporter::Reporter;
-use crate::reporter::event::{Meta, SelectedPackages, SubcommandInit};
+use crate::reporter::event::{ContextFinalized, Meta, SubcommandInit};
 use cargo_msrv_rust_releases::release_index;
 
 pub use cargo_msrv_cli::cli;
@@ -56,9 +56,7 @@ fn meta() -> Meta {
 
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(meta())?;
-    reporter.report_event(SelectedPackages::new(
-        ctx.environment_context().selected_packages(),
-    ))?;
+    reporter.report_event(ContextFinalized::new(ctx.environment_context()))?;
     reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
 
     match ctx {

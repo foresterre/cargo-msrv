@@ -1,6 +1,6 @@
 use crate::event::{
-    CheckPackage, CheckResult, CheckToolchain, FindResult, Message, Meta, SubcommandInit,
-    SubcommandResult,
+    CheckPackage, CheckResult, CheckToolchain, ContextFinalized, FindResult, Message, Meta,
+    ProjectMode, SubcommandInit, SubcommandResult,
 };
 use crate::{Event, table_settings};
 use cargo_msrv_context::SelectedPackage;
@@ -100,6 +100,9 @@ impl EventHandler for HumanProgressHandler {
             Message::Meta(it) => {
                 let message = it.format_human();
                 self.println(message);
+            }
+            Message::ContextFinalized(it) => {
+                self.println(it.format_human());
             }
             Message::SubcommandInit(it) if it.should_enable_spinner() => {
                 self.pb.reset(); // We'll reset here to ensure the steady tick call below works
@@ -245,6 +248,11 @@ struct Status;
 impl Status {
     fn meta(message: impl Display) -> String {
         let lead = format!("[{}]", "Meta".bright_blue());
+        status(lead, message)
+    }
+
+    fn mode(message: impl Display) -> String {
+        let lead = format!("[{}]", "Mode".bright_blue());
         status(lead, message)
     }
 
@@ -394,6 +402,22 @@ impl Meta {
             self.version(),
             sha_fmt.trim(),
         ))
+    }
+}
+
+impl ContextFinalized {
+    fn format_human(&self) -> String {
+        let message = match self.project {
+            ProjectMode::Bare => "Without Cargo (no Cargo.toml found)",
+            ProjectMode::Cargo {
+                workspace: false, ..
+            } => "Cargo package",
+            ProjectMode::Cargo {
+                workspace: true, ..
+            } => "Cargo workspace",
+        };
+
+        Status::mode(message)
     }
 }
 

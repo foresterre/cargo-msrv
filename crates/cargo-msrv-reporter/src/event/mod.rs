@@ -15,11 +15,11 @@ pub use check_method::{CheckMethod, Method};
 pub use check_package::CheckPackage;
 pub use check_result::CheckResult;
 pub use check_toolchain::CheckToolchain;
+pub use context_finalized::{ContextFinalized, ProjectMode};
 pub use fetch_index::FetchIndex;
 pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
-pub use selected_packages::SelectedPackages;
 pub use setup_toolchain::SetupToolchain;
 pub use subcommand_init::SubcommandInit;
 pub use subcommand_result::SubcommandResult;
@@ -47,11 +47,11 @@ mod check_method;
 mod check_package;
 mod check_result;
 mod check_toolchain;
+mod context_finalized;
 mod fetch_index;
 mod meta;
 mod progress;
 mod search_method;
-mod selected_packages;
 mod setup_toolchain;
 mod subcommand_init;
 mod subcommand_result;
@@ -126,9 +126,7 @@ impl Event {
 pub enum Message {
     // setup
     Meta(Meta),
-
-    // package selection
-    SelectedPackages(SelectedPackages),
+    ContextFinalized(ContextFinalized),
 
     // get rust-releases index
     FetchIndex(FetchIndex), // todo!

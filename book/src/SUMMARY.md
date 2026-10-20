@@ -9,6 +9,7 @@
 - [Releases](releases/index.md)
     - [v0.15 to v0.16](releases/v0.15_v0.16_highlights.md)
     - [v0.15 to v0.16 JSON](releases/v0.15_v0.16_json.md)
+    - [v0.19 to v0.20](releases/v0.19_v0.20.md)
 - [Concepts](./concepts/index.md)
 - [Output Formats](output-formats/index.md)
     - [human](output-formats/human.md)

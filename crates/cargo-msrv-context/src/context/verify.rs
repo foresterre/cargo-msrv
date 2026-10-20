@@ -189,7 +189,9 @@ mod tests {
     fn cargo_environment(packages: Vec<Package>) -> EnvironmentContext {
         EnvironmentContext {
             root_crate_path: Utf8PathBuf::from("ws"),
-            project: Project::Cargo(CargoProject::new(Utf8PathBuf::from("ws"), packages).unwrap()),
+            project: Project::Cargo(
+                CargoProject::new(Utf8PathBuf::from("ws"), true, packages).unwrap(),
+            ),
         }
     }
 

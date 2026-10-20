@@ -78,9 +78,9 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
             }};
         }
 
-        if let Message::SelectedPackages(selected) = event.message() {
+        if let Message::ContextFinalized(finalized) = event.message() {
             self.multiple_packages
-                .store(selected.len() > 1, Ordering::SeqCst);
+                .store(finalized.packages().len() > 1, Ordering::SeqCst);
         }
 
         let prefix = |package: Option<&SelectedPackage>| match package {
@@ -121,7 +121,8 @@ impl<S: SendWriter, F: SendWriter> EventHandler for MinimalOutputHandler<S, F> {
 #[cfg(test)]
 mod tests {
     use crate::event::{
-        FindResult, ListResult, Progress, SelectedPackages, SetResult, ShowResult, VerifyResult,
+        ContextFinalized, FindResult, ListResult, Progress, ProjectMode, SetResult, ShowResult,
+        VerifyResult,
     };
     use crate::ui::minimal::MinimalOutputHandler;
     use camino::Utf8Path;
@@ -323,7 +324,15 @@ mod tests {
         let s = Vec::new();
         let f = Vec::new();
         let handler = MinimalOutputHandler::new(s, f);
-        handler.handle(SelectedPackages::new(Some(vec![package("a").unwrap()])).into());
+        handler.handle(
+            ContextFinalized {
+                project: ProjectMode::Cargo {
+                    workspace: false,
+                    packages: vec![package("a").unwrap()],
+                },
+            }
+            .into(),
+        );
         handler.handle(
             ShowResult::new(
                 Version::new_base_version(1, 40),
@@ -343,7 +352,13 @@ mod tests {
         let f = Vec::new();
         let handler = MinimalOutputHandler::new(s, f);
         handler.handle(
-            SelectedPackages::new(Some(vec![package("a").unwrap(), package("b").unwrap()])).into(),
+            ContextFinalized {
+                project: ProjectMode::Cargo {
+                    workspace: true,
+                    packages: vec![package("a").unwrap(), package("b").unwrap()],
+                },
+            }
+            .into(),
         );
 
         for (name, minor) in [("a", 40), ("b", 50)] {

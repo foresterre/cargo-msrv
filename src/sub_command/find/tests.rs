@@ -361,6 +361,7 @@ mod workspace {
         let root = Utf8Path::from_path(tmp.path()).unwrap();
         let project = CargoProject::new(
             root.to_path_buf(),
+            true,
             vec![package(root, "a"), package(root, "b")],
         )
         .unwrap();

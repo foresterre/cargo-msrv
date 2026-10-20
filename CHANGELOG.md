@@ -20,6 +20,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added `cargo msrv set --workspace-msrv`, which sets the MSRV in the `workspace.package` table of the workspace root of the Cargo manifest
 * Subcommand results now report the package they belong to
 * Added a hidden `cargo-msrv completions <SHELL>` subcommand which prints shell completions for `cargo-msrv` to stdout
+* Added the `context_finalized` event, which reports information about the context (i.e. the resolved config and environment values) `cargo-msrv` is running with
 
 ### Changed
 
@@ -40,6 +41,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * The `sha_short` build metadata is now reported again by the `meta` event
 * Fix issue where `cargo-msrv find` could no longer be used outside a Cargo project, unless `--min` was provided (must still be runnable via `rustup run`)
 * The `edition` field inherited from `workspace.package` is now used to limit the search space of `cargo msrv find`
+
+### Removed
+
+* ⚠️ Breaking change: Removed `selected_packages` event. Use the `project.packages` field on `context_finalized` instead.
 
 ## 0.19.3 - 2026-03-25
 
