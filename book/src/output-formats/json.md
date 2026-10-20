@@ -71,6 +71,58 @@ marks the end of a scoped event.
 }
 ```
 
+## Event: `ContextFinalized`
+
+**type:** context_finalized
+
+**description:** `cargo-msrv` gathers configuration and environment values (such as whether it is in a `cargo` project, and whether
+it is in a workspace, and collects these into a `Context`.  This event reports a subset of values found in this
+context.
+
+**fields:**
+
+| name                  | optional | condition                | description                                                                        |
+|-----------------------|----------|--------------------------|------------------------------------------------------------------------------------|
+| project               | no       |                          | The project `cargo-msrv` runs in                                                   |
+| project.mode          | no       |                          | Either `cargo` for a Cargo project, or `bare` for a project without Cargo          |
+| project.workspace     | no       | project.mode = `cargo`   | Whether the project is a workspace, `false` for a single package                   |
+| project.packages      | no       | project.mode = `cargo`   | The selected packages, e.g. by using `--workspace`, `--package` or `--exclude`     |
+| project.packages.name | no       | project.mode = `cargo`   | The name of the package                                                            |
+| project.packages.path | no       | project.mode = `cargo`   | The path to the package's manifest                                                 |
+
+**example 1: workspace**
+
+```json lines
+{
+  "type": "context_finalized",
+  "project": {
+    "mode": "cargo",
+    "workspace": true,
+    "packages": [
+      {
+        "name": "a",
+        "path": "/workspace/a/Cargo.toml"
+      },
+      {
+        "name": "b",
+        "path": "/workspace/b/Cargo.toml"
+      }
+    ]
+  }
+}
+```
+
+**example 2: without Cargo**
+
+```json lines
+{
+  "type": "context_finalized",
+  "project": {
+    "mode": "bare"
+  }
+}
+```
+
 ## Event: `FetchIndex`
 
 **type:** fetch_index
