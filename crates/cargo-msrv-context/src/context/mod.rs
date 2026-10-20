@@ -206,10 +206,14 @@ impl EnvironmentContext {
         }
     }
 
-    pub fn selected_packages(&self) -> Option<Vec<SelectedPackage>> {
+    pub fn is_cargo_project(&self) -> bool {
+        matches!(self.project, Project::Cargo(_))
+    }
+
+    pub fn is_cargo_workspace(&self) -> bool {
         match &self.project {
-            Project::Cargo(p) => Some(p.packages().map(SelectedPackage::from).collect()),
-            Project::Bare => None,
+            Project::Cargo(p) => p.is_workspace(),
+            Project::Bare => false,
         }
     }
 }
@@ -225,18 +229,24 @@ pub enum Project {
 pub struct CargoProject {
     /// `metadata.workspace_root`, home of the shared `Cargo.lock` and toolchain file.
     pub workspace_root: Utf8PathBuf,
+    is_workspace: bool,
     /// The first package is kept apart, so the list can never be empty.
     pub first: Package,
     pub rest: Vec<Package>,
 }
 
 impl CargoProject {
-    pub fn new(workspace_root: Utf8PathBuf, packages: Vec<Package>) -> TResult<Self> {
+    pub fn new(
+        workspace_root: Utf8PathBuf,
+        is_workspace: bool,
+        packages: Vec<Package>,
+    ) -> TResult<Self> {
         let mut packages = packages.into_iter();
         let first = packages.next().ok_or(Error::EmptySelection)?;
 
         Ok(Self {
             workspace_root,
+            is_workspace,
             first,
             rest: packages.collect(),
         })
@@ -244,6 +254,10 @@ impl CargoProject {
 
     pub fn packages(&self) -> impl Iterator<Item = &Package> {
         std::iter::once(&self.first).chain(self.rest.iter())
+    }
+
+    pub fn is_workspace(&self) -> bool {
+        self.is_workspace
     }
 }
 
@@ -377,7 +391,7 @@ mod tests {
 
     #[test]
     fn empty_selection() {
-        let result = CargoProject::new(Utf8PathBuf::from("ws"), vec![]);
+        let result = CargoProject::new(Utf8PathBuf::from("ws"), false, vec![]);
 
         assert!(matches!(result, Err(Error::EmptySelection)));
     }
@@ -389,6 +403,7 @@ mod tests {
 
         let project = CargoProject::new(
             Utf8PathBuf::from("ws"),
+            true,
             vec![package(Edition::Edition2021), b],
         )
         .unwrap();
@@ -403,7 +418,9 @@ mod tests {
     fn cargo_environment(packages: Vec<Package>) -> EnvironmentContext {
         EnvironmentContext {
             root_crate_path: Utf8PathBuf::from("ws"),
-            project: Project::Cargo(CargoProject::new(Utf8PathBuf::from("ws"), packages).unwrap()),
+            project: Project::Cargo(
+                CargoProject::new(Utf8PathBuf::from("ws"), true, packages).unwrap(),
+            ),
         }
     }
 
@@ -453,7 +470,29 @@ mod tests {
         ));
         assert!(env.lock().is_none());
         assert_eq!(env.workspace_root(), Utf8Path::new("ws"));
-        assert!(env.selected_packages().is_none());
+        assert!(!env.is_cargo_project());
+        assert!(!env.is_cargo_workspace());
+    }
+
+    #[yare::parameterized(
+        single_package = { false },
+        workspace = { true },
+    )]
+    fn cargo_project_is_workspace(is_workspace: bool) {
+        let env = EnvironmentContext {
+            root_crate_path: Utf8PathBuf::from("ws"),
+            project: Project::Cargo(
+                CargoProject::new(
+                    Utf8PathBuf::from("ws"),
+                    is_workspace,
+                    vec![package(Edition::Edition2021)],
+                )
+                .unwrap(),
+            ),
+        };
+
+        assert!(env.is_cargo_project());
+        assert_eq!(env.is_cargo_workspace(), is_workspace);
     }
 
     #[test]

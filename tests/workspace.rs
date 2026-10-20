@@ -133,6 +133,35 @@ fn inherited_rust_version_and_edition() {
     assert_eq!(min.unwrap().to_string(), "1.56.0");
 }
 
+#[yare::parameterized(
+    single_package = { "1.56.0-edition-2021", "", false },
+    virtual_workspace = { "virtual-workspace", "", true },
+    virtual_workspace_member = { "virtual-workspace", "a", true },
+    root_package = { "workspace-root-package", "", true },
+    root_package_member = { "workspace-root-package", "member", true },
+)]
+fn detects_workspace(fixture: &str, path: &str, expected: bool) {
+    let fixture = Fixture::new(fixture);
+    let path = fixture.tmp_path(path);
+
+    let ctx = context(&["--path", path.to_str().unwrap(), "show"]).unwrap();
+    let env = ctx.environment_context();
+
+    assert!(env.is_cargo_project());
+    assert_eq!(env.is_cargo_workspace(), expected);
+}
+
+#[test]
+fn bare_project_is_not_a_workspace() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    let ctx = context(&["--path", dir.to_str().unwrap(), "show"]).unwrap();
+    let env = ctx.environment_context();
+
+    assert!(!env.is_cargo_project());
+    assert_eq!(env.is_cargo_workspace(), false);
+}
+
 #[test]
 fn excluding_every_member_is_an_empty_selection() {
     let fixture = Fixture::new("virtual-workspace");

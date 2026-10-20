@@ -189,6 +189,9 @@ fn resolve_project(
 
     let members = metadata.workspace_packages();
 
+    let root_manifest = metadata.workspace_root.join("Cargo.toml");
+    let is_workspace = !matches!(members.as_slice(), [only] if only.manifest_path == root_manifest);
+
     if let Some(unknown) = workspace.package.iter().find(|name| {
         !members
             .iter()
@@ -203,6 +206,7 @@ fn resolve_project(
         action = "detect_cargo_workspace_packages",
         method = "cargo_metadata",
         cargo_project = true,
+        is_workspace,
         selected = ?selected.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
         excluded = ?excluded.iter().map(|p| p.name.as_str()).collect::<Vec<_>>(),
     );
@@ -212,7 +216,7 @@ fn resolve_project(
         .map(Package::try_from)
         .collect::<TResult<Vec<_>>>()?;
 
-    let project = CargoProject::new(metadata.workspace_root.clone(), packages)?;
+    let project = CargoProject::new(metadata.workspace_root.clone(), is_workspace, packages)?;
 
     Ok(Project::Cargo(project))
 }
