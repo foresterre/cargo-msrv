@@ -32,7 +32,7 @@ and adhere to the max API limits). It is very fast, consistently up to date and 
 
 #### bundled-unless-outdated
 
-Same as `bundled`, except that if its configured max age (default is 7 days) has been reached since it was generated, then
+Same as `bundled`, except that if its configured max age (default is 42 days) has been reached since it was generated, then
 it falls back to the (configured) fallback release source, which is the same list of release sources (defaults follow the
 same ordering rules). 
 

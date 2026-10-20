@@ -15,7 +15,7 @@ pub struct BundledMaxAge {
 }
 
 impl BundledMaxAge {
-    const DEFAULT_DAYS: u32 = 7;
+    const DEFAULT_DAYS: u32 = 42;
 
     pub const fn from_days(days: u32) -> Self {
         Self { days }
@@ -121,6 +121,6 @@ mod tests {
 
     #[test]
     fn default_max_age() {
-        assert_eq!(BundledMaxAge::default().days(), 7);
+        assert_eq!(BundledMaxAge::default().days(), 42);
     }
 }
