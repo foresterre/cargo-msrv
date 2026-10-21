@@ -736,7 +736,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "assert_fs",
  "camino",
@@ -767,7 +767,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-cli"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "camino",
  "cargo-msrv-context",
@@ -787,7 +787,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-context"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "assert_fs",
  "camino",
@@ -804,7 +804,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-reporter"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "camino",
  "cargo-msrv-context",
@@ -827,7 +827,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-rust-releases"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "cargo-msrv-context",
  "cargo-msrv-reporter",
@@ -845,7 +845,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-rust-tools"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "assert_fs",
  "camino",
@@ -865,7 +865,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-search"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "bisector",
  "camino",
@@ -886,7 +886,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-types"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "camino",
  "semver",
@@ -2077,7 +2077,7 @@ dependencies = [
 
 [[package]]
 name = "msrv"
-version = "0.20.0-beta.3"
+version = "0.20.0-beta.4"
 dependencies = [
  "serde",
  "version-number 1.0.0",
