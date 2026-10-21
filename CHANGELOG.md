@@ -50,6 +50,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Updated `webpki-roots` to `v1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
 
+## 0.19.5 - 2026-10-21
+
+### Fixed
+
+#### Infra
+
+* Fix release pipeline for binaries (`cargo-about` now requires the non-default `cli` feature)
+
 ## 0.19.4 - 2026-10-21
 
 ### Security
