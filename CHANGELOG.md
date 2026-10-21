@@ -10,6 +10,14 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ## Unreleased
 
+## 0.19.5 - 2026-10-21
+
+### Fixed
+
+#### Infra
+
+* Fix release pipeline for binaries (`cargo-about` now requires the non-default `cli` feature)
+
 ## 0.19.4 - 2026-10-21
 
 ### Security

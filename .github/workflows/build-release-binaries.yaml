@@ -84,7 +84,7 @@ jobs:
 
       - name: install_cargo_about
         shell: bash
-        run: cargo install --locked cargo-about
+        run: cargo install --locked cargo-about --features cli
 
       - name: generate_dep_licenses_file
         shell: bash
