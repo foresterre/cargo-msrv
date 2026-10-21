@@ -7,13 +7,12 @@ license = { workspace = true }
 edition = { workspace = true }
 repository = { workspace = true }
 
-rust-version = "1.96"
-
 keywords = ["msrv", "rust-version", "toolchain", "find", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
 
 build = "build.rs"
 exclude = ["/design"]
+rust-version = "1.96"
 
 [package.metadata.release]
 tag-name = "v{{version}}"
