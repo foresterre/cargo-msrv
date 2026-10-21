@@ -7,10 +7,9 @@ license.workspace = true
 edition.workspace = true
 repository.workspace = true
 
-rust-version = "1.91.1"
-
 keywords = ["msrv", "rust-version", "cargo-msrv", "context", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
+rust-version = "1.94"
 
 [dependencies]
 cargo-msrv-rust-tools = { workspace = true }
