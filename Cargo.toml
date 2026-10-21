@@ -1,6 +1,6 @@
 [package]
 name = "cargo-msrv"
-version = "0.19.3"
+version = "0.19.4"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 description = "Find your minimum supported Rust version (MSRV)!"
 license = "Apache-2.0 OR MIT"
@@ -12,7 +12,7 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 
 build = "build.rs"
 exclude = ["/design"]
-rust-version = "1.91"
+rust-version = "1.94.1"
 
 [package.metadata.release]
 tag-name = "v{{version}}"
