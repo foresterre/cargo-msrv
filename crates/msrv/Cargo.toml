@@ -7,7 +7,7 @@ license = "Apache-2.0 OR MIT"
 edition = "2021"
 repository = "https://github.com/foresterre/cargo-msrv"
 keywords = ["msrv", "rust-version", "cargo-msrv", "find", "minimum"]
-rust-version = "1.82"
+rust-version = "1.85"
 
 [dependencies]
 rust-toolchain = "1.1.0"
