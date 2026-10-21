@@ -36,6 +36,8 @@ jobs:
             kind: windows
 
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     steps:
       - name: checkout_tagged_commit
         uses: actions/checkout@v7
@@ -112,11 +114,9 @@ jobs:
           7z a -tzip ${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
 
       - name: upload_artifact
-        uses: actions/upload-release-asset@v1.0.2
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ steps.set_output.outputs.archive }}
-          asset_name: ${{ steps.set_output.outputs.archive }}
-          asset_content_type: application/gzip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+          ARCHIVE: ${{ steps.set_output.outputs.archive }}
+        run: gh release upload "$TAG" "./$ARCHIVE" --repo "$GITHUB_REPOSITORY"
