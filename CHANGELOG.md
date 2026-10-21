@@ -46,6 +46,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * ⚠️ Breaking change: Removed `selected_packages` event. Use the `project.packages` field on `context_finalized` instead.
 
+### Security
+
+* Updated `webpki-roots` to `v1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
+
 ## 0.19.4 - 2026-10-21
 
 ### Security
