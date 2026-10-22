@@ -2,11 +2,11 @@ name: "ci-docker"
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     tags:
       - 'v*.*.*'
   pull_request:
-    branches: [main]
+    branches: [ main ]
   merge_group:
 permissions:
   contents: read
@@ -14,21 +14,22 @@ permissions:
 jobs:
   docker_build:
     name: docker_build (${{ matrix.platform }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        platform: [linux/amd64, linux/arm64]
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
     steps:
       - name: checkout_repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      - name: setup_qemu
-        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - name: setup_docker_buildx
         id: buildx
