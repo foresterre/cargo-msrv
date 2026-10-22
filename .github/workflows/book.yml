@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   book:
-    name: build-and-publish-book
+    name: build_and_publish_book
     runs-on: ubuntu-latest
     permissions:
       contents: write

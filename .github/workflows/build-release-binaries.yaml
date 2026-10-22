@@ -87,7 +87,7 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.target }}
 
-      - name: install musl-gcc
+      - name: install_musl_gcc
         if: matrix.target == 'x86_64-unknown-linux-musl'
         shell: bash
         run: |
