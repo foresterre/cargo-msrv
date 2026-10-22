@@ -8,6 +8,9 @@ on:
   merge_group:
   schedule:
     - cron: "00 05 * * *"
+permissions:
+  contents: read
+
 jobs:
   test:
     name: test
@@ -38,20 +41,15 @@ jobs:
 
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      # We would prefer to use `dtolnay/rust-toolchain@master with toolchain=${{ matrix.rust }}` or `rustup update ${{ matrix.rust }}`.
-      # However, when using either we run into a linking issue:
-      # `error: could not create link from 'C:\\Users\\runneradmin\\.cargo\\bin\\rustup.exe' to 'C:\\Users\\runneradmin\\.cargo\\bin\\cargo.exe'\n" })', tests\find_msrv.rs:156:39`
-      # I find the message odd, because we only need to install the toolchain, not set it as the default, and replace the
-      # binary; so what is meant by "link" in the above error?
       - name: install_rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: ${{ matrix.rust }}
-          override: true
-          profile: minimal
-          target: x86_64-unknown-linux-musl
+          targets: x86_64-unknown-linux-musl
 
       - name: fetch
         run: cargo fetch --verbose
@@ -61,7 +59,7 @@ jobs:
 
       - name: install musl-gcc
         if: matrix.os == 'ubuntu-latest'
-        uses: awalsh128/cache-apt-pkgs-action@v1
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: musl-tools # provides musl-gcc
           version: 1.0

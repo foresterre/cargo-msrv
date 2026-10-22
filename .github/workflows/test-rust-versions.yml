@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "00 04 * * 6"
+permissions:
+  contents: read
+
 jobs:
   test_rust_versions:
     name: test_rust_versions
@@ -10,10 +13,14 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
 
       - name: fetch
         run: |

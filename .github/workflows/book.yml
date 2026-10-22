@@ -4,16 +4,23 @@ on:
     branches: [main]
   pull_request:
   merge_group:
+permissions:
+  contents: read
+
 jobs:
   book:
     name: build-and-publish-book
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: setup_mdbook
-        uses: peaceiris/actions-mdbook@v2
+        uses: peaceiris/actions-mdbook@ee69d230fe19748b7abf22df32acaa93833fad08 # v2.0.0
         with:
           mdbook-version: '0.4.13'
 
@@ -21,7 +28,7 @@ jobs:
         run: cd book && mdbook build -d ../output
 
       - name: deploy_mdbook
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

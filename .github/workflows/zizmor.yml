@@ -1,0 +1,27 @@
+name: "ci-zizmor"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+  merge_group:
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    continue-on-error: true
+    steps:
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: run_zizmor
+        uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
