@@ -49,6 +49,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Security
 
 * Updated `webpki-roots` to `v1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
+* Updated `tokio` to `v1.54.1` resolving `RUSTSEC-2026-0384`
 
 ## 0.19.6 - 2026-10-22
 
