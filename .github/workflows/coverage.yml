@@ -1,6 +1,9 @@
 name: "ci-coverage"
 on:
   pull_request:
+permissions:
+  contents: read
+
 jobs:
   coverage:
     name: coverage
@@ -9,15 +12,19 @@ jobs:
       CARGO_TERM_COLOR: always
     steps:
       - name: checkout_repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: install_rust_nightly
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: nightly-2026-08-03
 
       - name: install_code_coverage_tool
-        uses: taiki-e/install-action@cargo-llvm-cov
+        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2.87.30
+        with:
+          tool: cargo-llvm-cov
 
       - name: generate_code_coverage
         # `--lib` ensures we only run unit tests, no integration tests.
@@ -26,6 +33,6 @@ jobs:
         run: cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info --lib
 
       - name: upload_code_coverage
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: lcov.info

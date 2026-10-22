@@ -8,6 +8,9 @@ on:
   merge_group:
   schedule:
     - cron: '00 06 * * *'
+permissions:
+  contents: read
+
 jobs:
   # MSRV check and e2e test
   msrv:
@@ -28,15 +31,32 @@ jobs:
     #            os: windows-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - if: matrix.build == 'ubuntu'
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+
+      - name: install_cargo_msrv
+        if: matrix.build == 'ubuntu'
         run: cargo install cargo-msrv
-      - if: matrix.build != 'ubuntu'
+
+      - name: install_cargo_msrv_no_default_features
+        if: matrix.build != 'ubuntu'
         run: cargo install cargo-msrv --no-default-features
-      - run: cargo msrv --version
-      - run: cargo msrv verify --output-format json
-      - if: ${{ failure() }}
+
+      - name: show_cargo_msrv_version
+        run: cargo msrv --version
+
+      - name: verify_msrv
+        run: cargo msrv verify --output-format json
+
+      - name: find_msrv
+        if: ${{ failure() }}
         run: cargo msrv find --output-format json
 
   msrv_workspace_crates:
@@ -55,12 +75,27 @@ jobs:
           "msrv",
         ]
     steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install cargo-msrv
-      - run: cargo msrv --version
-      - run: cargo msrv verify --output-format json -- cargo check --all-features -p ${{ matrix.crate }}
-      - if: ${{ failure() }}
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+
+      - name: install_cargo_msrv
+        run: cargo install cargo-msrv
+
+      - name: show_cargo_msrv_version
+        run: cargo msrv --version
+
+      - name: verify_msrv
+        run: cargo msrv verify --output-format json -- cargo check --all-features -p ${{ matrix.crate }}
+
+      - name: find_msrv
+        if: ${{ failure() }}
         run: cargo msrv find --output-format json -- cargo check --all-features -p ${{ matrix.crate }}
   
   # The same as the 'msrv' job, except it takes the latest release, including beta releases
@@ -69,15 +104,32 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: taiki-e/install-action@v2
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+
+      - name: install_cargo_binstall
+        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2.87.30
         with:
           tool: cargo-binstall
-      - run: cargo binstall --no-confirm cargo-msrv
-      - run: cargo msrv --version
-      - run: cargo msrv verify --output-format json
-      - if: ${{ failure() }}
+
+      - name: install_cargo_msrv
+        run: cargo binstall --no-confirm cargo-msrv
+
+      - name: show_cargo_msrv_version
+        run: cargo msrv --version
+
+      - name: verify_msrv
+        run: cargo msrv verify --output-format json
+
+      - name: find_msrv
+        if: ${{ failure() }}
         run: cargo msrv find --output-format json
 
   # The same as the 'msrv' job, except it takes the latest development branch, as a form of test
@@ -87,10 +139,25 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install --git https://github.com/foresterre/cargo-msrv.git cargo-msrv
-      - run: cargo msrv --version
-      - run: cargo msrv verify --output-format json
-      - if: ${{ failure() }}
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install_rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+
+      - name: install_cargo_msrv_development
+        run: cargo install --git https://github.com/foresterre/cargo-msrv.git cargo-msrv
+
+      - name: show_cargo_msrv_version
+        run: cargo msrv --version
+
+      - name: verify_msrv
+        run: cargo msrv verify --output-format json
+
+      - name: find_msrv
+        if: ${{ failure() }}
         run: cargo msrv find --output-format json

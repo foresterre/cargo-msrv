@@ -38,51 +38,65 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+    env:
+      BUILD_TARGET: ${{ matrix.target }}
     steps:
       - name: checkout_tagged_commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ github.event.release.target_commitish }}
 
       - name: set_output
         id: set_output
         shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          ARCHIVE_EXT: ${{ matrix.archive_ext }}
         run: |
-          echo "archive=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}.${{ matrix.archive_ext }}" >> $GITHUB_OUTPUT
-          echo "subfolder=cargo-msrv-${{ matrix.target }}-${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "archive=cargo-msrv-${BUILD_TARGET}-${TAG}.${ARCHIVE_EXT}" >> "$GITHUB_OUTPUT"
+          echo "subfolder=cargo-msrv-${BUILD_TARGET}-${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: show_outputs
         shell: bash
+        env:
+          ARCHIVE: ${{ steps.set_output.outputs.archive }}
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
         run: |
-          echo "Archive: '${{ steps.set_output.outputs.archive }}'"
-          echo "Subfolder: '${{ steps.set_output.outputs.subfolder }}'"
+          echo "Archive: '${ARCHIVE}'"
+          echo "Subfolder: '${SUBFOLDER}'"
 
       - name: create_pkg_subfolder
         shell: bash
-        run: mkdir ${{ steps.set_output.outputs.subfolder }}
+        env:
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
+        run: mkdir "$SUBFOLDER"
 
       - name: copy_files_to_pkg_subfolder
         shell: bash
+        env:
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
         run: |
-          cp LICENSE-APACHE ${{ steps.set_output.outputs.subfolder }}
-          cp LICENSE-MIT ${{ steps.set_output.outputs.subfolder }}
-          cp README.md ${{ steps.set_output.outputs.subfolder }}
+          cp LICENSE-APACHE "$SUBFOLDER"
+          cp LICENSE-MIT "$SUBFOLDER"
+          cp README.md "$SUBFOLDER"
 
       - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
+          toolchain: stable
           targets: ${{ matrix.target }}
 
-      - name: install musl-gcc
+      - name: install_musl_gcc
         if: matrix.target == 'x86_64-unknown-linux-musl'
-        uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: musl-tools # provides musl-gcc
-          version: 1.0
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes musl-tools # provides musl-gcc
 
       - name: build_${{ matrix.target }}_release_binary
         shell: bash
-        run: cargo build --target=${{ matrix.target }} --release
+        run: cargo build --target="$BUILD_TARGET" --release
 
       - name: install_cargo_about
         shell: bash
@@ -90,28 +104,39 @@ jobs:
 
       - name: generate_dep_licenses_file
         shell: bash
-        run: cargo about generate --output-file "${{ steps.set_output.outputs.subfolder }}/third-party-licenses.html" about.hbs
+        env:
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
+        run: cargo about generate --output-file "${SUBFOLDER}/third-party-licenses.html" about.hbs
 
       - name: pack_archive_macos
         if: matrix.kind == 'macos'
         shell: bash
+        env:
+          ARCHIVE: ${{ steps.set_output.outputs.archive }}
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
         run: |
-          cp  ./target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
-          gtar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
+          cp  "./target/${BUILD_TARGET}/release/cargo-msrv" "$SUBFOLDER"
+          gtar --create --gzip --file="$ARCHIVE" "$SUBFOLDER"
 
       - name: pack_archive_linux
         if: matrix.kind == 'linux'
         shell: bash
+        env:
+          ARCHIVE: ${{ steps.set_output.outputs.archive }}
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv ${{ steps.set_output.outputs.subfolder }}
-          tar --create --gzip --file=${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
+          cp "target/${BUILD_TARGET}/release/cargo-msrv" "$SUBFOLDER"
+          tar --create --gzip --file="$ARCHIVE" "$SUBFOLDER"
 
       - name: pack_archive_windows
         if: matrix.kind == 'windows'
         shell: bash
+        env:
+          ARCHIVE: ${{ steps.set_output.outputs.archive }}
+          SUBFOLDER: ${{ steps.set_output.outputs.subfolder }}
         run: |
-          cp target/${{ matrix.target }}/release/cargo-msrv.exe ./${{ steps.set_output.outputs.subfolder }}
-          7z a -tzip ${{ steps.set_output.outputs.archive }} ${{ steps.set_output.outputs.subfolder }}
+          cp "target/${BUILD_TARGET}/release/cargo-msrv.exe" "./${SUBFOLDER}"
+          7z a -tzip "$ARCHIVE" "$SUBFOLDER"
 
       - name: upload_artifact
         shell: bash

@@ -6,22 +6,25 @@ on:
       - master
       - main
   merge_group:
+permissions:
+  contents: read
+
 jobs:
   linter:
     name: linter
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - name: checkout_repo
-        uses: actions/checkout@v7
+      - name: checkout_repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: install_rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
+          toolchain: stable
           components: clippy
 
       - name: check_clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets --workspace
+        run: cargo clippy --all-features --all-targets --workspace
