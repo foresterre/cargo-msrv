@@ -1,30 +1,29 @@
-Thank you for your contribution to `cargo-msrv`. If you need any help (and are a human), feel free to ask questions. We're happy to help!
+<!-- Thank you for your contribution to `cargo-msrv`. If you need any help (and are a human), feel free to ask questions. We're happy to help!  -->
 
 ## Description
 
 <!-- What does this change do, and why? -->
 
 
+
 ## AI / LLM Disclosure
 
 <!-- Only check the boxes that apply -->
 
-- [ ] I am a human
-- [ ] This contribution was made or generated (in part) by an AI  
+- [ ] I am a human 
 - [ ] I have read and agree to be bound by the [AI / LLM policy](https://github.com/foresterre/cargo-msrv/blob/main/CONTRIBUTING.md#ai--llm-policy)
 
-<!-- AI Policy (PR's)
+- [ ] This contribution was made or generated (in part) by an AI 
 
-NB: 
+<!-- 
+
+AI POLICY
 
 * If AI was used, please describe in what way.
 * Each AI-assisted commit must carry an `Assisted-by: [MODEL]` footer, for example `Assisted-by: claude-opus-4.7`.
 * Commits must not attribute LLM's with `Co-authored-by:`.
 
--->
-
-
-<!-- LICENSE
+LICENSE
 
 cargo-msrv is licensed under either of
 
