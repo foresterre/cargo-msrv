@@ -1,0 +1,22 @@
+[package]
+name = "cargo-ctx"
+description = "Utilities to resolve cargo environments"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+keywords = ["cargo", "metadata", "workspace", "cargo-msrv"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+rust-version = "1.86"
+
+[dependencies]
+camino.workspace = true
+cargo_metadata.workspace = true
+clap-cargo.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+assert_fs.workspace = true

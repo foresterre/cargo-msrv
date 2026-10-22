@@ -12,12 +12,11 @@ categories = ["development-tools", "development-tools::cargo-plugins", "command-
 rust-version = "1.94"
 
 [dependencies]
+cargo-ctx = { workspace = true }
 cargo-msrv-context = { workspace = true }
-cargo-msrv-types = { workspace = true }
 msrv = { workspace = true }
 
 camino = { workspace = true }
-cargo_metadata = { workspace = true }
 clap = { workspace = true }
 clap-cargo = { workspace = true }
 clap_complete = { workspace = true }

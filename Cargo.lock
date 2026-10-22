@@ -735,6 +735,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-ctx"
+version = "0.20.0-beta.4"
+dependencies = [
+ "assert_fs",
+ "camino",
+ "cargo_metadata",
+ "clap-cargo",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "cargo-msrv"
 version = "0.20.0-beta.4"
 dependencies = [
@@ -770,9 +782,8 @@ name = "cargo-msrv-cli"
 version = "0.20.0-beta.4"
 dependencies = [
  "camino",
+ "cargo-ctx",
  "cargo-msrv-context",
- "cargo-msrv-types",
- "cargo_metadata",
  "clap",
  "clap-cargo",
  "clap_complete",
@@ -791,6 +802,7 @@ version = "0.20.0-beta.4"
 dependencies = [
  "assert_fs",
  "camino",
+ "cargo-ctx",
  "cargo-msrv-rust-tools",
  "cargo-msrv-types",
  "cargo_metadata",
