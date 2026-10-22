@@ -25,7 +25,6 @@ tracing = { workspace = true }
 version-number = { workspace = true }
 
 [dev-dependencies]
-assert_fs = { workspace = true }
 yare = { workspace = true }
 
 [features]
