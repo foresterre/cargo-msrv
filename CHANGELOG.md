@@ -41,6 +41,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * The `sha_short` build metadata is now reported again by the `meta` event
 * Fix issue where `cargo-msrv find` could no longer be used outside a Cargo project, unless `--min` was provided (must still be runnable via `rustup run`)
 * The `edition` field inherited from `workspace.package` is now used to limit the search space of `cargo msrv find`
+* Implemented work-around and when not possible, better error messaging, for workspace resolution with old (<1.71) `cargo metadata` command invocations, which would previously cause `cargo-msrv` to panic when figuring out the type of project (i.e. cargo or bare)
 
 ### Removed
 
@@ -49,14 +50,15 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 ### Security
 
 * Updated `webpki-roots` to `v1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
+* Updated `rustls-webpki` to `0.103.16`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
 * Updated `tokio` to `v1.54.1` resolving `RUSTSEC-2026-0384`
 
 ## 0.19.6 - 2026-10-22
 
 ### Security
 
-- Update `rustls-webpki` to `0.103.16`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
-- Update `time` to `0.3.47` resolving `RUSTSEC-2026-0009`
+* Updated `rustls-webpki` to `0.103.16`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
+* Updated `time` to `0.3.47` resolving `RUSTSEC-2026-0009`
 
 ## 0.19.5 - 2026-10-21
 
