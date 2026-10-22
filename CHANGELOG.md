@@ -54,7 +54,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Security
 
-- Update `rustls-webpki` to `0.101.7`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
+- Update `rustls-webpki` to `0.103.16`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
 - Update `time` to `0.3.47` resolving `RUSTSEC-2026-0009`
 
 ## 0.19.5 - 2026-10-21
