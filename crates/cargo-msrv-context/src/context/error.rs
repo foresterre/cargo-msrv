@@ -57,6 +57,9 @@ pub enum Error {
 
     #[error("Package '{0}' is not a member of this workspace")]
     UnknownPackage(String),
+
+    #[error(transparent)]
+    SelectPackages(cargo_ctx::Error),
 }
 
 #[derive(Debug)]

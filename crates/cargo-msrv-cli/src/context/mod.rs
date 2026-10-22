@@ -179,28 +179,19 @@ fn resolve_project(
         };
     }
 
-    let metadata = cargo_metadata::MetadataCommand::new()
-        .manifest_path(&manifest_path)
-        .exec()
-        .map_err(|source| Error::CargoMetadata {
+    let cargo_ctx::Selection {
+        workspace_root,
+        is_workspace,
+        selected,
+        excluded,
+    } = cargo_ctx::Selection::resolve(&manifest_path, workspace).map_err(|error| match error {
+        cargo_ctx::Error::CargoMetadata(source) => Error::CargoMetadata {
             path: manifest_path.clone(),
             source,
-        })?;
-
-    let members = metadata.workspace_packages();
-
-    let root_manifest = metadata.workspace_root.join("Cargo.toml");
-    let is_workspace = !matches!(members.as_slice(), [only] if only.manifest_path == root_manifest);
-
-    if let Some(unknown) = workspace.package.iter().find(|name| {
-        !members
-            .iter()
-            .any(|member| member.name.as_str() == name.as_str())
-    }) {
-        return Err(Error::UnknownPackage(unknown.clone()));
-    }
-
-    let (selected, excluded) = workspace.partition_packages(&metadata);
+        },
+        cargo_ctx::Error::UnknownPackage(name) => Error::UnknownPackage(name),
+        error => Error::SelectPackages(error),
+    })?;
 
     tracing::info!(
         action = "detect_cargo_workspace_packages",
@@ -212,11 +203,11 @@ fn resolve_project(
     );
 
     let packages = selected
-        .into_iter()
+        .iter()
         .map(Package::try_from)
         .collect::<TResult<Vec<_>>>()?;
 
-    let project = CargoProject::new(metadata.workspace_root.clone(), is_workspace, packages)?;
+    let project = CargoProject::new(workspace_root, is_workspace, packages)?;
 
     Ok(Project::Cargo(project))
 }

@@ -12,6 +12,7 @@ categories = ["development-tools", "development-tools::cargo-plugins"]
 rust-version = "1.94"
 
 [dependencies]
+cargo-ctx = { workspace = true }
 cargo-msrv-rust-tools = { workspace = true }
 cargo-msrv-types = { workspace = true }
 msrv = { workspace = true }
