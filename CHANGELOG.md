@@ -49,9 +49,10 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 ### Security
 
-* Updated `webpki-roots` to `v1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
+* Updated `webpki-roots` to `1.0.10` resolving `RUSTSEC-2026-0381` and `CVE-2026-111943`
 * Updated `rustls-webpki` to `0.103.16`, resolving `RUSTSEC-2026-0382` and `CVE-2026-111943`
-* Updated `tokio` to `v1.54.1` resolving `RUSTSEC-2026-0384`
+* Updated `tokio` to `1.54.1` resolving `RUSTSEC-2026-0384`
+* Updated `rust-releases` to `0.34.2` to fix `RUSTSEC-2026-0385` and `RUSTSEC-2026-0387`
 
 ## 0.19.6 - 2026-10-22
 
