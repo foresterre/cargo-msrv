@@ -28,7 +28,7 @@ macro_rules! table_settings {
         tabled::settings::Settings::default()
             .with(
                 tabled::settings::Width::wrap(width)
-                    .priority(tabled::settings::peaker::PriorityMax),
+                    .priority(tabled::settings::peaker::PriorityMax::right()),
             )
             .with(tabled::settings::Width::increase(width))
     }};

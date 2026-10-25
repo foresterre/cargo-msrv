@@ -70,9 +70,9 @@ struct Values<'a> {
     name: &'a str,
     #[tabled(rename = "Version")]
     version: &'a semver::Version,
-    #[tabled(rename = "MSRV", display_with = "display_option")]
+    #[tabled(rename = "MSRV", display = "display_option")]
     msrv: Option<String>,
-    #[tabled(rename = "Depends on", display_with = "display_vec")]
+    #[tabled(rename = "Depends on", display = "display_vec")]
     dependencies: Vec<String>,
 }
 

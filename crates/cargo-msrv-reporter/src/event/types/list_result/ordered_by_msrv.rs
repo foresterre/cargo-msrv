@@ -71,9 +71,9 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
 #[derive(Debug, serde::Serialize, Tabled)]
 #[serde(rename_all = "snake_case")]
 struct Values {
-    #[tabled(rename = "MSRV", display_with = "display_option")]
+    #[tabled(rename = "MSRV", display = "display_option")]
     msrv: Option<String>,
-    #[tabled(rename = "Dependency", display_with = "display_vec")]
+    #[tabled(rename = "Dependency", display = "display_vec")]
     dependencies: Vec<String>,
 }
 

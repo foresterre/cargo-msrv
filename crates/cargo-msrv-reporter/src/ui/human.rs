@@ -318,7 +318,7 @@ fn message_box(message: &str) -> String {
 
 fn result_table(result: &FindResult) -> String {
     use tabled::Table;
-    use tabled::settings::{Alignment, Disable, Margin, Style, object::Rows};
+    use tabled::settings::{Alignment, Margin, Remove, Style, object::Rows};
 
     fn msrv(result: &FindResult) -> String {
         result
@@ -351,7 +351,7 @@ fn result_table(result: &FindResult) -> String {
     ];
 
     Table::new(content)
-        .with(Disable::row(Rows::first()))
+        .with(Remove::row(Rows::first()))
         .with(Style::blank()) // Disables the header
         .with(table_settings!())
         .with(Alignment::left())
