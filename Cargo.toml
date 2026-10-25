@@ -96,22 +96,22 @@ members = [
 ]
 
 [workspace.package]
-version = "0.20.0-beta.5"
+version = "0.20.0-beta.6"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 license = "Apache-2.0 OR MIT"
 edition = "2024"
 repository = "https://github.com/foresterre/cargo-msrv"
 
 [workspace.dependencies]
-cargo-ctx = { path = "crates/cargo-ctx", version = "0.20.0-beta.5" }
-cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.20.0-beta.5" }
-cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.20.0-beta.5" }
-cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.20.0-beta.5" }
-cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.20.0-beta.5" }
-cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.20.0-beta.5" }
-cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.20.0-beta.5" }
-cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.20.0-beta.5" }
-msrv = { path = "crates/msrv", version = "0.20.0-beta.5" }
+cargo-ctx = { path = "crates/cargo-ctx", version = "0.20.0-beta.6" }
+cargo-msrv-cli = { path = "crates/cargo-msrv-cli", version = "0.20.0-beta.6" }
+cargo-msrv-context = { path = "crates/cargo-msrv-context", version = "0.20.0-beta.6" }
+cargo-msrv-reporter = { path = "crates/cargo-msrv-reporter", version = "0.20.0-beta.6" }
+cargo-msrv-rust-releases = { path = "crates/cargo-msrv-rust-releases", version = "0.20.0-beta.6" }
+cargo-msrv-rust-tools = { path = "crates/cargo-msrv-rust-tools", version = "0.20.0-beta.6" }
+cargo-msrv-search = { path = "crates/cargo-msrv-search", version = "0.20.0-beta.6" }
+cargo-msrv-types = { path = "crates/cargo-msrv-types", version = "0.20.0-beta.6" }
+msrv = { path = "crates/msrv", version = "0.20.0-beta.6" }
 
 assert_fs = "1.1.4"
 camino = "1.2"
@@ -124,7 +124,7 @@ indoc = "2.0.7"
 owo-colors = "4.3.0"
 parameterized = "2.1.0"
 petgraph = "0.8.3"
-rust-releases = { version = "0.34.1", default-features = false }
+rust-releases = { version = "0.34.2", default-features = false }
 semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.150"
