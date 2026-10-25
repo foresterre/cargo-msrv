@@ -2,7 +2,8 @@ use crate::event::{
     CheckPackage, CheckResult, CheckToolchain, ContextFinalized, FindResult, Message, Meta,
     ProjectMode, SubcommandInit, SubcommandResult,
 };
-use crate::{Event, table_settings};
+use crate::Event;
+use crate::formatting::{BLANK, Margin, ROUNDED, new_table};
 use cargo_msrv_context::SelectedPackage;
 use owo_colors::OwoColorize;
 use std::fmt::Display;
@@ -280,45 +281,31 @@ impl Status {
 }
 
 fn status(lead: impl Display, message: impl Display) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Margin, Modify, Style, Width, object::Columns};
+    use comfy_table::{ColumnConstraint, ContentArrangement, Width};
 
-    const MAX_LEAD_WIDTH: usize = 6;
+    const MAX_LEAD_WIDTH: u16 = 6;
 
-    let mut builder = Builder::default();
-    builder.push_record([format!("{lead}"), format!("{message}")]);
-
-    let mut table = builder.build();
-
+    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
     table
-        .with(Style::blank())
-        .with(Modify::new(Columns::first()).with(Width::increase(MAX_LEAD_WIDTH)))
-        .with(table_settings!())
-        .with(Margin::new(1, 0, 0, 0))
-        .to_string()
+        .add_row([format!("{lead}"), format!("{message}")])
+        .set_constraints([ColumnConstraint::LowerBoundary(Width::Fixed(
+            MAX_LEAD_WIDTH,
+        ))]);
+
+    Margin::new(1, 0, 0).apply(&table)
 }
 
 fn message_box(message: &str) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Margin, Style};
+    use comfy_table::ContentArrangement;
 
-    let mut builder = Builder::default();
-    builder.push_record([format!("{}", message.dimmed())]);
+    let mut table = new_table(ROUNDED, ContentArrangement::DynamicFullWidth);
+    table.add_row([format!("{}", message.dimmed())]);
 
-    let mut table = builder.build();
-
-    table
-        // The remove_{left, right} is a bit of a hack, because their formatting
-        // was often flaky (these vertical lines often had unaligned characters)
-        .with(Style::modern_rounded())
-        .with(table_settings!())
-        .with(Margin::new(2, 0, 1, 1))
-        .to_string()
+    Margin::new(2, 1, 1).apply(&table)
 }
 
 fn result_table(result: &FindResult) -> String {
-    use tabled::Table;
-    use tabled::settings::{Alignment, Margin, Remove, Style, object::Rows};
+    use comfy_table::ContentArrangement;
 
     fn msrv(result: &FindResult) -> String {
         result
@@ -330,8 +317,8 @@ fn result_table(result: &FindResult) -> String {
     let target = result.target.as_str();
     let search_method: &str = result.search_method.into();
 
-    let content = &[
-        &[
+    let content = [
+        [
             format!("Considered ({} … {}):", "min".cyan(), "max".yellow()),
             format!(
                 "Rust {} … Rust {}",
@@ -339,25 +326,21 @@ fn result_table(result: &FindResult) -> String {
                 result.maximum_version.yellow()
             ),
         ],
-        &[
+        [
             "Search method:".to_string(),
             format!("{}", search_method.bright_purple()),
         ],
-        &["MSRV:".to_string(), msrv(result)],
-        &[
+        ["MSRV:".to_string(), msrv(result)],
+        [
             format!("{}", "Target:".dimmed()),
             format!("{}", target.dimmed()),
         ],
     ];
 
-    Table::new(content)
-        .with(Remove::row(Rows::first()))
-        .with(Style::blank()) // Disables the header
-        .with(table_settings!())
-        .with(Alignment::left())
-        .with(Alignment::top())
-        .with(Margin::new(2, 0, 0, 1))
-        .to_string()
+    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
+    table.add_rows(content);
+
+    Margin::new(2, 0, 1).apply(&table)
 }
 
 struct SummaryRow {
@@ -366,26 +349,19 @@ struct SummaryRow {
 }
 
 fn summary_table(rows: &[SummaryRow]) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Alignment, Margin, Style};
+    use comfy_table::ContentArrangement;
 
-    let mut builder = Builder::default();
-    builder.push_record([
+    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
+    table.set_header([
         format!("{}", "Package".dimmed()),
         format!("{}", "MSRV".dimmed()),
     ]);
 
     for row in rows {
-        builder.push_record([row.package.name.clone(), row.result.clone()]);
+        table.add_row([row.package.name.clone(), row.result.clone()]);
     }
 
-    builder
-        .build()
-        .with(Style::blank())
-        .with(table_settings!())
-        .with(Alignment::left())
-        .with(Margin::new(2, 0, 0, 1))
-        .to_string()
+    Margin::new(2, 0, 1).apply(&table)
 }
 
 impl Meta {

@@ -1,12 +1,9 @@
-use super::display_option;
-use super::display_vec;
 use super::metadata::*;
 use crate::formatting::table;
 use cargo_msrv_context::types::DIRECT_DEPS;
 use cargo_msrv_rust_tools::DependencyGraph;
 use std::fmt;
 use std::fmt::Formatter;
-use tabled::Tabled;
 
 pub struct DirectDepsFormatter<'g> {
     graph: &'g DependencyGraph,
@@ -20,9 +17,8 @@ impl<'g> DirectDepsFormatter<'g> {
 
 impl fmt::Display for DirectDepsFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let values = dependencies(self.graph);
-
-        f.write_fmt(format_args!("{}", table(values)))
+        let rows = dependencies(self.graph).map(Values::into_row);
+        f.write_fmt(format_args!("{}", table(Values::HEADER, rows)))
     }
 }
 
@@ -64,16 +60,25 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values<'_>> {
     })
 }
 
-#[derive(Debug, serde::Serialize, Tabled)]
+#[derive(Debug, serde::Serialize)]
 struct Values<'a> {
-    #[tabled(rename = "Name")]
     name: &'a str,
-    #[tabled(rename = "Version")]
     version: &'a semver::Version,
-    #[tabled(rename = "MSRV", display = "display_option")]
     msrv: Option<String>,
-    #[tabled(rename = "Depends on", display = "display_vec")]
     dependencies: Vec<String>,
+}
+
+impl Values<'_> {
+    const HEADER: [&'static str; 4] = ["Name", "Version", "MSRV", "Depends on"];
+
+    fn into_row(self) -> [String; 4] {
+        [
+            self.name.to_string(),
+            self.version.to_string(),
+            self.msrv.unwrap_or_default(),
+            self.dependencies.join(", "),
+        ]
+    }
 }
 
 #[derive(serde::Serialize)]

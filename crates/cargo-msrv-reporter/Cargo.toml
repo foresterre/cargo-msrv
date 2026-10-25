@@ -19,6 +19,7 @@ msrv = { workspace = true, features = ["serde"] }
 
 camino = { workspace = true }
 cargo_metadata = { workspace = true }
+comfy-table = { version = "8.0.1", default-features = false, features = ["custom_styling"] }
 indicatif = "0.18.4"
 owo-colors = { workspace = true }
 petgraph = { workspace = true }
@@ -26,7 +27,6 @@ semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 storyteller = { workspace = true }
-tabled = { version = "0.22.0", features = ["ansi"] }
 terminal_size = "0.4.3"
 version-number = { workspace = true, features = ["semver", "serde"] }
 

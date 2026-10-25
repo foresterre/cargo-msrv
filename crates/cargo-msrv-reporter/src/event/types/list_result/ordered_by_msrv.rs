@@ -1,5 +1,3 @@
-use super::display_option;
-use super::display_vec;
 use crate::event::types::list_result::metadata::{format_version, package_msrv};
 use crate::formatting::table;
 use cargo_metadata::Package;
@@ -10,7 +8,6 @@ use petgraph::visit::Bfs;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::Formatter;
-use tabled::Tabled;
 
 pub struct OrderedByMsrvFormatter<'g> {
     graph: &'g DependencyGraph,
@@ -24,9 +21,9 @@ impl<'g> OrderedByMsrvFormatter<'g> {
 
 impl fmt::Display for OrderedByMsrvFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let values = dependencies(self.graph);
+        let rows = dependencies(self.graph).map(Values::into_row);
 
-        f.write_fmt(format_args!("{}", table(values)))
+        f.write_fmt(format_args!("{}", table(Values::HEADER, rows)))
     }
 }
 
@@ -68,13 +65,19 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values> + '_ {
         })
 }
 
-#[derive(Debug, serde::Serialize, Tabled)]
+#[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 struct Values {
-    #[tabled(rename = "MSRV", display = "display_option")]
     msrv: Option<String>,
-    #[tabled(rename = "Dependency", display = "display_vec")]
     dependencies: Vec<String>,
+}
+
+impl Values {
+    const HEADER: [&'static str; 2] = ["MSRV", "Dependency"];
+
+    fn into_row(self) -> [String; 2] {
+        [self.msrv.unwrap_or_default(), self.dependencies.join(", ")]
+    }
 }
 
 #[derive(serde::Serialize)]
