@@ -1,10 +1,11 @@
+use crate::Event;
 use crate::event::{
     CheckPackage, CheckResult, CheckToolchain, ContextFinalized, FindResult, Message, Meta,
     ProjectMode, SubcommandInit, SubcommandResult,
 };
-use crate::Event;
-use crate::formatting::{BLANK, Margin, ROUNDED, new_table};
+use crate::formatting::term_width;
 use cargo_msrv_context::SelectedPackage;
+use cargo_msrv_table::{Margin, Style, Table, Width};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::Mutex;
@@ -281,32 +282,27 @@ impl Status {
 }
 
 fn status(lead: impl Display, message: impl Display) -> String {
-    use comfy_table::{ColumnConstraint, ContentArrangement, Width};
+    const MAX_LEAD_WIDTH: usize = 6;
 
-    const MAX_LEAD_WIDTH: u16 = 6;
-
-    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
     table
-        .add_row([format!("{lead}"), format!("{message}")])
-        .set_constraints([ColumnConstraint::LowerBoundary(Width::Fixed(
-            MAX_LEAD_WIDTH,
-        ))]);
+        .row([format!("{lead}"), format!("{message}")])
+        .min_width(0, MAX_LEAD_WIDTH)
+        .margin(Margin::new(1, 0, 0));
 
-    Margin::new(1, 0, 0).apply(&table)
+    table.to_string()
 }
 
 fn message_box(message: &str) -> String {
-    use comfy_table::ContentArrangement;
+    let mut table = Table::new(Style::Rounded, Width::Exactly(term_width()));
+    table
+        .row([format!("{}", message.dimmed())])
+        .margin(Margin::new(2, 1, 1));
 
-    let mut table = new_table(ROUNDED, ContentArrangement::DynamicFullWidth);
-    table.add_row([format!("{}", message.dimmed())]);
-
-    Margin::new(2, 1, 1).apply(&table)
+    table.to_string()
 }
 
 fn result_table(result: &FindResult) -> String {
-    use comfy_table::ContentArrangement;
-
     fn msrv(result: &FindResult) -> String {
         result
             .msrv()
@@ -337,10 +333,10 @@ fn result_table(result: &FindResult) -> String {
         ],
     ];
 
-    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
-    table.add_rows(content);
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
+    table.rows(content).margin(Margin::new(2, 0, 1));
 
-    Margin::new(2, 0, 1).apply(&table)
+    table.to_string()
 }
 
 struct SummaryRow {
@@ -349,19 +345,17 @@ struct SummaryRow {
 }
 
 fn summary_table(rows: &[SummaryRow]) -> String {
-    use comfy_table::ContentArrangement;
-
-    let mut table = new_table(BLANK, ContentArrangement::Dynamic);
-    table.set_header([
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
+    table.header([
         format!("{}", "Package".dimmed()),
         format!("{}", "MSRV".dimmed()),
     ]);
 
     for row in rows {
-        table.add_row([row.package.name.clone(), row.result.clone()]);
+        table.row([row.package.name.clone(), row.result.clone()]);
     }
 
-    Margin::new(2, 0, 1).apply(&table)
+    table.margin(Margin::new(2, 0, 1)).to_string()
 }
 
 impl Meta {

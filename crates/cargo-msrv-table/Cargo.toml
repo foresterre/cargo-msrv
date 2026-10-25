@@ -1,0 +1,15 @@
+[package]
+name = "cargo-msrv-table"
+description = "Tables for the terminal output of cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "table", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+rust-version = "1.88"
+
+[dependencies]
+console = "0.16.6"

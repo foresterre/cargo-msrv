@@ -14,12 +14,12 @@ rust-version = "1.94"
 [dependencies]
 cargo-msrv-context = { workspace = true }
 cargo-msrv-rust-tools = { workspace = true }
+cargo-msrv-table = { workspace = true }
 cargo-msrv-types = { workspace = true }
 msrv = { workspace = true, features = ["serde"] }
 
 camino = { workspace = true }
 cargo_metadata = { workspace = true }
-comfy-table = { version = "8.0.1", default-features = false, features = ["custom_styling"] }
 indicatif = "0.18.4"
 owo-colors = { workspace = true }
 petgraph = { workspace = true }
