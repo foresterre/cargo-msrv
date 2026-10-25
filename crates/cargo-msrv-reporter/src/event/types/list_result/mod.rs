@@ -1,6 +1,8 @@
 use crate::Event;
 use crate::event::Message;
 use cargo_msrv_rust_tools::DependencyGraph;
+use cargo_util_schemas::core::PackageIdSpec;
+use owo_colors::OwoColorize;
 use std::fmt;
 use std::fmt::Formatter;
 
@@ -10,6 +12,7 @@ use cargo_msrv_context::types::ListMsrvVariant;
 use direct_deps::DirectDepsFormatter;
 
 mod direct_deps;
+mod highlight;
 mod metadata;
 mod ordered_by_msrv;
 
@@ -20,9 +23,17 @@ pub struct ListResult {
 }
 
 impl ListResult {
-    pub fn new(variant: ListMsrvVariant, graph: DependencyGraph) -> Self {
+    pub fn new(
+        variant: ListMsrvVariant,
+        graph: DependencyGraph,
+        highlight: Vec<PackageIdSpec>,
+    ) -> Self {
         Self {
-            result: ResultDetails { variant, graph },
+            result: ResultDetails {
+                variant,
+                graph,
+                highlight,
+            },
         }
     }
 }
@@ -49,17 +60,20 @@ impl From<ListResult> for Event {
 struct ResultDetails {
     variant: ListMsrvVariant,
     graph: DependencyGraph,
+    highlight: Vec<PackageIdSpec>,
 }
 
 impl fmt::Display for ResultDetails {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self.variant {
-            ListMsrvVariant::DirectDeps => {
-                f.write_fmt(format_args!("{}", DirectDepsFormatter::new(&self.graph)))
-            }
-            ListMsrvVariant::OrderedByMSRV => {
-                f.write_fmt(format_args!("{}", OrderedByMsrvFormatter::new(&self.graph)))
-            }
+            ListMsrvVariant::DirectDeps => f.write_fmt(format_args!(
+                "{}",
+                DirectDepsFormatter::new(&self.graph, &self.highlight)
+            )),
+            ListMsrvVariant::OrderedByMSRV => f.write_fmt(format_args!(
+                "{}",
+                OrderedByMsrvFormatter::new(&self.graph, &self.highlight)
+            )),
         }
     }
 }
@@ -71,11 +85,19 @@ impl serde::Serialize for ResultDetails {
     {
         match self.variant {
             ListMsrvVariant::DirectDeps => {
-                DirectDepsFormatter::new(&self.graph).serialize(serializer)
+                DirectDepsFormatter::new(&self.graph, &self.highlight).serialize(serializer)
             }
             ListMsrvVariant::OrderedByMSRV => {
-                OrderedByMsrvFormatter::new(&self.graph).serialize(serializer)
+                OrderedByMsrvFormatter::new(&self.graph, &self.highlight).serialize(serializer)
             }
         }
+    }
+}
+
+fn render_package_name(name: &str, highlighted: bool) -> String {
+    if highlighted {
+        name.reversed().to_string()
+    } else {
+        name.to_string()
     }
 }

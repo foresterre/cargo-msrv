@@ -190,7 +190,7 @@ mod tests {
             repr: "hello_world".to_string(),
         };
         let dep_graph = DependencyGraph::empty(package_id);
-        let event = ListResult::new(ListMsrvVariant::DirectDeps, dep_graph);
+        let event = ListResult::new(ListMsrvVariant::DirectDeps, dep_graph, Vec::new());
 
         let s = Vec::new();
         let f = Vec::new();

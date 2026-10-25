@@ -1,23 +1,27 @@
+use super::highlight::PackageIdSpecQuery;
 use super::metadata::*;
+use super::render_package_name;
 use crate::formatting::table;
 use cargo_msrv_context::types::DIRECT_DEPS;
 use cargo_msrv_rust_tools::DependencyGraph;
+use cargo_util_schemas::core::PackageIdSpec;
 use std::fmt;
 use std::fmt::Formatter;
 
 pub struct DirectDepsFormatter<'g> {
     graph: &'g DependencyGraph,
+    highlight: &'g [PackageIdSpec],
 }
 
 impl<'g> DirectDepsFormatter<'g> {
-    pub fn new(graph: &'g DependencyGraph) -> Self {
-        Self { graph }
+    pub fn new(graph: &'g DependencyGraph, highlight: &'g [PackageIdSpec]) -> Self {
+        Self { graph, highlight }
     }
 }
 
 impl fmt::Display for DirectDepsFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let rows = dependencies(self.graph).map(Values::into_row);
+        let rows = dependencies(self.graph, self.highlight).map(Values::into_row);
         f.write_fmt(format_args!("{}", table(Values::HEADER, rows)))
     }
 }
@@ -29,14 +33,17 @@ impl serde::Serialize for DirectDepsFormatter<'_> {
     {
         let serializable = SerializableValues {
             variant: DIRECT_DEPS,
-            list: dependencies(self.graph).collect(),
+            list: dependencies(self.graph, self.highlight).collect(),
         };
 
         serializable.serialize(serializer)
     }
 }
 
-fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values<'_>> {
+fn dependencies<'g>(
+    graph: &'g DependencyGraph,
+    highlight: &'g [PackageIdSpec],
+) -> impl Iterator<Item = Values<'g>> {
     let package_id = graph.root_crate();
     let root_index = graph.index()[package_id].into();
     let neighbors = graph
@@ -49,6 +56,7 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values<'_>> {
 
         Values {
             name: &package.name,
+            highlighted: highlight.iter().any(|spec| spec.matches(package)),
             version: &package.version,
             msrv: format_version(msrv.as_ref()),
             dependencies: package
@@ -63,6 +71,8 @@ fn dependencies(graph: &DependencyGraph) -> impl Iterator<Item = Values<'_>> {
 #[derive(Debug, serde::Serialize)]
 struct Values<'a> {
     name: &'a str,
+    #[serde(skip)]
+    highlighted: bool,
     version: &'a semver::Version,
     msrv: Option<String>,
     dependencies: Vec<String>,
@@ -73,7 +83,7 @@ impl Values<'_> {
 
     fn into_row(self) -> [String; 4] {
         [
-            self.name.to_string(),
+            render_package_name(self.name, self.highlighted),
             self.version.to_string(),
             self.msrv.unwrap_or_default(),
             self.dependencies.join(", "),

@@ -22,7 +22,7 @@ fn list_msrv(ctx: &ListContext, reporter: &impl Reporter) -> TResult<()> {
     let graph = resolver.resolve()?;
     let variant = ctx.variant;
 
-    reporter.report_event(ListResult::new(variant, graph))?;
+    reporter.report_event(ListResult::new(variant, graph, ctx.highlight.clone()))?;
 
     Ok(())
 }

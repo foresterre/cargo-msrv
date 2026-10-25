@@ -23,6 +23,7 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
 
         Ok(Self {
             variant: list_opts.variant,
+            highlight: list_opts.highlight,
             environment,
         })
     }
