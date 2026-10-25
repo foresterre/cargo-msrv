@@ -14,6 +14,7 @@ rust-version = "1.94"
 [dependencies]
 cargo-msrv-context = { workspace = true }
 cargo-msrv-rust-tools = { workspace = true }
+cargo-msrv-table = { workspace = true }
 cargo-msrv-types = { workspace = true }
 msrv = { workspace = true, features = ["serde"] }
 
@@ -26,7 +27,6 @@ semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 storyteller = { workspace = true }
-tabled = { version = "~0.16.0", features = ["ansi"] }
 terminal_size = "0.4.3"
 version-number = { workspace = true, features = ["semver", "serde"] }
 

@@ -1,9 +1,11 @@
+use crate::Event;
 use crate::event::{
     CheckPackage, CheckResult, CheckToolchain, ContextFinalized, FindResult, Message, Meta,
     ProjectMode, SubcommandInit, SubcommandResult,
 };
-use crate::{Event, table_settings};
+use crate::formatting::term_width;
 use cargo_msrv_context::SelectedPackage;
+use cargo_msrv_table::{Margin, Style, Table, Width};
 use owo_colors::OwoColorize;
 use std::fmt::Display;
 use std::sync::Mutex;
@@ -280,46 +282,27 @@ impl Status {
 }
 
 fn status(lead: impl Display, message: impl Display) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Margin, Modify, Style, Width, object::Columns};
-
     const MAX_LEAD_WIDTH: usize = 6;
 
-    let mut builder = Builder::default();
-    builder.push_record([format!("{lead}"), format!("{message}")]);
-
-    let mut table = builder.build();
-
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
     table
-        .with(Style::blank())
-        .with(Modify::new(Columns::first()).with(Width::increase(MAX_LEAD_WIDTH)))
-        .with(table_settings!())
-        .with(Margin::new(1, 0, 0, 0))
-        .to_string()
+        .row([format!("{lead}"), format!("{message}")])
+        .min_width(0, MAX_LEAD_WIDTH)
+        .margin(Margin::new(1, 0, 0));
+
+    table.to_string()
 }
 
 fn message_box(message: &str) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Margin, Style};
-
-    let mut builder = Builder::default();
-    builder.push_record([format!("{}", message.dimmed())]);
-
-    let mut table = builder.build();
-
+    let mut table = Table::new(Style::Rounded, Width::Exactly(term_width()));
     table
-        // The remove_{left, right} is a bit of a hack, because their formatting
-        // was often flaky (these vertical lines often had unaligned characters)
-        .with(Style::modern_rounded())
-        .with(table_settings!())
-        .with(Margin::new(2, 0, 1, 1))
-        .to_string()
+        .row([format!("{}", message.dimmed())])
+        .margin(Margin::new(2, 1, 1));
+
+    table.to_string()
 }
 
 fn result_table(result: &FindResult) -> String {
-    use tabled::Table;
-    use tabled::settings::{Alignment, Disable, Margin, Style, object::Rows};
-
     fn msrv(result: &FindResult) -> String {
         result
             .msrv()
@@ -330,8 +313,8 @@ fn result_table(result: &FindResult) -> String {
     let target = result.target.as_str();
     let search_method: &str = result.search_method.into();
 
-    let content = &[
-        &[
+    let content = [
+        [
             format!("Considered ({} … {}):", "min".cyan(), "max".yellow()),
             format!(
                 "Rust {} … Rust {}",
@@ -339,25 +322,21 @@ fn result_table(result: &FindResult) -> String {
                 result.maximum_version.yellow()
             ),
         ],
-        &[
+        [
             "Search method:".to_string(),
             format!("{}", search_method.bright_purple()),
         ],
-        &["MSRV:".to_string(), msrv(result)],
-        &[
+        ["MSRV:".to_string(), msrv(result)],
+        [
             format!("{}", "Target:".dimmed()),
             format!("{}", target.dimmed()),
         ],
     ];
 
-    Table::new(content)
-        .with(Disable::row(Rows::first()))
-        .with(Style::blank()) // Disables the header
-        .with(table_settings!())
-        .with(Alignment::left())
-        .with(Alignment::top())
-        .with(Margin::new(2, 0, 0, 1))
-        .to_string()
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
+    table.rows(content).margin(Margin::new(2, 0, 1));
+
+    table.to_string()
 }
 
 struct SummaryRow {
@@ -366,26 +345,17 @@ struct SummaryRow {
 }
 
 fn summary_table(rows: &[SummaryRow]) -> String {
-    use tabled::builder::Builder;
-    use tabled::settings::{Alignment, Margin, Style};
-
-    let mut builder = Builder::default();
-    builder.push_record([
+    let mut table = Table::new(Style::Blank, Width::AtMost(term_width()));
+    table.header([
         format!("{}", "Package".dimmed()),
         format!("{}", "MSRV".dimmed()),
     ]);
 
     for row in rows {
-        builder.push_record([row.package.name.clone(), row.result.clone()]);
+        table.row([row.package.name.clone(), row.result.clone()]);
     }
 
-    builder
-        .build()
-        .with(Style::blank())
-        .with(table_settings!())
-        .with(Alignment::left())
-        .with(Margin::new(2, 0, 0, 1))
-        .to_string()
+    table.margin(Margin::new(2, 0, 1)).to_string()
 }
 
 impl Meta {

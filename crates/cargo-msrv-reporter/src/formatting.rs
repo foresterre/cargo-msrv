@@ -1,8 +1,9 @@
+use cargo_msrv_table::{Margin, Style, Table, Width};
 use std::sync::OnceLock;
-use tabled::settings::{Margin, Style};
-use tabled::{Table, Tabled};
 
 static TERM_WIDTH: OnceLock<usize> = OnceLock::new();
+
+static FALLBACK_TERM_WIDTH: usize = 80;
 
 static TABLE_CORRECTION: usize = 4;
 
@@ -11,33 +12,22 @@ pub fn term_width() -> usize {
 
     let width = *TERM_WIDTH.get_or_init(|| {
         terminal_size::terminal_size()
-            .map(|(w, _)| w.0)
-            .unwrap_or(80) as usize
+            .map(|(w, _)| usize::from(w.0))
+            .unwrap_or(FALLBACK_TERM_WIDTH)
     });
 
     width.checked_sub(TABLE_CORRECTION).unwrap_or(minimum)
 }
 
-// NB: This is only a macro because tabled uses lots of generics, which
-// aren't fun to type manually.
-#[macro_export]
-macro_rules! table_settings {
-    () => {{
-        let width = $crate::formatting::term_width();
+pub fn table<R>(
+    header: impl IntoIterator<Item: Into<String>>,
+    rows: impl IntoIterator<Item = R>,
+) -> String
+where
+    R: IntoIterator<Item: Into<String>>,
+{
+    let mut table = Table::new(Style::Rounded, Width::Exactly(term_width()));
+    table.header(header).rows(rows).margin(Margin::new(2, 1, 0));
 
-        tabled::settings::Settings::default()
-            .with(
-                tabled::settings::Width::wrap(width)
-                    .priority(tabled::settings::peaker::PriorityMax),
-            )
-            .with(tabled::settings::Width::increase(width))
-    }};
-}
-
-pub fn table<T: Tabled>(iter: impl IntoIterator<Item = T>) -> Table {
-    Table::new(iter)
-        .with(Style::modern_rounded())
-        .with(table_settings!())
-        .with(Margin::new(2, 0, 1, 0))
-        .to_owned()
+    table.to_string()
 }

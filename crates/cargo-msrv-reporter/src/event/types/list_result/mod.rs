@@ -1,7 +1,6 @@
 use crate::Event;
 use crate::event::Message;
 use cargo_msrv_rust_tools::DependencyGraph;
-use std::borrow::Cow;
 use std::fmt;
 use std::fmt::Formatter;
 
@@ -79,15 +78,4 @@ impl serde::Serialize for ResultDetails {
             }
         }
     }
-}
-
-fn display_option(option: &Option<String>) -> Cow<'static, str> {
-    match option {
-        Some(s) => Cow::from(s.to_string()),
-        None => Cow::from(""),
-    }
-}
-
-fn display_vec(vec: &[String]) -> Cow<'static, str> {
-    Cow::from(vec.join(", "))
 }
