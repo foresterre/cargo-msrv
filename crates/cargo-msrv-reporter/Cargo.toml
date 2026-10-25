@@ -9,7 +9,7 @@ repository.workspace = true
 
 keywords = ["msrv", "rust-version", "cargo-msrv", "reporter", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
-rust-version = "1.94"
+rust-version = "1.97"
 
 [dependencies]
 cargo-msrv-context = { workspace = true }
@@ -20,6 +20,7 @@ msrv = { workspace = true, features = ["serde"] }
 
 camino = { workspace = true }
 cargo_metadata = { workspace = true }
+cargo-util-schemas = { workspace = true }
 indicatif = "0.18.4"
 owo-colors = { workspace = true }
 petgraph = { workspace = true }

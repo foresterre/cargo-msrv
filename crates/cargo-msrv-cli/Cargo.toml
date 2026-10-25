@@ -9,7 +9,7 @@ repository = { workspace = true }
 
 keywords = ["msrv", "rust-version", "cargo-msrv", "cli", "minimum"]
 categories = ["development-tools", "development-tools::cargo-plugins", "command-line-utilities"]
-rust-version = "1.94"
+rust-version = "1.97"
 
 [dependencies]
 cargo-ctx = { workspace = true }
@@ -17,6 +17,7 @@ cargo-msrv-context = { workspace = true }
 msrv = { workspace = true }
 
 camino = { workspace = true }
+cargo-util-schemas = { workspace = true }
 clap = { workspace = true }
 clap-cargo = { workspace = true }
 clap_complete = { workspace = true }

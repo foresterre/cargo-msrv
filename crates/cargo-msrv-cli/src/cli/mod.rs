@@ -4,6 +4,7 @@ use crate::cli::shared_opts::SharedOpts;
 use crate::cli::toolchain_opts::ToolchainOpts;
 use crate::values::list_msrv_variant;
 use cargo_msrv_context::types::ListMsrvVariant;
+use cargo_util_schemas::core::PackageIdSpec;
 use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_cargo::style::CLAP_STYLING;
 use clap_complete::Shell;
@@ -216,6 +217,13 @@ pub struct ListOpts {
         default_value = list_msrv_variant::VALUES.default_value()
     )]
     pub variant: ListMsrvVariant,
+
+    /// Highlight the packages which match the given package ID specification
+    ///
+    /// The format is the same as for `cargo tree --invert`, e.g. `serde`, `serde@1.0.228`
+    /// or `registry+https://github.com/rust-lang/crates.io-index#serde@1.0.228`.
+    #[arg(long, value_name = "SPEC", value_parser = PackageIdSpec::parse)]
+    pub highlight: Vec<PackageIdSpec>,
 }
 
 #[derive(Debug, Args)]
@@ -449,6 +457,66 @@ mod tests {
             // todo: toolchain opts
 
             // todo: custom check opts
+        }
+
+        fn assert_list_opts(opts: CargoMsrvOpts, assertions: impl Fn(ListOpts)) {
+            if let SubCommand::List(list_opts) = opts.subcommand {
+                assertions(list_opts);
+                return;
+            }
+
+            panic!("Assertion failed: expected subcommand 'cargo msrv list'");
+        }
+
+        mod list_opts {
+            use super::*;
+
+            #[test]
+            fn has_highlight() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "list", "--highlight", "serde"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert_list_opts(opts, |list_opts| {
+                    assert_eq!(list_opts.highlight, [PackageIdSpec::new("serde".into())]);
+                });
+            }
+
+            #[test]
+            fn has_multiple_highlights() {
+                let cargo = CargoCli::parse_args([
+                    "cargo",
+                    "msrv",
+                    "list",
+                    "--highlight",
+                    "serde",
+                    "--highlight",
+                    "symlink",
+                ]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert_list_opts(opts, |list_opts| {
+                    assert_eq!(
+                        list_opts.highlight,
+                        [
+                            PackageIdSpec::new("serde".into()),
+                            PackageIdSpec::new("symlink".into())
+                        ]
+                    );
+                });
+            }
+
+            #[test]
+            fn has_not_highlight() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "list"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert_list_opts(opts, |list_opts| {
+                    assert!(list_opts.highlight.is_empty());
+                });
+            }
         }
     }
 }

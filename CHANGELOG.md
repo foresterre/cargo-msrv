@@ -21,6 +21,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Subcommand results now report the package they belong to
 * Added a hidden `cargo-msrv completions <SHELL>` subcommand which prints shell completions for `cargo-msrv` to stdout
 * Added the `context_finalized` event, which reports information about the context (i.e. the resolved config and environment values) `cargo-msrv` is running with
+* Add `--highlight` to `cargo msrv list`, which inverts the background and foreground colors of the as CLI options provided package names
 
 ### Changed
 
