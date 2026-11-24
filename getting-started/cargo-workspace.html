@@ -170,6 +170,14 @@ If you want, you can set the workspace MSRV (i.e. <code>rust-version</code> in t
 root manifest) with:</p>
 <pre><code class="language-shell">cargo msrv set --workspace-msrv $version
 </code></pre>
+<h4 id="list"><a class="header" href="#list">List</a></h4>
+<p><code>cargo msrv list</code> lists the dependencies of each selected package.</p>
+<pre><code class="language-shell"># List the dependencies of every workspace member
+cargo msrv list --workspace
+
+# List the dependencies of a specific workspace member, ordered by their MSRV
+cargo msrv list --package $crate_name --variant ordered-by-msrv
+</code></pre>
 <h4 id="custom-check-commands"><a class="header" href="#custom-check-commands">Custom check commands</a></h4>
 <p><code>cargo-msrv</code> isn't workspace aware when custom check commands are used. Custom check command can be anything (that can
 be run with <code>rustup run &lt;target&gt; &lt;cmd&gt;</code>, and this includes non-cargo commands. <code>cargo-msrv</code> currently doesn't try to
@@ -185,6 +193,7 @@ forum, and describe your use case.</p>
 <li>Run <code>cargo msrv verify</code> on a workspace, and verify the MSRV of the default workspace members</li>
 <li>Run <code>cargo msrv set --package &lt;x&gt;</code> to set the MSRV of a specific package in the workspace</li>
 <li>Run <code>cargo msrv show</code> on a workspace, and present the MSRV of all, or the selected workspace packages, to the user</li>
+<li>Run <code>cargo msrv list</code> on a workspace, and list the dependencies of each selected workspace package</li>
 <li>Run with <code>cargo msrv --workspace</code>, <code>cargo msrv --package &lt;x&gt;</code>, <code>cargo msrv --exclude &lt;x&gt;</code> flags to select workspace packages
 <ul>
 <li>Follows <code>cargo</code> conventions</li>
@@ -201,8 +210,6 @@ forum, and describe your use case.</p>
 </ul>
 <p>Please open a <a href="https://github.com/foresterre/cargo-msrv/discussions/categories/feature-requests">topic</a> if your use
 case is not described in the above list.</p>
-<h5 id="not-supported-yet"><a class="header" href="#not-supported-yet">Not supported yet</a></h5>
-<p><code>cargo msrv list</code> doesn't operate on workspace packages yet. </p>
 
                     </main>
 

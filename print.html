@@ -277,6 +277,14 @@ If you want, you can set the workspace MSRV (i.e. <code>rust-version</code> in t
 root manifest) with:</p>
 <pre><code class="language-shell">cargo msrv set --workspace-msrv $version
 </code></pre>
+<h4 id="list"><a class="header" href="#list">List</a></h4>
+<p><code>cargo msrv list</code> lists the dependencies of each selected package.</p>
+<pre><code class="language-shell"># List the dependencies of every workspace member
+cargo msrv list --workspace
+
+# List the dependencies of a specific workspace member, ordered by their MSRV
+cargo msrv list --package $crate_name --variant ordered-by-msrv
+</code></pre>
 <h4 id="custom-check-commands"><a class="header" href="#custom-check-commands">Custom check commands</a></h4>
 <p><code>cargo-msrv</code> isn't workspace aware when custom check commands are used. Custom check command can be anything (that can
 be run with <code>rustup run &lt;target&gt; &lt;cmd&gt;</code>, and this includes non-cargo commands. <code>cargo-msrv</code> currently doesn't try to
@@ -292,6 +300,7 @@ forum, and describe your use case.</p>
 <li>Run <code>cargo msrv verify</code> on a workspace, and verify the MSRV of the default workspace members</li>
 <li>Run <code>cargo msrv set --package &lt;x&gt;</code> to set the MSRV of a specific package in the workspace</li>
 <li>Run <code>cargo msrv show</code> on a workspace, and present the MSRV of all, or the selected workspace packages, to the user</li>
+<li>Run <code>cargo msrv list</code> on a workspace, and list the dependencies of each selected workspace package</li>
 <li>Run with <code>cargo msrv --workspace</code>, <code>cargo msrv --package &lt;x&gt;</code>, <code>cargo msrv --exclude &lt;x&gt;</code> flags to select workspace packages
 <ul>
 <li>Follows <code>cargo</code> conventions</li>
@@ -308,8 +317,6 @@ forum, and describe your use case.</p>
 </ul>
 <p>Please open a <a href="https://github.com/foresterre/cargo-msrv/discussions/categories/feature-requests">topic</a> if your use
 case is not described in the above list.</p>
-<h5 id="not-supported-yet"><a class="header" href="#not-supported-yet">Not supported yet</a></h5>
-<p><code>cargo msrv list</code> doesn't operate on workspace packages yet. </p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="rust-releases-http-proxy"><a class="header" href="#rust-releases-http-proxy">Rust Releases: HTTP PROXY</a></h3>
 <p><code>cargo-msrv</code> depends on the <a href="https://github.com/foresterre/rust-releases/">rust-releases</a> crate to determine which Rust versions exist. This is a necessary evil for
 the <code>cargo msrv find</code> and <code>cargo msrv verify</code> subcommands.</p>
@@ -1352,7 +1359,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <p><strong>fields:</strong></p>
 <table><thead><tr><th>name</th><th>optional</th><th>condition</th><th>description</th></tr></thead><tbody>
 <tr><td>subcommand_id</td><td>no</td><td></td><td>A name identifying the subcommand</td></tr>
-<tr><td>package</td><td>yes</td><td>subcommand_id = <code>find</code>, <code>set</code>, <code>show</code> or <code>verify</code></td><td>The package this result is for, absent if there is no single package</td></tr>
+<tr><td>package</td><td>yes</td><td>subcommand_id = <code>find</code>, <code>list</code>, <code>set</code>, <code>show</code> or <code>verify</code></td><td>The package this result is for, absent if there is no single package</td></tr>
 <tr><td>package.name</td><td>no</td><td>package is present</td><td>The name of the package</td></tr>
 <tr><td>package.path</td><td>no</td><td>package is present</td><td>The path to the package's manifest</td></tr>
 <tr><td></td><td></td><td></td><td></td></tr>
@@ -1362,7 +1369,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <tr><td></td><td></td><td></td><td></td></tr>
 <tr><td>result</td><td>no</td><td>subcommand_id = <code>list</code></td><td>Result of list command</td></tr>
 <tr><td>result.variant</td><td>no</td><td>subcommand_id = <code>list</code></td><td>Type of list output. Either <code>direct-deps</code> or <code>ordered-by-msrv</code>.</td></tr>
-<tr><td>result.list</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>List of direct dependencies of the selected crate</td></tr>
+<tr><td>result.list</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>List of direct dependencies of the package</td></tr>
 <tr><td>result.list.name</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>Name of the crate</td></tr>
 <tr><td>result.list.version</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>Version of the crate</td></tr>
 <tr><td>result.list.msrv</td><td>no</td><td>subcommand_id = <code>list</code> and result.variant = <code>direct-deps</code></td><td>MSRV of the crate if any, <code>null</code> if the MSRV is not set</td></tr>
@@ -1400,6 +1407,10 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json lines">{
   &quot;type&quot;: &quot;subcommand_result&quot;,
   &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;air3&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
   &quot;result&quot;: {
     &quot;variant&quot;: &quot;direct-deps&quot;,
     &quot;list&quot;: [
@@ -1423,6 +1434,10 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json">{
   &quot;type&quot;: &quot;subcommand_result&quot;,
   &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;air3&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
   &quot;result&quot;: {
     &quot;variant&quot;: &quot;direct-deps&quot;,
     &quot;list&quot;: [
@@ -1446,6 +1461,10 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json lines">{
   &quot;type&quot;: &quot;subcommand_result&quot;,
   &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;air3&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
   &quot;result&quot;: {
     &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
     &quot;list&quot;: [
@@ -1477,6 +1496,10 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 <pre><code class="language-json">{
   &quot;type&quot;: &quot;subcommand_result&quot;,
   &quot;subcommand_id&quot;: &quot;list&quot;,
+  &quot;package&quot;: {
+    &quot;name&quot;: &quot;air3&quot;,
+    &quot;path&quot;: &quot;..\\air3\\Cargo.toml&quot;
+  },
   &quot;result&quot;: {
     &quot;variant&quot;: &quot;ordered-by-msrv&quot;,
     &quot;list&quot;: [
