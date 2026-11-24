@@ -19,7 +19,7 @@ impl TryFrom<CargoMsrvOpts> for ListContext {
             _ => unreachable!("This should never happen. The subcommand is not `list`!"),
         };
 
-        let environment = make_environment_ctx(&shared_opts, &clap_cargo::Workspace::default())?;
+        let environment = make_environment_ctx(&shared_opts, &list_opts.workspace)?;
 
         Ok(Self {
             variant: list_opts.variant,

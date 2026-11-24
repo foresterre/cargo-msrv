@@ -16,7 +16,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 * Added `bundled unless outdated` release source which also uses the release index bundled with `cargo-msrv`, but falls back to fetching from a newer release source if the age of the bundled index is too old (defaults to 42 days)
 * Added `github` release source, which fetches the known set of Rust versions from Rust's GitHub releases page
 * Include the bundled release index by default (so there is a source to fall back to if no other release source cargo feature is enabled)
-* Properly support Cargo workspaces for `cargo msrv find`, `verify`, `show` and `set` (excluding custom check command)
+* Properly support Cargo workspaces for `cargo msrv find`, `verify`, `show`, `set` and `list` (excluding custom check command)
 * Added `cargo msrv set --workspace-msrv`, which sets the MSRV in the `workspace.package` table of the workspace root of the Cargo manifest
 * Subcommand results now report the package they belong to
 * Added a hidden `cargo-msrv completions <SHELL>` subcommand which prints shell completions for `cargo-msrv` to stdout
@@ -27,7 +27,7 @@ the [discussions section](https://github.com/foresterre/cargo-msrv/discussions).
 
 * Updated `rust-releases` to `0.34.0`
 * If toolchain target information is available from the selected rust-releases index, `cargo-msrv` will now only include toolchains which have the provided target (defaults to the host) and components
-* The `--workspace`, `--package` and `--exclude` flags are now given after the subcommand, like cargo does (`cargo msrv find --package a`), and are accepted by `find`, `verify`, `show` and `set`
+* The `--workspace`, `--package` and `--exclude` flags are now given after the subcommand, like cargo does (`cargo msrv find --package a`), and are accepted by `find`, `verify`, `show`, `set` and `list`
 * `cargo msrv find --write-toolchain-file` now writes the toolchain file to the workspace root
 * `cargo msrv find --ignore-lockfile` and `cargo msrv verify --ignore-lockfile` now move the workspace's lockfile
 * `cargo msrv set` and `cargo msrv find --write-msrv` no longer overwrite a `rust-version` which is inherited from the workspace

@@ -659,6 +659,7 @@ dependencies = [
  "parameterized",
  "phenomenon",
  "semver",
+ "serde_json",
  "storyteller",
  "thiserror 2.0.21",
  "toml_edit",

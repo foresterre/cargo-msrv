@@ -15,7 +15,7 @@ mod writer;
 pub use cargo_command::CargoCommand;
 pub use cargo_manifest::{CargoManifest, CargoManifestParser, ManifestParseError, TomlParser};
 pub use dependency_graph::{
-    DependencyGraph,
+    DependencyGraph, PackageGraphIndex,
     resolver::{CargoMetadataResolveError, CargoMetadataResolver, DependencyResolver},
 };
 pub use rustup_command::{RustupCommand, RustupOutput};

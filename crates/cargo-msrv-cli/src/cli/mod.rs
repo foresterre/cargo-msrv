@@ -224,6 +224,9 @@ pub struct ListOpts {
     /// or `registry+https://github.com/rust-lang/crates.io-index#serde@1.0.228`.
     #[arg(long, value_name = "SPEC", value_parser = PackageIdSpec::parse)]
     pub highlight: Vec<PackageIdSpec>,
+
+    #[command(flatten, next_help_heading = "Package selection")]
+    pub workspace: clap_cargo::Workspace,
 }
 
 #[derive(Debug, Args)]
@@ -515,6 +518,17 @@ mod tests {
 
                 assert_list_opts(opts, |list_opts| {
                     assert!(list_opts.highlight.is_empty());
+                });
+            }
+
+            #[test]
+            fn has_package() {
+                let cargo = CargoCli::parse_args(["cargo", "msrv", "list", "--package", "a"]);
+                let cargo_msrv = cargo.to_cargo_msrv_cli();
+                let opts = cargo_msrv.to_opts();
+
+                assert_list_opts(opts, |list_opts| {
+                    assert_eq!(list_opts.workspace.package, ["a"]);
                 });
             }
         }

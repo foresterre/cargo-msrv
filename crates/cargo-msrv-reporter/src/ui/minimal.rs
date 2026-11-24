@@ -126,12 +126,12 @@ mod tests {
     };
     use crate::ui::minimal::MinimalOutputHandler;
     use camino::Utf8Path;
-    use cargo_metadata::PackageId;
     use cargo_msrv_context::context::SearchMethod;
     use cargo_msrv_context::types::ListMsrvVariant;
     use cargo_msrv_rust_tools::DependencyGraph;
     use cargo_msrv_types::Toolchain;
     use msrv::MSRV;
+    use std::sync::Arc;
     use storyteller::EventHandler;
     use version_number::Version;
 
@@ -186,11 +186,8 @@ mod tests {
 
     #[test]
     fn list_direct_deps() {
-        let package_id = PackageId {
-            repr: "hello_world".to_string(),
-        };
-        let dep_graph = DependencyGraph::empty(package_id);
-        let event = ListResult::new(ListMsrvVariant::DirectDeps, dep_graph, Vec::new());
+        let dep_graph = Arc::new(DependencyGraph::empty());
+        let event = ListResult::new(ListMsrvVariant::DirectDeps, dep_graph, 0, Vec::new());
 
         let s = Vec::new();
         let f = Vec::new();

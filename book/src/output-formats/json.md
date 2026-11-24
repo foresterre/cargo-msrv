@@ -416,7 +416,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 | name                     | optional | condition                                                     | description                                                               |
 |--------------------------|----------|---------------------------------------------------------------|---------------------------------------------------------------------------|
 | subcommand_id            | no       |                                                               | A name identifying the subcommand                                         |
-| package                  | yes      | subcommand_id = `find`, `set`, `show` or `verify`             | The package this result is for, absent if there is no single package     |
+| package                  | yes      | subcommand_id = `find`, `list`, `set`, `show` or `verify`     | The package this result is for, absent if there is no single package     |
 | package.name             | no       | package is present                                            | The name of the package                                                   |
 | package.path             | no       | package is present                                            | The path to the package's manifest                                        |
 |                          |          |                                                               |                                                                           |
@@ -426,7 +426,7 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 |                          |          |                                                               |                                                                           |
 | result                   | no       | subcommand_id = `list`                                        | Result of list command                                                    |
 | result.variant           | no       | subcommand_id = `list`                                        | Type of list output. Either `direct-deps` or `ordered-by-msrv`.           |
-| result.list              | no       | subcommand_id = `list` and result.variant = `direct-deps`     | List of direct dependencies of the selected crate                         |
+| result.list              | no       | subcommand_id = `list` and result.variant = `direct-deps`     | List of direct dependencies of the package                                |
 | result.list.name         | no       | subcommand_id = `list` and result.variant = `direct-deps`     | Name of the crate                                                         |
 | result.list.version      | no       | subcommand_id = `list` and result.variant = `direct-deps`     | Version of the crate                                                      |
 | result.list.msrv         | no       | subcommand_id = `list` and result.variant = `direct-deps`     | MSRV of the crate if any, `null` if the MSRV is not set                   |
@@ -469,6 +469,10 @@ Rust toolchain file respectively. The act of writing this (additional) output is
 {
   "type": "subcommand_result",
   "subcommand_id": "list",
+  "package": {
+    "name": "air3",
+    "path": "..\\air3\\Cargo.toml"
+  },
   "result": {
     "variant": "direct-deps",
     "list": [
@@ -495,6 +499,10 @@ Formatted:
 {
   "type": "subcommand_result",
   "subcommand_id": "list",
+  "package": {
+    "name": "air3",
+    "path": "..\\air3\\Cargo.toml"
+  },
   "result": {
     "variant": "direct-deps",
     "list": [
@@ -521,6 +529,10 @@ Formatted:
 {
   "type": "subcommand_result",
   "subcommand_id": "list",
+  "package": {
+    "name": "air3",
+    "path": "..\\air3\\Cargo.toml"
+  },
   "result": {
     "variant": "ordered-by-msrv",
     "list": [
@@ -555,6 +567,10 @@ Formatted:
 {
   "type": "subcommand_result",
   "subcommand_id": "list",
+  "package": {
+    "name": "air3",
+    "path": "..\\air3\\Cargo.toml"
+  },
   "result": {
     "variant": "ordered-by-msrv",
     "list": [

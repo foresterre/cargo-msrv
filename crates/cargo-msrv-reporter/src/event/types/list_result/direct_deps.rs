@@ -3,25 +3,34 @@ use super::metadata::*;
 use super::render_package_name;
 use crate::formatting::table;
 use cargo_msrv_context::types::DIRECT_DEPS;
-use cargo_msrv_rust_tools::DependencyGraph;
+use cargo_msrv_rust_tools::{DependencyGraph, PackageGraphIndex};
 use cargo_util_schemas::core::PackageIdSpec;
 use std::fmt;
 use std::fmt::Formatter;
 
 pub struct DirectDepsFormatter<'g> {
     graph: &'g DependencyGraph,
+    root: PackageGraphIndex,
     highlight: &'g [PackageIdSpec],
 }
 
 impl<'g> DirectDepsFormatter<'g> {
-    pub fn new(graph: &'g DependencyGraph, highlight: &'g [PackageIdSpec]) -> Self {
-        Self { graph, highlight }
+    pub fn new(
+        graph: &'g DependencyGraph,
+        root: PackageGraphIndex,
+        highlight: &'g [PackageIdSpec],
+    ) -> Self {
+        Self {
+            graph,
+            root,
+            highlight,
+        }
     }
 }
 
 impl fmt::Display for DirectDepsFormatter<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let rows = dependencies(self.graph, self.highlight).map(Values::into_row);
+        let rows = dependencies(self.graph, self.root, self.highlight).map(Values::into_row);
         f.write_fmt(format_args!("{}", table(Values::HEADER, rows)))
     }
 }
@@ -33,7 +42,7 @@ impl serde::Serialize for DirectDepsFormatter<'_> {
     {
         let serializable = SerializableValues {
             variant: DIRECT_DEPS,
-            list: dependencies(self.graph, self.highlight).collect(),
+            list: dependencies(self.graph, self.root, self.highlight).collect(),
         };
 
         serializable.serialize(serializer)
@@ -42,13 +51,12 @@ impl serde::Serialize for DirectDepsFormatter<'_> {
 
 fn dependencies<'g>(
     graph: &'g DependencyGraph,
+    root: PackageGraphIndex,
     highlight: &'g [PackageIdSpec],
 ) -> impl Iterator<Item = Values<'g>> {
-    let package_id = graph.root_crate();
-    let root_index = graph.index()[package_id].into();
     let neighbors = graph
         .packages()
-        .neighbors_directed(root_index, petgraph::Direction::Outgoing);
+        .neighbors_directed(root.into(), petgraph::Direction::Outgoing);
 
     neighbors.map(move |dependency| {
         let package = &graph.packages()[dependency];

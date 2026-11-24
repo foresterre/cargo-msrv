@@ -43,6 +43,18 @@ root manifest) with:
 cargo msrv set --workspace-msrv $version
 ```
 
+#### List
+
+`cargo msrv list` lists the dependencies of each selected package.
+
+```shell
+# List the dependencies of every workspace member
+cargo msrv list --workspace
+
+# List the dependencies of a specific workspace member, ordered by their MSRV
+cargo msrv list --package $crate_name --variant ordered-by-msrv
+```
+
 #### Custom check commands
 
 `cargo-msrv` isn't workspace aware when custom check commands are used. Custom check command can be anything (that can
@@ -62,6 +74,7 @@ forum, and describe your use case.
 - Run `cargo msrv verify` on a workspace, and verify the MSRV of the default workspace members
 - Run `cargo msrv set --package <x>` to set the MSRV of a specific package in the workspace
 - Run `cargo msrv show` on a workspace, and present the MSRV of all, or the selected workspace packages, to the user
+- Run `cargo msrv list` on a workspace, and list the dependencies of each selected workspace package
 - Run with `cargo msrv --workspace`, `cargo msrv --package <x>`, `cargo msrv --exclude <x>` flags to select workspace packages
   - Follows `cargo` conventions
 - `cargo msrv find`, `cargo msrv verify` read from `workspace.package` [inheritance](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table), for example:
@@ -73,6 +86,3 @@ forum, and describe your use case.
 Please open a [topic](https://github.com/foresterre/cargo-msrv/discussions/categories/feature-requests) if your use
 case is not described in the above list.
 
-##### Not supported yet
-
-`cargo msrv list` doesn't operate on workspace packages yet. 
