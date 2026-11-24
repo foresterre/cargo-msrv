@@ -25,7 +25,7 @@ pub use cargo_msrv_search::error::{
 
 use cargo_msrv_search::error::Error as SearchError;
 
-use crate::sub_command::{show, verify};
+use crate::sub_command::{list, show, verify};
 
 pub(crate) type TResult<T> = Result<T, CargoMSRVError>;
 
@@ -75,9 +75,6 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     ManifestParseError(#[from] ManifestParseError),
-
-    #[error("No crate root found for given crate")]
-    NoCrateRootFound,
 
     #[error(transparent)]
     NoToolchainsToTry(#[from] NoToolchainsToTryError),
@@ -130,6 +127,9 @@ pub enum CargoMSRVError {
 
     #[error(transparent)]
     SubCommandVerify(#[from] verify::Error),
+
+    #[error(transparent)]
+    SubCommandList(#[from] list::Error),
 
     #[error(transparent)]
     SubCommandShow(#[from] show::Error),
@@ -266,7 +266,6 @@ impl From<CargoMetadataResolveError> for CargoMSRVError {
     fn from(error: CargoMetadataResolveError) -> Self {
         match error {
             CargoMetadataResolveError::CargoMetadata(error) => Self::CargoMetadata(error),
-            CargoMetadataResolveError::NoCrateRootFound => Self::NoCrateRootFound,
         }
     }
 }

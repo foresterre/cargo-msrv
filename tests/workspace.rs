@@ -6,7 +6,7 @@ use cargo_msrv::cli::CargoCli;
 use cargo_msrv::context::error::Error as ContextError;
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::reporter::{Message, SubcommandResult};
-use cargo_msrv::{Context, Set, Show, SubCommand};
+use cargo_msrv::{Context, List, Set, Show, SubCommand};
 use cargo_msrv_context::types::Edition;
 use cargo_msrv_context::{Package, Project};
 use cargo_msrv_rust_releases::{RustRelease, Stable};
@@ -56,6 +56,51 @@ fn show(args: &[&str]) -> (Vec<(String, String)>, Result<(), CargoMSRVError>) {
         .collect();
 
     (shown, result)
+}
+
+type Listed = Vec<(String, Vec<String>)>;
+
+fn list(args: &[&str]) -> (Listed, Result<(), CargoMSRVError>) {
+    let ctx = context(args).unwrap();
+    let Context::List(list_ctx) = ctx else {
+        panic!("expected list")
+    };
+
+    let device = EventTestDevice::default();
+    let result = List.run(&list_ctx, device.reporter());
+
+    let listed = device
+        .wait_for_events()
+        .into_iter()
+        .filter_map(|event| match event.message() {
+            Message::SubcommandResult(SubcommandResult::List(result)) => {
+                let json = serde_json::to_value(result).unwrap();
+                let dependencies = json["result"]["list"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|dependency| dependency["name"].as_str().unwrap().to_string())
+                    .collect();
+
+                Some((result.package().unwrap().name.clone(), dependencies))
+            }
+            _ => None,
+        })
+        .collect();
+
+    (listed, result)
+}
+
+fn listed(expected: &[(&str, &[&str])]) -> Listed {
+    expected
+        .iter()
+        .map(|(name, dependencies)| {
+            (
+                name.to_string(),
+                dependencies.iter().map(ToString::to_string).collect(),
+            )
+        })
+        .collect()
 }
 
 fn set(args: &[&str]) -> Result<(), CargoMSRVError> {
@@ -446,4 +491,98 @@ fn bare_project_find_with_custom_command() {
         test_result.package_msrvs(),
         [(None, Some(MSRV::from(FullVersion::new(1, 56, 1))))]
     );
+}
+
+#[test]
+fn list_every_member_of_a_virtual_workspace() {
+    let fixture = Fixture::new("workspace-path-deps");
+
+    let (listed_packages, result) = list(&[
+        "--path",
+        fixture.to_str(),
+        "list",
+        "--variant",
+        "direct-deps",
+    ]);
+
+    result.unwrap();
+    assert_eq!(
+        listed_packages,
+        listed(&[("a", &["shared"]), ("b", &[]), ("shared", &[])])
+    );
+}
+
+#[test]
+fn list_selected_package() {
+    let fixture = Fixture::new("workspace-path-deps");
+
+    let (listed_packages, result) = list(&[
+        "--path",
+        fixture.to_str(),
+        "list",
+        "--variant",
+        "direct-deps",
+        "-p",
+        "a",
+    ]);
+
+    result.unwrap();
+    assert_eq!(listed_packages, listed(&[("a", &["shared"])]));
+}
+
+#[test]
+fn list_workspace_with_excluded_package() {
+    let fixture = Fixture::new("workspace-path-deps");
+
+    let (listed_packages, result) = list(&[
+        "--path",
+        fixture.to_str(),
+        "list",
+        "--variant",
+        "direct-deps",
+        "--workspace",
+        "--exclude",
+        "shared",
+    ]);
+
+    result.unwrap();
+    assert_eq!(listed_packages, listed(&[("a", &["shared"]), ("b", &[])]));
+}
+
+#[test]
+fn list_root_package_by_default() {
+    let fixture = Fixture::new("workspace-root-package");
+
+    let (listed_packages, result) = list(&[
+        "--path",
+        fixture.to_str(),
+        "list",
+        "--variant",
+        "direct-deps",
+    ]);
+
+    result.unwrap();
+    assert_eq!(listed_packages, listed(&[("root", &[])]));
+}
+
+#[test]
+fn list_unknown_package() {
+    let fixture = Fixture::new("workspace-path-deps");
+
+    let result = context(&["--path", fixture.to_str(), "list", "-p", "does-not-exist"]);
+
+    assert!(matches!(result, Err(ContextError::UnknownPackage(name)) if name == "does-not-exist"));
+}
+
+#[test]
+fn list_without_cargo_project() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    let (listed_packages, result) = list(&["--path", dir.to_str().unwrap(), "list"]);
+
+    assert!(listed_packages.is_empty());
+    assert!(matches!(
+        result,
+        Err(CargoMSRVError::Context(ContextError::NoCargoManifest(_)))
+    ));
 }

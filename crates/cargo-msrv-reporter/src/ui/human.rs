@@ -168,6 +168,12 @@ impl HumanProgressHandler {
                 self.add_to_summary(inner.package(), msrv);
             }
             SubcommandResult::List(inner) => {
+                if let Some(package) = inner.package() {
+                    self.println(Status::with_lead(
+                        "List".bright_green(),
+                        format_args!("MSRV's of dependencies of '{}'", package.name),
+                    ));
+                }
                 self.println(inner);
             }
             SubcommandResult::Set(inner) => {

@@ -10,9 +10,6 @@ pub trait DependencyResolver {
 pub enum CargoMetadataResolveError {
     #[error(transparent)]
     CargoMetadata(#[from] cargo_metadata::Error),
-
-    #[error("No crate root found for given crate")]
-    NoCrateRootFound,
 }
 
 pub struct CargoMetadataResolver {
@@ -32,20 +29,15 @@ impl DependencyResolver for CargoMetadataResolver {
     fn resolve(&self) -> Result<DependencyGraph, CargoMetadataResolveError> {
         let result = self.metadata_command.exec()?;
 
-        let our_crate = result
-            .root_package()
-            .ok_or(CargoMetadataResolveError::NoCrateRootFound)
-            .map(|pkg| pkg.id.clone())?;
-
         if let Some(dependencies) = result.resolve {
             let node_alloc = dependencies.nodes.len();
-            let mut graph = DependencyGraph::with_capacity(our_crate, node_alloc);
+            let mut graph = DependencyGraph::with_capacity(node_alloc);
 
             build_package_graph(&mut graph, result.packages, dependencies.nodes);
 
             Ok(graph)
         } else {
-            Ok(DependencyGraph::empty(our_crate))
+            Ok(DependencyGraph::empty())
         }
     }
 }
@@ -78,5 +70,113 @@ where
                 graph.add_dependency(ancestor, child);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::TempDir;
+    use assert_fs::prelude::*;
+
+    fn package(dir: &TempDir, name: &str, dependencies: &str) {
+        dir.child(name)
+            .child("Cargo.toml")
+            .write_str(&format!(
+                "[package]\nname = \"{name}\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\n{dependencies}"
+            ))
+            .unwrap();
+        dir.child(name).child("src/lib.rs").touch().unwrap();
+    }
+
+    fn virtual_workspace() -> TempDir {
+        let dir = TempDir::new().unwrap();
+        dir.child("Cargo.toml")
+            .write_str("[workspace]\nmembers = [\"a\", \"b\"]\nresolver = \"2\"\n")
+            .unwrap();
+        package(&dir, "a", "b = { path = \"../b\" }\n");
+        package(&dir, "b", "");
+        dir
+    }
+
+    fn root(dir: &TempDir) -> camino::Utf8PathBuf {
+        let path = dunce::canonicalize(dir.path()).unwrap();
+        camino::Utf8PathBuf::from_path_buf(path).unwrap()
+    }
+
+    fn resolve(dir: &TempDir) -> DependencyGraph {
+        CargoMetadataResolver::from_manifest_path(&root(dir).join("Cargo.toml"))
+            .resolve()
+            .unwrap()
+    }
+
+    fn manifest_of(dir: &TempDir, name: &str) -> camino::Utf8PathBuf {
+        root(dir).join(name).join("Cargo.toml")
+    }
+
+    #[test]
+    fn virtual_workspace_has_every_member() {
+        let dir = virtual_workspace();
+        let graph = resolve(&dir);
+
+        assert!(
+            graph
+                .find_by_manifest_path(&manifest_of(&dir, "a"))
+                .is_some()
+        );
+        assert!(
+            graph
+                .find_by_manifest_path(&manifest_of(&dir, "b"))
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn path_dependency_is_an_edge() {
+        let dir = virtual_workspace();
+        let graph = resolve(&dir);
+
+        let a = graph
+            .find_by_manifest_path(&manifest_of(&dir, "a"))
+            .unwrap();
+        let dependencies = graph
+            .packages()
+            .neighbors_directed(a.into(), petgraph::Direction::Outgoing)
+            .map(|index| graph.packages()[index].name.to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(dependencies, ["b"]);
+    }
+
+    #[test]
+    fn unknown_manifest_path() {
+        let dir = virtual_workspace();
+        let graph = resolve(&dir);
+
+        assert!(
+            graph
+                .find_by_manifest_path(Utf8Path::new("/does/not/exist/Cargo.toml"))
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn graphs_of_the_same_workspace_are_equal() {
+        let dir = virtual_workspace();
+
+        assert_eq!(resolve(&dir), resolve(&dir));
+    }
+
+    #[test]
+    fn graphs_of_different_workspaces_are_not_equal() {
+        let dir = virtual_workspace();
+        let other = TempDir::new().unwrap();
+        other
+            .child("Cargo.toml")
+            .write_str("[workspace]\nmembers = [\"b\"]\nresolver = \"2\"\n")
+            .unwrap();
+        package(&other, "b", "");
+
+        assert_ne!(resolve(&dir), resolve(&other));
     }
 }
