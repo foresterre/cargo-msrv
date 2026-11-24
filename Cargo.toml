@@ -98,7 +98,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 authors = ["Martijn Gribnau <garm@ilumeo.com>"]
 license = "Apache-2.0 OR MIT"
 edition = "2024"

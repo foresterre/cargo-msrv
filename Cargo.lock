@@ -625,7 +625,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-ctx"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "assert_fs",
  "camino",
@@ -637,7 +637,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "assert_fs",
  "camino",
@@ -669,7 +669,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-cli"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "camino",
  "cargo-ctx",
@@ -689,7 +689,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-context"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "camino",
  "cargo-ctx",
@@ -707,7 +707,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-reporter"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "camino",
  "cargo-msrv-context",
@@ -731,7 +731,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-rust-releases"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "cargo-msrv-context",
  "cargo-msrv-reporter",
@@ -749,7 +749,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-rust-tools"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "assert_fs",
  "camino",
@@ -769,7 +769,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-search"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "bisector",
  "camino",
@@ -790,14 +790,14 @@ dependencies = [
 
 [[package]]
 name = "cargo-msrv-table"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "console",
 ]
 
 [[package]]
 name = "cargo-msrv-types"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "camino",
  "semver",
@@ -1923,7 +1923,7 @@ dependencies = [
 
 [[package]]
 name = "msrv"
-version = "0.20.0-beta.6"
+version = "0.20.0-beta.7"
 dependencies = [
  "serde",
  "version-number 1.0.0",
@@ -3608,9 +3608,9 @@ dependencies = [
 
 [[package]]
 name = "zlib-rs"
-version = "0.6.8"
+version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112"
+checksum = "aa76918995d776d9dd34d371030be228d021137449771493d56e29f77e4148ac"
 
 [[package]]
 name = "zmij"
