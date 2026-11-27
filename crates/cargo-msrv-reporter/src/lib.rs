@@ -12,7 +12,6 @@ use storyteller::{ChannelEventListener, ChannelReporter, DisconnectToken, event_
 use crate::event::ScopeCounter;
 
 pub use ui::DiscardOutputHandler;
-pub use ui::HumanProgressHandler;
 pub use ui::JsonHandler;
 pub use ui::MinimalOutputHandler;
 
@@ -139,8 +138,8 @@ mod tests {
     use super::*;
     use crate::Reporter;
     use crate::TestReporterWrapper;
-    use crate::event::SubcommandInit;
     use crate::event::{Marker, Message, Meta, Scope};
+    use crate::event::{SubcommandId, SubcommandInit};
     use std::collections::BTreeSet;
     use storyteller::EventReporter;
 
@@ -156,7 +155,7 @@ mod tests {
     #[test]
     fn report_successful_scoped_event() {
         let reporter = TestReporterWrapper::default();
-        let content = SubcommandInit::new("find");
+        let content = SubcommandInit::new(SubcommandId::Find);
 
         let out = reporter
             .get()
@@ -179,7 +178,7 @@ mod tests {
     #[test]
     fn report_failed_scoped_event() {
         let reporter = TestReporterWrapper::default();
-        let content = SubcommandInit::new("find");
+        let content = SubcommandInit::new(SubcommandId::Find);
 
         let out = reporter
             .get()

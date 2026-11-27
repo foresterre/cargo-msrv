@@ -644,6 +644,7 @@ dependencies = [
  "cargo-msrv-cli",
  "cargo-msrv-context",
  "cargo-msrv-reporter",
+ "cargo-msrv-reporter-human",
  "cargo-msrv-rust-releases",
  "cargo-msrv-rust-tools",
  "cargo-msrv-search",
@@ -716,7 +717,6 @@ dependencies = [
  "cargo-msrv-types",
  "cargo-util-schemas",
  "cargo_metadata",
- "indicatif",
  "msrv",
  "owo-colors",
  "petgraph",
@@ -727,6 +727,22 @@ dependencies = [
  "terminal_size",
  "version-number 1.0.0",
  "yare",
+]
+
+[[package]]
+name = "cargo-msrv-reporter-human"
+version = "0.20.0-beta.6"
+dependencies = [
+ "cargo-msrv-context",
+ "cargo-msrv-reporter",
+ "cargo-msrv-table",
+ "indicatif",
+ "msrv",
+ "owo-colors",
+ "semver",
+ "storyteller",
+ "terminal_size",
+ "tracing",
 ]
 
 [[package]]

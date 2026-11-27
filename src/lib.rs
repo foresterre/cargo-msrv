@@ -57,7 +57,7 @@ fn meta() -> Meta {
 pub fn run_app(ctx: &Context, reporter: &impl Reporter) -> TResult<()> {
     reporter.report_event(meta())?;
     reporter.report_event(ContextFinalized::new(ctx.environment_context()))?;
-    reporter.report_event(SubcommandInit::new(ctx.reporting_name()))?;
+    reporter.report_event(SubcommandInit::new(ctx.into()))?;
 
     match ctx {
         Context::Find(ctx) => {

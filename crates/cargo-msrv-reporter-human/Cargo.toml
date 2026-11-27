@@ -1,0 +1,25 @@
+[package]
+name = "cargo-msrv-reporter-human"
+description = "Human user output of cargo-msrv"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+keywords = ["msrv", "rust-version", "cargo-msrv", "reporter", "minimum"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+rust-version = "1.97"
+
+[dependencies]
+cargo-msrv-context = { workspace = true }
+cargo-msrv-reporter = { workspace = true }
+cargo-msrv-table = { workspace = true }
+msrv = { workspace = true }
+
+indicatif = "0.18.4"
+owo-colors = { workspace = true }
+semver = { workspace = true }
+storyteller = { workspace = true }
+terminal_size = "0.4.3"
+tracing = { workspace = true }
