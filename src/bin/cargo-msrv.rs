@@ -11,10 +11,11 @@ use cargo_msrv::cli::{CargoCli, CargoMsrvOpts, SubCommand, print_completions};
 use cargo_msrv::error::CargoMSRVError;
 use cargo_msrv::exit_code::ExitCode;
 use cargo_msrv::reporter::{
-    DiscardOutputHandler, HumanProgressHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
+    DiscardOutputHandler, JsonHandler, MinimalOutputHandler, ReporterSetup,
 };
 use cargo_msrv::reporter::{Event, Reporter, TerminateWithFailure};
 use cargo_msrv::{Context, OutputFormat, TracingOptions, TracingTargetOption, run_app};
+use cargo_msrv_reporter_human::HumanProgressHandler;
 
 fn main() {
     std::process::exit(

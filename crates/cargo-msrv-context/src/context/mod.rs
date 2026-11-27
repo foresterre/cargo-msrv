@@ -60,16 +60,6 @@ pub enum Context {
 }
 
 impl Context {
-    pub fn reporting_name(&self) -> &'static str {
-        match self {
-            Context::Find(_) => "find",
-            Context::List(_) => "list",
-            Context::Set(_) => "set",
-            Context::Show(_) => "show",
-            Context::Verify(_) => "verify",
-        }
-    }
-
     pub fn environment_context(&self) -> &EnvironmentContext {
         match self {
             Context::Find(ctx) => &ctx.environment,

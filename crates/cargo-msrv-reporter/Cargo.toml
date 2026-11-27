@@ -21,7 +21,6 @@ msrv = { workspace = true, features = ["serde"] }
 camino = { workspace = true }
 cargo_metadata = { workspace = true }
 cargo-util-schemas = { workspace = true }
-indicatif = "0.18.4"
 owo-colors = { workspace = true }
 petgraph = { workspace = true }
 semver = { workspace = true }

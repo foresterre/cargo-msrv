@@ -1,5 +1,4 @@
 mod discard_output;
-mod human;
 mod json;
 mod minimal;
 
@@ -7,7 +6,6 @@ mod minimal;
 mod testing;
 
 pub use discard_output::DiscardOutputHandler;
-pub use human::HumanProgressHandler;
 pub use json::JsonHandler;
 pub use minimal::MinimalOutputHandler;
 

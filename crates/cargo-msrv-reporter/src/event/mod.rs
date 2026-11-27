@@ -21,7 +21,7 @@ pub use meta::Meta;
 pub use progress::Progress;
 pub use search_method::FindMsrv;
 pub use setup_toolchain::SetupToolchain;
-pub use subcommand_init::SubcommandInit;
+pub use subcommand_init::{SubcommandId, SubcommandInit};
 pub use subcommand_result::SubcommandResult;
 pub use termination::TerminateWithFailure;
 pub use unable_to_confirm_valid_release_version::UnableToConfirmValidReleaseVersion;
@@ -89,6 +89,11 @@ impl Event {
     /// Get the context of the event.
     pub fn message(&self) -> &Message {
         &self.message
+    }
+
+    /// Get the scope of the event, or `None` if the event is unscoped.
+    pub fn scope(&self) -> Option<Scope> {
+        self.scope
     }
 
     /// Return two copies of the event in its scoped form.
